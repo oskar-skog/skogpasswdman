@@ -215,7 +215,8 @@ def getint(a, b):
     return number + a
 
 def unquote(x):
-    """remove quotes from string, if any"""
+    """remove quotes from string, if any
+    BUGGY"""
     c, quote, output = "", "", ""
     for index in range(len(x)):
         c = x[index]

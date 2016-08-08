@@ -33,21 +33,18 @@ import time
 import os
 import os.path
 
-#NOTE every line of input ends with a newline, use '[:-1]' on every variable
-#       that contains the end of the line.
-#BUG Sometimes I forget about the smiley
-
 def se():       #syntax error
     ssw("!syntax error, type 'help'\n")
     ssw('!')
     ssw(theline)
+    ssw("\n")
 
 def ssw(x):
     sys.stdout.write(x)         #it is used a lot
 
 def v(x):       #verbose
     if verbose:
-        ssw(x)
+        ssw("#" + x + "\n")
 
 def show_help():
     """#HELP MESSAGE
@@ -67,8 +64,8 @@ def show_help():
 #honeypot:help          show help for honeypot:*
 #verbose:on            verbose output, the command 'hell' does the same thing
 #verbose:off            brief output
-#undo                   undo last change to passwd or honeypot
-#help                   obvious
+#undo                   undo last change to passwd or honeypot, there is also
+#help                   obvious                                 'redo'
 #exit                   obvious
 #bugs                   bugs
 #whistles               bells and whistles
@@ -155,8 +152,8 @@ def bells_and_whistles():
 def bugs():
     """#BUGS
 #If verbose mode is enabled, it will shout '#READY' to stdout way too much.
-#Lots of places where it will include the trailing newline in it's input.
-#[:-1]
+#
+#
 #Lots of places where things should be put inside a try block.
 #It is noisy and babbles to much.
 #It uses the following methods to parse it's input:
@@ -180,13 +177,13 @@ def bugs():
     
 def passwd_update(x):   #x ends with a newline
     try:                        #unquote gets rid of optional quotes
-        index = p.mkindex(api.unquote(x[:-1]))  #mkindex greps it's argument
+        index = p.mkindex(api.unquote(x))  #mkindex greps it's argument
     except:                             #in the list and returns an index
         ssw("!not found\n")
         return
     old = p[index]["value"]           #it must show the old password, because
                                   #it is probably required to change password
-    v("#this may take a while\n")       #verbose
+    v("this may take a while")       #verbose
     try:
         p.update(index)               #do lots of the work in the right place
     except api.err_nometa:
@@ -202,14 +199,14 @@ def passwd_update_meta(x):              #update with new meta-data
     if len(fields) < 4: #it takes 4 arguments
         se() #syntax error
         return
-    name = api.unquote(fields[3][:-1])
+    name = api.unquote(fields[3])
     try:
         index = p.mkindex(name)     #where is it
     except:
         ssw("!not found\n")
         return
     old = p[index]["value"]             #remember old
-    v("#this may take a while\n")
+    v("this may take a while")
     try:
         p.update_meta(index, fields[0], fields[1], fields[2]) #put the work
                                                     #at the right place
@@ -236,7 +233,7 @@ def passwd_add(x):
     except:     #it requires integers
         se()
         return
-    add_name = api.unquote(add_args[3][:-1])    #ignore newline
+    add_name = api.unquote(add_args[3])    #ignore newline
     #start testing add_type
     if "human" in add_type:
         se()
@@ -252,7 +249,7 @@ def passwd_add(x):
         except:
             ssw("!\n")     #it says what it knows
             return
-        v("#added base10 password\n")
+        v("added base10 password")
         return
     elif "64" in add_type:      #WARNING copy-pasted from 'elif "10"...'
         #                        and hand-hacked '10'->'64'
@@ -265,7 +262,7 @@ def passwd_add(x):
         except:
             ssw("!\n")     #it says what it knows
             return
-        v("#added base64 password\n")
+        v("added base64 password")
         return
     else:
         se()
@@ -296,21 +293,21 @@ def passwd_cmds(x):  #put all the passwd:* here
             s = sys.stdin.readline()            #it is easier and safer to
             try:                                #take the password on a new
                                                 #line
-                p.add_nometa(api.unquote(b[:-1]), s[:-1]) #do the work at the
+                p.add_nometa(api.unquote(b), s[:-1]) #do the work at the
             except api.err_duplicate:                           #right place
                 ssw("!duplicate\n")
                 return
             except:
                 ssw("!\n")
                 return
-            v("#added human generated password\n")
+            v("added human generated password")
             return
         elif "add" in a:                #WARNING must be after "add_human"
             passwd_add(b)       #go up
             return
         elif "get" in a:       #get the value of a password; get the password
             try:
-                ssw("passwd.get?'{}'\n".format(p[p.mkindex(b[:-1])]
+                ssw("passwd.get?'{}'\n".format(p[p.mkindex(b)]
                                                 ["value"]))
             except:
                 ssw("!not found \n")
@@ -324,7 +321,7 @@ def passwd_cmds(x):  #put all the passwd:* here
             return
         elif "meta" in a:               #WARNING must be after "update_meta"
             try:                #get meta-data for a password
-                metadata = p[p.mkindex(api.unquote(b[:-1]))]["meta"]
+                metadata = p[p.mkindex(api.unquote(b))]["meta"]
                 ssw("#\t\ttype:\tminlength:\tmaxlength\n")
                 ssw("passwd.meta?\t'{}':\t'{}':\t\t'{}'\n".format(
                                                         metadata["type"],
@@ -335,7 +332,7 @@ def passwd_cmds(x):  #put all the passwd:* here
             return
         elif "remove" in a:
             try:
-                p.remove(api.unquote(b[:-1]))
+                p.remove(api.unquote(b))
             except api.err_notfound:
                 ssw("!not found\n")
                 return
@@ -363,7 +360,7 @@ def honeypot_cmds(x):           #honeypot:*
             honeypot_help()
             return
         elif "pick" in a:       #pick a random honeypot
-            v("#this may take a while\n")
+            v("this may take a while")
             ssw("honeypot.pick?'{}'\n".format(h.pick()))
             return
         else:
@@ -373,7 +370,7 @@ def honeypot_cmds(x):           #honeypot:*
         b = twofields[1]
         if "add" in a:
             try:
-                h.add(api.unquote(b[:-1]))
+                h.add(api.unquote(b))
             except api.err_duplicate:
                 ssw("!duplicate\n")
                 return
@@ -388,7 +385,7 @@ def honeypot_cmds(x):           #honeypot:*
             except:
                 ssw("!n must be an integer\n")
                 return
-            sep = api.unquote(args[1][:-1])
+            sep = api.unquote(args[1])
             try:                       #3rd arg, make it raise instead of log
                 ssw("honeypot.pick?'{}'\n".format(h.pick(n, sep, False)))
             except api.err_idiot:
@@ -397,7 +394,7 @@ def honeypot_cmds(x):           #honeypot:*
             return
         elif "remove" in a:
             try:
-                h.remove(api.unquote(b[:-1]))
+                h.remove(api.unquote(b))
             except api.err_notfound:
                 ssw("!not found\n")
                 return
@@ -415,10 +412,9 @@ def main():             #finally
     global h
     global theline
     while True:
-        v("#READY\n")  #show this message after every command, if verbose
+        v("READY")  #show this message after every command, if verbose
                     #It should be moved to line 666
-        theline = sys.stdin.readline()          #TODO put the smiley here,
-                                                #instead of everywhere else.
+        theline = sys.stdin.readline()[:-1]
         if theline[0] == "#":           #comment
             continue
         if theline[0] == "|":           #pipe through
@@ -437,14 +433,14 @@ def main():             #finally
                 except:
                     ssw("!cannot undo\n")
                     continue
-                v("#undone something\n")
+                v("undone something")
             elif "redo" in a:
                 try:
                     api.redo(p, h)
                 except:
                     ssw("!cannot redo")
                     continue
-                v("#redone something\n")
+                v("redone something")
             elif "bells" in a or "whistles" in a:
                 bells_and_whistles()
                 continue
