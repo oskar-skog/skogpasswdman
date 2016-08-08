@@ -6,7 +6,12 @@
 *       More debugging
 *       Fix broken Docbook XML
 *       Finish passwdmangui documentation
+            *   Explain honey pots better
+            *   Explain Undo/Redo better
 *       gettext()
+            *   Svenska
+            *   Suomi
 *       fix unquote()
 *       README
 *       INSTALL
+*       in "configure.2": dirs() shoukd figure more directories.

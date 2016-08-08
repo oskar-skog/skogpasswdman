@@ -392,10 +392,11 @@ class passwd_tab_c(Gtk.Box):
         
         renderer = Gtk.CellRendererText()
         renderer.set_property("ellipsize", True)
-        column1 = Gtk.TreeViewColumn("Name", renderer, text=0)
+        column1 = Gtk.TreeViewColumn("What is the password for", renderer,
+                                                                text=0)
         column1.set_property("resizable", True)
         tree.append_column(column1)
-        column2 = Gtk.TreeViewColumn("Value", renderer, text=1)
+        column2 = Gtk.TreeViewColumn("The password", renderer, text=1)
         column2.set_property("resizable", True)
         column2.set_property("visible", self.parent.show_passwd)
         tree.append_column(column2)
@@ -614,15 +615,22 @@ class main_window(Gtk.Window):
         help_tab = Gtk.Box()
         help_tab.pack_start(Gtk.Label("""HELP
 The "change meta-data & update"-button in the "Passwords"-tab:
-    The 'meta-data' are the allowed characters, minimal required length and
-    maximal allowed length. They can be changed if you use that button. If
-    the password was added with 'add existing' then passwdmangui doesn't know
-    what the rules/'meta-data' were.
-    Use that button instead of "Update" if the password was added by
-    "Add existing".
+    1.  If the password was created with the "Add existing"-button: use the
+        "change meta-data & update"-button.
+    2.  If the password was created with the "Create new"-button: use the
+        "update"-button.
+    3.  If the minimal required length for the password or the maximal allowed
+        length or the allowable characters have changed: use the
+        "change meta-data & update"-button.
     
 Difference between "Add existing" and "Create new":
-    Click on the buttons and see what happens. It is not dangerous.
+    Click on those buttons and see what happens. They are not dangerous.
+
+The "Undo"- and "Redo"-buttons affect both the passwords and the
+fake-passwords/honey pots.
+
+The fake-passwords are intended to be used as traps to catch crackers. The are
+randomly picked by this program.
 
     """), False, False, 0)
         
