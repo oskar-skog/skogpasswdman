@@ -1,3 +1,9 @@
+2013-Nov-19     Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2.1   In 'configure.2': fixed getmoduledir():
+            -Will not loop through the entire filesystem, just to still not
+            find python.
+            -Picks the newest 2.*.
+
 2013-Nov-18     Oskar Skog      <oskar.skog.finland@gmail.com>
 0.2     Wrote NEWS.
 0.1.22  All __doc__-strings contain a synopsis for their function or are freed

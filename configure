@@ -602,41 +602,37 @@ printf '            dirs_final.append(x)\n' >> configure.2
 printf '    \n' >> configure.2
 printf '\n' >> configure.2
 printf 'def getmoduledir():\n' >> configure.2
-printf '    \042\042\042getmoduledir() - Figure out where to install python modules.\n' >> configure.2
-printf '    TODO: Make it find the newest 2.*.\042\042\042\n' >> configure.2
+printf '    \042\042\042getmoduledir() - Figure out where to install python modules.\042\042\042\n' >> configure.2
 printf '    global moduledir\n' >> configure.2
-printf '    #Look for python* in \044(libdir) first, but if not found: du /\n' >> configure.2
+printf '    list_of_2x = []\n' >> configure.2
 printf '    if moduledir is None:   #It can be set by the user.\n' >> configure.2
 printf '        v(\042Figuring out the \047moduledir\047 variable...\042)\n' >> configure.2
 printf '        path = unvar(\042libdir\042, dirs_final)\n' >> configure.2
 printf '        dirlist = os.listdir(path)\n' >> configure.2
 printf '        for x in dirlist:\n' >> configure.2
-printf '            if \042python\042 in x:       #Is it the python modules directory.\n' >> configure.2
+printf '            if \042python2\042 in x:       #Is it the python modules directory.\n' >> configure.2
 printf '                try:\n' >> configure.2
 printf '                    dirlist2 = os.listdir(os.path.join(path, x))\n' >> configure.2
 printf '                    for y in dirlist2:\n' >> configure.2
 printf '                        if y in (\042dist-packages\042, \042site-packages\042):\n' >> configure.2
 printf '                            #The right subdirectory.\n' >> configure.2
-printf '                            moduledir = os.path.join(path, x, y)\n' >> configure.2
+printf '                            list_of_2x.append(os.path.join(path, x, y))\n' >> configure.2
 printf '                            break\n' >> configure.2
-printf '                    if moduledir is not None:\n' >> configure.2
-printf '                        break\n' >> configure.2
 printf '                except:\n' >> configure.2
 printf '                    pass            #Names for some non-directories...\n' >> configure.2
-printf '                if moduledir is not None:         #...contains \042python\042.\n' >> configure.2
-printf '                    break\n' >> configure.2
-printf '        else: #du /\n' >> configure.2
-printf '            v(\042Damn. I need to look through \047/\047.\042)\n' >> configure.2
-printf '            for dirname, subdirs, files in os.walk(\042/\042):\n' >> configure.2
-printf '                v(dirname)\n' >> configure.2
-printf '                if \042python\042 in dirname and (\042dist-packages\042 in subdirs or\n' >> configure.2
-printf '                    \042site-packages\042 in subdirs):\n' >> configure.2
-printf '                    #Found.\n' >> configure.2
-printf '                    if \042dist-packages\042 in subdirs:\n' >> configure.2
-printf '                        moduledir = os.path.join(dirname, \042dist-packages\042)\n' >> configure.2
-printf '                    else:\n' >> configure.2
-printf '                        moduledir = os.path.join(dirname, \042site-packages\042)\n' >> configure.2
-printf '                    break\n' >> configure.2
+printf '                                    #...contains \042python\042.\n' >> configure.2
+printf '        else:\n' >> configure.2
+printf '            if len(list_of_2x) > 0:\n' >> configure.2
+printf '                ver = -1\n' >> configure.2
+printf '                for python2x in list_of_2x:\n' >> configure.2
+printf '                    try:\n' >> configure.2
+printf '                        tmp_name = python2x.split(\042/\042)[-2]\n' >> configure.2
+printf '                        tmp_ver = int(tmp_name.split(\042.\042)[-1])\n' >> configure.2
+printf '                        if tmp_ver > ver:\n' >> configure.2
+printf '                            ver = tmp_ver\n' >> configure.2
+printf '                            moduledir = python2x\n' >> configure.2
+printf '                    except:\n' >> configure.2
+printf '                        pass    #Garbage.\n' >> configure.2
 printf '            else:\n' >> configure.2
 printf '                sys.stderr.write(\042ERROR: set --moduledir manually.\\n\042)\n' >> configure.2
 printf '                sys.exit(1)\n' >> configure.2
@@ -933,7 +929,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.2\042\n' >> configure.2
+printf 'VERSION = \0420.2.1\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    dirs()              #Figure out some directories.\n' >> configure.2
