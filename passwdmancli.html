@@ -56,7 +56,12 @@ honeypots and separate them with
 <code class="varname">sep</code>.
 Returns a line of:
 "honeypot.pick?"
-followed by the separator-separated honeypots surrounded by single quotes.</p></dd><dt><span class="term">honeypot:remove:'value'</span></dt><dd><p>Remove the honeypot with the value
+followed by the separator-separated honeypots surrounded by single quotes.</p></dd><dt><span class="term">honeypot:pickl:n</span></dt><dd><p>Pick
+<code class="varname">n</code>
+honey-pots, escape and quote (single quotes).
+Returns a line of
+"honeypot.pickl?"
+followed by the quoted honey-pots separated with commas.</p></dd><dt><span class="term">honeypot:remove:'value'</span></dt><dd><p>Remove the honeypot with the value
 <code class="varname">value</code>.</p></dd><dt><span class="term">honeypot:remove:index</span></dt><dd><p>Remove the honeypot at
 <code class="varname">index</code>.
 WARNING: The indexes of the following honeypots will be decreased by one!</p></dd><dt><span class="term">passwd:add:type:minlength:maxlength:'name'</span></dt><dd><p>Add a new password for

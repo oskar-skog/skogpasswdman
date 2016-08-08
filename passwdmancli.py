@@ -132,12 +132,12 @@ def honeypot_help():
 #used as traps.
 #honeypot:add:"<value>"                 Add a new honey pot.
 #honeypot:pick                          Pick a random honeypot.
-#honeypot:pick:<n>:"<sep>"              Pick <n> random honeypots use <sep>.
-#                                       A separator between them.
+#honeypot:pick:<n>:"<sep>"              Pick <n> random honeypots use <sep>
+#                                       as a separator between them.
+#honeypot:pickl:<n>                     "honeypot.pickl?'one','two','three'"
+#                                       "\'" is an escape for "'".
 #honeypot:remove:"<value>"              Remove.
 #honeypot:list                          List.
-#
-#
 #
 #
 #
@@ -421,8 +421,30 @@ def honeypot_cmds(x):           #honeypot:*
                 err("duplicate")
                 return
             return
-        elif "pick" in a:       #pick takes either 0 or 2 arguments.
-            args = b.split(':', 1)
+        elif "pickl" in a:      #WARNING: Must be before "pick".
+            try:
+                n = int(b)
+            except:
+                err("Argument must be an integer.")
+            try:
+                the_list = h.pickl(n, False)
+            except api.err_idiot:
+                err("Argument is too big.")
+            sow("honeypot.pickl?")
+            tmp_str = ""
+            for x in the_list:
+                tmp_str += "'"  #Opening quote.
+                for y in x:
+                    if y == "'":
+                        tmp_str += "\\'"
+                    else:
+                        tmp_str += y
+                tmp_str += "'," #Closing quote and comma.
+            sow(tmp_str[:-1])   #No trailing comma.
+            sow("\n")
+            return
+        elif "pick" in a:       #WARNING: Must be after "pickl".
+            args = b.split(':', 1) #pick takes either 0 or 2 arguments.
             if len(args) < 2:   #It does allow 0, reread this function.
                 se()
                 return
@@ -433,12 +455,13 @@ def honeypot_cmds(x):           #honeypot:*
                 return
             sep = api.unquote(args[1])
             try:                       #3rd arg, make it raise instead of log.
-                sow("honeypot.pick?'")
-                sow(h.pick(n, sep, False))
-                sow("'\n")
+                tmp_str = h.pick(n, sep, False)
             except api.err_idiot:
                 err("n is too big")
                 return
+            sow("honeypot.pick?'")
+            sow(tmp_str)
+            sow("'\n")
             return
         elif "remove" in a:
             try:

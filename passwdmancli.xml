@@ -198,6 +198,17 @@ followed by the separator-separated honeypots surrounded by single quotes.</para
 </listitem>
 </varlistentry>
 <varlistentry>
+<term>honeypot:pickl:n</term>
+<listitem>
+<para>Pick
+<varname>n</varname>
+honey-pots, escape and quote (single quotes).
+Returns a line of
+"honeypot.pickl?"
+followed by the quoted honey-pots separated with commas.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
 <term>honeypot:remove:'value'</term>
 <listitem>
 <para>Remove the honeypot with the value
