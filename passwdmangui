@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from gi.repository import Gtk, Gdk
 import passwdmanapi as api
+import os.path
 
 copywrong = """Copyright (c) 2013, Oskar Skog
 All rights reserved.
@@ -385,6 +386,7 @@ class passwd_tab_c(Gtk.Box):
         self.passwords = api.passwd()   #needed by main_window.undo()
         self.thelist = Gtk.ListStore(str, str)  #name, value
         tree = Gtk.TreeView(self.thelist)
+        tree.set_property("enable-search", True)
         for x in self.passwords:
             self.thelist.append([x["name"], x["value"]])
         
@@ -395,6 +397,7 @@ class passwd_tab_c(Gtk.Box):
         tree.append_column(column1)
         column2 = Gtk.TreeViewColumn("Value", renderer, text=1)
         column2.set_property("resizable", True)
+        column2.set_property("visible", self.parent.show_passwd)
         tree.append_column(column2)
         
         select = tree.get_selection()
@@ -467,7 +470,7 @@ class honeypot_tab_c(Gtk.Box):
         for x in self.honeypots:
             self.thelist.append([x])
         tree = Gtk.TreeView(self.thelist)
-        
+        tree.set_property("enable-search", True)
         renderer = Gtk.CellRendererText()
         renderer.set_property("ellipsize", True)
         column = Gtk.TreeViewColumn("Value", renderer, text=0)
@@ -525,17 +528,85 @@ class honeypot_tab_c(Gtk.Box):
     def rm_hp(self, button):
         self.honeypots.remove(self.thelist[self.index][0])
         self.thelist.remove(self.index)
-
+        
+class conf_tab_c(Gtk.Box):
+    """Used by main_window(). I'm a Gtk.Box()."""
+    def __init__(self, arg=None):
+        self.parent = arg
+        Gtk.Box.__init__(self, orientation = Gtk.Orientation.VERTICAL)
+        info_label = Gtk.Label("Changes are saved immediately.")
+        main_grid = Gtk.Grid()
+        
+        self.show_passwd_switch = Gtk.Switch()
+        self.show_passwd_switch.connect("notify::active", self.update_conf)
+        self.show_passwd_switch.set_active(self.parent.show_passwd)
+        main_grid.attach(Gtk.Label("Show passwords"), 0, 0, 1, 1)
+        main_grid.attach(self.show_passwd_switch, 1, 0, 1, 1)
+        self.pack_start(info_label, False, False, 0)
+        self.pack_start(main_grid, False, False, 0)
+    def update_conf(self, switch, gparam):
+        global w
+        global restart
+        self.parent.show_passwd = self.show_passwd_switch.get_active()
+        try:
+            f = open(os.path.expanduser("~/.passwdman/gui.conf"), "w")
+        except:
+            err(self, "Cannot open '~/.passwdman/gui.conf' for writing';"
+                        " cannot save settings.")
+            return
+        f.write("""#configuration file for passwdmangui
+        #If there is any number-sign in a line, the line is a comment.
+        This is a comment #
+        #It knows about 'show_passwd', 'true' and 'false'.
+        #It is case sensitive
+        """)
+        if self.parent.show_passwd:
+            f.write("show_passwd true\n")
+        else:
+            f.write("show_passwd false\n")
+        f.close()
+        restart = True
+        Gtk.main_quit()
+        return          #What might happen now?
+        
 class main_window(Gtk.Window):
     def __init__(self):
+        global restart
         Gtk.Window.__init__(self, title="passwdmangui")
+        try:
+            conf = open(os.path.expanduser("~/.passwdman/gui.conf"), "r")
+            for l in conf:
+                if "show_passwd" in l and not "#" in l:
+                    if "true" in l:
+                        self.show_passwd = True
+                        break
+                    if "false" in l:
+                        self.show_passwd = False
+                        break
+            else:
+                self.show_passwd = False
+        except:
+            self.show_passwd = False
         self.passwd_tab = passwd_tab_c(self)        #needed by undo(), redo()
         self.honeypot_tab = honeypot_tab_c(self)    #needed by undo(), redo()
+        self.conf_tab = conf_tab_c(self)
                             #the argument is their parent
+        about_tab = Gtk.Box()
+        copyright_label = Gtk.Label(copywrong)
+        about_tab.pack_start(copyright_label, False, False, 0)
         
         tabs = Gtk.Notebook()
         tabs.append_page(self.passwd_tab, Gtk.Label("Passwords"))
         tabs.append_page(self.honeypot_tab, Gtk.Label("Honey pots"))
+        #tabs.append_page(self.help_tab, Gtk.Label("HELP"))
+        tabs.append_page(about_tab, Gtk.Label("About"))
+        tabs.append_page(self.conf_tab, Gtk.Label("Settings"))
+        if restart:
+            tabs.next_page()    #honeypots
+            tabs.next_page()    #help
+            tabs.next_page()    #about
+            tabs.next_page()    #settings
+            restart = False
         
         button_undo = Gtk.Button("Undo", Gtk.STOCK_UNDO)
         button_undo.connect("clicked", self.undo)
@@ -586,5 +657,19 @@ class main_window(Gtk.Window):
             err(self.passwd_tab, "CANNOT REDO")
 
 if __name__ == "__main__":
+    restart = False
     w = main_window()
     Gtk.main()
+    try:
+        w.destroy()
+        del w
+    except:
+        pass #I wouldn't be surprised if it was removed by Gtk.main_quit()
+    while restart:      #Only used for applying changes in the configuration
+        w = main_window()
+        Gtk.main()
+        try:
+            w.destroy()
+            del w
+        except:
+            pass

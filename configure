@@ -588,7 +588,7 @@ printf '\n' >> configure.2
 printf 'def maketarget_clean():\n' >> configure.2
 printf '    v(\042Writing the \047clean\047 target...\042)\n' >> configure.2
 printf '    makefile.write(\042clean :\\n\042)\n' >> configure.2
-printf '    makefile.write(\042\\t-rm all.made *.out configure.2 varlist\\n\042)\n' >> configure.2
+printf '    makefile.write(\042\\t-rm all.made *.out configure.2\\n\042)\n' >> configure.2
 printf '    \n' >> configure.2
 printf 'def maketarget_dist():\n' >> configure.2
 printf '    global makefile\n' >> configure.2
@@ -664,7 +664,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall\n' >> configure.2
 printf 'makefile = None         #make it global\n' >> configure.2
-printf 'VERSION = \0420.0.5\042\n' >> configure.2
+printf 'VERSION = \0420.0.6\042\n' >> configure.2
 printf 'MAIL = \042\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()\n' >> configure.2
