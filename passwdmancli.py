@@ -194,7 +194,7 @@ def passwd_update(x):   #x ends with a newline
         return
     new = p[index]["value"]
     sow("#old:new\n")
-    sow("passwd.update?'{}':'{}'\n".format(old, new))
+    sow("passwd.update?'{}':'{}'\n".format(old, new)) #always 64 or 10
     return
     
 def passwd_update_meta(x):              #update with new meta-data
@@ -220,7 +220,9 @@ def passwd_update_meta(x):              #update with new meta-data
         sow("!p.update_meta() failed of unknown reason\n")
     new = p[index]["value"]
     sow("#old:new\n")
-    sow("passwd.update?'{}':'{}'\n".format(old, new))
+    sow("passwd.update?'")
+    sow(old)
+    sow("':'{}'\n".format(new)) #new is 64 or 10
     return
     
 def passwd_add(x):
@@ -279,8 +281,9 @@ def passwd_cmds(x):  #put all the passwd:* here
             index = 0
             sow("#\t\tindex:\tname\n")   #human readable message
             for l in p:
-                sow("passwd.list?\t{}:\t'{}'\n".format(index,
-                                         l["name"]))
+                sow("passwd.list?\t{}:\t'".format(index))
+                sow(l["name"])
+                sow("'\n")
                 index += 1
             sow("#READY\n")
             return
@@ -311,8 +314,9 @@ def passwd_cmds(x):  #put all the passwd:* here
             return
         elif "get" in a:       #get the value of a password; get the password
             try:
-                sow("passwd.get?'{}'\n".format(p[p.mkindex(b)]
-                                                ["value"]))
+                sow("passwd.get?'")
+                sow(p[p.mkindex(b)]["value"])
+                sow("'\n")
             except:
                 sow("!not found \n")
             return
@@ -326,7 +330,7 @@ def passwd_cmds(x):  #put all the passwd:* here
         elif "meta" in a:               #WARNING must be after "update_meta"
             try:                #get meta-data for a password
                 metadata = p[p.mkindex(api.unquote(b))]["meta"]
-                sow("#\t\ttype:\tminlength:\tmaxlength\n")
+                sow("#\t\ttype:\tminlength:\tmaxlength\n")      #safe
                 sow("passwd.meta?\t'{}':\t'{}':\t\t'{}'\n".format(
                                                         metadata["type"],
                                                        metadata["minlength"],
@@ -356,7 +360,9 @@ def honeypot_cmds(x):           #honeypot:*
             index = 0
             sow("#\t\tindex:\tname\n")
             for value in h:
-                sow("honeypot.list?\t{}:\t'{}'\n".format(index, value))
+                sow("honeypot.list?\t{}:\t'".format(index))
+                sow(value)
+                sow("'\n")
                 index += 1
             sow("#READY\n")
             return
@@ -365,7 +371,9 @@ def honeypot_cmds(x):           #honeypot:*
             return
         elif "pick" in a:       #pick a random honeypot
             v("this may take a while")
-            sow("honeypot.pick?'{}'\n".format(h.pick()))
+            sow("honeypot.pick?'")
+            sow(h.pick())
+            sow("'\n")
             return
         else:
             se()
@@ -391,7 +399,9 @@ def honeypot_cmds(x):           #honeypot:*
                 return
             sep = api.unquote(args[1])
             try:                       #3rd arg, make it raise instead of log
-                sow("honeypot.pick?'{}'\n".format(h.pick(n, sep, False)))
+                sow("honeypot.pick?'")
+                sow(h.pick(n, sep, False))
+                sow("'\n")
             except api.err_idiot:
                 sow("!n is too big\n")
                 return
