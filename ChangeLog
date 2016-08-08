@@ -1,3 +1,10 @@
+2014-01-11      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.14
+    * passwdmanapi.py (undo, redo): Moved the actual code into _unredo().
+    * passwdmanapi.py (passwd (update, update_meta)): Removed unnecessary
+        return statements.
+        Moved actual randomization into new function randomize().
+
 2014-01-10      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.13
     * configure.2: Improved style, new option: --update-from=

@@ -342,6 +342,25 @@ def unquote(x):
         if not c in string.whitespace:
             return x            # Bad tail.
 
+def randomize(method, minlength, maxlength):
+    """randomize(method, minlength, maxlength)
+    Return random string with a length >= `minlength` and
+        <= `maxlength`.
+    `method`:
+        - "10" -> use get10()
+        - "64" -> use get64()
+    """
+    assert is_int(minlength) and is_int(maxlength)
+    assert is_anystr(method)
+    length = getint(minlength, maxlength+1) # Even the length should be
+                                            # randomized.
+    if method == "10":
+        return get10(length)
+    elif method == "64":
+        return get64(length)
+    else:
+        raise err_nometa("weird 'method'")
+
 class common_data():
     """class common_data():
     self.data[]      Password-records or honey pots.
@@ -663,15 +682,7 @@ class passwd(common_data):
             maxlength = int(self[index]["meta"]["maxlength"])
         except:
             raise err_nometa("Weird 'minlength' or 'maxlength'.")
-        length = getint(minlength, maxlength+1) # Even the length should be
-                                                    # randomized.
-        if method == "10":
-            new = get10(length)
-        elif method == "64":
-            new = get64(length)
-        else:
-            raise err_nometa("weird 'type'")
-        self[index]["value"] = new
+        new = self[index]["value"] = randomize(method, minlength, maxlength)
         # Write the new password to the passwd file.
         counter = 0
         for element in self.xmlroot.findall("passwd"):
@@ -680,7 +691,6 @@ class passwd(common_data):
                 break
             counter += 1
         common_data.writexml(self, "~/.passwdman/passwords")
-        return
     def update_meta(self, index, m_type, m_minlength, m_maxlength):
         """update_meta(self, index, m_type, m_minlength, m_maxlength)
         Update the password at index and its meta data.
@@ -694,16 +704,7 @@ class passwd(common_data):
             maxlength = int(m_maxlength)
         except:
             raise err_idiot("INTEGERS")
-        length = getint(minlength, maxlength + 1)
-        if m_type == "human":
-            raise err_idiot("????")
-        elif m_type == "10":
-            new = get10(length)
-        elif m_type == "64":
-            new = get64(length)
-        else:
-            raise err_idiot("")
-        self[index]["value"] = new
+        new = self[index]["value"] = randomize(m_type, minlength, maxlength)
         self[index]["meta"]["type"] = m_type
         self[index]["meta"]["minlength"] = m_minlength
         self[index]["meta"]["maxlength"] = m_maxlength
@@ -724,7 +725,6 @@ class passwd(common_data):
                 break
             counter += 1
         common_data.writexml(self, "~/.passwdman/passwords")
-        return
     def __repr__(self):
         return "<passwdmanapi.passwd object with id {0}>".format(id(self))
 
@@ -811,11 +811,12 @@ class honeypot(common_data):
     def __repr__(self):
         return "<passwdmanapi.honeypot object with id {0}>".format(id(self))
 
-def undo(passwdobj=None, honeypotobj=None):
-    """undo(passwdobj=None, honeypotobj=None)
+def _unredo(passwdobj, honeypotobj, undo_unodable, undo_redoable):
+    """_unredo(passwdobj=None, honeypotobj=None,
+                            undo_unodable, undo_redoable)
     Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
-    '~/.passwdman/redoable/*'.
-    Moves the newest file from '~/.passwdman/undoable/*' to
+    `undo_redoable`.
+    Moves the newest file from `undo_unodable` to
     '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
     It's arguments are the passwd and honeypot OBJECTS.
     """
@@ -824,27 +825,27 @@ def undo(passwdobj=None, honeypotobj=None):
     if not isinstance(honeypotobj, honeypot):
         raise err_idiot("Read the fucking __doc__ string")
     filename, birth = "", 0
-    for x in os.listdir(os.path.expanduser("~/.passwdman/undoable")):
+    for x in os.listdir(os.path.expanduser(undo_unodable)):
         y = os.stat(os.path.join(
-            os.path.expanduser("~/.passwdman/undoable"), x))
+            os.path.expanduser(undo_unodable), x))
         if y.st_ctime > birth:      # Newer file.
             del filename
             filename = os.path.join(
-                os.path.expanduser("~/.passwdman/undoable"), x)
+                os.path.expanduser(undo_unodable), x)
             # Update filename to the newer file.
             birth = y.st_ctime      # Increase birth.
     del birth
     # Filename is now the name of the file.
     if "passwords" in filename:
         os.rename(os.path.expanduser("~/.passwdman/passwords"),
-            os.path.join(os.path.expanduser("~/.passwdman/redoable"),
+            os.path.join(os.path.expanduser(undo_redoable),
                 "passwords" + '-' + time.ctime())) # Copy to redoable.
         passwdobj.__del__()
         os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
         passwdobj.__init__() # Reload the data structure.
     elif "honeypots" in filename:
         os.rename(os.path.expanduser("~/.passwdman/honeypots"),
-            os.path.join(os.path.expanduser("~/.passwdman/redoable"),
+            os.path.join(os.path.expanduser(undo_redoable),
                 "honeypots" + '-' + time.ctime())) # Copy to redoable.
         honeypotobj.__del__()
         os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
@@ -853,9 +854,18 @@ def undo(passwdobj=None, honeypotobj=None):
         logging.error("function undo in module passwdmanapi:" +
                       "confused by the file '{0}'".format(filename))
 
+def undo(passwdobj=None, honeypotobj=None):
+    """undo(passwdobj=None, honeypotobj=None)
+    Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
+    '~/.passwdman/redoable/*'.
+    Moves the newest file from '~/.passwdman/undoable/*' to
+    '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
+    It's arguments are the passwd and honeypot OBJECTS.
+    """
+    _unredo(passwdobj, honeypotobj, "~/.passwdman/undoable",
+                                            "~/.passwdman/redoable")
 
 def redo(passwdobj=None, honeypotobj=None):
-    # Copy-pasted from undo() and hand-hacked.
     """redo(passwdobj=None, honeypotobj=None)
     Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
     '~/.passwdman/undoable/*'.
@@ -863,50 +873,19 @@ def redo(passwdobj=None, honeypotobj=None):
     '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
     It's arguments are the passwd and honeypot OBJECTS.
     """
-    if not isinstance(passwdobj, passwd):
-        raise err_idiot("Read the fucking __doc__ string")
-    if not isinstance(honeypotobj, honeypot):
-        raise err_idiot("Read the fucking __doc__ string")
-    filename, birth = "", 0
-    for x in os.listdir(os.path.expanduser("~/.passwdman/redoable")):
-        y = os.stat(os.path.join(
-            os.path.expanduser("~/.passwdman/redoable"), x))
-        if y.st_ctime > birth:      # Newer file.
-            del filename
-            filename = os.path.join(
-                os.path.expanduser("~/.passwdman/redoable"), x)
-            # Update filename to the newer file.
-            birth = y.st_ctime      # Increase birth.
-    del birth
-    #Filename is now the name of the file.
-    if "passwords" in filename:
-        os.rename(os.path.expanduser("~/.passwdman/passwords"),
-            os.path.join(os.path.expanduser("~/.passwdman/undoable"),
-                "passwords" + '-' + time.ctime())) # Copy to undoable.
-        passwdobj.__del__()
-        os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
-        passwdobj.__init__() # Reload the data structure.
-    elif "honeypots" in filename:
-        os.rename(os.path.expanduser("~/.passwdman/honeypots"),
-            os.path.join(os.path.expanduser("~/.passwdman/undoable"),
-                "honeypots" + '-' + time.ctime())) # Copy to undoable.
-        honeypotobj.__del__()
-        os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
-        honeypotobj.__init__() # Reload the data structure.
-    else:
-        logging.error("function undo in module passwdmanapi:" +
-                      "confused by the file '{0}'".format(filename))
+    _unredo(passwdobj, honeypotobj, "~/.passwdman/redoable",
+                                            "~/.passwdman/undoable")
 
 # Run this when imported.
 def ckmkdir(x):
-    """ckmkdir(x) - make sure that the directory <x> exists."""
+    """ckmkdir(x) - make sure that the directory `x` exists."""
     try:
         os.stat(os.path.expanduser(x))
     except:
         os.mkdir(os.path.expanduser(x), 0o700)
 def ckmkfile(x, y):
-    """ckmkdir(x) - make sure that the file <x> exists.
-    Its default content is <y>.
+    """ckmkfile(x, y) - make sure that the file `x` exists.
+    Its default content is `y`.
     """
     try:
         os.stat(os.path.expanduser(x))

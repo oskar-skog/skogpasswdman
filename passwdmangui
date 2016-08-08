@@ -94,9 +94,8 @@ def passwd_add_d(parent):
             parent.thelist.append([name.get_text(), value.get_text()])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
-        
     dialog.destroy()
- 
+
 def hp_add_d(parent):
     """hp_add_d(parent)
     parent has attribute parent which is the real parent window.
@@ -127,7 +126,7 @@ def hp_add_d(parent):
         except api.err_duplicate:
             err(parent, "Already exists.")
     dialog.destroy()
-    
+
 def passwd_new_d(parent):
     """passwd_new_d(parent)
     parent has attribute parent which is the real parent window.
@@ -587,7 +586,6 @@ class honeypot_tab_c(Gtk.Box):
         scrolly.add(tree)
         self.pack_start(scrolly, True, True, 5)
         self.pack_end(box, False, False, 5)
-        
     def select_change(self, selection):
         """select_change(self, selection)
         
@@ -849,7 +847,6 @@ class main_window(Gtk.Window):
         self.add(box1)
         self.connect("delete-event", Gtk.main_quit)
         self.show_all()
-
     def undo(self, button):
         """undo(self, button)"""
         try:
@@ -865,7 +862,6 @@ class main_window(Gtk.Window):
         except:
             # 'self.passwd_tab' has attribute 'parent' which is 'self'.
             err(self.passwd_tab, "CANNOT UNDO!")
-
     def redo(self, button):
         """redo(self, button)"""
         # Copy-pasted from undo() and hand-hacked.
@@ -882,7 +878,6 @@ class main_window(Gtk.Window):
         except:
             # 'self.passwd_tab' has attribute 'parent' which is 'self'.
             err(self.passwd_tab, "CANNOT REDO!")
-
     def make_backup(self, button):
         """make_backup(self, button)"""
         # Create a tarball of the files.

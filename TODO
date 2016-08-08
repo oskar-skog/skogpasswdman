@@ -1,13 +1,24 @@
 ?       Improvements in HELP and About.
 *       More debugging
-?       Fix broken Docbook XML
+*       Fix broken Docbook XML
 *       gettext()
             *   Svenska
             *   Suomi
             ?   Deutch
 *       in "configure.2": dirs() should figure out more directories.
 *       info
-*       Set busy-cursor when getting random numbers. (GUI)
+*       Progress bars.
 *       Unicode support in configure.
 *       RLI: 40 column tty, long passwords and honeypots.
 *       Use argparse instead of getopt. argparse requires 2.7 or 3.x.
+
+Python 2.x drop schedule:
+
+configure       Drop 2.6        (February-March)
+GUI & RLI       Drop 2.6        ()
+CLI             Drop 2.6        ()
+API             Drop 2.6        (2015)
+configure       Drop 2.7        -
+GUI & RLI       Drop 2.7        (When security updates ends!)
+CLI             Drop 2.7        -
+API             Drop 2.7        -

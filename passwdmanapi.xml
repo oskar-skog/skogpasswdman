@@ -55,6 +55,7 @@ get64(length)<sbr/>
 get10(length)<sbr/>
 getint(a, b)<sbr/>
 unquote(x)<sbr/>
+randomize(method, minlength, maxlength)<sbr/>
 undo(passwdobj=None, honeypotobj=None)<sbr/>
 redo(passwdobj=None, honeypotobj=None)<sbr/>
 class common_data()<sbr/>
@@ -208,6 +209,26 @@ returns the string
 without its surrounding quotes.
 If the string is not surrounded be quotes, the string will be returned
 unchanged.</para>
+
+<para>randomize()
+returns a random string with a length &gt;=
+<varname>minlength</varname>
+and &lt;=
+<varname>maxlength</varname>.
+If
+<varname>method</varname>
+is
+"10"
+randomize()
+will use
+get10().
+If
+<varname>method</varname>
+is
+"64"
+randomize()
+will use
+get64().</para>
 
 <para>undo()
 undoes the latest change to the password list or honey pot list, by restoring

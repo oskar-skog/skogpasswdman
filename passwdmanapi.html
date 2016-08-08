@@ -16,6 +16,7 @@ get64(length)<br />
 get10(length)<br />
 getint(a, b)<br />
 unquote(x)<br />
+randomize(method, minlength, maxlength)<br />
 undo(passwdobj=None, honeypotobj=None)<br />
 redo(passwdobj=None, honeypotobj=None)<br />
 class common_data()<br />
@@ -121,7 +122,25 @@ returns the string
 <code class="varname">x</code>
 without its surrounding quotes.
 If the string is not surrounded be quotes, the string will be returned
-unchanged.</p><p>undo()
+unchanged.</p><p>randomize()
+returns a random string with a length &gt;=
+<code class="varname">minlength</code>
+and &lt;=
+<code class="varname">maxlength</code>.
+If
+<code class="varname">method</code>
+is
+"10"
+randomize()
+will use
+get10().
+If
+<code class="varname">method</code>
+is
+"64"
+randomize()
+will use
+get64().</p><p>undo()
 undoes the latest change to the password list or honey pot list, by restoring
 from the newest auto-generated backup.
 It requires

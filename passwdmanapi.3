@@ -22,7 +22,7 @@
 .\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 .\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\"POSSIBILITY OF SUCH DAMAGE.
-.Dd Jan 04, 2014
+.Dd Jan 11, 2014
 .Dt PASSWDMANAPI 3
 .Os
 .Sh NAME
@@ -45,6 +45,7 @@
 .Fd get10(length)
 .Fd getint(a, b)
 .Fd unquote(x)
+.Fd randomize(method, minlength, maxlength)
 .Fd undo(passwdobj=None, honeypotobj=None)
 .Fd redo(passwdobj=None, honeypotobj=None)
 .Fd class common_data()
@@ -186,6 +187,26 @@ returns the string
 without its surrounding quotes.
 If the string is not surrounded be quotes, the string will be returned
 unchanged.
+.Pp
+.Fn randomize
+returns a random string with a length >=
+.Va minlength
+and <=
+.Va maxlength .
+If
+.Va method
+is
+.Qq 10
+.Fn randomize
+will use
+.Fn get10 .
+If
+.Va method
+is
+.Qq 64
+.Fn randomize
+will use
+.Fn get64 .
 .Pp
 .Fn undo
 undoes the latest change to the password list or honey pot list, by restoring
