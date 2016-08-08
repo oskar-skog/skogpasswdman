@@ -469,11 +469,14 @@ class passwd(common_data):
             raise
     def __repr__(self):
         return "passwdmanapi.passwd()"
-    def mkindex(self, x):
+    def mkindex(self, x, is_numstring=False):
         """Make index of x (string). x can be a stringed index"""
         index = 0
         try:
-            index = int(x)      #that was very simple
+            if not is_numstring:
+                index = int(x)      #that was very simple
+            else:
+                raise
         except:
             for y in self:      #find it
                 if y["name"] == x:

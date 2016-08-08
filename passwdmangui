@@ -216,7 +216,7 @@ def passwd_updatemeta_d(parent):
     b10 = Gtk.RadioButton.new_with_label_from_widget(b64, "Digits only.")
     
     a, b = parent.thelist[parent.index]       #remember a, b for a long time
-    the_index = parent.passwords.mkindex(a)
+    the_index = parent.passwords.mkindex(a, True)
     
     adj = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["minlength"]),
                             1, 1000000, 1, 16, 0)       #for spinny_min
@@ -460,7 +460,7 @@ class passwd_tab_c(Gtk.Box):
             err(self, "Select first.")
             return
         a, b = self.thelist[self.index] #b is the old password
-        the_index = self.passwords.mkindex(a)
+        the_index = self.passwords.mkindex(a, True)
         self.passwords.update(the_index)
         self.thelist[self.index] = a, self.passwords[the_index]["value"]
         passwd_updated_d(self, b, self.passwords[the_index]["value"])
@@ -470,8 +470,8 @@ class passwd_tab_c(Gtk.Box):
         passwd_new_d(self)
     def rm(self, button):
         a, b = self.thelist[self.index]
-        self.passwords.remove(str(a))
-        self.thelist.remove(self.index, True)
+        self.passwords.remove(str(a), True)
+        self.thelist.remove(self.index)
 
 class honeypot_tab_c(Gtk.Box):
     """Used by main_window(). I'm a Gtk.Box()."""

@@ -1,3 +1,6 @@
+0.0.10  BUGFIXES:
+            "Remove" buttons "is_numstr=True" to the right remove()
+            Fixed the string of digits problem in passwd.mkindex()
 0.0.9   Moved them back!
 0.0.8   Moved undo/redo buttons
 0.0.7   fixed bug in remove() in passwdmanapi
