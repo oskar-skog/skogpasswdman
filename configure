@@ -511,7 +511,7 @@ printf '    long_opts.append(\042nogui\042)\n' >> configure.2
 printf '    long_opts.append(\042noguidoc\042)\n' >> configure.2
 printf '    long_opts.append(\042notechdoc\042)\n' >> configure.2
 printf '    long_opts.append(\042halt\042)\n' >> configure.2
-printf '    long_opts.append(\042update=\042)\n' >> configure.2
+printf '    long_opts.append(\042update\042)\n' >> configure.2
 printf '    long_opts.append(\042version\042)\n' >> configure.2
 printf '    #Handle the options.\n' >> configure.2
 printf '    try:\n' >> configure.2
@@ -545,7 +545,10 @@ printf '            continue\n' >> configure.2
 printf '        elif o in (\042--halt\042, \042-H\042):\n' >> configure.2
 printf '            quit()      #Should be renamed no-op.\n' >> configure.2
 printf '        elif o in (\042--update\042, \042-u\042):\n' >> configure.2
-printf '            update(a)\n' >> configure.2
+printf '            if len(a) > 0:\n' >> configure.2
+printf '                update(a)\n' >> configure.2
+printf '            else:\n' >> configure.2
+printf '                update(sys.argv[0])\n' >> configure.2
 printf '            sys.exit(0)\n' >> configure.2
 printf '        elif o in (\042--version\042, \042-V\042):\n' >> configure.2
 printf '            print(\042passwdman configure version {}\042.format(VERSION))\n' >> configure.2
@@ -768,7 +771,7 @@ printf '        install_file(\042passwdmangui.out\042, \042\044(bindir)/passwdma
 printf '    if guidoc:\n' >> configure.2
 printf '        install_file(\042passwdmangui.1\042, \042\044(man1dir)/passwdmangui\044(man1ext)\042,\n' >> configure.2
 printf '                False)\n' >> configure.2
-printf '    #TODO: \044(postinstall)\n' >> configure.2
+printf '    makefile.write(\042\\t\044(POST_INSTALL)\\n\042)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
 printf '        Vmaj = VERSION.split(\042.\042)[0]\n' >> configure.2
 printf '        Vmin = VERSION.split(\042.\042)[1]\n' >> configure.2
@@ -964,7 +967,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.2.3\042\n' >> configure.2
+printf 'VERSION = \0420.2.4\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2

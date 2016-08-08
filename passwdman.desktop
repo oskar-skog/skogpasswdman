@@ -3,3 +3,4 @@ Type = Application
 Version = _VERSION_
 Name = passwdman
 Exec = passwdmangui
+Categories = Utility

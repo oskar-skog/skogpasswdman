@@ -1,3 +1,11 @@
+2013-11-21      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2.4
+    * passwdman.desktop: Put passwdman in category 'Utility'.
+    * configure.2 (main): --update without argument will make it update from
+        it self.
+    * configure.2 (maketarget_install), Makefile (install): I think I know how
+        to use $(POST_INSTALL).
+
 2013-11-20      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.2.3
     * ./: Added 'passwdman.desktop'.
