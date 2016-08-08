@@ -56,17 +56,15 @@ def passwd_add_d(parent):
     name.set_editable(True)
     value.set_editable(True)
     
-    box_n = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
-    box_v = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
-    box_n.pack_start(label_n, False, False, 0)
-    box_n.pack_start(name, True, True, 0)
-    box_v.pack_start(label_v, False, False, 0)
-    box_v.pack_start(value, True, True, 0)
+    thegrid = Gtk.Grid()
+    thegrid.set_property("row-spacing", 5)
+    thegrid.set_property("column-spacing", 5)
+    thegrid.attach(label_n, 0, 0, 1, 1)
+    thegrid.attach(name, 1, 0, 1, 1)
+    thegrid.attach(label_v, 0, 1, 1, 1)
+    thegrid.attach(value, 1, 1, 1, 1)
     
-    top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
-    top_box.pack_start(box_n, False, False, 0)
-    top_box.pack_start(box_v, False, False, 0)
-    main_box.add(top_box)
+    main_box.add(thegrid)
     dialog.show_all()
     
     response = dialog.run()
@@ -94,8 +92,8 @@ def hp_add_d(parent):
     value.set_editable(True)
     
     box_v = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
-    box_v.pack_start(label_v, False, False, 0)
-    box_v.pack_start(value, True, True, 0)
+    box_v.pack_start(label_v, False, False, 5)
+    box_v.pack_start(value, True, True, 5)
     
     main_box.add(box_v)
     dialog.show_all()
@@ -140,24 +138,26 @@ def passwd_new_d(parent):
     label_min = Gtk.Label("Minimal required length:")
     label_max = Gtk.Label("Maximal length allowed:")
     
-    spinners = Gtk.Table(2, 2, False)
-    spinners.attach(label_min, 0, 1, 0, 1)
-    spinners.attach(label_max, 0, 1, 1, 2)
-    spinners.attach(spinny_min, 1, 2, 0, 1)
-    spinners.attach(spinny_max, 1, 2, 1, 2)
+    spinners = Gtk.Grid()
+    spinners.set_property("row-spacing", 5)
+    spinners.set_property("column-spacing", 5)
+    spinners.attach(label_min, 0, 0, 1, 1)
+    spinners.attach(label_max, 0, 1, 1, 1)
+    spinners.attach(spinny_min, 1, 0, 1, 1)
+    spinners.attach(spinny_max, 1, 1, 1, 1)
     
     name_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
     radio_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
     
-    name_box.pack_start(label_name, False, False, 0)
-    name_box.pack_start(name, True, True, 0)    #Gtk.Entry()
-    radio_box.pack_start(b10, False, False, 0)  #radio button
-    radio_box.pack_end(b64, False, False, 0)    #radio button
+    name_box.pack_start(label_name, False, False, 5)
+    name_box.pack_start(name, True, True, 5)    #Gtk.Entry()
+    radio_box.pack_start(b10, False, False, 5)  #radio button
+    radio_box.pack_end(b64, False, False, 5)    #radio button
     
     top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
-    top_box.pack_start(name_box, False, False, 0)
-    top_box.pack_start(spinners, False, False, 0)
-    top_box.pack_start(radio_box, False, False, 0)
+    top_box.pack_start(name_box, False, False, 5)
+    top_box.pack_start(spinners, False, False, 5)
+    top_box.pack_start(radio_box, False, False, 5)
     main_box.add(top_box)
     dialog.show_all()
     
@@ -225,15 +225,17 @@ def passwd_updatemeta_d(parent):
     label_min = Gtk.Label("Minimal required length:")
     label_max = Gtk.Label("Maximal length allowed:")
     
-    spinners = Gtk.Table(2, 2, False)
-    spinners.attach(label_min, 0, 1, 0, 1)
-    spinners.attach(label_max, 0, 1, 1, 2)
-    spinners.attach(spinny_min, 1, 2, 0, 1)
-    spinners.attach(spinny_max, 1, 2, 1, 2)
+    spinners = Gtk.Grid()
+    spinners.set_property("row-spacing", 5)
+    spinners.set_property("column-spacing", 5)
+    spinners.attach(label_min, 0, 0, 1, 1)
+    spinners.attach(label_max, 0, 1, 1, 1)
+    spinners.attach(spinny_min, 1, 0, 1, 1)
+    spinners.attach(spinny_max, 1, 1, 1, 1)
     
     radio_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
-    radio_box.pack_start(b10, False, False, 0)
-    radio_box.pack_end(b64, False, False, 0)
+    radio_box.pack_start(b10, False, False, 5)
+    radio_box.pack_end(b64, False, False, 5)
     if parent.passwords[the_index]["meta"]["type"] == "10":
         b10.set_active(True)
     elif parent.passwords[the_index]["meta"]["type"] == "64":
@@ -243,8 +245,8 @@ def passwd_updatemeta_d(parent):
             "I don't know what characters are allowed in the password.")
     
     top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
-    top_box.pack_start(spinners, False, False, 0)
-    top_box.pack_start(radio_box, False, False, 0)
+    top_box.pack_start(spinners, False, False, 5)
+    top_box.pack_start(radio_box, False, False, 5)
     main_box.add(top_box)
     dialog.show_all()
     
@@ -295,13 +297,15 @@ class passwd_updated_c(Gtk.Dialog):
         new_b = Gtk.Button("copy")
         new_b.connect("clicked", self.copynew)
         
-        table = Gtk.Table(2, 2, False)
-        table.attach(Gtk.Label("Old:"), 0, 1, 0, 1)
-        table.attach(Gtk.Label("New:"), 0, 1, 1, 2)
-        table.attach(old_v, 1, 2, 0, 1)
-        table.attach(new_v, 1, 2, 1, 2)
-        table.attach(old_b, 2, 3, 0, 1)
-        table.attach(new_b, 2, 3, 1, 2)
+        table = Gtk.Grid()
+        table.set_property("row-spacing", 5)
+        table.set_property("column-spacing", 5)
+        table.attach(Gtk.Label("Old:"), 0, 0, 1, 1)
+        table.attach(Gtk.Label("New:"), 0, 1, 1, 1)
+        table.attach(old_v, 1, 0, 1, 1)
+        table.attach(new_v, 1, 1, 1, 1)
+        table.attach(old_b, 2, 0, 1, 1)
+        table.attach(new_b, 2, 1, 1, 1)
         
         main_box.add(table)
         self.show_all()
@@ -334,17 +338,17 @@ def pick_many_d(parent):
     sep.set_editable(True)
     sep.set_text(",")
     
-    n_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)   #boxes
-    s_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
     top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
     
-    n_box.pack_start(label_n, False, False, 0)          #Build the dialog.
-    n_box.pack_start(spinny, True, True, 0)
-    s_box.pack_start(label_s, False, False, 0)
-    s_box.pack_start(sep, True, True, 0)
+    thegrid = Gtk.Grid()
+    thegrid.set_property("row-spacing", 5)
+    thegrid.set_property("column-spacing", 5)
+    thegrid.attach(label_n, 0, 0, 1, 1)
+    thegrid.attach(label_s, 0, 1, 1, 1)
+    thegrid.attach(spinny, 1, 0, 1, 1)
+    thegrid.attach(sep, 1, 1, 1, 1)
     top_box.pack_start(label_help, False, False, 0)
-    top_box.pack_start(n_box, False, False, 0)
-    top_box.pack_start(s_box, False, False, 0)
+    top_box.pack_start(thegrid, False, False, 5)
     
     main_box.add(top_box)
     dialog.show_all()
@@ -418,15 +422,15 @@ class passwd_tab_c(Gtk.Box):
         b_remove.connect("clicked", self.rm)
         #Put the buttons in a box.
         box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
-        box.pack_start(b_copy, False, False, 0)
-        box.pack_start(b_show, False, False, 0)
-        box.pack_start(b_update, False, False, 0)
-        box.pack_start(b_updatemeta, False, False, 0)
-        box.pack_start(b_add, False, False, 0)
-        box.pack_start(b_new, False, False, 0)
-        box.pack_start(b_remove, False, False, 0)
-        self.pack_start(tree, True, True, 0)
-        self.pack_end(box, False, False, 0)
+        box.pack_start(b_copy, False, False, 5)
+        box.pack_start(b_show, False, False, 5)
+        box.pack_start(b_update, False, False, 5)
+        box.pack_start(b_updatemeta, False, False, 5)
+        box.pack_start(b_add, False, False, 5)
+        box.pack_start(b_new, False, False, 5)
+        box.pack_start(b_remove, False, False, 5)
+        self.pack_start(tree, True, True, 5)
+        self.pack_end(box, False, False, 5)
     def select_change(self, selection):
         forget, x = selection.get_selected()
         if x != None:
@@ -512,13 +516,13 @@ class honeypot_tab_c(Gtk.Box):
         b_remove.connect("clicked", self.rm_hp)
         #Put the buttons in a box.
         box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
-        box.pack_start(b_pick_c, False, False, 0)
-        box.pack_start(b_pick_s, False, False, 0)
-        box.pack_start(b_pick_m, False, False, 0)
-        box.pack_start(b_add, False, False, 0)
-        box.pack_start(b_remove, False, False, 0)
-        self.pack_start(tree, True, True, 0)
-        self.pack_end(box, False, False, 0)
+        box.pack_start(b_pick_c, False, False, 5)
+        box.pack_start(b_pick_s, False, False, 5)
+        box.pack_start(b_pick_m, False, False, 5)
+        box.pack_start(b_add, False, False, 5)
+        box.pack_start(b_remove, False, False, 5)
+        self.pack_start(tree, True, True, 5)
+        self.pack_end(box, False, False, 5)
         
     def select_change(self, selection):
         #selection has changed, update index.
@@ -561,8 +565,8 @@ class conf_tab_c(Gtk.Box):
         self.show_passwd_switch.set_active(self.parent.show_passwd)
         main_grid.attach(Gtk.Label("Show passwords:"), 0, 0, 1, 1)
         main_grid.attach(self.show_passwd_switch, 1, 0, 1, 1)
-        self.pack_start(info_label, False, False, 0)
-        self.pack_start(main_grid, False, False, 0)
+        self.pack_start(info_label, False, False, 5)
+        self.pack_start(main_grid, False, False, 5)
     def update_conf(self, switch, gparam):
         global w
         global restart
@@ -659,13 +663,13 @@ you have selected. You should add fake-passwords such as "password" and
         button_quit.connect("clicked", Gtk.main_quit)
         
         box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
-        box2.pack_start(button_undo, False, False, 0)
-        box2.pack_start(button_redo, False, False, 0)
-        box2.pack_end(button_quit, False, False, 0)
+        box2.pack_start(button_undo, False, False, 5)
+        box2.pack_start(button_redo, False, False, 5)
+        box2.pack_end(button_quit, False, False, 5)
         
         box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
-        box1.pack_start(tabs, True, True, 0)
-        box1.pack_start(box2, False, False, 0)
+        box1.pack_start(tabs, True, True, 5)
+        box1.pack_start(box2, False, False, 5)
         
         self.add(box1)
         self.connect("delete-event", Gtk.main_quit)
