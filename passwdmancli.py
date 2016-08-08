@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
 
-copywrong = """#Copyright (c) 2013, Oskar Skog
+copywrong = """#Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without
