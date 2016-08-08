@@ -1,378 +1,142 @@
-<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
-All rights reserved. -->
-
-<!-- Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met: -->
-
-<!-- 1.  Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer. -->
-
-<!-- 2.  Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution. -->
-
-<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE. -->
-<?xml version="1.0" encoding="us-ascii"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
- "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
- [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
-<meta name="Content-Style" content="text/css"/>
-<style type="text/css">
-       .center { text-align: center }
-       .right  { text-align: right }
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Fri Nov 15 20:24:25 2013 -->
-<title></title>
-</head>
-<body>
-
-<hr/>
-
-
-<p>PASSWDMANCLI(1) BSD General Commands Manual
-PASSWDMANCLI(1)</p>
-
-<p style="margin-top: 1em"><b>NAME</b></p>
-
-<p style="margin-left:6%;"><b>passwdmancli</b> &mdash; CLI
-for storing, generating and updating passwords and
-honeypots.</p>
-
-<p style="margin-top: 1em"><b>SYNOPSIS</b></p>
-
-<p style="margin-left:23%;"><b>passwdmancli</b>
-[<i>infile</i>]</p>
-
-<p style="margin-top: 1em"><b>DESCRIPTION</b></p>
-
-<p style="margin-left:6%;"><i>infile</i> is the file
-<b>passwdmancli</b> will read its commands from, if
-<i>infile</i> is omitted <b>passwdmancli</b> will read from
-standard input.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>passwdmancli</b>
-reads its input as colon separated values. Quotes are either
-forbidden or optional (look at <b>unquote</b>() in
-passwdmanapi(3) ). Integers are created with the python
-built-in <b>int</b>(). All commands are listed in
-<i>COMMANDS</i>. If the line begins with a number-sign, the
-line will be ignored. If the line begins with a pipe-sign,
-it will write the rest of the line to standard output.</p>
-
-<p style="margin-left:6%; margin-top: 1em">All outputs that
-are prefixed with an exclamation mark are error messages.
-All outputs that are prefixed with a number sign are
-messages for a human user. All other outputs are prefixed
-with their command (not their arguments), using dots instead
-of colons, followed by a question mark.</p>
-
-<p style="margin-left:6%; margin-top: 1em">Beware of
-whitespace. The whitespace comes after colons and/or
-question marks and before quotes.</p>
-
-<p style="margin-left:6%; margin-top: 1em">The passwords
-have meta-data. They have a minimum required length and a
-maximum allowed length. They also have a type which is one
-of:</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>10&nbsp;</b>
-The password may only use digits.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>64&nbsp;</b>
-The password can use big letters, small letters, digits,
-underscores and exclamation marks.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>human&nbsp;</b>
-The password is human generated.</p>
-
-<p style="margin-left:6%; margin-top: 1em">The honeypots
-are weak passwords intended to be used as traps.</p>
-
-<p style="margin-left:6%; margin-top: 1em">WARNING: If a
-command accepts a <i>name</i> and <i>index</i> argument, any
-string of digits will be treated as an index.</p>
-
-<p style="margin-top: 1em"><b>COMMANDS</b> <br/>
-bells</p>
-
-<p style="margin-left:24%; margin-top: 1em">Show message
-about the bells and whistles.</p>
-
-<p style="margin-top: 1em">bugs</p>
-
-<p style="margin-left:24%; margin-top: 1em">Show message
-about wasps and mosquitoes.</p>
-
-<p style="margin-top: 1em">hell</p>
-
-<p style="margin-left:24%; margin-top: 1em">Synonym for
-<b>verbose:on</b>.</p>
-
-<p style="margin-top: 1em">help</p>
-
-<p style="margin-left:24%; margin-top: 1em">Help
-message.</p>
-
-
-<p style="margin-top: 1em">honeypot:add:&rsquo;value&rsquo;</p>
-
-<p style="margin-left:24%;">Add a new honeypot with the
-value <i>value</i>.</p>
-
-<p style="margin-top: 1em">honeypot:help</p>
-
-<p style="margin-left:24%;">Help message.</p>
-
-<p style="margin-top: 1em">honeypot:list</p>
-
-<p style="margin-left:24%;">List all honeypots. Returns
-multiple lines of: &quot;honeypot.list?&quot;, the index, a
-colon and the value surrounded by single quotes.</p>
-
-<p style="margin-top: 1em">honeypot:pick</p>
-
-<p style="margin-left:24%;">Pick a honeypot. Returns a line
-of: &quot;honeypot.pick?&quot; followed by the honeypot
-surrounded by single quotes.</p>
-
-
-<p style="margin-top: 1em">honeypot:pick:n:&rsquo;sep&rsquo;</p>
-
-<p style="margin-left:24%;">Pick <i>n</i> honeypots and
-separate them with <i>sep</i>. Returns a line of:
-&quot;honeypot.pick?&quot; followed by the
-separator-separated honeypots surrounded by single
-quotes.</p>
-
-
-<p style="margin-top: 1em">honeypot:remove:&rsquo;value&rsquo;</p>
-
-<p style="margin-left:24%;">Remove the honeypot with the
-value <i>value</i>.</p>
-
-<p style="margin-top: 1em">honeypot:remove:index</p>
-
-<p style="margin-left:24%;">Remove the honeypot at
-<i>index</i>. WARNING: The indexes of the following
-honeypots will be decreased by one!</p>
-
-
-<p style="margin-top: 1em">passwd:add:type:minlength:maxlength:&rsquo;name&rsquo;</p>
-
-<p style="margin-left:24%;">Add a new password for
-<i>name</i>, with at least <i>minlength</i> letters, but no
-more than <i>maxlength</i>. If <i>type</i> is
-&quot;10&quot;, the password will only contain digits. If
-<i>type</i> is &quot;64&quot;, the password will contain big
-letters, small letters, digits, underscores and exclamation
-marks. It will not give any output.</p>
-
-
-<p style="margin-top: 1em">passwd:add_human:&rsquo;name&rsquo;</p>
-
-<p style="margin-left:24%;">Add a human generated password
-for <i>name</i>. It will read the password on a new line. It
-will not give any output.</p>
-
-
-<p style="margin-top: 1em">passwd:get:&rsquo;name&rsquo;</p>
-
-<p style="margin-left:24%;">Returns a line of:
-&quot;passwd.get?&quot; followed by the value of the
-password for <i>name</i> surrounded by single quotes.</p>
-
-<p style="margin-top: 1em">passwd:get:index</p>
-
-<p style="margin-left:24%;">Returns a line of:
-&quot;passwd.get?&quot; followed by the value of the
-password at <i>index</i> surrounded by single quotes.</p>
-
-<p style="margin-top: 1em">passwd:help</p>
-
-<p style="margin-left:24%; margin-top: 1em">Help
-message.</p>
-
-<p style="margin-top: 1em">passwd:list</p>
-
-<p style="margin-left:24%; margin-top: 1em">List all
-passwords. Returns multiple lines of:
-&quot;passwd.list?&quot;, the index, a colon and the name
-surrounded by single quotes.</p>
-
-
-<p style="margin-top: 1em">passwd:meta:&rsquo;name&rsquo;</p>
-
-<p style="margin-left:24%;">Get the meta-data for the
-password for <i>name</i>. Returns a line of:
-&quot;passwd.meta?&quot;, the type surrounded by single
-quotes, a colon, the minimum length for the password
-surrounded by single quotes, a colon and the maximum length
-for the password surrounded by single quotes.</p>
-
-<p style="margin-top: 1em">passwd:meta:index</p>
-
-<p style="margin-left:24%;">Get the meta-data for the
-password at <i>index</i>. Returns a line of:
-&quot;passwd.meta?&quot;, the type surrounded by single
-quotes, a colon, the minimum length for the password
-surrounded by single quotes, a colon and the maximum length
-for the password surrounded by single quotes.</p>
-
-
-<p style="margin-top: 1em">passwd:remove:&rsquo;name&rsquo;</p>
-
-<p style="margin-left:24%;">Remove the password for
-<i>name</i>.</p>
-
-<p style="margin-top: 1em">passwd:remove:index</p>
-
-<p style="margin-left:24%;">Remove the password at
-<i>index</i>. WARNING: The indexes of the following
-passwords will be decreased by one!</p>
-
-
-<p style="margin-top: 1em">passwd:update:&rsquo;name&rsquo;</p>
-
-<p style="margin-left:24%;">Update the password for
-<i>name</i> using its meta-data. Returns a line of:
-&quot;passwd.update?&quot;, the old password, a colon and
-the new password.</p>
-
-<p style="margin-top: 1em">passwd:update:index</p>
-
-<p style="margin-left:24%;">Update the password at
-<i>index</i> using its meta-data. Returns a line of:
-&quot;passwd.update?&quot;, the old password, a colon and
-the new password.</p>
-
-
-<p style="margin-top: 1em">passwd:update_meta:type:min:max:&rsquo;name&rsquo;</p>
-
-<p style="margin-left:24%;">Do the same thing as
-<b>passwd:update:&rsquo;name&rsquo;</b>, but use
-<i>type</i>, <i>min</i>, and <i>max</i> as meta-data,
-instead of the passwords own (which might not even
-exist).</p>
-
-
-<p style="margin-top: 1em">passwd:update_meta:type:min:max:index</p>
-
-<p style="margin-left:24%;">Do the same thing as
-<b>passwd:update:index</b>, but use <i>type</i>, <i>min</i>,
-and <i>max</i> as meta-data, instead of the passwords own
-(which might not even exist).</p>
-
-<p style="margin-top: 1em">redo</p>
-
-<p style="margin-left:24%; margin-top: 1em">Opposite of
-<b>undo</b>.</p>
-
-<p style="margin-top: 1em">undo</p>
-
-<p style="margin-left:24%; margin-top: 1em">CLI undo
-button; restore from latest auto-generated backup.</p>
-
-<p style="margin-top: 1em">verbose:on</p>
-
-<p style="margin-left:24%; margin-top: 1em">Enable verbose
-mode; release mosquitoes from hell that will be noisy and
-give you a headache.</p>
-
-<p style="margin-top: 1em">verbose:off</p>
-
-<p style="margin-left:24%; margin-top: 1em">Disable verbose
-mode; kill the mosquitoes.</p>
-
-<p style="margin-top: 1em">whistles</p>
-
-<p style="margin-left:24%; margin-top: 1em">Show message
-about the bells and whistles.</p>
-
-<p style="margin-top: 1em"><b>FILES</b></p>
-
-<p style="margin-left:6%;"><i>~/.passwdman/passwords</i> is
-a XML file containing all passwords.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/honeypots</i>
-is a XML file containing all honeypots.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/undoable</i>
-is a directory full of backups.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/redoable</i>
-is a directory full of backups.</p>
-
-<p style="margin-top: 1em"><b>DIAGNOSIS</b></p>
-
-<p style="margin-left:6%;">All error messages are sent to
-standard output and are prefixed with an exclamation
-mark.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>!syntax
-error&nbsp;</b> Bad speling or incorrect usage. The next
-line of output will be the offending input prefixed with an
-exclamation mark.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>!no
-meta&nbsp;</b> The command requires meta-data, but the
-password doesn&rsquo;t have any.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>!not
-found&nbsp;</b> Not found or index out of range</p>
-
-<p style="margin-top: 1em"><b>SEE ALSO</b></p>
-
-<p style="margin-left:6%;">passwdmanapi(3), random(4),
-urandom(4), passwdmanfiles(5)</p>
-
-<p style="margin-top: 1em"><b>BUGS</b></p>
-
-<p style="margin-left:6%;">Mosquitoes:</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;">If verbose mode is enabled the
-message &quot;#READY&quot; is written too many times.</p>
-
-<p style="margin-top: 1em"><b>SECURITY</b></p>
-
-<p style="margin-left:6%;"><b>passwdmancli</b> uses
-random(4) or urandom(4) for everything.</p>
-
-<p style="margin-top: 1em"><b>AUTHOR</b></p>
-
-<p style="margin-left:6%;">Written by Oskar Skog &lang;
-oskar.skog.finland@gmail.com&rang; .</p>
-
-<p style="margin-left:6%; margin-top: 1em">Please, send
-patches, questions, bug reports and wish-lists.</p>
-
-<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;15,
-2013 BSD</p>
-<hr/>
-</body>
-</html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANCLI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANCLI"><a id="passwdmancli1"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmancli  —  CLI for storing, generating and updating passwords and honeypots. </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">passwdmancli</code>   <em class="replaceable"><code>infile</code></em> </p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p><em class="replaceable"><code>infile</code></em>
+is the file
+<span class="command"><strong> passwdmancli </strong></span>
+will read its commands from, if
+<em class="replaceable"><code>infile</code></em>
+is omitted
+<span class="command"><strong> passwdmancli </strong></span>
+will read from standard input.</p><p><span class="command"><strong> passwdmancli </strong></span>
+reads its input as colon separated values.
+Quotes are either forbidden or optional (look at 
+unquote()
+in
+<span class="citerefentry"><span class="refentrytitle">passwdmanapi</span>(3)</span>
+).
+Integers are created with the python built-in
+int().
+All commands are listed in
+<a class="link" href="#commands" title="COMMANDS">COMMANDS</a>.
+If the line begins with a number-sign, the line will be ignored.
+If the line begins with a pipe-sign, it will write the rest of the line to
+standard output.</p><p>All outputs that are prefixed with an exclamation mark are error messages.
+All outputs that are prefixed with a number sign are messages for a human
+user.
+All other outputs are prefixed with their command (not their arguments),
+using dots instead of colons, followed by a question mark.</p><p>Beware of whitespace.
+The whitespace comes after colons and/or question marks and before quotes.</p><p>The passwords have meta-data.
+They have a minimum required length and a maximum allowed length.
+They also have a type which is one of:</p><div class="variablelist"><dl><dt><span class="term">10</span></dt><dd><p>The password may only use digits.</p></dd><dt><span class="term">64</span></dt><dd><p>The password can use big letters, small letters, digits, underscores and
+exclamation marks.</p></dd><dt><span class="term">human</span></dt><dd><p>The password is human generated.</p></dd></dl></div><p>The honeypots are weak passwords intended to be used as traps.</p><p>WARNING: If a command accepts a
+<code class="varname">name</code>
+and
+<code class="varname">index</code>
+argument, any string of digits will be treated as an index.</p></div><div class="refsect1" title="COMMANDS"><a id="commands"></a><h2>COMMANDS</h2><div class="variablelist"><dl><dt><span class="term">bells</span></dt><dd><p>Show message about the bells and whistles.</p></dd><dt><span class="term">bugs</span></dt><dd><p>Show message about wasps and mosquitoes.</p></dd><dt><span class="term">hell</span></dt><dd><p>Synonym for
+<span class="command"><strong>verbose:on</strong></span>.</p></dd><dt><span class="term">help</span></dt><dd><p>Help message.</p></dd><dt><span class="term">honeypot:add:'value'</span></dt><dd><p>Add a new honeypot with the value
+<code class="varname">value</code>.</p></dd><dt><span class="term">honeypot:help</span></dt><dd><p>Help message.</p></dd><dt><span class="term">honeypot:list</span></dt><dd><p>List all honeypots.
+Returns multiple lines of:
+"honeypot.list?",
+the index, a colon and the value surrounded by single quotes.</p></dd><dt><span class="term">honeypot:pick</span></dt><dd><p>Pick a honeypot.
+Returns a line of:
+"honeypot.pick?"
+followed by the honeypot surrounded by single quotes.</p></dd><dt><span class="term">honeypot:pick:n:'sep'</span></dt><dd><p>Pick
+<code class="varname">n</code>
+honeypots and separate them with
+<code class="varname">sep</code>.
+Returns a line of:
+"honeypot.pick?"
+followed by the separator-separated honeypots surrounded by single quotes.</p></dd><dt><span class="term">honeypot:remove:'value'</span></dt><dd><p>Remove the honeypot with the value
+<code class="varname">value</code>.</p></dd><dt><span class="term">honeypot:remove:index</span></dt><dd><p>Remove the honeypot at
+<code class="varname">index</code>.
+WARNING: The indexes of the following honeypots will be decreased by one!</p></dd><dt><span class="term">passwd:add:type:minlength:maxlength:'name'</span></dt><dd><p>Add a new password for
+<code class="varname">name</code>,
+with at least
+<code class="varname">minlength</code>
+letters, but no more than
+<code class="varname">maxlength</code>.
+If
+<code class="varname">type</code>
+is
+"10",
+the password will only contain digits.
+If
+<code class="varname">type</code>
+is
+"64",
+the password will contain big letters, small letters, digits, underscores and
+exclamation marks.
+It will not give any output.</p></dd><dt><span class="term">passwd:add_human:'name'</span></dt><dd><p>Add a human generated password for
+<code class="varname">name</code>.
+It will read the password on a new line.
+It will not give any output.</p></dd><dt><span class="term">passwd:get:'name'</span></dt><dd><p>Returns a line of:
+"passwd.get?"
+followed by the value of the password for
+<code class="varname">name</code>
+surrounded by single quotes.</p></dd><dt><span class="term">passwd:get:index</span></dt><dd><p>Returns a line of:
+"passwd.get?"
+followed by the value of the password at
+<code class="varname">index</code>
+surrounded by single quotes.</p></dd><dt><span class="term">passwd:help</span></dt><dd><p>Help message.</p></dd><dt><span class="term">passwd:list</span></dt><dd><p>List all passwords.
+Returns multiple lines of:
+"passwd.list?",
+the index, a colon and the name surrounded by single quotes.</p></dd><dt><span class="term">passwd:meta:'name'</span></dt><dd><p>Get the meta-data for the password for
+<code class="varname">name</code>.
+Returns a line of:
+"passwd.meta?",
+the type surrounded by single quotes, a colon, the minimum length for the
+password surrounded by single quotes, a colon and the maximum length for the
+password surrounded by single quotes.</p></dd><dt><span class="term">passwd:meta:index</span></dt><dd><p>Get the meta-data for the password at
+<code class="varname">index</code>.
+Returns a line of:
+"passwd.meta?",
+the type surrounded by single quotes, a colon, the minimum length for the
+password surrounded by single quotes, a colon and the maximum length for the
+password surrounded by single quotes.</p></dd><dt><span class="term">passwd:remove:'name'</span></dt><dd><p>Remove the password for
+<code class="varname">name</code>.</p></dd><dt><span class="term">passwd:remove:index</span></dt><dd><p>Remove the password at
+<code class="varname">index</code>.
+WARNING: The indexes of the following passwords will be decreased by one!</p></dd><dt><span class="term">passwd:update:'name'</span></dt><dd><p>Update the password for
+<code class="varname">name</code>
+using its meta-data.
+Returns a line of:
+"passwd.update?",
+the old password, a colon and the new password.</p></dd><dt><span class="term">passwd:update:index</span></dt><dd><p>Update the password at
+<code class="varname">index</code>
+using its meta-data.
+Returns a line of:
+"passwd.update?",
+the old password, a colon and the new password.</p></dd><dt><span class="term">passwd:update_meta:type:min:max:'name'</span></dt><dd><p>Do the same thing as
+<span class="command"><strong>passwd:update:'name'</strong></span>,
+but use
+<code class="varname">type</code>,
+<code class="varname">min</code>,
+and
+<code class="varname">max</code>
+as meta-data, instead of the passwords own (which might not even exist).</p></dd><dt><span class="term">passwd:update_meta:type:min:max:index</span></dt><dd><p>Do the same thing as
+<span class="command"><strong>passwd:update:index</strong></span>,
+but use
+<code class="varname">type</code>,
+<code class="varname">min</code>,
+and
+<code class="varname">max</code>
+as meta-data, instead of the passwords own (which might not even exist).</p></dd><dt><span class="term">redo</span></dt><dd><p>Opposite of
+<span class="command"><strong>undo</strong></span>.</p></dd><dt><span class="term">undo</span></dt><dd><p>CLI undo button; restore from latest auto-generated backup.</p></dd><dt><span class="term">verbose:on</span></dt><dd><p>Enable verbose mode; release mosquitoes from hell that will be noisy and give
+you a headache.</p></dd><dt><span class="term">verbose:off</span></dt><dd><p>Disable verbose mode; kill the mosquitoes.</p></dd><dt><span class="term">whistles</span></dt><dd><p>Show message about the bells and whistles.</p></dd></dl></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
+is a XML file containing all passwords.</p><p><code class="filename">~/.passwdman/honeypots</code>
+is a XML file containing all honeypots.</p><p><code class="filename">~/.passwdman/undoable</code>
+is a directory full of backups.</p><p><code class="filename">~/.passwdman/redoable</code>
+is a directory full of backups.</p></div><div class="refsect1" title="DIAGNOSIS"><a id="diagnosis"></a><h2>DIAGNOSIS</h2><p>All error messages are sent to standard output and are prefixed with an
+exclamation mark.</p><div class="variablelist"><dl><dt><span class="term">!syntax error</span></dt><dd><p>Bad speling or incorrect usage.
+The next line of output will be the offending input prefixed with an
+exclamation mark.</p></dd><dt><span class="term">!no meta</span></dt><dd><p>The command requires meta-data, but the password doesn't have any.</p></dd><dt><span class="term">!not found</span></dt><dd><p>Not found or index out of range</p></dd></dl></div></div><div class="refsect1" title="SEE ALSO"><a id="see_also"></a><h2>SEE ALSO</h2><p><span class="citerefentry"><span class="refentrytitle">passwdmanapi</span>(3)</span>,
+<span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>,
+<span class="citerefentry"><span class="refentrytitle">urandom</span>(4)</span>,
+<span class="citerefentry"><span class="refentrytitle">passwdmanfiles</span>(5)</span></p></div><div class="refsect1" title="BUGS"><a id="bugs"></a><h2>BUGS</h2><p>Mosquitoes:</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>If verbose mode is enabled the message
+"#READY"
+is written too many times.</p></li></ul></div></div><div class="refsect1" title="SECURITY"><a id="security"></a><h2>SECURITY</h2><p><span class="command"><strong> passwdmancli </strong></span>
+uses
+<span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>
+or
+<span class="citerefentry"><span class="refentrytitle">urandom</span>(4)</span>
+for everything.</p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
+Oskar Skog (oskar.skog.finland@gmail.com).</p><p>Please, send patches, questions, bug reports and wish-lists.</p></div></div></body></html>

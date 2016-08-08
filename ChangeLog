@@ -1,3 +1,8 @@
+2013-Nov-16
+0.1.5   Improved passwdmanfiles.xml.
+        PDF and PS.
+        mdoc -> Docbook -> (xhtml, pdf, ps)
+
 2013-Nov-15     Oskar Skog      <oskar.skog.finland@gmail.com>
 0.1.4   Improved passwdmanapi.xml. Doesn't validate, but looks good with
         --skip-validation.

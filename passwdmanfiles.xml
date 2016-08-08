@@ -39,7 +39,7 @@ POSSIBILITY OF SUCH DAMAGE. -->
 </refmeta>
 
 <refnamediv id='purpose'>
-<refname> ~/.passwdman/passwords  @GLUE@,</refname>
+<refname>~/.passwdman/passwords, ~/.passwdman/honeypots, ~/.passwdman/undoable/, ~/.passwdman/redoable/, ~/.passwdman/gui.conf</refname>
 <refpurpose> data-files for passwdman. </refpurpose>
 </refnamediv>
 <!-- body begins here -->

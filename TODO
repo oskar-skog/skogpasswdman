@@ -9,4 +9,4 @@
 *       in "configure.2": dirs() should figure out more directories.
 0.2     A pick() that returns a list.
 0.2     Rewrite unquote().
-0.2     Generate PDF, PS, DVI and XHTML from Docbook.
+*       info

@@ -1,179 +1,64 @@
-<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
-All rights reserved. -->
-
-<!-- Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met: -->
-
-<!-- 1.  Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer. -->
-
-<!-- 2.  Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution. -->
-
-<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE. -->
-<?xml version="1.0" encoding="us-ascii"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
- "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
- [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
-<meta name="Content-Style" content="text/css"/>
-<style type="text/css">
-       .center { text-align: center }
-       .right  { text-align: right }
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Fri Nov 15 20:24:27 2013 -->
-<title></title>
-</head>
-<body>
-
-<hr/>
-
-
-<p>PASSWDMANFILES(5) BSD File Formats Manual
-PASSWDMANFILES(5)</p>
-
-<p style="margin-top: 1em"><b>NAME</b></p>
-
-<p style="margin-left:6%;"><b>~/.passwdman/passwords</b>,
-<b>~/.passwdman/honeypots</b>,
-<b>~/.passwdman/undoable/</b>,
-<b>~/.passwdman/redoable/</b>, <b>~/.passwdman/gui.conf</b>
-&mdash; data-files for passwdman.</p>
-
-
-<p style="margin-top: 1em"><i>~/.passwdman/passwords</i></p>
-
-<p style="margin-left:6%;">The password list. It is an XML
-file, you are expected to understand an example of the
-file.</p>
-
-<p style="margin-left:6%; margin-top: 1em">&lt;?xml
-version=&rsquo;1.0&rsquo; encoding=&rsquo;UTF-8&rsquo;?&gt;
-<br/>
-&lt;root magic=&quot;passwdman&quot;
-file=&quot;passwords&quot; version=&quot;0.1&quot;&gt; <br/>
-&lt;!--The attribute &rsquo;magic&rsquo; may not be changed.
-<br/>
-The major version may not be greater than zero. <br/>
-The attribute &rsquo;file&rsquo; is used to make sure that
-it is the right file.--&gt; <br/>
-&lt;passwd name=&quot;What the password is for&quot;
-value=&quot;top_secret&quot;/&gt; <br/>
-&lt;passwd name=&quot;TEST&quot;
-value=&quot;0123456789&quot;&gt; <br/>
-&lt;!--A &rsquo;passwd&rsquo;-element is allowed to contain
-a &rsquo;meta&rsquo;-element.--&gt; <br/>
-&lt;meta type=&quot;10&quot; minlength=&quot;4&quot;
-maxlength=&quot;255&quot;/&gt; <br/>
-&lt;!--type == &quot;human&quot;: <br/>
-Human generated password. <br/>
-type == &quot;10&quot;: <br/>
-Digits only. <br/>
-type == &quot;64&quot;: <br/>
-Digits, big letters, small letters, underscores and <br/>
-exclamation marks. <br/>
-&rsquo;minlength&rsquo; is the minimal length required for
-the password. <br/>
-&rsquo;maxlength&rsquo; is the maximal length allowed for
-the password.</p>
-
-<p style="margin-left:6%; margin-top: 1em">The meta-data is
-used when updating the password.--&gt; <br/>
-&lt;/passwd&gt; <br/>
-&lt;/root&gt;</p>
-
-
-<p style="margin-top: 1em"><i>~/.passwdman/honeypots</i></p>
-
-<p style="margin-left:6%;">The list of honeypots. The
-honeypots are fake-passwords, to help catching crackers.
-This too is a XML file.</p>
-
-<p style="margin-left:6%; margin-top: 1em">&lt;?xml
-version=&rsquo;1.0&rsquo; encoding=&rsquo;UTF-8&rsquo;?&gt;
-<br/>
-&lt;root file=&quot;honeypots&quot;
-magic=&quot;passwdman&quot; version=&quot;0.1&quot;&gt;
-<br/>
-&lt;!--look at ~/.passwdman/passwords--&gt; <br/>
-&lt;honeypot value=&quot;BadPassword&quot;/&gt; <br/>
-&lt;honeypot
-value=&quot;putme_injail_ifi_typethis&quot;/&gt; <br/>
-&lt;/root&gt;</p>
-
-
-<p style="margin-top: 1em"><i>~/.passwdman/undoable</i></p>
-
-<p style="margin-left:6%;">Backups. The <b>undo</b>()
-function looks for the newest file and doesn&rsquo;t care
-about the filename. If &quot;passwords&quot; is in the
-filename, the file is a backup of
-<i>~/.passwdman/passwords</i>. If &quot;honeypots&quot; is
-in the filename, the file is a backups of
-<i>~/.passwdman/honeypots</i>. It copies the current state
-to <i>~/.passwdman/redoable</i> before it restores from the
-backup.</p>
-
-
-<p style="margin-top: 1em"><i>~/.passwdman/redoable</i></p>
-
-<p style="margin-left:6%;">The opposite of
-<i>~/.passwdman/undoable</i>. The function is
-<b>redo</b>().</p>
-
-
-<p style="margin-top: 1em"><i>~/.passwdman/gui.conf</i></p>
-
-<p style="margin-left:6%;">The GUI configuration file:</p>
-
-<p style="margin-left:6%; margin-top: 1em">#Configuration
-file for passwdmangui. <br/>
-#If there is any number-sign in a line, the line is a
-comment. <br/>
-This is a comment. # <br/>
-#It knows about &rsquo;show_passwd&rsquo;,
-&rsquo;true&rsquo; and &rsquo;false&rsquo;. <br/>
-#It is case sensitive. <br/>
-show_passwd false</p>
-
-<p style="margin-top: 1em"><b>SEE ALSO</b></p>
-
-<p style="margin-left:6%;">passwdmancli(1), passwdmangui(1)
-and passwdmanapi(3).</p>
-
-<p style="margin-top: 1em"><b>BUGS</b></p>
-
-<p style="margin-left:6%;">The documentation.</p>
-
-<p style="margin-top: 1em"><b>AUTHOR</b></p>
-
-<p style="margin-left:6%;">Written by Oskar Skog &lang;
-oskar.skog.finland@gmail.com&rang; .</p>
-
-<p style="margin-left:6%; margin-top: 1em">Please, send
-patches, questions, bug reports and wish-lists.</p>
-
-<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;15,
-2013 BSD</p>
-<hr/>
-</body>
-</html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANFILES</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANFILES"><a id="passwdmanfiles5"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p>~/.passwdman/passwords, ~/.passwdman/honeypots, ~/.passwdman/undoable/, ~/.passwdman/redoable/, ~/.passwdman/gui.conf —  data-files for passwdman. </p></div><div class="refsect1" title="~/.passwdman/passwords"><a id="pa_passwdmanpasswords"></a><h2>~/.passwdman/passwords</h2><p>The password list.
+It is an XML file, you are expected to understand an example of the file.</p><pre class="programlisting">
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;root magic="passwdman" file="passwords" version="0.1"&gt;
+    &lt;!--The attribute 'magic' may not be changed.
+    The major version may not be greater than zero.
+    The attribute 'file' is used to make sure that it is the right file.——&gt;
+    &lt;passwd name="What the password is for" value="top_secret"/&gt;
+    &lt;passwd name="TEST" value="0123456789"&gt;
+        &lt;!--A 'passwd'-element is allowed to contain a 'meta'-element.——&gt;
+        &lt;meta type="10" minlength="4" maxlength="255"/&gt;
+        &lt;!--type == "human":
+                Human generated password.
+            type == "10":
+                Digits only.
+            type == "64":
+                Digits, big letters, small letters, underscores and
+                exclamation marks.
+            'minlength' is the minimal length required for the password.
+            'maxlength' is the maximal length allowed for the password.
+            
+            The meta-data is used when updating the password.——&gt;
+    &lt;/passwd&gt;
+&lt;/root&gt;
+</pre></div><div class="refsect1" title="~/.passwdman/honeypots"><a id="pa_passwdmanhoneypots"></a><h2>~/.passwdman/honeypots</h2><p>The list of honeypots.
+The honeypots are fake-passwords, to help catching crackers.
+This too is a XML file.</p><pre class="programlisting">
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;root file="honeypots" magic="passwdman" version="0.1"&gt;
+    &lt;!--look at ~/.passwdman/passwords——&gt;
+    &lt;honeypot value="BadPassword"/&gt;
+    &lt;honeypot value="putme_injail_ifi_typethis"/&gt;
+&lt;/root&gt;
+</pre></div><div class="refsect1" title="~/.passwdman/undoable"><a id="pa_passwdmanundoable"></a><h2>~/.passwdman/undoable</h2><p>Backups.
+The
+undo()
+function looks for the newest file and doesn't care about the filename.
+If
+"passwords"
+is in the filename, the file is a backup of 
+<code class="filename">~/.passwdman/passwords</code>.
+If
+"honeypots"
+is in the filename, the file is a backups of
+<code class="filename">~/.passwdman/honeypots</code>.
+It copies the current state to
+<code class="filename">~/.passwdman/redoable</code>
+before it restores from the backup.</p></div><div class="refsect1" title="~/.passwdman/redoable"><a id="pa_passwdmanredoable"></a><h2>~/.passwdman/redoable</h2><p>The opposite of
+<code class="filename">~/.passwdman/undoable</code>.
+The function is
+redo().</p></div><div class="refsect1" title="~/.passwdman/gui.conf"><a id="pa_passwdmanguiconf"></a><h2>~/.passwdman/gui.conf</h2><p>The GUI configuration file:</p><pre class="programlisting">
+#Configuration file for passwdmangui.
+#If there is any number-sign in a line, the line is a comment.
+This is a comment. #
+#It knows about 'show_passwd', 'true' and 'false'.
+ #It is case sensitive.
+show_passwd false
+</pre></div><div class="refsect1" title="SEE ALSO"><a id="see_also"></a><h2>SEE ALSO</h2><p><span class="citerefentry"><span class="refentrytitle">passwdmancli</span>(1)</span>,
+<span class="citerefentry"><span class="refentrytitle">passwdmangui</span>(1)</span>
+and
+<span class="citerefentry"><span class="refentrytitle">passwdmanapi</span>(3)</span>.</p></div><div class="refsect1" title="BUGS"><a id="bugs"></a><h2>BUGS</h2><p>The documentation.</p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
+Oskar Skog (oskar.skog.finland@gmail.com).</p><p>Please, send patches, questions, bug reports and wish-lists.</p></div></div></body></html>

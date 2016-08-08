@@ -1,469 +1,301 @@
-<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
-All rights reserved. -->
-
-<!-- Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met: -->
-
-<!-- 1.  Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer. -->
-
-<!-- 2.  Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution. -->
-
-<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE. -->
-<?xml version="1.0" encoding="us-ascii"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
- "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
- [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
-<meta name="Content-Style" content="text/css"/>
-<style type="text/css">
-       .center { text-align: center }
-       .right  { text-align: right }
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Fri Nov 15 20:28:47 2013 -->
-<title></title>
-</head>
-<body>
-
-<hr/>
-
-
-<p>PASSWDMANAPI(3) BSD Library Functions Manual
-PASSWDMANAPI(3)</p>
-
-<p style="margin-top: 1em"><b>NAME</b></p>
-
-<p style="margin-left:6%;"><b>passwdmanapi</b> &mdash;
-library used by passwdmancli and passwdmangui</p>
-
-<p style="margin-top: 1em"><b>SYNOPSIS</b></p>
-
-<p style="margin-left:6%;"><b>#!/usr/bin/python <br/>
-import passwdmanapi</b></p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>open_rng()
-<br/>
-get64(length) <br/>
-get10(length) <br/>
-getint(a, b) <br/>
-unquote(x) <br/>
-undo(passwdobj=None, honeypotobj=None) <br/>
-redo(passwdobj=None, honeypotobj=None) <br/>
-class common_data() <br/>
-class passwd(common_data) <br/>
-class honeypot(common_data)</b></p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>class
-common_data(): <br/>
-__init__(self, xmlfile) <br/>
-__iter__(self) <br/>
-__next__(self) <br/>
-next(self) <br/>
-__getitem__(self, i) <br/>
-__len__(self) <br/>
-remove(self, x, xmlfile, element_name, attrib_name,
-is_numstring=False) <br/>
-writexml(self, xmlfile) <br/>
-__del__(self)</b></p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>passwd(common_data):
-<br/>
-__init__(self) <br/>
-add(self, name, value, m_type, m_minlength, m_maxlength)
-<br/>
-add_nometa(self, name, value) <br/>
-remove(self, x, is_numstring=False) <br/>
-__repr__(self) <br/>
-mkindex(self, x, is_numstring=False) <br/>
-update(self, index) <br/>
-update_meta(self, index, m_type, m_minlength,
-m_maxlength)</b></p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>class
-honeypot(common_data): <br/>
-__init__(self) <br/>
-add(self, value) <br/>
-remove(self, x, is_numstring=False) <br/>
-pick(self, n=1, sep=&quot;,&quot;, log_vs_raise=True) <br/>
-__repr__(self)</b></p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>Exceptions
-<br/>
-class err_norandom(Exception) <br/>
-class err_nolength(Exception) <br/>
-class err_loaderr(Exception) <br/>
-class err_notfound(Exception) <br/>
-class err_duplicate(Exception) <br/>
-class err_idiot(Exception) <br/>
-class err_nometa(Exception)</b></p>
-
-<p style="margin-top: 1em"><b>DESCRIPTION</b></p>
-
-<p style="margin-left:6%;">Unless otherwise noted,
-<i>xmlfile</i> is a path.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>open_rng</b>()
-opens random(4) (or urandom(4), if random could not be
-opened). Returns a file open for reading binary. Raises
-err_norandom.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>get10</b>()
-and <b>get64</b>() returns a random string of <i>length</i>
-letters. <b>get10</b>() returns digits. <b>get64</b>()
-returns digits, big letters, small letters, underscores and
-exclamation marks. Raises err_norandom and err_nolength.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>getint</b>()
-returns a random integer &gt;= <i>a</i>, &lt;= <i>b</i>.
-Raises err_norandom and err_nolength.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>unquote</b>()
-returns the string <i>x</i> without its surrounding quotes.
-If the string is not surrounded be quotes, the string will
-be returned unchanged.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>undo</b>()
-undoes the latest change to the password list or honey pot
-list, by restoring from the newest auto-generated backup. It
-requires <i>passwdobj</i> which is the <b>passwd</b>()
-object and <i>honeypotobj</i> which is the <b>honeypot</b>()
-object. Raises err_idiot.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>redo</b>()
-redoes the latest undone change to the password list or
-honey pot list, by restoring from the newest auto-generated
-backup from <b>undo</b>(). Raises err_idiot.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>common_data</b>()
-is a class defining methods used by both <b>passwd</b>() and
-<b>honeypot</b>().</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>passwd</b>()
-is a class for the password list. <b>honeypot</b>() is a
-class for the honey-pot list. See <i>FILES</i>.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>class
-common_data(): <br/>
-__init__</b>() will load the data from <i>xmlfile</i>.
-Raises err_loaderr.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>__iter__</b>()
-resets the index and returns <i>self</i>.
-<b>__getitem__</b>() returns the password/honeypot at
-<i>i</i>. <b>__len__</b>() returns the number of
-passwords/honeypots.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>remove</b>()
-removes the password/honeypot at <i>x</i>, which can be an
-integer or a stringed integer or the value of the
-password/honeypot, from the datastructure <i>self</i> and
-the file <i>xmlfile</i>. <i>element_name</i> and
-<i>attrib_name</i> tells it what elements in the XML file
-and attributes it should loop through, remove and find a
-match for <i>x</i> in. Set <i>is_numstring</i> to True if
-<i>x</i> is a string containing digits. If you don&rsquo;t
-set it, then <i>x</i> will be treated as an index. Raises
-err_notfound.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>writexml</b>()
-writes the datastructure <i>self</i> to the file
-<i>xmlfile</i>. It creates a backup of <i>xmlfile</i> to
-<i>~/.passwdman/undoable</i>.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>class
-passwd(common_data) <br/>
-passwd</b>() loads its data from the XML
-<i>~/.passwdman/passwords</i>.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><i>self[index][&quot;name&quot;]</i>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANAPI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANAPI"><a id="passwdmanapi3"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmanapi  —  library used by passwdmancli and passwdmangui </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><pre class="synopsis">
+#!/usr/bin/python<br />
+import passwdmanapi<br />
+open_rng()<br />
+get64(length)<br />
+get10(length)<br />
+getint(a, b)<br />
+unquote(x)<br />
+undo(passwdobj=None, honeypotobj=None)<br />
+redo(passwdobj=None, honeypotobj=None)<br />
+class common_data()<br />
+class passwd(common_data)<br />
+class honeypot(common_data)<br />
+</pre><br /><br /><div class="refsect2" title="class common_data():"><a id="class_common_data"></a><h3>class common_data():</h3><p>__init__(self, xmlfile)<br />
+__iter__(self)<br />
+__next__(self)<br />
+next(self)<br />
+__getitem__(self, i)<br />
+__len__(self)<br />
+remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)<br />
+writexml(self, xmlfile)<br />
+__del__(self)</p></div><br /><div class="refsect2" title="passwd(common_data):"><a id="passwdcommon_data"></a><h3>passwd(common_data):</h3><p>__init__(self)<br />
+add(self, name, value, m_type, m_minlength, m_maxlength)<br />
+add_nometa(self, name, value)<br />
+remove(self, x, is_numstring=False)<br />
+__repr__(self)<br />
+mkindex(self, x, is_numstring=False)<br />
+update(self, index)<br />
+update_meta(self, index, m_type, m_minlength, m_maxlength)</p></div><br /><div class="refsect2" title="class honeypot(common_data):"><a id="class_honeypotcommon_data"></a><h3>class honeypot(common_data):</h3><p>__init__(self)<br />
+add(self, value)<br />
+remove(self, x, is_numstring=False)<br />
+pick(self, n=1, sep=",", log_vs_raise=True)<br />
+__repr__(self)</p></div><br /><div class="refsect2" title="Exceptions"><a id="exceptions"></a><h3>Exceptions</h3><p>class err_norandom(Exception)<br />
+class err_nolength(Exception)<br />
+class err_loaderr(Exception)<br />
+class err_notfound(Exception)<br />
+class err_duplicate(Exception)<br />
+class err_idiot(Exception)<br />
+class err_nometa(Exception)</p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p>Unless otherwise noted,
+<code class="varname">xmlfile</code>
+is a path.</p><p>open_rng()
+opens
+<span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>
+(or
+<span class="citerefentry"><span class="refentrytitle">urandom</span>(4)</span>,
+if random could not be opened).
+Returns a file open for reading binary.
+Raises
+<span class="errorcode">err_norandom</span>.</p><p>get10()
+and
+get64()
+returns a random string of
+<code class="varname">length</code>
+letters.
+get10()
+returns digits.
+get64()
+returns digits, big letters, small letters, underscores and exclamation
+marks.
+Raises
+<span class="errorcode">err_norandom</span>
+and
+<span class="errorcode">err_nolength</span>.</p><p>getint()
+returns a random integer &gt;=
+<code class="varname">a</code>,
+&lt;=
+<code class="varname">b</code>.
+Raises
+<span class="errorcode">err_norandom</span>
+and
+<span class="errorcode">err_nolength</span>.</p><p>unquote()
+returns the string
+<code class="varname">x</code>
+without its surrounding quotes.
+If the string is not surrounded be quotes, the string will be returned
+unchanged.</p><p>undo()
+undoes the latest change to the password list or honey pot list, by restoring
+from the newest auto-generated backup.
+It requires
+<code class="varname">passwdobj</code>
+which is the
+passwd()
+object and
+<code class="varname">honeypotobj</code>
+which is the
+honeypot()
+object.
+Raises
+<span class="errorcode">err_idiot</span>.</p><p>redo()
+redoes the latest undone change to the password list or honey pot list, by
+restoring from the newest auto-generated backup from
+undo().
+Raises
+<span class="errorcode">err_idiot</span>.</p><p>common_data()
+is a class defining methods used by both
+passwd()
+and
+honeypot().</p><p>passwd()
+is a class for the password list.
+honeypot()
+is a class for the honey-pot list.
+See
+<a class="link" href="#files" title="FILES">FILES</a>.</p><div class="refsect2" title="class common_data():"><a id="class_common_data2"></a><h3>class common_data():</h3><p>__init__()
+will load the data from
+<code class="varname">xmlfile</code>.
+Raises
+<span class="errorcode">err_loaderr</span>.</p><p>__iter__()
+resets the index and returns
+<code class="varname">self</code>.
+__getitem__()
+returns the password/honeypot at
+<code class="varname">i</code>.
+__len__()
+returns the number of passwords/honeypots.</p><p>remove()
+removes the password/honeypot at
+<code class="varname">x</code>,
+which can be an integer or a stringed integer or the value of the
+password/honeypot, from the datastructure
+<code class="varname">self</code>
+and the file
+<code class="varname">xmlfile</code>.
+<code class="varname">element_name</code>
+and
+<code class="varname">attrib_name</code>
+tells it what elements in the XML file and attributes it should loop through,
+remove and find a match for
+<code class="varname">x</code>
+in.
+Set
+<code class="varname">is_numstring</code>
+to True if
+<code class="varname">x</code>
+is a string containing digits.
+If you don't set it, then
+<code class="varname">x</code>
+will be treated as an index.
+Raises
+<span class="errorcode">err_notfound</span>.</p><p>writexml()
+writes the datastructure
+<code class="varname">self</code>
+to the file
+<code class="varname">xmlfile</code>.
+It creates a backup of
+<code class="varname">xmlfile</code>
+to
+<code class="filename">~/.passwdman/undoable</code>.</p></div><div class="refsect2" title="class passwd(common_data)"><a id="class_passwdcommon_data"></a><h3>class passwd(common_data)</h3><p>passwd()
+loads its data from the XML
+<code class="filename">~/.passwdman/passwords</code>.</p><p><code class="varname">self[index]["name"]</code>
 is the name/purpose of the password.
-<i>self[index][&quot;value&quot;]</i> is the value of the
-password.
-<i>self[index][&quot;meta&quot;][&quot;minlength&quot;]</i>
+<code class="varname">self[index]["value"]</code>
+is the value of the password.
+<code class="varname">self[index]["meta"]["minlength"]</code>
 is the minimal length required for the password.
-<i>self[index][&quot;meta&quot;][&quot;maxlength&quot;]</i>
+<code class="varname">self[index]["meta"]["maxlength"]</code>
 is the maximal length allowed for the password.
-<i>self[index][&quot;meta&quot;][&quot;type&quot;]</i> is
-the type of the password, which is one of:</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>10&nbsp;</b>
-The password may only use digits.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>64&nbsp;</b>
-The password can use big letters, small letters, digits,
-underscores and exclamation marks.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>human&nbsp;</b>
-The password is human generated.</p>
-
-<p style="margin-left:6%; margin-top: 1em">If a password
-has no meta-data in <i>~/.passwdman/passwords</i>, its
-<i>minlength</i> and <i>maxlength</i> will be zero, and its
-<i>type</i> will be &quot;human&quot;.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>passwd.add</b>()
-and <b>passwd.add_nometa</b>() adds a password for
-<i>name</i> with the value <i>value</i>. <b>add_nometa</b>()
-adds a password without real meta-data while <b>add</b>()
-requires meta-data (the <i>m_type</i> must be a string and
-<i>m_minlength</i> and <i>m_maxlength</i> can be either an
-integer or a stringed integer). Raises err_duplicate.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>passwd.remove</b>()
-removes the password <i>x</i>. <i>x</i> can be either a
-string matching a password&rsquo;s name or an integer
-(index) or a stringed integer. Set <i>is_numstring</i> to
-True if <i>x</i> is a string containing digits. If you
-don&rsquo;t set it, then <i>x</i> will be treated as an
-index. Raises err_notfound.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>passwd.mkindex</b>()
-find <i>x</i> and return an index. <i>x</i> can be either a
-string matching a password&rsquo;s name or a stringed
-integer (index). Set <i>is_numstring</i> to True if <i>x</i>
-is a string containing digits. If you don&rsquo;t set it,
-then <i>x</i> will be treated as an index. Raises
-err_notfound.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>passwd.update</b>()
-and <b>passwd.update_meta</b>() updates the password at
-<i>index</i> automatically by generating a password of the
-right type and an acceptable length. <b>update</b>() uses
-the password&rsquo;s own meta-data while
-<b>update_meta</b>() gives the password new meta-data from
-<i>m_type</i>, <i>m_minlength</i> and <i>m_maxlength</i>.
-<i>m_type</i> must be a string, <i>m_minlength</i> and
-<i>m_maxlength</i> can be either an integer or a stringed
-integer. Raises err_notfound, err_idiot and err_nometa.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>class
-honeypot(common_data)</b> <br/>
-The honey pots are weak passwords supposed to only be used
-as traps. <b>honeypot</b>() loads its data from the XML
-<i>~/.passwdman/honeypots</i>. <i>self[index]</i> is the
-value of the honeypot.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>honeypot.add</b>()
-adds a new honeypot with the value <i>value</i>. Raises
-err_duplicate.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>honeypot.remove</b>()
-removes the honeypot <i>x</i>. <i>x</i> is either an index
-(integer) or a stringed integer or the value of the
-honeypot. Set <i>is_numstring</i> to True if <i>x</i> is a
-string containing digits. If you don&rsquo;t set it, then
-<i>x</i> will be treated as an index. Raises
-err_notfound.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><b>honeypot.pick</b>()
-picks <i>n</i> random honeypots and returns a string of
-honeypots separated with <i>sep</i>. If <i>log_vs_raise</i>
-is true, it will log an error if <i>n</i> is too big. If
-<i>log_vs_raise</i> is false, it will raise err_idiot.</p>
-
-<p style="margin-top: 1em"><b>Exceptions</b></p>
-
-<p style="margin-left:6%;">err_norandom is raised when
-neither random(4) or urandom(4) can be opened.</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>open_rng</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>get10</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>get64</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>getint</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd.update</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-
-<p style="margin-left:12%;"><b>passwd.update_meta</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>honeypot.pick</b>()</p>
-
-<p style="margin-left:6%; margin-top: 1em">err_nolength is
-raised when a function is called with an invalid length.</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>get64</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>get10</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>getint</b>()</p>
-
-<p style="margin-left:6%; margin-top: 1em">err_loaderr is
-raised if data cannot be loaded from file.</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>common_data</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>honeypot</b>()</p>
-
-<p style="margin-left:6%; margin-top: 1em">err_notfound is
-raised if index is out of range or if it cannot find a
-match.</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-
-<p style="margin-left:12%;"><b>common_data.remove</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd.remove</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd.mkindex</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd.update</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-
-<p style="margin-left:12%;"><b>passwd.update_meta</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>honeypot.remove</b>()</p>
-
-<p style="margin-left:6%; margin-top: 1em">err_duplicate is
-raised if it is attempted to add a password with the same
-name as another or if its is attempted to add a honeypot
-with the same value as another.</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd.add</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd.add_nometa</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>honeypot.add</b>()</p>
-
-<p style="margin-left:6%; margin-top: 1em">err_idiot is
-raised if the function was not used correctly.</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-
-<p style="margin-left:12%;"><b>passwd.update_meta</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>honeypot.pick</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>undo</b>()</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>redo</b>()</p>
-
-<p style="margin-left:6%; margin-top: 1em">err_nometa is
-raised when meta-data is required, but the meta-data was
-nonexistent, corrupt or no good.</p>
-
-<p style="margin-top: 1em"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwd.update</b>()</p>
-
-<p style="margin-top: 1em"><b>BUGS <br/>
-FILES</b></p>
-
-<p style="margin-left:6%;"><i>~/.passwdman/passwords</i> is
-the XML file containing the passwords and their
-meta-data.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/honeypots</i>
-is the XML file containing the honeypots.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/undoable/</i>
-is where the auto-generated backups live.</p>
-
-
-<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/redoable/</i>
-is where the backups generated by <b>undo</b>() live.</p>
-
-<p style="margin-top: 1em"><b>AUTHOR</b></p>
-
-<p style="margin-left:6%;">Written by Oskar Skog &lang;
-oskar.skog.finland@gmail.com&rang; .</p>
-
-<p style="margin-left:6%; margin-top: 1em">Please, send
-patches, questions, bug reports and wish-lists.</p>
-
-<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;15,
-2013 BSD</p>
-<hr/>
-</body>
-</html>
+<code class="varname">self[index]["meta"]["type"]</code>
+is the type of the password, which is one of:</p><div class="variablelist"><dl><dt><span class="term">10</span></dt><dd><p>The password may only use digits.</p></dd><dt><span class="term">64</span></dt><dd><p>The password can use big letters, small letters, digits, underscores and
+exclamation marks.</p></dd><dt><span class="term">human</span></dt><dd><p>The password is human generated.</p></dd></dl></div><p>If a password has no meta-data in
+<code class="filename">~/.passwdman/passwords</code>,
+its
+<code class="varname">minlength</code>
+and
+<code class="varname">maxlength</code>
+will be zero, and its
+<code class="varname">type</code>
+will be
+"human".</p><p>passwd.add()
+and
+passwd.add_nometa()
+adds a password for
+<code class="varname">name</code>
+with the value
+<code class="varname">value</code>.
+add_nometa()
+adds a password without real meta-data while
+add()
+requires meta-data (the
+<code class="varname">m_type</code>
+must be a string and
+<code class="varname">m_minlength</code>
+and
+<code class="varname">m_maxlength</code>
+can be either an integer or a stringed integer).
+Raises
+<span class="errorcode">err_duplicate</span>.</p><p>passwd.remove()
+removes the password
+<code class="varname">x</code>.
+<code class="varname">x</code>
+can be either a string matching a password's name or an integer (index) or a
+stringed integer.
+Set
+<code class="varname">is_numstring</code>
+to True if
+<code class="varname">x</code>
+is a string containing digits.
+If you don't set it, then
+<code class="varname">x</code>
+will be treated as an index.
+Raises
+<span class="errorcode">err_notfound</span>.</p><p>passwd.mkindex()
+find
+<code class="varname">x</code>
+and return an index.
+<code class="varname">x</code>
+can be either a string matching a password's name or a stringed integer
+(index).
+Set
+<code class="varname">is_numstring</code>
+to True if
+<code class="varname">x</code>
+is a string containing digits.
+If you don't set it, then
+<code class="varname">x</code>
+will be treated as an index.
+Raises
+<span class="errorcode">err_notfound</span>.</p><p>passwd.update()
+and
+passwd.update_meta()
+updates the password at
+<code class="varname">index</code>
+automatically by generating a password of the right type and an acceptable
+length.
+update()
+uses the password's own meta-data while
+update_meta()
+gives the password new meta-data from
+<code class="varname">m_type</code>,
+<code class="varname">m_minlength</code>
+and
+<code class="varname">m_maxlength</code>.
+<code class="varname">m_type</code>
+must be a string,
+<code class="varname">m_minlength</code>
+and
+<code class="varname">m_maxlength</code>
+can be either an integer or a stringed integer.
+Raises
+<span class="errorcode">err_notfound</span>,
+<span class="errorcode">err_idiot</span>
+and
+<span class="errorcode">err_nometa</span>.</p></div><div class="refsect2" title="class honeypot(common_data)"><a id="class_honeypotcommon_data2"></a><h3>class honeypot(common_data)</h3><p>The honey pots are weak passwords supposed to only be used as traps.
+honeypot()
+loads its data from the XML
+<code class="filename">~/.passwdman/honeypots</code>.
+<code class="varname">self[index]</code>
+is the value of the honeypot.</p><p>honeypot.add()
+adds a new honeypot with the value
+<code class="varname">value</code>.
+Raises
+<span class="errorcode">err_duplicate</span>.</p><p>honeypot.remove()
+removes the honeypot
+<code class="varname">x</code>.
+<code class="varname">x</code>
+is either an index (integer) or a stringed integer or the value of the
+honeypot.
+Set
+<code class="varname">is_numstring</code>
+to True if
+<code class="varname">x</code>
+is a string containing digits.
+If you don't set it, then
+<code class="varname">x</code>
+will be treated as an index.
+Raises
+<span class="errorcode">err_notfound</span>.</p><p>honeypot.pick()
+picks
+<code class="varname">n</code>
+random honeypots and returns a string of
+honeypots separated with
+<code class="varname">sep</code>.
+If
+<code class="varname">log_vs_raise</code>
+is true, it will log an error if
+<code class="varname">n</code>
+is too big.
+If
+<code class="varname">log_vs_raise</code>
+is false, it will raise
+<span class="errorcode">err_idiot</span>.</p></div></div><div class="refsect1" title="Exceptions"><a id="exceptions2"></a><h2>Exceptions</h2><p><span class="errorcode">err_norandom</span>
+is raised when neither
+<span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>
+or
+<span class="citerefentry"><span class="refentrytitle">urandom</span>(4)</span>
+can be opened.</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>open_rng()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li></ul></div><p><span class="errorcode">err_nolength</span>
+is raised when a function is called with an invalid length.</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li></ul></div><p><span class="errorcode">err_loaderr</span>
+is raised if data cannot be loaded from file.</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>common_data()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot()</p></li></ul></div><p><span class="errorcode">err_notfound</span>
+is raised if index is out of range or if it cannot find a match.</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>common_data.remove()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.remove()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.mkindex()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.remove()</p></li></ul></div><p><span class="errorcode">err_duplicate</span>
+is raised if it is attempted to add a password with the same name as another
+or if its is attempted to add a honeypot with the same value as another.</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add_nometa()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.add()</p></li></ul></div><p><span class="errorcode">err_idiot</span>
+is raised if the function was not used correctly.</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>undo()</p></li><li class="listitem" style="list-style-type: disc"><p>redo()</p></li></ul></div><p><span class="errorcode">err_nometa</span>
+is raised when meta-data is required, but the meta-data was nonexistent,
+corrupt or no good.</p><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li></ul></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
+is the XML file containing the passwords and their meta-data.</p><p><code class="filename">~/.passwdman/honeypots</code>
+is the XML file containing the honeypots.</p><p><code class="filename">~/.passwdman/undoable/</code>
+is where the auto-generated backups live.</p><p><code class="filename">~/.passwdman/redoable/</code>
+is where the backups generated by
+undo()
+live.</p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
+Oskar Skog (oskar.skog.finland@gmail.com).</p><p>Please, send patches, questions, bug reports and wish-lists.</p></div></div></body></html>
