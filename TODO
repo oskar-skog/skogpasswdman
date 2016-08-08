@@ -11,17 +11,6 @@
 0.5     Unicode support in configure.
 0.5     RLI: 40 column tty.
 *       Use argparse instead of getopt. argparse requires 2.7 or 3.x.
-0.5     THE BIG CHANGE: change the structure of passwdmangui:
-            From:
-                Wait a very long time reading /dev/random
-            To:
-                Use the CLI as engine.  Use a timed loop to read.  And
-                Gtk-events to write.
-            Pros:
-                - Progress-bar.
-                - More interactive.
-            Try also:
-                - Toggle show passwords/don't show without restarting the gui.
 *       Use tuples instead of dicts for the makefile-variables.
 
 Python 2.x drop schedule:

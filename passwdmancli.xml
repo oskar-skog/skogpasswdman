@@ -235,6 +235,64 @@ followed by the separator-separated honeypots surrounded by single quotes.</para
 </listitem>
 </varlistentry>
 <varlistentry>
+<term>honeypot:pickf:n:'f'</term>
+<listitem>
+<para>Pick
+<varname>n</varname>
+honey-pots.
+<varname>f</varname>
+is a format string of multiple parts.
+Each part begins with zero or more whitespace followed by a single character
+that indicates which option is specified, and ends with an semicolon.</para>
+
+<para>They use percent-sign escapes (URL escapes); percent-sign followed by two
+hexadecimal digits representing the ASCII code.</para>
+
+<para>All the option letters are lower case.
+"p"
+for
+<varname>pattern</varname>,
+"r"
+for
+<varname>replacement</varname>,
+"s"
+for
+<varname>separator</varname>,
+"h"
+for
+<varname>head</varname>
+and
+"t"
+for
+<varname>tail</varname>.</para>
+
+<para><varname>pattern</varname>
+and
+<varname>replacement</varname>
+are regexps.
+<varname>pattern</varname>
+is substituted with
+<varname>replacement</varname>
+in every honeypot.</para>
+
+<para>Returns a line of:
+"honeypot.pickf?"
+followed by
+<varname>head</varname>
+followed by all the honeypots separated with
+<varname>sep</varname>
+followed by
+<varname>tail</varname>.</para>
+
+<para>The default values for the options are to backslash escape single quotes and
+backslashes, and put single quotes around the honeypots and separate them
+with commas.</para>
+
+<para>Example that replaces s with z:
+"honeypot:pickf:5:ps;rz;"</para>
+</listitem>
+</varlistentry>
+<varlistentry>
 <term>honeypot:pickl:n</term>
 <listitem>
 <para>Pick

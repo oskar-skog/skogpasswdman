@@ -1417,8 +1417,8 @@ class honeypot(common_data):
             supposed to.
             If `log_vs_raise` is False it will raise `err_idiot`.
             """
-            # Its default is not unicode on Python 2.x.
             assert is_unicodestr(sep) or sep == ","
+            # Its default is not unicode on Python 2.x.
             return sep.join(self.pickl(n, log_vs_raise=log_vs_raise, pb=pb))
     if _NEW_PICK_:
         def pick(self, n=1, pb=None, **pickf_arg):
@@ -1495,7 +1495,7 @@ class honeypot(common_data):
         assert is_int(n)
         defaults = {
             'pb': None,
-            'pattern': "(['])",
+            'pattern': r"(['\\])",
             'replacement': r'\\\1',
             'sep': "', '",
             'head': "'",

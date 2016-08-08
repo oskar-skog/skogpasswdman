@@ -73,7 +73,47 @@ honeypots and separate them with
 <code class="varname">sep</code>.
 Returns a line of:
 "honeypot.pick?"
-followed by the separator-separated honeypots surrounded by single quotes.</p></dd><dt><span class="term">honeypot:pickl:n</span></dt><dd><p>Pick
+followed by the separator-separated honeypots surrounded by single quotes.</p></dd><dt><span class="term">honeypot:pickf:n:'f'</span></dt><dd><p>Pick
+<code class="varname">n</code>
+honey-pots.
+<code class="varname">f</code>
+is a format string of multiple parts.
+Each part begins with zero or more whitespace followed by a single character
+that indicates which option is specified, and ends with an semicolon.</p><p>They use percent-sign escapes (URL escapes); percent-sign followed by two
+hexadecimal digits representing the ASCII code.</p><p>All the option letters are lower case.
+"p"
+for
+<code class="varname">pattern</code>,
+"r"
+for
+<code class="varname">replacement</code>,
+"s"
+for
+<code class="varname">separator</code>,
+"h"
+for
+<code class="varname">head</code>
+and
+"t"
+for
+<code class="varname">tail</code>.</p><p><code class="varname">pattern</code>
+and
+<code class="varname">replacement</code>
+are regexps.
+<code class="varname">pattern</code>
+is substituted with
+<code class="varname">replacement</code>
+in every honeypot.</p><p>Returns a line of:
+"honeypot.pickf?"
+followed by
+<code class="varname">head</code>
+followed by all the honeypots separated with
+<code class="varname">sep</code>
+followed by
+<code class="varname">tail</code>.</p><p>The default values for the options are to backslash escape single quotes and
+backslashes, and put single quotes around the honeypots and separate them
+with commas.</p><p>Example that replaces s with z:
+"honeypot:pickf:5:ps;rz;"</p></dd><dt><span class="term">honeypot:pickl:n</span></dt><dd><p>Pick
 <code class="varname">n</code>
 honey-pots, escape and quote (single quotes).
 Returns a line of

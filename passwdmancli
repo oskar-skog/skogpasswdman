@@ -708,6 +708,50 @@ except api.err_notfound:
     err('not found')
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    command:    'pickf'
+    args:
+                type:   'int'
+                name:   'n'
+                %
+                type:   'str'
+                name:   'f'
+                %
+    code:       R'''
+kwargs = {'log_vs_raise': False, 'pb': mk_pb()}
+options = list(map(lambda x: list(x.lstrip()), args['f'].split(';')[:-1]))
+recognized = {
+    'p': 'pattern',
+    'r': 'replacement',
+    's': 'sep',
+    'h': 'head',
+    't': 'tail',
+}
+for x in options:
+    value = ''
+    try:
+        while len(x) > 1:
+            c = x.pop(1)
+            if c == '%':
+                high = x.pop(1)
+                low = x.pop(1)
+                value += chr(int(high + low, 16))
+            else:
+                value += c
+    except IndexError:
+        err('Option ended inside escape')
+    except ValueError:
+        err('Escape not in hex')
+    try:
+        kwargs[recognized[x[0]]] = value
+    except KeyError:
+        err('Recognized options are p r s h t')
+try:
+    tmp_str = h.pickf(args['n'], **kwargs)
+except api.err_idiot:
+    err('n is too big')
+sow(api.u("honeypot.pickf?{0}\n").format(api.u(tmp_str)))
+'''
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
     parse(x, api.parse_text(data, {'blank': []}))
 

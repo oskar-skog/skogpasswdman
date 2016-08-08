@@ -22,7 +22,7 @@
 .\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 .\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\"POSSIBILITY OF SUCH DAMAGE.
-.Dd Jan 27, 2014
+.Dd Mar 9, 2014
 .Dt PASSWDMANCLI 1
 .Os
 .Sh NAME
@@ -160,6 +160,60 @@ honeypots and separate them with
 Returns a line of:
 .Qq honeypot.pick?
 followed by the separator-separated honeypots surrounded by single quotes.
+.It "honeypot:pickf:n:'f'"
+Pick
+.Va n
+honey-pots.
+.Va f
+is a format string of multiple parts.
+Each part begins with zero or more whitespace followed by a single character
+that indicates which option is specified, and ends with an semicolon.
+.Pp
+They use percent-sign escapes (URL escapes); percent-sign followed by two
+hexadecimal digits representing the ASCII code.
+.Pp
+All the option letters are lower case.
+.Qq p
+for
+.Va pattern ,
+.Qq r
+for
+.Va replacement ,
+.Qq s
+for
+.Va separator ,
+.Qq h
+for
+.Va head
+and
+.Qq t
+for
+.Va tail .
+.Pp
+.Va pattern
+and
+.Va replacement
+are regexps.
+.Va pattern
+is substituted with
+.Va replacement
+in every honeypot.
+.Pp
+Returns a line of:
+.Qq honeypot.pickf?
+followed by
+.Va head
+followed by all the honeypots separated with
+.Va sep
+followed by
+.Va tail .
+.Pp
+The default values for the options are to backslash escape single quotes and
+backslashes, and put single quotes around the honeypots and separate them
+with commas.
+.Pp
+Example that replaces s with z:
+.Qq honeypot:pickf:5:ps;rz;
 .It "honeypot:pickl:n"
 Pick
 .Va n

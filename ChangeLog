@@ -1,3 +1,9 @@
+2014-03-09      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.12
+    * passwdmancli: honeypot:pickf
+    * passwdmanapi.py (honeypot.pickf): Bugfix: added backslash to the default
+        `pattern`.
+
 2014-02-27      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.4.11
     * README: Rewritten.
