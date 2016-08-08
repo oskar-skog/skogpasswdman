@@ -381,9 +381,12 @@ class common_data():
     def writexml(self, xmlfile):
         """writexml(self, xmlfile) - Write the XML tree to disk."""
         self.xmlroot.text = "\n  "      #Make it look better.
-        os.rename(os.path.expanduser(xmlfile),
-                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
-                os.path.basename(xmlfile) + '-' + time.ctime())) #Make backup.
+        self.xmlroot.tail = "\n"
+        if self.make_backups:
+            #Make backup.
+            os.rename(os.path.expanduser(xmlfile),
+                    os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+                    os.path.basename(xmlfile) + '-' + time.ctime()))
         self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8",
                                                 xml_declaration=True)
         #Unicode-stuff here.
@@ -431,8 +434,8 @@ class passwd(common_data):
     #self.index          Index for self.data[] when    'for x in this_object'.
     #self.xmltree                        ~/.passwdman/passwords
     #self.xmlroot                        Root element of self.xmltree.
-    def __init__(self):
-        """__init__(self)
+    def __init__(self, backups=True):
+        """__init__(self, backups=True)
         load ~/.passwdman/passwords -> self.xmltree 
         -> self.xmlroot -> self.data[]
         self.data is a list of {'name': 'string',
@@ -448,7 +451,7 @@ class passwd(common_data):
             <type> '10'=created by get10(), '64'=created by get64(),
                  'human'=old human generated password."""
         common_data.__init__(self, "~/.passwdman/passwords")
-                          
+        self.make_backups = backups
         for passwd_element in self.xmlroot.findall("passwd"): #Get the data.
             meta_element = passwd_element.find("meta")
             #Got the tags/elements.
@@ -629,12 +632,13 @@ class honeypot(common_data):
                 Log an error if <n> is too high.
             False
                 Raise err_idiot if <n> is too high."""
-    def __init__(self):
-        """__init__(self)
+    def __init__(self, backups=True):
+        """__init__(self, backups=True)
         Load ~/.passwdman/honeypots -> self.xmltree 
         -> self.xmlroot -> self.data[].
         self.data is a list of strings."""
         common_data.__init__(self, "~/.passwdman/honeypots")
+        self.make_backups = backups
         for honeypot_element in self.xmlroot.findall("honeypot"):
             self.data.append(honeypot_element.attrib["value"])
     def add(self, value):

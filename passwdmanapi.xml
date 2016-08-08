@@ -68,7 +68,7 @@ __del__(self)</para>
 </refsect2>
 <sbr/>
 <refsect2 id='passwdcommon_data'><title>passwd(common_data):</title>
-<para>__init__(self)<sbr/>
+<para>__init__(self, backups=True)<sbr/>
 add(self, name, value, m_type, m_minlength, m_maxlength)<sbr/>
 add_nometa(self, name, value)<sbr/>
 remove(self, x, is_numstring=False)<sbr/>
@@ -79,7 +79,7 @@ update_meta(self, index, m_type, m_minlength, m_maxlength)</para>
 </refsect2>
 <sbr/>
 <refsect2 id='class_honeypotcommon_data'><title>class honeypot(common_data):</title>
-<para>__init__(self)<sbr/>
+<para>__init__(self, backups=True)<sbr/>
 add(self, value)<sbr/>
 remove(self, x, is_numstring=False)<sbr/>
 pick(self, n=1, sep=",", log_vs_raise=True)<sbr/>
@@ -282,6 +282,14 @@ will be zero, and its
 will be
 "human".</para>
 
+<para>Set
+<varname>backups</varname>
+to False in
+__init__()
+if you do not want
+passwd()
+to make any change undoable (as in can be undone not impossible).</para>
+
 <para>passwd.add()
 and
 passwd.add_nometa()
@@ -372,6 +380,14 @@ loads its data from the XML
 <filename>~/.passwdman/honeypots</filename>.
 <varname>self[index]</varname>
 is the value of the honeypot.</para>
+
+<para>Set
+<varname>backups</varname>
+to False in
+__init__()
+if you do not want
+passwd()
+to make any change undoable (as in can be undone not impossible).</para>
 
 <para>honeypot.add()
 adds a new honeypot with the value

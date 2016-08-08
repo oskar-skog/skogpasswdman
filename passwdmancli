@@ -33,6 +33,7 @@ import time
 import os
 import os.path
 import getopt
+import shutil
 
 """The functions show_help(), passwd_help(), honeypot_help(),
 bells_and_whistles() and bugs() takes no arguments and prints their
@@ -577,7 +578,8 @@ theline = ""
 logging.basicConfig(level=logging.CRITICAL)     #STFU
 if __name__ == "__main__":
     try:
-        o, a = getopt.getopt(sys.argv[1:], "i", ["interactive"])
+        o, a = getopt.getopt(sys.argv[1:], "iB", ["interactive",
+            "single-backup"])
     except getopt.GetoptError as err:
         sys.stderr.write("{}\n".format(err))
         sys.exit(1)
@@ -588,4 +590,16 @@ if __name__ == "__main__":
     for x, y in o:
         if x in ("-i", "--interactive"):
             interactive = True
+        if x in ("-B", "--single-backup"):
+            del p
+            del h
+            shutil.copy(os.path.expanduser("~/.passwdman/passwords"),
+                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+                "passwords" + '-' + time.ctime()))
+            time.sleep(1)
+            shutil.copy(os.path.expanduser("~/.passwdman/honeypots"),
+                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+                "honeypots" + '-' + time.ctime()))
+            p = api.passwd(False)
+            h = api.honeypot(False)
     main()

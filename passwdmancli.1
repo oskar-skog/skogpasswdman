@@ -32,6 +32,8 @@
 .Nm
 .Op Fl i
 .Op Fl -interactive
+.Op Fl B
+.Op Fl -single-backup
 .Op Ar infile
 .Sh DESCRIPTION
 .Ar infile
@@ -52,6 +54,12 @@ and
 or if you want
 .Nm
 to stay alive after an error.
+.Pp
+If you specify the option
+.Fl B
+or
+.Fl -single-backup ,
+every change that has been done, will be removed by TWO undos.
 .Pp
 .Nm
 reads its input as colon separated values.

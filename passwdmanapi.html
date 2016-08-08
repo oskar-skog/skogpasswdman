@@ -21,14 +21,14 @@ __getitem__(self, i)<br />
 __len__(self)<br />
 remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)<br />
 writexml(self, xmlfile)<br />
-__del__(self)</p></div><br /><div class="refsect2" title="passwd(common_data):"><a id="passwdcommon_data"></a><h3>passwd(common_data):</h3><p>__init__(self)<br />
+__del__(self)</p></div><br /><div class="refsect2" title="passwd(common_data):"><a id="passwdcommon_data"></a><h3>passwd(common_data):</h3><p>__init__(self, backups=True)<br />
 add(self, name, value, m_type, m_minlength, m_maxlength)<br />
 add_nometa(self, name, value)<br />
 remove(self, x, is_numstring=False)<br />
 __repr__(self)<br />
 mkindex(self, x, is_numstring=False)<br />
 update(self, index)<br />
-update_meta(self, index, m_type, m_minlength, m_maxlength)</p></div><br /><div class="refsect2" title="class honeypot(common_data):"><a id="class_honeypotcommon_data"></a><h3>class honeypot(common_data):</h3><p>__init__(self)<br />
+update_meta(self, index, m_type, m_minlength, m_maxlength)</p></div><br /><div class="refsect2" title="class honeypot(common_data):"><a id="class_honeypotcommon_data"></a><h3>class honeypot(common_data):</h3><p>__init__(self, backups=True)<br />
 add(self, value)<br />
 remove(self, x, is_numstring=False)<br />
 pick(self, n=1, sep=",", log_vs_raise=True)<br />
@@ -167,7 +167,13 @@ and
 will be zero, and its
 <code class="varname">type</code>
 will be
-"human".</p><p>passwd.add()
+"human".</p><p>Set
+<code class="varname">backups</code>
+to False in
+__init__()
+if you do not want
+passwd()
+to make any change undoable (as in can be undone not impossible).</p><p>passwd.add()
 and
 passwd.add_nometa()
 adds a password for
@@ -246,7 +252,13 @@ honeypot()
 loads its data from the XML
 <code class="filename">~/.passwdman/honeypots</code>.
 <code class="varname">self[index]</code>
-is the value of the honeypot.</p><p>honeypot.add()
+is the value of the honeypot.</p><p>Set
+<code class="varname">backups</code>
+to False in
+__init__()
+if you do not want
+passwd()
+to make any change undoable (as in can be undone not impossible).</p><p>honeypot.add()
 adds a new honeypot with the value
 <code class="varname">value</code>.
 Raises

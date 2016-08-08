@@ -22,7 +22,7 @@
 .\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 .\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\"POSSIBILITY OF SUCH DAMAGE.
-.Dd Nov 18, 2013
+.Dd Nov 23, 2013
 .Dt PASSWDMANAPI 3
 .Os
 .Sh NAME
@@ -53,7 +53,7 @@
 .Fd writexml(self, xmlfile)
 .Fd __del__(self)
 .Ss passwd(common_data):
-.Fd __init__(self)
+.Fd __init__(self, backups=True)
 .Fd add(self, name, value, m_type, m_minlength, m_maxlength)
 .Fd add_nometa(self, name, value)
 .Fd remove(self, x, is_numstring=False)
@@ -62,7 +62,7 @@
 .Fd update(self, index)
 .Fd update_meta(self, index, m_type, m_minlength, m_maxlength)
 .Ss class honeypot(common_data):
-.Fd __init__(self)
+.Fd __init__(self, backups=True)
 .Fd add(self, value)
 .Fd remove(self, x, is_numstring=False)
 .Fd pick(self, n=1, sep=",", log_vs_raise=True)
@@ -245,6 +245,14 @@ will be zero, and its
 will be
 .Qq human .
 .Pp
+Set
+.Va backups
+to False in
+.Fn __init__
+if you do not want
+.Fn passwd
+to make any change undoable (as in can be undone not impossible).
+.Pp
 .Fn passwd.add
 and
 .Fn passwd.add_nometa
@@ -333,6 +341,14 @@ loads its data from the XML
 .Pa ~/.passwdman/honeypots .
 .Va self[index]
 is the value of the honeypot.
+.Pp
+Set
+.Va backups
+to False in
+.Fn __init__
+if you do not want
+.Fn passwd
+to make any change undoable (as in can be undone not impossible).
 .Pp
 .Fn honeypot.add
 adds a new honeypot with the value

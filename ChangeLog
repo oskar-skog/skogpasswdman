@@ -1,4 +1,16 @@
 2013-11-23      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2.8
+    * passwdmanapi.py (passwd.__init__, honeypot.__init__): New variable:
+        self.make_backups - copy the original passwords/honeypots file to
+        ~/.passwdman/undo for every modification, if self.make_backups is set
+        to True.
+    * passwdmanapi.py (common_data.writexml): Obeys self.make_backups.
+        Appends a trailing newline to the data-files.
+    * passwdmanapi.3: ^^^
+    * passwdmancli: New option "--single-backup", "-B" - two undos will undo
+        all changes made by the process that was "passwdmancli -B".
+    * passwdmancli.1: ^^^
+    * README: Added a 'bugs' section.
 0.2.7
     * configure.2 (main): s/--no*/--disable-*/
         New no-op options:

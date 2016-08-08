@@ -28,3 +28,7 @@ The CLI began as a interactive program, but it is no longer the default
 behavior. It is quite noisy, but that can be filtered with grep and cut. It
 supports 'pipe-through' and comments, as an attempt to make it better. It's
 an ed pattern and it will tell which command generated the output.
+
+BUGS:
+    Sometimes the "Quit"-button must be clicked 3 times.
+    The --single-backup option in the CLI actually requires 2 undos.

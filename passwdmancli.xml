@@ -44,6 +44,8 @@ POSSIBILITY OF SUCH DAMAGE. -->
   <command>passwdmancli</command>    
     <arg choice='plain'>--i </arg>
     <arg choice='plain'>---interactive </arg>
+    <arg choice='plain'>--B </arg>
+    <arg choice='plain'>---single-backup </arg>
     <arg choice='plain'><replaceable>infile</replaceable></arg>
 </cmdsynopsis>
 </refsynopsisdiv>
@@ -68,6 +70,12 @@ and
 or if you want
 <command remap='Nm'> passwdmancli </command>
 to stay alive after an error.</para>
+
+<para>If you specify the option
+<option>-B</option>
+or
+<option>--single-backup</option>,
+every change that has been done, will be removed by TWO undos.</para>
 
 <para><command remap='Nm'> passwdmancli </command>
 reads its input as colon separated values.

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANCLI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANCLI"><a id="passwdmancli1"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmancli  —  CLI for storing, generating and updating passwords and honeypots. </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">passwdmancli</code>   --i    ---interactive    <em class="replaceable"><code>infile</code></em> </p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p><em class="replaceable"><code>infile</code></em>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANCLI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANCLI"><a id="passwdmancli1"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmancli  —  CLI for storing, generating and updating passwords and honeypots. </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">passwdmancli</code>   --i    ---interactive    --B    ---single-backup    <em class="replaceable"><code>infile</code></em> </p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p><em class="replaceable"><code>infile</code></em>
 is the file
 <span class="command"><strong> passwdmancli </strong></span>
 will read its commands from, if
@@ -17,7 +17,11 @@ and
 <span class="command"><strong>redo</strong></span>,
 or if you want
 <span class="command"><strong> passwdmancli </strong></span>
-to stay alive after an error.</p><p><span class="command"><strong> passwdmancli </strong></span>
+to stay alive after an error.</p><p>If you specify the option
+<code class="option">-B</code>
+or
+<code class="option">--single-backup</code>,
+every change that has been done, will be removed by TWO undos.</p><p><span class="command"><strong> passwdmancli </strong></span>
 reads its input as colon separated values.
 Quotes are either forbidden or optional (look at 
 unquote()

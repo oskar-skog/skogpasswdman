@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Creator: (Apache FOP Version 1.0)
-%%CreationDate: 2013-11-18T16:09:43
+%%CreationDate: 2013-11-23T21:02:40
 %%LanguageLevel: 3
 %%Pages: (atend)
 %%BoundingBox: (atend)
@@ -556,7 +556,7 @@ BT
 (passwd\(common_data\):) show
 /Times-Roman 10 F
 1 0 0 -1 48 564.3 Tm
-(__init__\(self\)) show
+(__init__\(self, backups=True\)) show
 1 0 0 -1 48 576.3 Tm
 (add\(self, name, value, m_type, m_minlength, m_maxlength\)) show
 1 0 0 -1 48 588.3 Tm
@@ -576,7 +576,7 @@ BT
 (class honeypot\(common_data\):) show
 /Times-Roman 10 F
 1 0 0 -1 48 694.226 Tm
-(__init__\(self\)) show
+(__init__\(self, backups=True\)) show
 ET
 GR
 GR
@@ -1076,382 +1076,398 @@ BT
 1 0 0 -1 0 12.319 Tm
 (class passwd\(common_data\)) show
 /Times-Roman 10 F
-1 0 0 -1 48 35.976 Tm
+1 0 0 -1 48 35.129 Tm
 (passwd\(\) loads its data from the XML ) show
 /Courier 10 F
-1 0 0 -1 202.7 35.976 Tm
+1 0 0 -1 202.7 35.129 Tm
 (~/.passwdman/passwords) show
 /Times-Roman 10 F
-1 0 0 -1 334.7 35.976 Tm
+1 0 0 -1 334.7 35.129 Tm
 (.) show
 /Courier 10 F
-1 0 0 -1 48 58.342 Tm
+1 0 0 -1 48 56.648 Tm
 (self[index]["name"]) show
 /Times-Roman 10 F
-1 0 0 -1 162 58.342 Tm
+1 0 0 -1 162 56.648 Tm
 [( ) -849 (is ) -849 (the ) -849 (name/purpose ) -849 (of ) -849 (the ) -849 (password. ) -849 ] TJ
 /Courier 10 F
-1 0 0 -1 321.255 58.342 Tm
+1 0 0 -1 321.255 56.648 Tm
 (self[index]["value"]) show
 /Times-Roman 10 F
-1 0 0 -1 441.255 58.342 Tm
+1 0 0 -1 441.255 56.648 Tm
 [( ) -849 (is)] TJ
-1 0 0 -1 48 70.342 Tm
+1 0 0 -1 48 68.648 Tm
 [(the ) -324 (value ) -324 (of ) -324 (the ) -324 (password. ) -324 ] TJ
 /Courier 10 F
-1 0 0 -1 156.822 70.342 Tm
+1 0 0 -1 156.822 68.648 Tm
 (self[index]["meta"]["minlength"]) show
 /Times-Roman 10 F
-1 0 0 -1 348.822 70.342 Tm
+1 0 0 -1 348.822 68.648 Tm
 [( ) -324 (is ) -324 (the ) -324 (minimal ) -324 (length ) -324 (re-)] TJ
-1 0 0 -1 48 82.342 Tm
+1 0 0 -1 48 80.648 Tm
 [(quired ) -1070 (for ) -1070 (the ) -1070 (password. ) -1070 ] TJ
 /Courier 10 F
-1 0 0 -1 151.982 82.342 Tm
+1 0 0 -1 151.982 80.648 Tm
 (self[index]["meta"]["maxlength"]) show
 /Times-Roman 10 F
-1 0 0 -1 343.982 82.342 Tm
+1 0 0 -1 343.982 80.648 Tm
 [( ) -1070 (is ) -1070 (the ) -1070 (maximal ) -1070 (length ) -1070 (al-)] TJ
-1 0 0 -1 48 94.342 Tm
+1 0 0 -1 48 92.648 Tm
 [(lowed ) -346 (for ) -346 (the ) -346 (password. ) -346 ] TJ
 /Courier 10 F
-1 0 0 -1 147.977 94.342 Tm
+1 0 0 -1 147.977 92.648 Tm
 (self[index]["meta"]["type"]) show
 /Times-Roman 10 F
-1 0 0 -1 309.977 94.342 Tm
+1 0 0 -1 309.977 92.648 Tm
 [( ) -346 (is ) -346 (the ) -346 (type ) -346 (of ) -346 (the ) -346 (password, ) -346 (which)] TJ
-1 0 0 -1 48 106.342 Tm
+1 0 0 -1 48 104.648 Tm
 (is one of:) show
-1 0 0 -1 48 128.708 Tm
+1 0 0 -1 48 126.167 Tm
 (10) show
-1 0 0 -1 88 128.708 Tm
+1 0 0 -1 88 126.167 Tm
 (The password may only use digits.) show
-1 0 0 -1 48 151.074 Tm
+1 0 0 -1 48 147.686 Tm
 (64) show
-1 0 0 -1 88 151.074 Tm
+1 0 0 -1 88 147.686 Tm
 (The password can use big letters, small letters, digits, underscores and exclamation marks.) show
-1 0 0 -1 48 173.44 Tm
+1 0 0 -1 48 169.205 Tm
 (human) show
-1 0 0 -1 88 173.44 Tm
+1 0 0 -1 88 169.205 Tm
 (The password is human generated.) show
-1 0 0 -1 48 195.806 Tm
+1 0 0 -1 48 190.724 Tm
 [(If ) -4647 (a ) -4647 (password ) -4647 (has ) -4647 (no ) -4647 (meta-data ) -4647 (in ) -4647 ] TJ
 /Courier 10 F
-1 0 0 -1 217.442 195.806 Tm
+1 0 0 -1 217.442 190.724 Tm
 (~/.passwdman/passwords) show
 /Times-Roman 10 F
-1 0 0 -1 349.442 195.806 Tm
+1 0 0 -1 349.442 190.724 Tm
 [(, ) -4647 (its ) -4647 ] TJ
 /Courier 10 F
-1 0 0 -1 375.687 195.806 Tm
+1 0 0 -1 375.687 190.724 Tm
 (minlength) show
 /Times-Roman 10 F
-1 0 0 -1 429.687 195.806 Tm
+1 0 0 -1 429.687 190.724 Tm
 [( ) -4647 (and)] TJ
 /Courier 10 F
-1 0 0 -1 48 207.806 Tm
+1 0 0 -1 48 202.724 Tm
 (maxlength) show
 /Times-Roman 10 F
-1 0 0 -1 102 207.806 Tm
+1 0 0 -1 102 202.724 Tm
 ( will be zero, and its ) show
 /Courier 10 F
-1 0 0 -1 185.6 207.806 Tm
+1 0 0 -1 185.6 202.724 Tm
 (type) show
 /Times-Roman 10 F
-1 0 0 -1 209.6 207.806 Tm
+1 0 0 -1 209.6 202.724 Tm
 ( will be "human".) show
-1 0 0 -1 48 230.172 Tm
+1 0 0 -1 48 224.243 Tm
+[(Set ) -551 ] TJ
+/Courier 10 F
+1 0 0 -1 63.831 224.243 Tm
+(backups) show
+/Times-Roman 10 F
+1 0 0 -1 105.831 224.243 Tm
+[( ) -551 (to ) -551 (False ) -551 (in ) -551 (__init__\(\) ) -551 (if ) -551 (you ) -551 (do ) -551 (not ) -551 (want ) -551 (passwd\(\) ) -551 (to ) -551 (make ) -551 (any ) -551 (change ) -551 
+(undoable ) -551 (\(as)] TJ
+1 0 0 -1 48 236.243 Tm
+(in can be undone not impossible\).) show
+1 0 0 -1 48 257.762 Tm
 [(passwd.add\(\) ) -3677 (and ) -3677 (passwd.add_nometa\(\) ) -3677 (adds ) -3677 (a ) -3677 (password ) -3677 (for ) -3677 ] TJ
 /Courier 10 F
-1 0 0 -1 318.404 230.172 Tm
+1 0 0 -1 318.404 257.762 Tm
 (name) show
 /Times-Roman 10 F
-1 0 0 -1 342.404 230.172 Tm
+1 0 0 -1 342.404 257.762 Tm
 [( ) -3677 (with ) -3677 (the ) -3677 (value ) -3677 ] TJ
 /Courier 10 F
-1 0 0 -1 418.774 230.172 Tm
+1 0 0 -1 418.774 257.762 Tm
 (value) show
 /Times-Roman 10 F
-1 0 0 -1 448.774 230.172 Tm
+1 0 0 -1 448.774 257.762 Tm
 (.) show
-1 0 0 -1 48 242.172 Tm
+1 0 0 -1 48 269.762 Tm
 [(add_nometa\(\) ) -475 (adds ) -475 (a ) -475 (password ) -475 (without ) -475 (real ) -475 (meta-data ) -475 (while ) -475 (add\(\) ) -475 (requires ) -475 (meta-data ) -475 (\(the ) -475 ] TJ
 /Courier 10 F
-1 0 0 -1 415.275 242.172 Tm
+1 0 0 -1 415.275 269.762 Tm
 (m_type) show
 /Times-Roman 10 F
-1 0 0 -1 48 254.172 Tm
+1 0 0 -1 48 281.762 Tm
 [(must ) 20 (be ) 20 (a ) 20 (string ) 20 (and ) 20 ] TJ
 /Courier 10 F
-1 0 0 -1 130.946 254.172 Tm
+1 0 0 -1 130.946 281.762 Tm
 (m_minlength) show
 /Times-Roman 10 F
-1 0 0 -1 196.946 254.172 Tm
+1 0 0 -1 196.946 281.762 Tm
 [( ) 20 (and ) 20 ] TJ
 /Courier 10 F
-1 0 0 -1 216.345 254.172 Tm
+1 0 0 -1 216.345 281.762 Tm
 (m_maxlength) show
 /Times-Roman 10 F
-1 0 0 -1 282.345 254.172 Tm
+1 0 0 -1 282.345 281.762 Tm
 [( ) 20 (can ) 20 (be ) 20 (either ) 20 (an ) 20 (integer ) 20 (or ) 20 (a ) 20 (stringed ) 20 (inte-)] TJ
-1 0 0 -1 48 266.172 Tm
+1 0 0 -1 48 293.762 Tm
 (ger\). Raises err_duplicate.) show
-1 0 0 -1 48 288.538 Tm
+1 0 0 -1 48 315.281 Tm
 [(passwd.remove\(\) ) 96 (removes ) 96 (the ) 96 (password ) 96 ] TJ
 /Courier 10 F
-1 0 0 -1 210.074 288.538 Tm
+1 0 0 -1 210.074 315.281 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 216.074 288.538 Tm
+1 0 0 -1 216.074 315.281 Tm
 [(. ) 96 ] TJ
 /Courier 10 F
-1 0 0 -1 220.978 288.538 Tm
+1 0 0 -1 220.978 315.281 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 226.978 288.538 Tm
+1 0 0 -1 226.978 315.281 Tm
 [( ) 96 (can ) 96 (be ) 96 (either ) 96 (a ) 96 (string ) 96 (matching ) 96 (a ) 96 (password's ) 96 (name ) 96 (or ) 96 (an)] TJ
-1 0 0 -1 48 300.538 Tm
+1 0 0 -1 48 327.281 Tm
 [(integer ) 128 (\(index\) ) 128 (or ) 128 (a ) 128 (stringed ) 128 (integer. ) 128 (Set ) 128 ] TJ
 /Courier 10 F
-1 0 0 -1 209.291 300.538 Tm
+1 0 0 -1 209.291 327.281 Tm
 (is_numstring) show
 /Times-Roman 10 F
-1 0 0 -1 281.291 300.538 Tm
+1 0 0 -1 281.291 327.281 Tm
 [( ) 128 (to ) 128 (True ) 128 (if ) 128 ] TJ
 /Courier 10 F
-1 0 0 -1 323.547 300.538 Tm
+1 0 0 -1 323.547 327.281 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 329.547 300.538 Tm
+1 0 0 -1 329.547 327.281 Tm
 [( ) 128 (is ) 128 (a ) 128 (string ) 128 (containing ) 128 (digits. ) 128 (If)] TJ
-1 0 0 -1 48 312.538 Tm
+1 0 0 -1 48 339.281 Tm
 (you don't set it, then ) show
 /Courier 10 F
-1 0 0 -1 131.47 312.538 Tm
+1 0 0 -1 131.47 339.281 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 137.47 312.538 Tm
+1 0 0 -1 137.47 339.281 Tm
 ( will be treated as an index. Raises err_notfound.) show
-1 0 0 -1 48 334.904 Tm
+1 0 0 -1 48 360.8 Tm
 [(passwd.mkindex\(\) ) 107 (find ) 107 ] TJ
 /Courier 10 F
-1 0 0 -1 142.495 334.904 Tm
+1 0 0 -1 142.495 360.8 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 148.495 334.904 Tm
+1 0 0 -1 148.495 360.8 Tm
 [( ) 107 (and ) 107 (return ) 107 (an ) 107 (index. ) 107 ] TJ
 /Courier 10 F
-1 0 0 -1 232.936 334.904 Tm
+1 0 0 -1 232.936 360.8 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 238.936 334.904 Tm
+1 0 0 -1 238.936 360.8 Tm
 [( ) 107 (can ) 107 (be ) 107 (either ) 107 (a ) 107 (string ) 107 (matching ) 107 (a ) 107 (password's ) 107 (name ) 107 (or)] TJ
-1 0 0 -1 48 346.904 Tm
+1 0 0 -1 48 372.8 Tm
 [(a ) 39 (stringed ) 39 (integer ) 39 (\(index\). ) 39 (Set ) 39 ] TJ
 /Courier 10 F
-1 0 0 -1 168.895 346.904 Tm
+1 0 0 -1 168.895 372.8 Tm
 (is_numstring) show
 /Times-Roman 10 F
-1 0 0 -1 240.895 346.904 Tm
+1 0 0 -1 240.895 372.8 Tm
 [( ) 39 (to ) 39 (True ) 39 (if ) 39 ] TJ
 /Courier 10 F
-1 0 0 -1 283.509 346.904 Tm
+1 0 0 -1 283.509 372.8 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 289.509 346.904 Tm
+1 0 0 -1 289.509 372.8 Tm
 [( ) 39 (is ) 39 (a ) 39 (string ) 39 (containing ) 39 (digits. ) 39 (If ) 39 (you ) 39 (don't)] TJ
-1 0 0 -1 48 358.904 Tm
+1 0 0 -1 48 384.8 Tm
 (set it, then ) show
 /Courier 10 F
-1 0 0 -1 91.89 358.904 Tm
+1 0 0 -1 91.89 384.8 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 97.89 358.904 Tm
+1 0 0 -1 97.89 384.8 Tm
 ( will be treated as an index. Raises err_notfound.) show
-1 0 0 -1 48 381.27 Tm
+1 0 0 -1 48 406.319 Tm
 [(passwd.update\(\) ) -113 (and ) -113 (passwd.update_meta\(\) ) -113 (updates ) -113 (the ) -113 (password ) -113 (at ) -113 ] TJ
 /Courier 10 F
-1 0 0 -1 323.454 381.27 Tm
+1 0 0 -1 323.454 406.319 Tm
 (index) show
 /Times-Roman 10 F
-1 0 0 -1 353.454 381.27 Tm
+1 0 0 -1 353.454 406.319 Tm
 [( ) -113 (automatically ) -113 (by ) -113 (gener-)] TJ
-1 0 0 -1 48 393.27 Tm
+1 0 0 -1 48 418.319 Tm
 [(ating ) -288 (a ) -288 (password ) -288 (of ) -288 (the ) -288 (right ) -288 (type ) -288 (and ) -288 (an ) -288 (acceptable ) -288 (length. ) -288 (update\(\) ) -288 (uses ) -288 (the ) -288 
 (password's ) -288 (own ) -288 (meta-)] TJ
-1 0 0 -1 48 405.27 Tm
+1 0 0 -1 48 430.319 Tm
 [(data ) -1233 (while ) -1233 (update_meta\(\) ) -1233 (gives ) -1233 (the ) -1233 (password ) -1233 (new ) -1233 (meta-data ) -1233 (from ) -1233 ] TJ
 /Courier 10 F
-1 0 0 -1 324.868 405.27 Tm
+1 0 0 -1 324.868 430.319 Tm
 (m_type) show
 /Times-Roman 10 F
-1 0 0 -1 360.868 405.27 Tm
+1 0 0 -1 360.868 430.319 Tm
 [(, ) -1233 ] TJ
 /Courier 10 F
-1 0 0 -1 367.101 405.27 Tm
+1 0 0 -1 367.101 430.319 Tm
 (m_minlength) show
 /Times-Roman 10 F
-1 0 0 -1 433.101 405.27 Tm
+1 0 0 -1 433.101 430.319 Tm
 [( ) -1233 (and)] TJ
 /Courier 10 F
-1 0 0 -1 48 417.27 Tm
+1 0 0 -1 48 442.319 Tm
 (m_maxlength) show
 /Times-Roman 10 F
-1 0 0 -1 114 417.27 Tm
+1 0 0 -1 114 442.319 Tm
 [(. ) -682 ] TJ
 /Courier 10 F
-1 0 0 -1 119.682 417.27 Tm
+1 0 0 -1 119.682 442.319 Tm
 (m_type) show
 /Times-Roman 10 F
-1 0 0 -1 155.682 417.27 Tm
+1 0 0 -1 155.682 442.319 Tm
 [( ) -682 (must ) -682 (be ) -682 (a ) -682 (string, ) -682 ] TJ
 /Courier 10 F
-1 0 0 -1 230.206 417.27 Tm
+1 0 0 -1 230.206 442.319 Tm
 (m_minlength) show
 /Times-Roman 10 F
-1 0 0 -1 296.206 417.27 Tm
+1 0 0 -1 296.206 442.319 Tm
 [( ) -682 (and ) -682 ] TJ
 /Courier 10 F
-1 0 0 -1 317.011 417.27 Tm
+1 0 0 -1 317.011 442.319 Tm
 (m_maxlength) show
 /Times-Roman 10 F
-1 0 0 -1 383.011 417.27 Tm
+1 0 0 -1 383.011 442.319 Tm
 [( ) -682 (can ) -682 (be ) -682 (either ) -682 (an)] TJ
-1 0 0 -1 48 429.27 Tm
+1 0 0 -1 48 454.319 Tm
 (integer or a stringed integer. Raises err_notfound, err_idiot and err_nometa.) show
 /Helvetica-Bold 14.4 F
-1 0 0 -1 0 455.625 Tm
+1 0 0 -1 0 479.827 Tm
 (class honeypot\(common_data\)) show
 /Times-Roman 10 F
-1 0 0 -1 48 479.282 Tm
+1 0 0 -1 48 502.637 Tm
 [(The ) 130 (honey ) 130 (pots ) 130 (are ) 130 (weak ) 130 (passwords ) 130 (supposed ) 130 (to ) 130 (only ) 130 (be ) 130 (used ) 130 (as ) 130 (traps. ) 130 (honeypot\(\) ) 130 (loads ) 130 (its ) 130 
 (data ) 130 (from)] TJ
-1 0 0 -1 48 491.282 Tm
+1 0 0 -1 48 514.637 Tm
 (the XML ) show
 /Courier 10 F
-1 0 0 -1 87.44 491.282 Tm
+1 0 0 -1 87.44 514.637 Tm
 (~/.passwdman/honeypots) show
 /Times-Roman 10 F
-1 0 0 -1 219.44 491.282 Tm
+1 0 0 -1 219.44 514.637 Tm
 (. ) show
 /Courier 10 F
-1 0 0 -1 224.44 491.282 Tm
+1 0 0 -1 224.44 514.637 Tm
 (self[index]) show
 /Times-Roman 10 F
-1 0 0 -1 290.44 491.282 Tm
+1 0 0 -1 290.44 514.637 Tm
 ( is the value of the honeypot.) show
-1 0 0 -1 48 513.648 Tm
+1 0 0 -1 48 536.156 Tm
+[(Set ) -551 ] TJ
+/Courier 10 F
+1 0 0 -1 63.831 536.156 Tm
+(backups) show
+/Times-Roman 10 F
+1 0 0 -1 105.831 536.156 Tm
+[( ) -551 (to ) -551 (False ) -551 (in ) -551 (__init__\(\) ) -551 (if ) -551 (you ) -551 (do ) -551 (not ) -551 (want ) -551 (passwd\(\) ) -551 (to ) -551 (make ) -551 (any ) -551 (change ) -551 
+(undoable ) -551 (\(as)] TJ
+1 0 0 -1 48 548.156 Tm
+(in can be undone not impossible\).) show
+1 0 0 -1 48 569.675 Tm
 (honeypot.add\(\) adds a new honeypot with the value ) show
 /Courier 10 F
-1 0 0 -1 257.13 513.648 Tm
+1 0 0 -1 257.13 569.675 Tm
 (value) show
 /Times-Roman 10 F
-1 0 0 -1 287.13 513.648 Tm
+1 0 0 -1 287.13 569.675 Tm
 (. Raises err_duplicate.) show
-1 0 0 -1 48 536.014 Tm
+1 0 0 -1 48 591.194 Tm
 [(honeypot.remove\(\) ) -15 (removes ) -15 (the ) -15 (honeypot ) -15 ] TJ
 /Courier 10 F
-1 0 0 -1 217.751 536.014 Tm
+1 0 0 -1 217.751 591.194 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 223.751 536.014 Tm
+1 0 0 -1 223.751 591.194 Tm
 [(. ) -15 ] TJ
 /Courier 10 F
-1 0 0 -1 228.766 536.014 Tm
+1 0 0 -1 228.766 591.194 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 234.766 536.014 Tm
+1 0 0 -1 234.766 591.194 Tm
 [( ) -15 (is ) -15 (either ) -15 (an ) -15 (index ) -15 (\(integer\) ) -15 (or ) -15 (a ) -15 (stringed ) -15 (integer ) -15 (or ) -15 (the)] TJ
-1 0 0 -1 48 548.014 Tm
+1 0 0 -1 48 603.194 Tm
 [(value ) 21 (of ) 21 (the ) 21 (honeypot. ) 21 (Set ) 21 ] TJ
 /Courier 10 F
-1 0 0 -1 155.101 548.014 Tm
+1 0 0 -1 155.101 603.194 Tm
 (is_numstring) show
 /Times-Roman 10 F
-1 0 0 -1 227.101 548.014 Tm
+1 0 0 -1 227.101 603.194 Tm
 [( ) 21 (to ) 21 (True ) 21 (if ) 21 ] TJ
 /Courier 10 F
-1 0 0 -1 269.784 548.014 Tm
+1 0 0 -1 269.784 603.194 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 275.784 548.014 Tm
+1 0 0 -1 275.784 603.194 Tm
 [( ) 21 (is ) 21 (a ) 21 (string ) 21 (containing ) 21 (digits. ) 21 (If ) 21 (you ) 21 (don't ) 21 (set)] TJ
-1 0 0 -1 48 560.014 Tm
+1 0 0 -1 48 615.194 Tm
 (it, then ) show
 /Courier 10 F
-1 0 0 -1 78.28 560.014 Tm
+1 0 0 -1 78.28 615.194 Tm
 (x) show
 /Times-Roman 10 F
-1 0 0 -1 84.28 560.014 Tm
+1 0 0 -1 84.28 615.194 Tm
 ( will be treated as an index. Raises err_notfound.) show
-1 0 0 -1 48 582.38 Tm
+1 0 0 -1 48 636.713 Tm
 [(honeypot.pick\(\) ) -309 (picks ) -309 ] TJ
 /Courier 10 F
-1 0 0 -1 138.329 582.38 Tm
+1 0 0 -1 138.329 636.713 Tm
 (n) show
 /Times-Roman 10 F
-1 0 0 -1 144.329 582.38 Tm
+1 0 0 -1 144.329 636.713 Tm
 [( ) -309 (random ) -309 (honeypots ) -309 (and ) -309 (returns ) -309 (a ) -309 (string ) -309 (of ) -309 (honeypots ) -309 (separated ) -309 (with ) -309 ] TJ
 /Courier 10 F
-1 0 0 -1 421.305 582.38 Tm
+1 0 0 -1 421.305 636.713 Tm
 (sep) show
 /Times-Roman 10 F
-1 0 0 -1 439.305 582.38 Tm
+1 0 0 -1 439.305 636.713 Tm
 [(. ) -309 (If)] TJ
 /Courier 10 F
-1 0 0 -1 48 594.38 Tm
+1 0 0 -1 48 648.713 Tm
 (log_vs_raise) show
 /Times-Roman 10 F
-1 0 0 -1 120 594.38 Tm
+1 0 0 -1 120 648.713 Tm
 [( ) -143 (is ) -143 (true, ) -143 (it ) -143 (will ) -143 (log ) -143 (an ) -143 (error ) -143 (if ) -143 ] TJ
 /Courier 10 F
-1 0 0 -1 237.395 594.38 Tm
+1 0 0 -1 237.395 648.713 Tm
 (n) show
 /Times-Roman 10 F
-1 0 0 -1 243.395 594.38 Tm
+1 0 0 -1 243.395 648.713 Tm
 [( ) -143 (is ) -143 (too ) -143 (big. ) -143 (If ) -143 ] TJ
 /Courier 10 F
-1 0 0 -1 298.004 594.38 Tm
+1 0 0 -1 298.004 648.713 Tm
 (log_vs_raise) show
 /Times-Roman 10 F
-1 0 0 -1 370.004 594.38 Tm
+1 0 0 -1 370.004 648.713 Tm
 [( ) -143 (is ) -143 (false, ) -143 (it ) -143 (will ) -143 (raise)] TJ
-1 0 0 -1 48 606.38 Tm
+1 0 0 -1 48 660.713 Tm
 (err_idiot.) show
-1 0 0 -1 48 628.746 Tm
+1 0 0 -1 48 682.232 Tm
 [(honeypot.pickl\(\) ) -728 (picks ) -728 ] TJ
 /Courier 10 F
-1 0 0 -1 141.947 628.746 Tm
+1 0 0 -1 141.947 682.232 Tm
 (n) show
 /Times-Roman 10 F
-1 0 0 -1 147.947 628.746 Tm
+1 0 0 -1 147.947 682.232 Tm
 [( ) -728 (random ) -728 (honeypots ) -728 (and ) -728 (returns ) -728 (a ) -728 (list ) -728 (of ) -728 (honeypots. ) -728 (If ) -728 ] TJ
 /Courier 10 F
-1 0 0 -1 369.375 628.746 Tm
+1 0 0 -1 369.375 682.232 Tm
 (log_vs_raise) show
 /Times-Roman 10 F
-1 0 0 -1 441.375 628.746 Tm
+1 0 0 -1 441.375 682.232 Tm
 [( ) -728 (is)] TJ
-1 0 0 -1 48 640.746 Tm
+1 0 0 -1 48 694.232 Tm
 (true, it will log an error if ) show
 /Courier 10 F
-1 0 0 -1 152.43 640.746 Tm
+1 0 0 -1 152.43 694.232 Tm
 (n) show
 /Times-Roman 10 F
-1 0 0 -1 158.43 640.746 Tm
+1 0 0 -1 158.43 694.232 Tm
 ( is too big. If ) show
 /Courier 10 F
-1 0 0 -1 212.32 640.746 Tm
+1 0 0 -1 212.32 694.232 Tm
 (log_vs_raise) show
 /Times-Roman 10 F
-1 0 0 -1 284.32 640.746 Tm
+1 0 0 -1 284.32 694.232 Tm
 ( is false, it will raise err_idiot.) show
-/Helvetica-Bold 17.28 F
-1 0 0 -1 0 669.565 Tm
-(Exceptions) show
-/Times-Roman 10 F
-1 0 0 -1 48 694.214 Tm
-(err_norandom is raised when neither random\(4\) or urandom\(4\) can be opened.) show
 ET
 GR
 GR
@@ -1586,134 +1602,128 @@ GS
 [1 0 0 1 72 72] CT
 GS
 BT
+/Helvetica-Bold 17.28 F
+1 0 0 -1 0 14.783 Tm
+(Exceptions) show
 /Times-Roman 10 F
-1 0 0 -1 48 8.33 Tm
+1 0 0 -1 48 39.237 Tm
+(err_norandom is raised when neither random\(4\) or urandom\(4\) can be opened.) show
+1 0 0 -1 48 61.408 Tm
 (\225) show
-1 0 0 -1 58 8.33 Tm
+1 0 0 -1 58 61.408 Tm
 (open_rng\(\)) show
-1 0 0 -1 48 30.069 Tm
+1 0 0 -1 48 83.579 Tm
 (\225) show
-1 0 0 -1 58 30.069 Tm
+1 0 0 -1 58 83.579 Tm
 (get10\(\)) show
-1 0 0 -1 48 51.808 Tm
+1 0 0 -1 48 105.75 Tm
 (\225) show
-1 0 0 -1 58 51.808 Tm
+1 0 0 -1 58 105.75 Tm
 (get64\(\)) show
-1 0 0 -1 48 73.547 Tm
+1 0 0 -1 48 127.921 Tm
 (\225) show
-1 0 0 -1 58 73.547 Tm
+1 0 0 -1 58 127.921 Tm
 (getint\(\)) show
-1 0 0 -1 48 95.286 Tm
+1 0 0 -1 48 150.092 Tm
 (\225) show
-1 0 0 -1 58 95.286 Tm
+1 0 0 -1 58 150.092 Tm
 (passwd.update\(\)) show
-1 0 0 -1 48 117.025 Tm
+1 0 0 -1 48 172.263 Tm
 (\225) show
-1 0 0 -1 58 117.025 Tm
+1 0 0 -1 58 172.263 Tm
 (passwd.update_meta\(\)) show
-1 0 0 -1 48 138.764 Tm
+1 0 0 -1 48 194.434 Tm
 (\225) show
-1 0 0 -1 58 138.764 Tm
+1 0 0 -1 58 194.434 Tm
 (honeypot.pick\(\)) show
-1 0 0 -1 48 160.503 Tm
+1 0 0 -1 48 216.605 Tm
 (\225) show
-1 0 0 -1 58 160.503 Tm
+1 0 0 -1 58 216.605 Tm
 (honeypot.pickl\(\)) show
-1 0 0 -1 48 182.242 Tm
+1 0 0 -1 48 238.776 Tm
 (err_nolength is raised when a function is called with an invalid length.) show
-1 0 0 -1 48 203.981 Tm
+1 0 0 -1 48 260.947 Tm
 (\225) show
-1 0 0 -1 58 203.981 Tm
+1 0 0 -1 58 260.947 Tm
 (get64\(\)) show
-1 0 0 -1 48 225.72 Tm
+1 0 0 -1 48 283.118 Tm
 (\225) show
-1 0 0 -1 58 225.72 Tm
+1 0 0 -1 58 283.118 Tm
 (get10\(\)) show
-1 0 0 -1 48 247.459 Tm
+1 0 0 -1 48 305.289 Tm
 (\225) show
-1 0 0 -1 58 247.459 Tm
+1 0 0 -1 58 305.289 Tm
 (getint\(\)) show
-1 0 0 -1 48 269.198 Tm
+1 0 0 -1 48 327.46 Tm
 (err_loaderr is raised if data cannot be loaded from file.) show
-1 0 0 -1 48 290.937 Tm
+1 0 0 -1 48 349.631 Tm
 (\225) show
-1 0 0 -1 58 290.937 Tm
+1 0 0 -1 58 349.631 Tm
 (common_data\(\)) show
-1 0 0 -1 48 312.676 Tm
+1 0 0 -1 48 371.802 Tm
 (\225) show
-1 0 0 -1 58 312.676 Tm
+1 0 0 -1 58 371.802 Tm
 (passwd\(\)) show
-1 0 0 -1 48 334.415 Tm
+1 0 0 -1 48 393.973 Tm
 (\225) show
-1 0 0 -1 58 334.415 Tm
+1 0 0 -1 58 393.973 Tm
 (honeypot\(\)) show
-1 0 0 -1 48 356.154 Tm
+1 0 0 -1 48 416.144 Tm
 (err_notfound is raised if index is out of range or if it cannot find a match.) show
-1 0 0 -1 48 377.893 Tm
+1 0 0 -1 48 438.315 Tm
 (\225) show
-1 0 0 -1 58 377.893 Tm
+1 0 0 -1 58 438.315 Tm
 (common_data.remove\(\)) show
-1 0 0 -1 48 399.632 Tm
+1 0 0 -1 48 460.486 Tm
 (\225) show
-1 0 0 -1 58 399.632 Tm
+1 0 0 -1 58 460.486 Tm
 (passwd.remove\(\)) show
-1 0 0 -1 48 421.371 Tm
+1 0 0 -1 48 482.657 Tm
 (\225) show
-1 0 0 -1 58 421.371 Tm
+1 0 0 -1 58 482.657 Tm
 (passwd.mkindex\(\)) show
-1 0 0 -1 48 443.11 Tm
+1 0 0 -1 48 504.828 Tm
 (\225) show
-1 0 0 -1 58 443.11 Tm
+1 0 0 -1 58 504.828 Tm
 (passwd.update\(\)) show
-1 0 0 -1 48 464.849 Tm
+1 0 0 -1 48 526.999 Tm
 (\225) show
-1 0 0 -1 58 464.849 Tm
+1 0 0 -1 58 526.999 Tm
 (passwd.update_meta\(\)) show
-1 0 0 -1 48 486.588 Tm
+1 0 0 -1 48 549.17 Tm
 (\225) show
-1 0 0 -1 58 486.588 Tm
+1 0 0 -1 58 549.17 Tm
 (honeypot.remove\(\)) show
-1 0 0 -1 48 508.327 Tm
+1 0 0 -1 48 571.341 Tm
 [(err_duplicate ) -333 (is ) -333 (raised ) -333 (if ) -333 (it ) -333 (is ) -333 (attempted ) -333 (to ) -333 (add ) -333 (a ) -333 (password ) -333 (with ) -333 (the ) -333 (same ) -333 (name ) -333 
 (as ) -333 (another ) -333 (or ) -333 (if ) -333 (its ) -333 (is)] TJ
-1 0 0 -1 48 520.327 Tm
+1 0 0 -1 48 583.341 Tm
 (attempted to add a honeypot with the same value as another.) show
-1 0 0 -1 48 542.066 Tm
+1 0 0 -1 48 605.512 Tm
 (\225) show
-1 0 0 -1 58 542.066 Tm
+1 0 0 -1 58 605.512 Tm
 (passwd.add\(\)) show
-1 0 0 -1 48 563.805 Tm
+1 0 0 -1 48 627.683 Tm
 (\225) show
-1 0 0 -1 58 563.805 Tm
+1 0 0 -1 58 627.683 Tm
 (passwd.add_nometa\(\)) show
-1 0 0 -1 48 585.544 Tm
+1 0 0 -1 48 649.854 Tm
 (\225) show
-1 0 0 -1 58 585.544 Tm
+1 0 0 -1 58 649.854 Tm
 (honeypot.add\(\)) show
-1 0 0 -1 48 607.283 Tm
+1 0 0 -1 48 672.025 Tm
 (err_idiot is raised if the function was not used correctly.) show
-1 0 0 -1 48 629.022 Tm
+1 0 0 -1 48 694.196 Tm
 (\225) show
-1 0 0 -1 58 629.022 Tm
+1 0 0 -1 58 694.196 Tm
 (passwd.update_meta\(\)) show
-1 0 0 -1 48 650.761 Tm
-(\225) show
-1 0 0 -1 58 650.761 Tm
-(honeypot.pick\(\)) show
-1 0 0 -1 48 672.5 Tm
-(\225) show
-1 0 0 -1 58 672.5 Tm
-(honeypot.pickl\(\)) show
-1 0 0 -1 48 694.239 Tm
-(\225) show
-1 0 0 -1 58 694.239 Tm
-(undo\(\)) show
 ET
 GR
 GR
 showpage
 %%PageTrailer
-%%PageResources: font Times-Roman
+%%PageResources: font Helvetica-Bold
+%%+ font Times-Roman
 %%+ procset (Apache XML Graphics Std ProcSet) 1.1 0
 %%Page: 5 5
 %%PageBoundingBox: 0 0 595 842
@@ -1844,47 +1854,59 @@ BT
 1 0 0 -1 48 8.33 Tm
 (\225) show
 1 0 0 -1 58 8.33 Tm
-(redo\(\)) show
+(honeypot.pick\(\)) show
 1 0 0 -1 48 30.33 Tm
-[(err_nometa ) 813 (is ) 813 (raised ) 813 (when ) 813 (meta-data ) 813 (is ) 813 (required, ) 813 (but ) 813 (the ) 813 (meta-data ) 813 (was ) 813 (nonexistent, ) 813 (corrupt ) 813 (or ) 813 (no ) 813 (good.)] TJ
+(\225) show
+1 0 0 -1 58 30.33 Tm
+(honeypot.pickl\(\)) show
 1 0 0 -1 48 52.33 Tm
 (\225) show
 1 0 0 -1 58 52.33 Tm
+(undo\(\)) show
+1 0 0 -1 48 74.33 Tm
+(\225) show
+1 0 0 -1 58 74.33 Tm
+(redo\(\)) show
+1 0 0 -1 48 96.33 Tm
+[(err_nometa ) 813 (is ) 813 (raised ) 813 (when ) 813 (meta-data ) 813 (is ) 813 (required, ) 813 (but ) 813 (the ) 813 (meta-data ) 813 (was ) 813 (nonexistent, ) 813 (corrupt ) 813 (or ) 813 (no ) 813 (good.)] TJ
+1 0 0 -1 48 118.33 Tm
+(\225) show
+1 0 0 -1 58 118.33 Tm
 (passwd.update\(\)) show
 /Helvetica-Bold 17.28 F
-1 0 0 -1 0 80.783 Tm
+1 0 0 -1 0 146.783 Tm
 (FILES) show
 /Courier 10 F
-1 0 0 -1 48 105.066 Tm
+1 0 0 -1 48 171.066 Tm
 (~/.passwdman/passwords) show
 /Times-Roman 10 F
-1 0 0 -1 180 105.066 Tm
+1 0 0 -1 180 171.066 Tm
 ( is the XML file containing the passwords and their meta-data.) show
 /Courier 10 F
-1 0 0 -1 48 127.066 Tm
+1 0 0 -1 48 193.066 Tm
 (~/.passwdman/honeypots) show
 /Times-Roman 10 F
-1 0 0 -1 180 127.066 Tm
+1 0 0 -1 180 193.066 Tm
 ( is the XML file containing the honeypots.) show
 /Courier 10 F
-1 0 0 -1 48 149.066 Tm
+1 0 0 -1 48 215.066 Tm
 (~/.passwdman/undoable/) show
 /Times-Roman 10 F
-1 0 0 -1 180 149.066 Tm
+1 0 0 -1 180 215.066 Tm
 ( is where the auto-generated backups live.) show
 /Courier 10 F
-1 0 0 -1 48 171.066 Tm
+1 0 0 -1 48 237.066 Tm
 (~/.passwdman/redoable/) show
 /Times-Roman 10 F
-1 0 0 -1 180 171.066 Tm
+1 0 0 -1 180 237.066 Tm
 ( is where the backups generated by undo\(\) live.) show
 /Helvetica-Bold 17.28 F
-1 0 0 -1 0 199.519 Tm
+1 0 0 -1 0 265.519 Tm
 (AUTHOR) show
 /Times-Roman 10 F
-1 0 0 -1 48 223.802 Tm
+1 0 0 -1 48 289.802 Tm
 (Written by Oskar Skog \(oskar.skog.finland@gmail.com\).) show
-1 0 0 -1 48 245.802 Tm
+1 0 0 -1 48 311.802 Tm
 (Please send patches, questions, bug reports and wish-lists.) show
 ET
 GR
