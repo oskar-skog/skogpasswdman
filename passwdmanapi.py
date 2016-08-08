@@ -48,15 +48,17 @@ SYNOPSIS = """
 """
 EXCEPTIONS = """
     They have their own __doc__-strings.
-    class err_norandom(Exception)               open_rng()
-    class err_nolength(Exception)               get10() get64()
-    class err_loaderr(Exception)            passwd() honeypot() common_data()
-    class err_notfound(Exception)               passwd().remove()
-                                                honeypot().remove()
-                                                passwd.mkindex()
+    class err_norandom(Exception)               open_rng(), get*(),
+                                                passwd.update*(),
+                                                honeypot.pick*(),       $
+    class err_nolength(Exception)               get10(), get64(), getint()
+    class err_loaderr(Exception)          passwd(), honeypot(), common_data(),
+    class err_notfound(Exception)               *.remove(), passwd.update*()
+                                                passwd.mkindex()        $
     class err_duplicate(Exception)          passwd.add() honeypot.add()
-                                                passwd.add_nometa()
-    class err_idiot(Exception)                  *
+                                                passwd.add_nometa()     $
+    class err_idiot(Exception)              {un,re}do(), passwd.update_meta(),
+                                                honeypot.pick*()        $
     class err_nometa(Exception)                 passwd.update()
 """
 NOTES = """

@@ -1,3 +1,10 @@
+2013-Nov-18
+0.1.20  Improvements in the EXCEPTIONS string in passwdmanapi.
+        README +Unicode.
+        Fixed bug in passwdmanapi man-page:
+            Added honeypot.pickl() to the list of functions that raises
+            err_norandom.
+
 2013-Nov-17
 0.1.19  Improvements in passwdmanapi.
 0.1.18  Rewrote README and the about tab. Fixed bug:

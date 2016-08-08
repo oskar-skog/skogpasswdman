@@ -458,6 +458,9 @@ can be opened.</para>
 <listitem>
 <para>honeypot.pick()</para>
 </listitem>
+<listitem>
+<para>honeypot.pickl()</para>
+</listitem>
 </itemizedlist>
 
 <para><errorcode>err_nolength</errorcode>

@@ -8,7 +8,8 @@ remembers honey-pots (fake-passwords to catch crackers).
 It stores the passwords and honey-pots in XML files, so they can be read with
 a normal text-editor (normal for unix), depending on the user.
 
-It has infinite undo/redo by making backups of the files.
+It has infinite undo/redo by making backups of the files. It supports Unicode
+and uses UTF-8 as encoding.
 
 The XML files are not encrypted, so that you don't need to remember an extra
 password.       If you want encryption you should encrypt your home-directory.
