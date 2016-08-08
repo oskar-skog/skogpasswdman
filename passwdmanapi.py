@@ -351,7 +351,7 @@ class common_data():
                 else:
                     y += 1   #try next
             raise err_notfound("not found")
-        elif isinstance(x, str):
+        elif isinstance(x, unicode): #use unicode instead of str
             y = 0
             for z in self.xmlroot.findall(element_name):
                 #Loop through the XML
