@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from gi.repository import Gtk, Gdk
 import passwdmanapi as api
-import os, os.path
+import os, os.path, sys
 import tarfile
 
 copywrong = """
@@ -29,7 +29,15 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
-        
+
+def u(x):
+    """u(x) Always decode from utf-8."""
+    v, f, f, f, f = sys.version_info
+    if v == 2:
+        return x.decode("utf-8")
+    else:
+        return x
+
 def err(parent, msg):
     """err(parent, msg)
     Expected to be called from passwd_tab_c() or honeypot_tab_c().
@@ -75,8 +83,8 @@ def passwd_add_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         try:
-            parent.passwords.add_nometa(api.u(name.get_text()),
-                api.u(value.get_text()))
+            parent.passwords.add_nometa(u(name.get_text()),
+                u(value.get_text()))
             parent.thelist.append([name.get_text(), value.get_text()])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
@@ -107,7 +115,7 @@ def hp_add_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         try:
-            parent.honeypots.add(api.u(value.get_text()))
+            parent.honeypots.add(u(value.get_text()))
             parent.thelist.append([value.get_text()])
         except api.err_duplicate:
             err(parent, "Already exists.")
@@ -173,7 +181,7 @@ def passwd_new_d(parent):
         passwd_type = b64.get_active()  #True if "64"
         passwd_min = spinny_min.get_value_as_int()
         passwd_max = spinny_max.get_value_as_int()
-        passwd_name = api.u(name.get_text())
+        passwd_name = u(name.get_text())
         if passwd_min > passwd_max or passwd_min < 1 or passwd_max < 1:
             err(parent, "Stupid min and max lengths.")
             dialog.destroy()
@@ -219,7 +227,7 @@ def passwd_updatemeta_d(parent):
     b10 = Gtk.RadioButton.new_with_label_from_widget(b64, "Digits only.")
     
     a, b = parent.thelist[parent.index]       #Remember a, b for a long time.
-    the_index = parent.passwords.mkindex(api.u(a), True)
+    the_index = parent.passwords.mkindex(u(a), True)
     
     adj = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["minlength"]),
                             1, 1000000, 1, 16, 0)       #For spinny_min.
@@ -370,7 +378,7 @@ def pick_many_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         #Copy xor show.
-        x = parent.honeypots.pick(spinny.get_value_as_int(), api.u(
+        x = parent.honeypots.pick(spinny.get_value_as_int(), u(
                             sep.get_text()))
         #x are the choices.
         dialog2 = Gtk.MessageDialog(parent.parent, 0,
@@ -488,7 +496,7 @@ class passwd_tab_c(Gtk.Box):
             err(self, "Select first.")
             return
         a, b = self.thelist[self.index] #b is the old password.
-        the_index = self.passwords.mkindex(api.u(a), True)
+        the_index = self.passwords.mkindex(u(a), True)
         try:
             self.passwords.update(the_index)
             self.thelist[self.index] = a, self.passwords[the_index]["value"]
@@ -504,7 +512,7 @@ class passwd_tab_c(Gtk.Box):
     def rm(self, button):
         """rm(self, button)"""
         a, b = self.thelist[self.index]
-        self.passwords.remove(api.u(str(a)), True)
+        self.passwords.remove(u(str(a)), True)
         self.thelist.remove(self.index)
 
 class honeypot_tab_c(Gtk.Box):
@@ -587,7 +595,7 @@ class honeypot_tab_c(Gtk.Box):
         hp_add_d(self)
     def rm_hp(self, button):
         """rm_hp(self, button)"""
-        self.honeypots.remove(api.u(self.thelist[self.index][0]), True)
+        self.honeypots.remove(u(self.thelist[self.index][0]), True)
         self.thelist.remove(self.index)
     def pick_many_list(self, button):
         """pick_many_list(self, button)"""

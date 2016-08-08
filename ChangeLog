@@ -1,3 +1,12 @@
+2014-01-07      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.11
+    * passwdmanapi.py (get64, undo, redo): Use explicit string concatenation
+        rather than implicit.
+    * passwdmanapi.py: More assertions.
+    * passwdmanapi.py (get10, get64): Return u(passwd) rather than passwd.
+    * passwdmangui: Always decode from UTF-8.
+    * README, INSTALL: Minor changes.
+
 2014-01-06      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.10
     * passwdmancli (passwd_add): Will give more descriptive error message

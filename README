@@ -1,5 +1,5 @@
                                     passwdman
-Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
+Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
 Read the file 'LICENSE' (2-clause BSD)
 
 passwdman is a program for remembering and updating passwords. It also
@@ -12,12 +12,12 @@ It has infinite undo/redo by making backups of the files. It supports Unicode
 and uses UTF-8 as encoding.
 
 The XML files are not encrypted, so that you don't need to remember an extra
-password.       If you want encryption you should encrypt your home-directory.
+password.       If you want encryption you should encrypt the whole /home.
 
 It can remember old human-generated passwords, create new passwords (base10
 or a variant of base64) with randomized length, update passwords and obviously
-show and remove passwords.      The variant of base64 is: Big letters, small
-letters, digits, underscores and exclamation marks.
+show and remove passwords.      The variant of base64 uses underscores=63 and
+exclamation marks=62.
 
 It can add, remove honey-pots and randomly choose (pick) honey-pots in two
 different flavors.

@@ -221,7 +221,7 @@ ERRORS
     logging.info("get64: length={0}".format(length))
     if length < 1:
         raise err_nolength('get64 called with length < 1.')
-    letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"
+    letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" +
             "ghijklmnopqrstuvwxyz0123456789!_")
     passwd, bits, number = '', 0, 0
     rng = open_rng()
@@ -238,7 +238,7 @@ ERRORS
         logging.info("get64: Added char {0}/{1}.".format(len(passwd), length))
     rng.close()
     del letters, bits, number, rng
-    return passwd
+    return u(passwd)
 
 def get10(length):
     """get10(length)
@@ -271,7 +271,7 @@ def get10(length):
         bits -= 4
     rng.close()
     del rng, bits, number
-    return passwd
+    return u(passwd)
 
 def getint(a, b):
     """getint(a, b) - Return random integer with value a from <a> to <b> - 1.
@@ -300,7 +300,7 @@ def getint(a, b):
 
 def unquote(x):
     """unquote(x) - Returns x without surrounding quotes."""
-    assert is_anystr(x)
+    assert is_unicodestr(x)
     the_output, the_input = "", []
     for c in x:
         the_input.append(c)     #I want to pop balloons.
@@ -420,6 +420,8 @@ class common_data():
         """
         #x is an integer used as an index xor a string used to loop until
         #a match.
+        assert is_anystr(attrib_name) and is_anystr(element_name)
+        assert is_anystr(xmlfile)
         if not is_numstring:
             try:
                 x = int(x)  #Is it a stringed integer?
@@ -437,7 +439,7 @@ class common_data():
                 else:
                     y += 1   #Try next.
             raise err_notfound("Not found.")
-        elif is_unicodestr(x): #Use unicode instead of str.
+        elif is_unicodestr(x):
             y = 0
             for z in self.xmlroot.findall(element_name):
                 #Loop through the XML
@@ -450,7 +452,7 @@ class common_data():
                     y += 1
             raise err_notfound("not found")
         else:
-            raise err_notfound("not integer and not string")
+            raise err_notfound("not integer and not unicode-string")
     def writexml(self, xmlfile):
         """writexml(self, xmlfile) - Write the XML tree to disk."""
         assert is_anystr(xmlfile)
@@ -546,6 +548,8 @@ class passwd(common_data):
                               "meta": meta_attrib})
     #Will not add __setitem__.
     def add(self, name, value, m_type, m_minlength, m_maxlength):
+        assert is_unicodestr(name) and is_unicodestr(value)
+        assert is_anystr(m_type)
         """add(self, name, value, m_type, m_minlength, m_maxlength)
         Add the password for <name> with the value <value>.
         m_type is "human" if the password is some old human generated
@@ -558,6 +562,9 @@ class passwd(common_data):
             m_minlength = str(m_minlength)
         if is_int(m_maxlength):
             m_maxlength = str(m_maxlength)
+        assert is_anystr(m_minlength) and is_anystr(m_maxlength)
+        forget = int(m_minlength)   #Raise an exception if not a number.
+        forget = int(m_maxlength)   #Raise an exception if not a number.
         for x in self.data: #check for duplicates
             if x["name"] == name:
                 raise err_duplicate(
@@ -580,7 +587,7 @@ class passwd(common_data):
         """add_nometa(self, name, value)
         Add password with only name and value.
         Raises err_duplicate if the password (<name>) already exist."""
-        assert is_anystr(name) and is_anystr(value)
+        assert is_unicodestr(name) and is_unicodestr(value)
         for x in self.data: #check for duplicates
             if x["name"] == name:
                 raise err_duplicate(
@@ -614,6 +621,7 @@ class passwd(common_data):
             else:
                 raise
         except:
+            assert is_unicodestr(x)
             for y in self:      #Find it.
                 if y["name"] == x:
                     return index
@@ -658,6 +666,8 @@ class passwd(common_data):
     def update_meta(self, index, m_type, m_minlength, m_maxlength):
         """update_meta(self, index, m_type, m_minlength, m_maxlength)
         Update the password at index and its meta data."""
+        assert is_anystr(m_type)
+        assert is_int(index)
         if index >= len(self) or index < 0:
             raise err_notfound("index out of range")
         try:
@@ -721,6 +731,7 @@ class honeypot(common_data):
         for honeypot_element in self.xmlroot.findall("honeypot"):
             self.data.append(honeypot_element.attrib["value"])
     def add(self, value):
+        assert is_unicodestr(value)
         """add(self, value) - Add a new honey pot with the value <value>."""
         for x in self.data: #Check for duplicates.
             if x == value:
@@ -740,7 +751,7 @@ class honeypot(common_data):
     def pick(self, n=1, sep=",", log_vs_raise=True):
         """pick(self, n=1, sep=",", log_vs_raise=True)
         Pick randomly selected honey-pots."""
-        assert is_int(n)
+        assert is_int(n) and is_unicodestr(sep)
         if n > len(self):
             n = len(self)
             if log_vs_raise:
@@ -814,7 +825,7 @@ def undo(passwdobj=None, honeypotobj=None):
         os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
         honeypotobj.__init__() #Reload the data structure.
     else:
-        logging.error("function undo in module passwdmanapi:"   #Continue.
+        logging.error("function undo in module passwdmanapi:" +
                       "confused by the file '{0}'".format(filename))
 
 
@@ -857,7 +868,7 @@ def redo(passwdobj=None, honeypotobj=None):
         os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
         honeypotobj.__init__() #Reload the data structure.
     else:
-        logging.error("function undo in module passwdmanapi:"   #Continue.
+        logging.error("function undo in module passwdmanapi:" +
                       "confused by the file '{0}'".format(filename))
 
 #Run this when imported.
@@ -888,9 +899,13 @@ ckmkfile("~/.passwdman/honeypots", """<?xml version='1.0' encoding='UTF-8'?>
 <root file="honeypots" magic="passwdman" version="0.1">
 </root>
 """)
-import locale
-locale.setlocale(locale.LC_ALL, '')
-code = locale.getpreferredencoding()
+try:
+    import locale
+    locale.setlocale(locale.LC_ALL, '')
+    code = locale.getpreferredencoding()
+except:
+    logging.error("Cannot figure out encoding.")
+    code = 'ascii'
 
 if __name__ == "__main__":
     print ("I-D-10-T")
