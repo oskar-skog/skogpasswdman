@@ -264,10 +264,10 @@ printf '  long and short pairs\n' >> configure.2
 printf '    --moduledir -m      Where to install the API\n' >> configure.2
 printf '    --help      -h      All of this.\n' >> configure.2
 printf '    --verbose   -v\n' >> configure.2
-printf '    --nocli     -c      No text-mode user interface\n' >> configure.2
-printf '    --nogui     -g\n' >> configure.2
-printf '    --noguidoc  -d      No documentation for the graphical user interface\n' >> configure.2
-printf '    --notechdoc -t      No technical documentation (API and file formats)\n' >> configure.2
+printf '    --disable-cli     -c      No text-mode user interface\n' >> configure.2
+printf '    --disable-gui     -g\n' >> configure.2
+printf '    --disable-guidoc  -d    No documentation for the graphical user interface\n' >> configure.2
+printf '    --disable-techdoc -t    No technical documentation (API and file formats)\n' >> configure.2
 printf '  and finally\n' >> configure.2
 printf '    --halt              stop so that configure.2 can be read\n' >> configure.2
 printf '    --update            argument: filename\042\042\042\n' >> configure.2
@@ -563,16 +563,42 @@ printf '        #Long options for all the variables.\n' >> configure.2
 printf '    long_opts.append(\042help\042)\n' >> configure.2
 printf '    long_opts.append(\042verbose\042)\n' >> configure.2
 printf '    long_opts.append(\042moduledir=\042)\n' >> configure.2
-printf '    long_opts.append(\042nocli\042)\n' >> configure.2
-printf '    long_opts.append(\042nogui\042)\n' >> configure.2
-printf '    long_opts.append(\042noguidoc\042)\n' >> configure.2
-printf '    long_opts.append(\042notechdoc\042)\n' >> configure.2
+printf '    long_opts.append(\042disable-cli\042)\n' >> configure.2
+printf '    long_opts.append(\042disable-gui\042)\n' >> configure.2
+printf '    long_opts.append(\042disable-guidoc\042)\n' >> configure.2
+printf '    long_opts.append(\042disable-techdoc\042)\n' >> configure.2
 printf '    long_opts.append(\042halt\042)\n' >> configure.2
 printf '    long_opts.append(\042update\042)\n' >> configure.2
 printf '    long_opts.append(\042version\042)\n' >> configure.2
+printf '    long_opts.append(\042build=\042)\n' >> configure.2
+printf '    long_opts.append(\042host=\042)\n' >> configure.2
+printf '    long_opts.append(\042target=\042)\n' >> configure.2
 printf '    #Handle the options.\n' >> configure.2
+printf '    all_options = []\n' >> configure.2
+printf '    for x in sys.argv[1:]:\n' >> configure.2
+printf '        if x[0] != \042-\042:\n' >> configure.2
+printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
+printf '            continue\n' >> configure.2
+printf '        if x[:7] == \042--with-\042:\n' >> configure.2
+printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
+printf '            continue\n' >> configure.2
+printf '        if x[:10] == \042--without-\042:\n' >> configure.2
+printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
+printf '            continue\n' >> configure.2
+printf '        if x[:9] == \042--enable-\042:\n' >> configure.2
+printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
+printf '            continue\n' >> configure.2
+printf '        if x[:10] == \042--disable-\042:\n' >> configure.2
+printf '            if x[10:] != \042gui\042:\n' >> configure.2
+printf '                if x[10:] != \042cli\042:\n' >> configure.2
+printf '                    if x[10:] != \042guidoc\042:\n' >> configure.2
+printf '                        if x[10:] != \042techdoc\042:\n' >> configure.2
+printf '                            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
+printf '                            continue\n' >> configure.2
+printf '        all_options.append(x)\n' >> configure.2
 printf '    try:\n' >> configure.2
-printf '        opts, args = getopt.getopt(sys.argv[1:], \042hvm:cgdtu:HV\042, long_opts)\n' >> configure.2
+verbose Line 400...
+printf '        opts, args = getopt.getopt(all_options, \042hvm:cgdtu:HV\042, long_opts)\n' >> configure.2
 printf '    except getopt.GetoptError as err:\n' >> configure.2
 printf '        sys.stderr.write(\042{}\\n\042.format(err))\n' >> configure.2
 printf '        sys.exit(1)\n' >> configure.2
@@ -587,17 +613,16 @@ printf '            continue\n' >> configure.2
 printf '        elif o in (\042--moduledir\042, \042-m\042):#ex. /usr/lib/python2.7/dist-packages\n' >> configure.2
 printf '            moduledir = a                 #Where passwdmanapi.py should live.\n' >> configure.2
 printf '            continue\n' >> configure.2
-printf '        elif o in (\042--nocli\042, \042-c\042):\n' >> configure.2
+printf '        elif o in (\042--disable-cli\042, \042-c\042):\n' >> configure.2
 printf '            cli = False\n' >> configure.2
 printf '            continue\n' >> configure.2
-printf '        elif o in (\042--nogui\042, \042-g\042):\n' >> configure.2
+printf '        elif o in (\042--disable-gui\042, \042-g\042):\n' >> configure.2
 printf '            gui = False\n' >> configure.2
 printf '            continue\n' >> configure.2
-printf '        elif o in (\042--noguidoc\042, \042-d\042):\n' >> configure.2
+printf '        elif o in (\042--disable-guidoc\042, \042-d\042):\n' >> configure.2
 printf '            guidoc = False\n' >> configure.2
 printf '            continue\n' >> configure.2
-printf '        elif o in (\042--notechdoc\042, \042-t\042):\n' >> configure.2
-verbose Line 400...
+printf '        elif o in (\042--disable-techdoc\042, \042-t\042):\n' >> configure.2
 printf '            techdoc = False\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        elif o in (\042--halt\042, \042-H\042):\n' >> configure.2
@@ -611,6 +636,8 @@ printf '            sys.exit(0)\n' >> configure.2
 printf '        elif o in (\042--version\042, \042-V\042):\n' >> configure.2
 printf '            print(\042passwdman configure version {}\042.format(VERSION))\n' >> configure.2
 printf '            sys.exit(0)\n' >> configure.2
+printf '        elif o in (\042--build\042, \042--host\042, \042--target\042):\n' >> configure.2
+printf '            continue\n' >> configure.2
 printf '        else:       #Handle options for the variable names.\n' >> configure.2
 printf '            for c in dirs_def:      #Look for a match.\n' >> configure.2
 printf '                if (\042--\042 + c[\042name\042]) == o:\n' >> configure.2
@@ -671,6 +698,7 @@ printf '            return True\n' >> configure.2
 printf '    def setvar(x, y):\n' >> configure.2
 printf '        global dirs_auto\n' >> configure.2
 printf '        dirs_auto.append({\042name\042: x, \042value\042: y})\n' >> configure.2
+verbose Line 500...
 printf '    global dirs_final\n' >> configure.2
 printf '    global dirs_auto\n' >> configure.2
 printf '    #Check some variables.\n' >> configure.2
@@ -698,7 +726,6 @@ printf '\n' >> configure.2
 printf 'def getmoduledir():\n' >> configure.2
 printf '    \042\042\042getmoduledir() - Figure out where to install python modules.\042\042\042\n' >> configure.2
 printf '    global moduledir\n' >> configure.2
-verbose Line 500...
 printf '    list_of_2x = []\n' >> configure.2
 printf '    if moduledir is None:   #It can be set by the user.\n' >> configure.2
 printf '        v(\042Figuring out the \047moduledir\047 variable...\042)\n' >> configure.2
@@ -772,6 +799,7 @@ printf '    makefile.write(\042all.made : shebang \044(srcdir)passwdmanapi.py\04
 printf '    #Append more dependencies.\n' >> configure.2
 printf '    if techdoc:\n' >> configure.2
 printf '        makefile.write(\042 \044(srcdir)passwdmanapi.3 \044(srcdir)passwdmanfiles.5\042)\n' >> configure.2
+verbose Line 600...
 printf '    if cli:\n' >> configure.2
 printf '        makefile.write(\042 \044(srcdir)passwdmancli \044(srcdir)passwdmancli.1\042)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
@@ -799,7 +827,6 @@ printf '        if x:\n' >> configure.2
 printf '            makefile.write(\042\\tchmod 755 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            if src[-2:] in (\042.1\042, \042.3\042, \042.5\042):      #man-pages\n' >> configure.2
-verbose Line 600...
 printf '                makefile.write(\042\\t-chmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '            else:\n' >> configure.2
 printf '                makefile.write(\042\\tchmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
@@ -873,6 +900,7 @@ printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanfiles.{0}
 printf '\n' >> configure.2
 printf 'def maketarget_clean():\n' >> configure.2
 printf '    \042\042\042maketarget_clean() - Add \047clean\047 and \047maintainer-clean\047.\042\042\042\n' >> configure.2
+verbose Line 700...
 printf '    v(\042Writing the \047clean\047 target...\042)\n' >> configure.2
 printf '    makefile.write(\042clean :\\n\\t-rm *.made *.out configure.2\\n\042)\n' >> configure.2
 printf '    makefile.write(\042\\t-rm *.1.xml *.3.xml *.5.xml\\n\042)\n' >> configure.2
@@ -900,7 +928,6 @@ printf '                \042\\t-cp \044(srcdir)passwdman{}.{} passwdman-{}\\n\04
 printf '                                                                VERSION))\n' >> configure.2
 printf '    for x in (\042cli\042, \042api\042, \042gui\042, \042files\042):\n' >> configure.2
 printf '        makefile.write(\042\\tcp \044(srcdir)passwdman{}.xml passwdman-{}\\n\042.format(x,\n' >> configure.2
-verbose Line 700...
 printf '                                                                VERSION))\n' >> configure.2
 printf '    for x in (\042README\042, \042LICENSE\042, \042INSTALL\042, \042NEWS\042, \042TODO\042, \042ChangeLog\042,\n' >> configure.2
 printf '                \042CREDITS\042, \042configure\042, \042FAQ\042):\n' >> configure.2
@@ -974,6 +1001,7 @@ printf '        if n == \042passwdmanfiles\042:\n' >> configure.2
 printf '            makefile.write(\042\\tcat passwdmanfiles.xml | \042)\n' >> configure.2
 printf '            makefile.write(\042./passwdmanfiles.xml.fix >\042)\n' >> configure.2
 printf '            makefile.write(\042passwdmanfiles.xml.out\\n\042)\n' >> configure.2
+verbose Line 800...
 printf '            makefile.write(\042\\tmv passwdmanfiles.xml.out passwdmanfiles.xml\\n\042)\n' >> configure.2
 printf '        #html, pdf, ps\n' >> configure.2
 printf '        for fn, fc in ((\042html\042, \042xhtml-nochunks\042), (\042ps\042, \042--with-fop ps\042),\n' >> configure.2
@@ -1001,7 +1029,6 @@ printf '        {\042name\042: \042exec_prefix\042, \042value\042: \042\044(pref
 printf '        {\042name\042: \042bindir\042, \042value\042: \042\044(exec_prefix)/bin\042},\n' >> configure.2
 printf '        {\042name\042: \042datarootdir\042, \042value\042: \042\044(prefix)/share\042},\n' >> configure.2
 printf '        {\042name\042: \042datadir\042, \042value\042: \042\044(datarootdir)\042},\n' >> configure.2
-verbose Line 800...
 printf '        {\042name\042: \042docdir\042, \042value\042: \042\044(datarootdir)/doc/\044(PKGNAME)\042},\n' >> configure.2
 printf '        {\042name\042: \042infodir\042, \042value\042: \042\044(datarootdir)/info\042},\n' >> configure.2
 printf '        {\042name\042: \042htmldir\042, \042value\042: \042\044(docdir)\042},\n' >> configure.2
@@ -1030,7 +1057,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.2.6\042\n' >> configure.2
+printf 'VERSION = \0420.2.7\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2

@@ -1,3 +1,13 @@
+2013-11-23      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2.7
+    * configure.2 (main): s/--no*/--disable-*/
+        New no-op options:
+            --host=
+            --build=
+            --with-*
+            --without-*
+            --enable-*
+
 2013-11-21      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.2.6
     * shebang, configure, configure.2 (update): Fixed bug in shebang:
