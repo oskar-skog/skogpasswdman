@@ -27,51 +27,64 @@ POSSIBILITY OF SUCH DAMAGE."""
 
 __doc__ = """
 passwdmanapi - functions and classes used by passwdman
-SYNOPSIS
-    is_anystr(x) is_bytestr(x) is_int(x) is_num(x) is_unicodestr(x) u(x) b(x)
-    class passwdmanapi.passwd(common_data)
-    class passwdmanapi.honeypot(common_data)
-    class passwdmanapi.common_data()
-    def get10(length) def get64(length) def getint(a, b)
-    def open_rng()
-    def unquote(x)
-    def randomize(method, minlength, maxlength)
-    def undo(passwdobj,honeypotobj) def redo(passwdobj,honeypotobj)
 
-EXCEPTIONS
-    They have their own __doc__-strings.
-    class err_norandom(Exception)
-    class err_nolength(Exception)
-    class err_loaderr(Exception)
-    class err_notfound(Exception)
-    class err_duplicate(Exception)
-    class err_idiot(Exception)
-    class err_nometa(Exception)
-
-NOTES
-    What I call strings are really 'unicode' in Python 2.x.
-    Unless written otherwise, <xmlfile> is a path. In get10() and get64(),
-    <length> must be an integer, not a string.
-    passwd.xmltree, honeypot.xmltree, common_data.xmltree are class
-        'xml.etree.ElementTree.ElementTree'.
-    passwd.xmlroot, honeypot.xmlroot, common_data.xmlroot are class
-        'xml.etree.ElementTree.Element'.
-    The fake-passwords/honeypots are intended to catch crackers.
-    Use honeypots such as "password".
+    Python 2/3 compatibility functions
+    ----------------------------------
+    is_anystr(x)
+    is_bytestr(x)
+    is_unicodestr(x)
+    u(x)
+    b(x)
+    is_int(x)
+    is_num(x)
     
-    The meta-data:
-        passwd[*]["meta"] is a dictionary containing:
-            "type":     "10", "64" xor "human"
-                        Use get10(), get64() xor (it was human-generated)
-            "minlength":        Minimal required length for the password.
-            "maxlength":        Maximal allowed length for the password.
-        
-        Human-generated passwords have 0 as minlength and maxlength.
+    Classes
+    -------
+    passwd(common_data)
+    honeypot(common_data)
+    common_data()               Internally used.
+    
+    RNGs
+    ----
+    get10(length)               Internally used.
+    get64(length)               Internally used.
+    getint(a, b)                Internally used.
+    randomize(method, minlength, maxlength)
+    
+    Misc.
+    -----
+    open_rng()                  Internally used.
+    unquote(x)
+    undo(passwdobj,honeypotobj)
+    redo(passwdobj,honeypotobj)
+    ckmkdir(d)                  Internally used. Not in man-page.
+    ckmkfile(f, content)        Internally used. Not in man-page.
 
-BUGS
-    get64() wastes a few bits from the random device.
-    get10() wastes lots of bits when it emits:
-        "Bad nibble"
+    Progress-bar
+    ------------
+    class progress_bar()
+    no_pb()
+    no_pb_f()                   Internally used.
+
+    Exceptions
+    ----------
+    err_norandom(Exception)
+    err_nolength(Exception)
+    err_loaderr(Exception)
+    err_notfound(Exception)
+    err_duplicate(Exception)
+    err_idiot(Exception)
+    err_nometa(Exception)
+
+    Notes
+    -----
+    What I call strings is really:
+    
+        - Python 2:     unicode
+        - Python 3:     str
+        
+    `xmlfile` is a path.
+
 """
 
 import xml.etree.ElementTree as XML
@@ -101,7 +114,7 @@ class err_loaderr(Exception):
 
 class err_notfound(Exception):
     """class err_notfound(Exception)
-    The record in object.data cannot be found = cannot remove."""
+    The record in object.data cannot be found."""
     pass
 
 class err_duplicate(Exception):
@@ -183,6 +196,11 @@ def b2u3(x):
     else:
         return u(x)
 
+_auto_pb = compile('''
+if pb is None:
+    pb = no_pb()
+''', '<string>', 'exec')
+
 def no_pb_f(percent, data):
     """no_pb_f(percent, data)
     The actual function used by a progress bar created by `no_pb`.
@@ -227,8 +245,7 @@ ERRORS
     logging.info("get64: length={0}".format(length))
     if length < 1:
         raise err_nolength('get64 called with length < 1.')
-    if pb is None:
-        pb = no_pb()    # No-op progress bar.
+    exec _auto_pb
     letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" +
             "ghijklmnopqrstuvwxyz0123456789!_")
     passwd, bits, number = '', 0, 0
@@ -265,8 +282,7 @@ def get10(length, pb=None):
     logging.info("get10: length={0}".format(length))
     if length < 1:
         raise err_nolength('get10 called with length < 1.')
-    if pb is None:
-        pb = no_pb()    # No-op progress bar.
+    exec _auto_pb
     passwd, bits, number = '', 0, 0
     rng = open_rng()
     while len(passwd) < length:    # Main loop.
@@ -296,8 +312,7 @@ def getint(a, b, pb=None):
     assert is_int(a) and is_int(b)
     if b < a:
         raise err_nolength("b < a")
-    if pb is None:
-        pb = no_pb()    # No-op progress bar.
+    exec _auto_pb
     rng = open_rng()
     reqbits = bits = number = smallnum = 0
     while (1 << reqbits) < (b - a):
@@ -390,12 +405,16 @@ class progress_bar():
     start, stop and percent are floating point numbers in the range 0...100.
     """
     def __init__(self, start, stop, function, data=None):
-        # The values are internally in the range 0...1.
-        # They are externally in the range 0...100.
+        """__init__(self, start, stop, function, data=None)
+        All values are float.
+        The values are internally in the range 0...1.
+        They are externally in the range 0...100.
+        """
         self.start = start/100.0
         self.stop = stop/100.0
         self.function = function
         self.data = data
+        # Full range.
         self.full = self.stop - self.start
     def progress(self, percent):
         if percent < 0.0:
@@ -405,6 +424,30 @@ class progress_bar():
         real_percent = self.start  +  (percent/100.0 * self.full)
         self.function(real_percent*100.0, self.data)
     def minibar(self, start, stop):
+        """progress_bar.minibar(self, start, stop)
+        
+        A progress-bar that is a part of another (the parent)
+        progress-bar.
+        
+        >>> import passwdmanapi as api
+        >>> def simple_progress(percent, data):
+        ...     print(percent)
+        ... 
+        >>> pb = progress_bar(0.0, 100.0, simple_progress)
+        >>> pb.progress(0.0)
+        0.0
+        >>> pb.progress(50.0)
+        50.0
+        >>> pb.progress(100.0)
+        100.0
+        >>> minipb = pb.minibar(50.0, 100.0)
+        >>> minipb.progress(0.0)
+        50.0
+        >>> minipb.progress(50.0)
+        75.0
+        >>> minipb.progress(100.0)
+        100.0
+        """
         start /= 100.0
         stop /= 100.0
         return progress_bar(
@@ -565,76 +608,86 @@ class common_data():
         return "<passwdmanapi.common_data object with id {0}>".format(
                                                                 id(self))
 class passwd(common_data):
-    """self.data                        List.
-    self.data[*]["value"]               The password.
-    self.data[*]["name"]       What is the password for (info for the user).
-    self.data[*]["meta"][*]    Information useful when updating the password.
-    self.data[*]["meta"]["type"]        human, 10, 64
-                                        human-generated, get10(), get64()
-    self.data[*]["meta"]["minlength"]   Minimum length for a password.
-    self.data[*]["meta"]["maxlength"]   Maximum length for a password.
-    add(name, value, m_type, m_minlength, m_maxlength)   Raises err_duplicate.
-    add_nometa(name, value)             Add human generated password.
-        Raises err_duplicate.
+    """passwd(common_data) - The passwords.
+    All classes based on common_data are lists with legs.
+    __init__(self, backups=True)
+    With `backups`=True changes can be undone.
+    
+    Methods (including those from common_data)
+    ------------------------------------------
+    add(name, value, m_type, m_minlength, m_maxlength, pb=None)
+    add_nometa(name, value)
     remove(x, is_numstring=False)
-        x can be a string, integer or a stringed integer.
-        is_numstring == True: x is a string that contains digits.
-                               Without this it would treat x as an index.
-        Set is_numstring to True if x is NOT an index!
-        Raises err_notfound.
     mkindex(x, is_numstring=False)
-        x is a string that is either a stringed integer or a name of a
-        password.
-        Set is_numstring to True if x is NOT an index!
-        Raises err_notfound.
-    update(index), update_meta(index, m_type, m_minlength, m_maxlength)
-        Update passwords automatically.
-        They generate the value themselves.
-        update_meta forces (new) meta-data.
-        Both raises err_notfound.
-        update() raises err_nometa.
-        update_meta() raises err_idiot.
+    update(index, pb=None)
+    update_meta(index, m_type, m_minlength, m_maxlength, pb=None)
+    __iter__
+    next = __next__
+    __len__
+    __getitem__
+    
+    `passwd`'s entries are dicts
+    ----------------------------
+    
+        - 'name'        What is the password for.
+        - 'value'       The password.
+        - 'meta'        A dict inside a dict.
+                        
+                - 'minlength'   Minimal required length for the
+                                password.  Use int() on this.
+                - 'maxlength'   Maximal allowed length for the
+                                password.  Use int() on this.
+                - 'type'        String; Allowed characters in the
+                                password.  For :method:`update`.
+                
+                        - '10'          Digits only.
+                        - '64'          A-Z, a-z, '_', '!'
+                        - 'human'       It was human-generated. The
+                                        password should have 0 as
+                                        minlength and maxlength.
+                                        
+    Internals
+    ---------
+    xmltree     A 'xml.etree.ElementTree.ElementTree'.
+    xmlroot     A 'xml.etree.ElementTree.Element'. The 'root' tag.
+    writexml()  Not so well hidden method inherited from common_data.
     """
-    # self.index         Index for self.data[] when    'for x in this_object'.
-    # self.xmltree                       ~/.passwdman/passwords
-    # self.xmlroot                       Root element of self.xmltree.
     def __init__(self, backups=True):
-        """__init__(self, backups=True)
-        load ~/.passwdman/passwords -> self.xmltree 
-        -> self.xmlroot -> self.data[]
-        self.data is a list of {'name': 'string',
-                            'value': 'string',
-                            'meta': {'minlength':0,
-                                    'maxlength':0,
-                                    'type': 'string'}}
-            <name> What is the password for.
-            <value> The password.
-            <meta> Less important information.
-          <minlength> The minimum length for the password, used when updating.
-          <maxlength> The maximum length for the password, used when updating.
-            <type> '10'=created by get10(), '64'=created by get64(),
-                 'human'=old human generated password.
-        """
         common_data.__init__(self, "~/.passwdman/passwords")
         self.make_backups = backups
         for passwd_element in self.xmlroot.findall("passwd"): # Get the data.
             meta_element = passwd_element.find("meta")
             # Got the tags/elements.
             if meta_element is not None:
-                meta_attrib = {"minlength": int(
-                                           meta_element.attrib["minlength"]),
-                               "maxlength": int(
-                                           meta_element.attrib["maxlength"]),
-                               "type": meta_element.attrib["type"]}
+                meta_attrib = {
+                    "minlength": int(meta_element.attrib["minlength"]),
+                    "maxlength": int(meta_element.attrib["maxlength"]),
+                    "type": meta_element.attrib["type"]
+                }
             else:    # The meta tag is optional.
                 # This is the magic dictionary.
-                meta_attrib = {"minlength": 0, "maxlength": 0,
-                               "type": "human"} 
+                meta_attrib = {
+                    "minlength": 0,
+                    "maxlength": 0,
+                    "type": "human"
+                } 
             # Got the meta attributes.
-            self.data.append({"name": passwd_element.attrib["name"],
-                              "value": passwd_element.attrib["value"],
-                              "meta": meta_attrib})
-    # Will not add __setitem__.
+            self.data.append({
+                "name": passwd_element.attrib["name"],
+                "value": passwd_element.attrib["value"],
+                "meta": meta_attrib
+            })
+    def _common_code_update(self, prefix, suffix):
+        return compile('''
+assert is_int(index)
+if index >= len(self) or index < 0:
+    raise err_notfound("index out of range")
+try:
+    minlength = int({0}minlength{1})
+    maxlength = int({0}maxlength{1})
+except:
+    raise err_idiot("INTEGERS")
+'''.format(prefix, suffix), '<string>', 'exec')
     def add(self, name, value, m_type, m_minlength, m_maxlength, pb=None):
         assert is_unicodestr(name)
         assert is_unicodestr(value) or value is None
@@ -655,8 +708,7 @@ class passwd(common_data):
         assert is_anystr(m_minlength) and is_anystr(m_maxlength)
         forget = int(m_minlength)   # Raise an exception if not a number.
         forget = int(m_maxlength)   # Raise an exception if not a number.
-        if pb is None:
-            pb = no_pb()        # No-op progress bar.
+        exec _auto_pb
         for x in self.data: # Check for duplicates.
             if x["name"] == name:
                 raise err_duplicate(
@@ -733,22 +785,14 @@ class passwd(common_data):
         """update(self, index)
         Update the password at index, use its meta-data to know how.
         """
-        assert is_int(index)
-        if index >= len(self) or index < 0:
-            raise err_notfound("Index out of range.")
+        exec self._common_code_update('self[index]["meta"]["', '"]')
         method = self[index]["meta"]["type"]
         if method == "human":   # It would probably work with get64, but
             raise err_nometa(   # it will need a check for a meta-element and
                                 # might need to create one.
                               # Use update_meta() to force specific meta-data.
                   "Don't know how to update a human-generated password.")
-        try:
-            minlength = int(self[index]["meta"]["minlength"])
-            maxlength = int(self[index]["meta"]["maxlength"])
-        except:
-            raise err_nometa("Weird 'minlength' or 'maxlength'.")
-        if pb is None:
-            pb = no_pb()        # No-op progress bar.
+        exec _auto_pb
         new = self[index]["value"] = randomize(method, minlength, maxlength,
                                                     pb.minibar(0.0, 90.0))
         # Write the new password to the passwd file.
@@ -766,16 +810,8 @@ class passwd(common_data):
         Update the password at index and its meta data.
         """
         assert is_anystr(m_type)
-        assert is_int(index)
-        if index >= len(self) or index < 0:
-            raise err_notfound("index out of range")
-        try:
-            minlength = int(m_minlength)
-            maxlength = int(m_maxlength)
-        except:
-            raise err_idiot("INTEGERS")
-        if pb is None:
-            pb = no_pb()        # No-op progress bar.
+        exec self._common_code_update('m_', '')
+        exec _auto_pb
         new = self[index]["value"] = randomize(m_type, minlength, maxlength,
                                                     pb.minibar(0.0, 90.0))
         self[index]["meta"]["type"] = m_type
@@ -826,6 +862,24 @@ class honeypot(common_data):
         self.make_backups = backups
         for honeypot_element in self.xmlroot.findall("honeypot"):
             self.data.append(honeypot_element.attrib["value"])
+        self.common_code_pick = compile('''
+assert is_int(n)
+exec _auto_pb
+if n > len(self):
+    n = len(self)
+    if log_vs_raise:
+        logging.error("honeypot.pick: <n> is too big.")
+    else:
+        raise err_idiot("")
+balloons, outlist, output = [], [], ""
+for x in self:                  # Create popable list.
+    balloons.append(x)
+while len(outlist) < n:         # Pop random balloons.
+    s = float(len(outlist))
+    N = float(n)
+    outlist.append(balloons.pop(getint(0, len(balloons),
+                                pb.minibar(s/N* 100.0, (s+1.0)/N * 100.0))))
+''', '<string>', 'exec')
     def add(self, value):
         assert is_unicodestr(value)
         """add(self, value) - Add a new honey pot with the value <value>."""
@@ -849,25 +903,9 @@ class honeypot(common_data):
         """pick(self, n=1, sep=",", log_vs_raise=True)
         Pick randomly selected honey-pots.
         """
-        assert is_int(n)
         # Its default is not unicode on Python 2.x.
         assert is_unicodestr(sep) or sep == ","
-        if pb is None:
-            pb = no_pb()        # No-op progress bar.
-        if n > len(self):
-            n = len(self)
-            if log_vs_raise:
-                logging.error("honeypot.pick: <n> is too big.")
-            else:
-                raise err_idiot("")
-        balloons, outlist, output = [], [], ""
-        for x in self:                  # Create popable list.
-            balloons.append(x)
-        while len(outlist) < n:         # Pop random balloons.
-            s = float(len(outlist))
-            N = float(n)
-            outlist.append(balloons.pop(getint(0, len(balloons),
-                            pb.minibar(s/N* 100.0, (s+1.0)/N * 100.0))))
+        exec self.common_code_pick
         for y in outlist:
             output += y
             output += sep
@@ -876,24 +914,7 @@ class honeypot(common_data):
         """pickl(self, n, log_vs_raise=True)
         Pick randomly selected honey-pots in a list.
         """
-        # Copy-pasted from pick()
-        assert is_int(n)
-        if pb is None:
-            pb = no_pb()        # No-op progress bar.
-        if n > len(self):
-            n = len(self)
-            if log_vs_raise:
-                logging.error("honeypot.pick:<n> is too big")
-            else:
-                raise err_idiot("")
-        balloons, outlist, output = [], [], ""
-        for x in self:                  # Create popable list.
-            balloons.append(x)
-        while len(outlist) < n:         # Pop random balloons.
-            s = float(len(outlist))
-            N = float(n)
-            outlist.append(balloons.pop(getint(0, len(balloons),
-                            pb.minibar(s/N * 100.0, (s+1.0)/N * 100.0))))
+        exec self.common_code_pick
         return outlist
     def __repr__(self):
         return "<passwdmanapi.honeypot object with id {0}>".format(id(self))

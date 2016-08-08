@@ -1,4 +1,6 @@
 2014-01-15      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.26
+    * passwdmanapi.py: Partial big improvements in __doc__-strings.
 0.3.25
     * passwdmanapi.py: Lock the data-files exclusively.
     * TODO: Removed 'THE REALLY BIG CHANGE: change passwdmanapi:'.
