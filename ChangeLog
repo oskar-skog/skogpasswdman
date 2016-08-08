@@ -1,4 +1,9 @@
 2013-11-21      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2.6
+    * shebang, configure, configure.2 (update): Fixed bug in shebang:
+        s/$1.out/`basename $1`.out/
+    * configure.2 (maketarget_install), Makefile (install): Fixed bug:
+        s/passwdman.desktop/$(srcdir)passwdman.desktop/
 0.2.5
     * TODO: Finally remembered to remove 'menu'.
     * passwdmanapi.py (passwd.add_nometa): Doesn't add a 'meta'-tag anymore.

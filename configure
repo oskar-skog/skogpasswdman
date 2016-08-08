@@ -176,7 +176,7 @@ echo '        fi' >> shebang
 echo '    done' >> shebang
 echo 'done' >> shebang
 echo 'while [ $# -gt 0 ]; do' >> shebang
-echo '    echo "#!$python_exec" > $1.out' >> shebang
+echo '    echo "#!$python_exec" > `basename $1`.out' >> shebang
 echo '    cat $1 >> $1.out' >> shebang
 echo '    shift' >> shebang
 echo 'done' >> shebang
@@ -494,7 +494,7 @@ printf 'echo \047        fi\047 >> shebang\n' >> configure.2
 printf 'echo \047    done\047 >> shebang\n' >> configure.2
 printf 'echo \047done\047 >> shebang\n' >> configure.2
 printf 'echo \047while [ \044# -gt 0 ]; do\047 >> shebang\n' >> configure.2
-printf 'echo \047    echo \042#!\044python_exec\042 > \0441.out\047 >> shebang\n' >> configure.2
+printf 'echo \047    echo \042#!\044python_exec\042 > `basename \0441`.out\047 >> shebang\n' >> configure.2
 printf 'echo \047    cat \0441 >> \0441.out\047 >> shebang\n' >> configure.2
 verbose Line 300...
 printf 'echo \047    shift\047 >> shebang\n' >> configure.2
@@ -815,7 +815,7 @@ printf '    #Append more dependencies.\n' >> configure.2
 printf '    if cli:\n' >> configure.2
 printf '        makefile.write(\042 passwdmancli.out\042)#./shebang adds a \047.out\047 suffix.\n' >> configure.2
 printf '    if gui:\n' >> configure.2
-printf '        makefile.write(\042 passwdmangui.out passwdman.desktop\042)\n' >> configure.2
+printf '        makefile.write(\042 passwdmangui.out \044(srcdir)passwdman.desktop\042)\n' >> configure.2
 printf '    makefile.write(\042\\n\042)\n' >> configure.2
 printf '    install_file(\042passwdmanapi.py\042, \042\044(moduledir)/passwdmanapi.py\042, False)\n' >> configure.2
 printf '    if techdoc:\n' >> configure.2
@@ -1030,7 +1030,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.2.5\042\n' >> configure.2
+printf 'VERSION = \0420.2.6\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2
