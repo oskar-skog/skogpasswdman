@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!-- lifted from mdoc+troff by doclifter -->
+<refentry id='passwdmanapi3'>
+
+
+<refmeta>
+<refentrytitle>PASSWDMANAPI</refentrytitle>
+<manvolnum>3</manvolnum>
+</refmeta>
+
+<refnamediv id='purpose'>
+<refname> passwdmanapi </refname>
+<refpurpose> library used by passwdmancli and passwdmangui </refpurpose>
+</refnamediv>
+<refsynopsisdiv id='synopsis'>
+<cmdsynopsis>
+  <command>#!/usr/bin/python</command>    
+    <arg choice='plain'><replaceable>import</replaceable></arg>
+    <arg choice='plain'><replaceable>passwdmanapi</replaceable></arg>
+    <sbr/>
+    <arg choice='plain'><replaceable>open_rng()</replaceable></arg>
+    <arg choice='plain'><replaceable>get64(length)</replaceable></arg>
+    <arg choice='plain'><replaceable>get10(length)</replaceable></arg>
+    <arg choice='plain'><replaceable>getint(a,</replaceable></arg>
+    <arg choice='plain'><replaceable>b)</replaceable></arg>
+    <arg choice='plain'><replaceable>unquote(x)</replaceable></arg>
+    <arg choice='plain'><replaceable>undo(passwdobj=None,</replaceable></arg>
+    <arg choice='plain'><replaceable>honeypotobj=None)</replaceable></arg>
+    <arg choice='plain'><replaceable>class</replaceable></arg>
+    <arg choice='plain'><replaceable>common_data()</replaceable></arg>
+    <arg choice='plain'><replaceable>class</replaceable></arg>
+    <arg choice='plain'><replaceable>passwd(common_data)</replaceable></arg>
+    <arg choice='plain'><replaceable>class</replaceable></arg>
+    <arg choice='plain'><replaceable>honeypot(common_data)</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<!-- body begins here -->
+
+<refsect2 id='class_common_data'><title>class common_data():</title>
+<para>__init__(self, xmlfile)
+__iter__(self)
+__next__(self)
+next(self)
+__getitem__(self, i)
+__len__(self)
+remove(self, x, xmlfile, element_name, attrib_name)
+writexml(self, xmlfile)
+__del__(self)</para>
+</refsect2>
+
+<refsect2 id='passwdcommon_data'><title>passwd(common_data):</title>
+<para>__init__(self)
+add(self, name, value, m_type, m_minlength, m_maxlength)
+add_nometa(self, name, value)
+remove(self, x)
+__repr__(self)
+mkindex(self, x)
+update(self, index)
+update_meta(self, index, m_type, m_minlength, m_maxlength)</para>
+</refsect2>
+
+<refsect2 id='class_honeypotcommon_data'><title>class honeypot(common_data):</title>
+<para>__init__(self)
+add(self, value)
+remove(self, x)
+pick(self, n=1, sep=",", log_vs_raise=True)
+__repr__(self)</para>
+</refsect2>
+
+<refsect2 id='exceptions'><title>Exceptions</title>
+<para>class err_norandom(Exception)
+class err_nolength(Exception)
+class err_loaderr(Exception)
+class err_notfound(Exception)
+class err_duplicate(Exception)
+class err_idiot(Exception)
+class err_nometa(Exception)</para>
+</refsect2>
+</refsect1>
+
+<refsect1 id='description'><title>DESCRIPTION</title>
+<para>Unless otherwise noted,
+<varname>xmlfile</varname>
+is a path.</para>
+
+<para>open_rng();
+opens
+<citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>
+(or
+<citerefentry><refentrytitle>urandom</refentrytitle><manvolnum>4</manvolnum></citerefentry>,
+if random could not be opened).
+Returns a file open for reading binary.
+Raises
+<errorcode>err_norandom</errorcode>.</para>
+
+<para>get10();
+and
+get64();
+returns a random string of
+<varname>length</varname>
+letters.
+get10();
+returns digits.
+get64();
+returns digits, big letters, small letters, underscores and exclamation
+marks.
+Raises
+<errorcode>err_norandom</errorcode>
+and
+<errorcode>err_nolength</errorcode>.</para>
+
+<para>getint();
+returns a random integer &gt;=
+<varname>a</varname>,
+&lt;=
+<varname>b</varname>.
+Raises
+<errorcode>err_norandom</errorcode>
+and
+<errorcode>err_nolength</errorcode>.</para>
+
+<para>unquote();
+returns the string
+<varname>x</varname>
+without its surrounding quotes.
+BUGGY.</para>
+
+<para>undo();
+undoes the latest change to the password list or honey pot list, by restoring
+from the newest auto-generated backup.
+It requires
+<varname>passwdobj</varname>
+which is the
+passwd();
+object and
+<varname>honeypotobj</varname>
+which is the
+honeypot();
+object.
+Raises
+<errorcode>err_idiot</errorcode>.</para>
+
+<para>common_data();
+is a class defining methods used by both
+passwd();
+and
+honeypot(.);</para>
+
+<para>passwd();
+is a class for the password list.
+honeypot();
+is a class for the honey pot list.
+See
+<link  linkend='files'>FILES</link>.</para>
+
+<refsect2 id='class_common_data2'><title>class common_data():</title>
+<para>__init__();
+will load the data from
+<varname>xmlfile</varname>.
+Raises
+<errorcode>err_loaderr</errorcode>.</para>
+
+<para>__iter__();
+resets the index and returns
+<varname>self</varname>.
+__getitem__();
+returns the password/honeypot at
+<varname>i</varname>.
+__len__();
+returns the number of passwords/honeypots.</para>
+
+<para>remove();
+removes the password/honeypot at
+<varname>x</varname>,
+which can be an integer or a stringed integer or the value of the
+password/honeypot, from the datastructure
+<varname>self</varname>
+and the file
+<varname>xmlfile</varname>.
+<varname>element_name</varname>
+and
+<varname>attrib_name</varname>
+tells it what elements and attributes it should loop through, remove and find
+a match for
+<varname>x</varname>
+in.
+Raises
+<errorcode>err_notfound</errorcode>.</para>
+
+<para>writexml();
+writes the datastructure
+<varname>self</varname>
+to the file
+<varname>xmlfile</varname>.
+It creates a backup of
+<varname>xmlfile</varname>
+to
+<filename>~/.passwdman/undoable</filename>.</para>
+</refsect2>
+
+<refsect2 id='class_passwdcommon_data'><title>class passwd(common_data)</title>
+<para>passwd();
+loads its data from the XML
+<filename>~/.passwdman/passwords</filename>.</para>
+
+<para><varname>self[index]["name"]</varname>
+is the name/purpose of the password.
+<varname>self[index]["value"]</varname>
+is the value of the password.
+<varname>self[index]["meta"]["minlength"]</varname>
+is the minimal length required for the password.
+<varname>self[index]["meta"]["maxlength"]</varname>
+is the maximal length allowed for the password.
+<varname>self[index]["meta"]["type"]</varname>
+is the type of the password, which is one of:</para>
+<variablelist remap='Bl -diag'>
+<varlistentry>
+<term>10</term>
+<listitem>
+<para>The password may only use digits.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>64</term>
+<listitem>
+<para>The password can use big letters, small letters, digits, underscores and
+exclamation marks.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>human</term>
+<listitem>
+<para>The password is human generated.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>If a password has no meta-data in
+<filename>~/.passwdman/passwords</filename>,
+its
+<varname>minlength</varname>
+and
+<varname>maxlength</varname>
+will be zero, and its
+<varname>type</varname>
+will be
+"human".</para>
+
+<para>passwd.add();
+and
+passwd.add_nometa();
+adds a password for
+<varname>name</varname>
+with the value
+<varname>value</varname>.
+add_nometa();
+adds a password without real meta-data while
+add();
+requires meta-data (the
+<varname>m_type</varname>
+must be a string and
+<varname>m_minlength</varname>
+and
+<varname>m_maxlength</varname>
+can be either an integer or a stringed integer).
+Raises
+<errorcode>err_duplicate</errorcode>.</para>
+
+<para>passwd.remove();
+removes the password
+<varname>x</varname>.
+<varname>x</varname>
+can be either a string matching a password's name or an integer (index) or a
+stringed integer.
+Raises
+<errorcode>err_notfound</errorcode>.</para>
+
+<para>passwd.mkindex();
+find
+<varname>x</varname>
+and return an index.
+<varname>x</varname>
+can be either a string matching a password's name or a stringed integer
+(index).
+Raises
+<errorcode>err_notfound</errorcode>.</para>
+
+<para>passwd.update();
+and
+passwd.update_meta();
+updates the password at
+<varname>index</varname>
+automatically by generating a password of the right type and an acceptable
+length.
+update();
+uses the password's own meta-data while
+update_meta();
+gives the password new meta-data from
+<varname>m_type</varname>,
+<varname>m_minlength</varname>
+and
+<varname>m_maxlength</varname>.
+<varname>m_type</varname>
+must be a string,
+<varname>m_minlength</varname>
+and
+<varname>m_maxlength</varname>
+can be either an integer or a stringed integer.
+Raises
+<errorcode>err_notfound</errorcode>,
+<errorcode>err_idiot</errorcode>
+and
+<errorcode>err_nometa</errorcode>.</para>
+</refsect2>
+
+<refsect2 id='class_honeypotcommon_data2'><title>class honeypot(common_data)</title>
+<para>The honey pots are weak passwords supposed to only be used as traps.
+honeypot(loads, its, data, from, the, XML);
+<filename>~/.passwdman/honeypots</filename>.
+<varname>self[index]</varname>
+is the value of the honeypot.</para>
+
+<para>honeypot.add();
+adds a new honeypot with the value
+<varname>value</varname>.
+Raises
+<errorcode>err_duplicate</errorcode>.</para>
+
+<para>honeypot.remove();
+removes the honeypot
+<varname>x</varname>.
+<varname>x</varname>
+is either an index (integer) or a stringed integer or the value of the
+honeypot.
+Raises
+<errorcode>err_notfound</errorcode>.</para>
+
+<para>honeypot.pick();
+picks
+<varname>n</varname>
+random honeypots and returns a string of
+honeypots separated with
+<varname>sep</varname>.
+If
+<varname>log_vs_raise</varname>
+is true, it will log an error if
+<varname>n</varname>
+is too big.
+If
+<varname>log_vs_raise</varname>
+is false, it will raise
+<errorcode>err_idiot</errorcode>.</para>
+
+</refsect2>
+</refsect1>
+
+<refsect1 id='exceptions2'><title>Exceptions</title>
+<para><errorcode>err_norandom</errorcode>
+is raised when neither
+<citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>
+or
+<citerefentry><refentrytitle>urandom</refentrytitle><manvolnum>4</manvolnum></citerefentry>
+can be opened.</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>open_rng();</para>
+</listitem>
+<listitem>
+<para>get10();</para>
+</listitem>
+<listitem>
+<para>get64();</para>
+</listitem>
+<listitem>
+<para>getint();</para>
+</listitem>
+<listitem>
+<para>passwd.update();</para>
+</listitem>
+<listitem>
+<para>passwd.update_meta();</para>
+</listitem>
+<listitem>
+<para>honeypot.pick();</para>
+</listitem>
+</itemizedlist>
+
+<para><errorcode>err_nolength</errorcode>
+is raised when a function is called with an invalid length.</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>get64();</para>
+</listitem>
+<listitem>
+<para>get10();</para>
+</listitem>
+<listitem>
+<para>getint();</para>
+</listitem>
+</itemizedlist>
+
+<para><errorcode>err_loaderr</errorcode>
+is raised if data cannot be loaded from file.</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>common_data();</para>
+</listitem>
+<listitem>
+<para>passwd();</para>
+</listitem>
+<listitem>
+<para>honeypot();</para>
+</listitem>
+</itemizedlist>
+
+<para><errorcode>err_notfound</errorcode>
+is raised if index is out of range or if it cannot find a match.</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>common_data.remove();</para>
+</listitem>
+<listitem>
+<para>passwd.remove();</para>
+</listitem>
+<listitem>
+<para>passwd.mkindex();</para>
+</listitem>
+<listitem>
+<para>passwd.update();</para>
+</listitem>
+<listitem>
+<para>passwd.update_meta();</para>
+</listitem>
+<listitem>
+<para>honeypot.remove();</para>
+</listitem>
+</itemizedlist>
+
+<para><errorcode>err_duplicate</errorcode>
+is raised if it is attempted to add a password with the same name as another
+or if its is attempted to add a honeypot with the same value as another.</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>passwd.add();</para>
+</listitem>
+<listitem>
+<para>passwd.add_nometa();</para>
+</listitem>
+<listitem>
+<para>honeypot.add();</para>
+</listitem>
+</itemizedlist>
+
+<para><errorcode>err_idiot</errorcode>
+is raised if the function was not used correctly.</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>passwd.update_meta();</para>
+</listitem>
+<listitem>
+<para>honeypot.pick();</para>
+</listitem>
+<listitem>
+<para>undo();</para>
+</listitem>
+</itemizedlist>
+
+<para><errorcode>err_nometa</errorcode>
+is raised when meta-data is required, but the meta-data was nonexistent,
+corrupt or no good.</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>passwd.update();</para>
+</listitem>
+</itemizedlist>
+</refsect1>
+
+<refsect1 id='bugs'><title>BUGS</title>
+<para>unquote();
+forgets about everything behind the second quote.</para>
+</refsect1>
+
+<refsect1 id='files'><title>FILES</title>
+<para><filename>~/.passwdman/passwords</filename>
+is the XML file containing the passwords and their meta-data.</para>
+
+<para><filename>~/.passwdman/honeypots</filename>
+is the XML file containing the honeypots.</para>
+
+<para><filename>~/.passwdman/undoable/</filename>
+is where the auto-generated backups live.</para>
+</refsect1>
+</refentry>
+

@@ -1,0 +1,273 @@
+.Dd Nov 01, 2013
+.Dt PASSWDMANCLI 1
+.Os
+.Sh NAME
+.Nm passwdmancli
+.Nd CLI for storing, generating and updating passwords and honeypots.
+.Sh SYNOPSIS
+.Nm
+.Op Ar infile
+.Sh DESCRIPTION
+.Ar infile
+is the file
+.Nm \"passwdmancli
+will read its commands from, if
+.Ar infile
+is omitted
+.Nm \"passwdmancli
+will read from standard input.
+.Pp
+.Nm
+reads its input as colon separated values.
+Quotes are either forbidden or optional (look at 
+.Fn unquote
+in
+.Xr passwdmanapi 3
+).
+Integers are created with the python built-in
+.Fn int .
+All commands are listed in
+.Sx COMMANDS .
+If the line begins with a number-sign, the line will be ignored.
+If the line begins with a pipe-sign, it will write the rest of the line to
+standard output.
+.Pp
+All outputs that are prefixed with an exclamation mark are error messages.
+All outputs that are prefixed with a number sign are messages for a human
+user.
+All other outputs are prefixed with their command (not their arguments),
+using dots instead of colons, followed by a question mark.
+.Pp
+Beware of whitespace.
+The whitespace comes after colons and/or question marks and before quotes.
+.Pp
+The passwords have meta-data.
+They have a minimum required length and a maximum allowed length.
+They also have a type which is one of:
+.Bl -diag
+.It "10"
+The password may only use digits.
+.It "64"
+The password can use big letters, small letters, digits, underscores and
+exclamation marks.
+.It "human"
+The password is human generated.
+.El
+.Pp
+The honeypots are weak passwords intended to be used as traps.
+.Sh COMMANDS
+.Bl -tag
+.It "bells"
+Show message about the bells and whistles.
+.It "bugs"
+Show message about wasps and mosquitoes.
+.It "hell"
+Synonym for
+.Ic "verbose:on" .
+.It "help"
+Help message.
+.It "honeypot:add:'value'"
+Add a new honeypot with the value
+.Va value .
+.It "honeypot:help"
+Help message.
+.It "honeypot:list"
+List all honeypots.
+Returns multiple lines of:
+.Qq honeypot.list? ,
+the index, a colon and the value surrounded by single quotes.
+.It "honeypot:pick"
+Pick a honeypot.
+Returns a line of:
+.Qq honeypot.pick?
+followed by the honeypot surrounded by single quotes.
+.It "honeypot:pick:n:'sep'"
+Pick
+.Va n
+honeypots and separate them with
+.Va sep .
+Returns a line of:
+.Qq honeypot.pick?
+followed by the separator-separated honeypots surrounded by single quotes.
+.It "honeypot:remove:'value'"
+Remove the honeypot with the value
+.Va value .
+.It "honeypot:remove:index"
+Remove the honeypot at
+.Va index .
+WARNING: The indexes of the following honeypots will be decreased by one!
+.It "passwd:add:type:minlength:maxlength:'name'"
+Add a new password for
+.Va name ,
+with at least
+.Va minlength
+letters, but no more than
+.Va maxlength .
+If
+.Va type
+is
+.Qq 10 ,
+the password will only contain digits.
+If
+.Va type
+is
+.Qq 64 ,
+the password will contain big letters, small letters, digits, underscores and
+exclamation marks.
+It will not give any output.
+.It "passwd:add_human:'name'"
+Add a human generated password for
+.Va name .
+It will read the password on a new line.
+It will not give any output.
+.It "passwd:get:'name'"
+Returns a line of:
+.Qq passwd.get?
+followed by the value of the password for
+.Va name
+surrounded by single quotes.
+.It "passwd:get:index"
+Returns a line of:
+.Qq passwd.get?
+followed by the value of the password at
+.Va index
+surrounded by single quotes.
+.It "passwd:help"
+Help message.
+.It "passwd:list"
+List all passwords.
+Returns multiple lines of:
+.Qq passwd.list? ,
+the index, a colon and the name surrounded by single quotes.
+.It "passwd:meta:'name'"
+Get the meta-data for the password for
+.Va name .
+Returns a line of:
+.Qq passwd.meta? ,
+the type surrounded by single quotes, a colon, the minimum length for the
+password surrounded by single quotes, a colon and the maximum length for the
+password surrounded by single quotes.
+.It "passwd:meta:index"
+Get the meta-data for the password at
+.Va index .
+Returns a line of:
+.Qq passwd.meta? ,
+the type surrounded by single quotes, a colon, the minimum length for the
+password surrounded by single quotes, a colon and the maximum length for the
+password surrounded by single quotes.
+.It "passwd:remove:'name'"
+Remove the password for
+.Va name .
+.It "passwd:remove:index"
+Remove the password at
+.Va index .
+WARNING: The indexes of the following passwords will be decreased by one!
+.It "passwd:update:'name'"
+Update the password for
+.Va name
+using its meta-data.
+Returns a line of:
+.Qq passwd.update? ,
+the old password, a colon and the new password.
+.It "passwd:update:index"
+Update the password at
+.Va index
+using its meta-data.
+Returns a line of:
+.Qq passwd.update? ,
+the old password, a colon and the new password.
+.It "passwd:update_meta:type:min:max:'name'"
+Do the same thing as
+.Ic "passwd:update:'name'" ,
+but use
+.Va type ,
+.Va min ,
+and
+.Va max
+as meta-data, instead of the passwords own (which might not even exist).
+.It "passwd:update_meta:type:min:max:index"
+Do the same thing as
+.Ic "passwd:update:index" ,
+but use
+.Va type ,
+.Va min ,
+and
+.Va max
+as meta-data, instead of the passwords own (which might not even exist).
+.It "undo"
+CLI undo button; restore from latest auto-generated backup.
+.It "verbose:on"
+Enable verbose mode; release mosquitoes from hell that will be noisy and give
+you a headache.
+.It "verbose:off"
+Disable verbose mode; kill the mosquitoes.
+.It "whistles"
+Show message about the bells and whistles.
+.El
+.Sh FILES
+.Pa ~/.passwdman/passwords
+is a XML file containing all passwords.
+.Pp
+.Pa ~/.passwdman/honeypots
+is a XML file containing all honeypots.
+.Pp
+.Pa ~/.passwdman/undoable
+is a directory full of backups
+.Sh DIAGNOSIS
+All error messages are sent to standard output and are prefixed with an
+exclamation mark.
+.Bl -diag
+.It "!syntax error"
+Bad speling or incorrect usage.
+The next line of output will be the offending input prefixed with an
+exclamation mark.
+.It "!unhandled error"
+Holy fuck!
+That's a wasp.
+.It "!no meta"
+The command requires meta-data, but the password doesn't have any.
+.It "!not found"
+Not found or index out of range
+.El
+.Sh SEE ALSO
+.Xr passwdmanapi 3 ,
+.Xr random 4 ,
+.Xr urandom 4 ,
+.Xr passwdmanfiles 5
+.Sh BUGS
+Wasps and mosquitoes.
+.Pp
+Wasps:
+.Bl -bullet
+.It
+Missing some
+.Qq try
+and
+.Qq except
+blocks, causing unhandled errors.
+.El
+.Pp
+Mosquitoes:
+.Bl -bullet
+.It
+If verbose mode is enabled the message
+.Qq #READY
+is written too many times.
+.It
+.Nm
+doesn't like empty lines.
+.It
+KWrite thinks that I should spell honeypots
+.Qq honey pots ,
+but I use
+.Qq honeypots
+as filename and variables.
+It doesn't recognize its own name.
+.El
+.Sh SECURITY
+.Nm
+uses
+.Xr random 4
+or
+.Xr urandom 4
+for everything.

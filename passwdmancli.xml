@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!-- lifted from mdoc+troff by doclifter -->
+<refentry id='passwdmancli1'>
+
+
+<refmeta>
+<refentrytitle>PASSWDMANCLI</refentrytitle>
+<manvolnum>1</manvolnum>
+</refmeta>
+
+<refnamediv id='purpose'>
+<refname> passwdmancli </refname>
+<refpurpose> CLI for storing, generating and updating passwords and honeypots. </refpurpose>
+</refnamediv>
+<!-- body begins here -->
+<refsynopsisdiv id='synopsis'>
+<cmdsynopsis>
+  <command>passwdmancli</command>    
+    <arg choice='plain'><replaceable>infile</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+
+<refsect1 id='description'><title>DESCRIPTION</title>
+<para><replaceable>infile</replaceable>
+is the file
+<command remap='Nm'> passwdmancli </command>
+will read its commands from, if
+<replaceable>infile</replaceable>
+is omitted
+<command remap='Nm'> passwdmancli </command>
+will read from standard input.</para>
+
+<para><command remap='Nm'> passwdmancli </command>
+reads its input as colon separated values.
+Quotes are either forbidden or optional (look at 
+unquote();
+in
+<citerefentry><refentrytitle>passwdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+).
+Integers are created with the python built-in
+int(.);
+All commands are listed in
+<link  linkend='commands'>COMMANDS</link>.
+If the line begins with a number-sign, the line will be ignored.
+If the line begins with a pipe-sign, it will write the rest of the line to
+standard output.</para>
+
+<para>All outputs that are prefixed with an exclamation mark are error messages.
+All outputs that are prefixed with a number sign are messages for a human
+user.
+All other outputs are prefixed with their command (not their arguments),
+using dots instead of colons, followed by a question mark.</para>
+
+<para>Beware of whitespace.
+The whitespace comes after colons and/or question marks and before quotes.</para>
+
+<para>The passwords have meta-data.
+They have a minimum required length and a maximum allowed length.
+They also have a type which is one of:</para>
+<variablelist remap='Bl -diag'>
+<varlistentry>
+<term>10</term>
+<listitem>
+<para>The password may only use digits.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>64</term>
+<listitem>
+<para>The password can use big letters, small letters, digits, underscores and
+exclamation marks.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>human</term>
+<listitem>
+<para>The password is human generated.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>The honeypots are weak passwords intended to be used as traps.</para>
+</refsect1>
+
+<refsect1 id='commands'><title>COMMANDS</title>
+<variablelist remap='Bl -tag'>
+<varlistentry>
+<term>bells</term>
+<listitem>
+<para>Show message about the bells and whistles.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>bugs</term>
+<listitem>
+<para>Show message about wasps and mosquitoes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>hell</term>
+<listitem>
+<para>Synonym for
+<command remap='Ic'>verbose:on</command>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>help</term>
+<listitem>
+<para>Help message.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>honeypot:add:'value'</term>
+<listitem>
+<para>Add a new honeypot with the value
+<varname>value</varname>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>honeypot:help</term>
+<listitem>
+<para>Help message.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>honeypot:list</term>
+<listitem>
+<para>List all honeypots.
+Returns multiple lines of:
+"honeypot.list?",
+the index, a colon and the value surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>honeypot:pick</term>
+<listitem>
+<para>Pick a honeypot.
+Returns a line of:
+"honeypot.pick?"
+followed by the honeypot surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>honeypot:pick:n:'sep'</term>
+<listitem>
+<para>Pick
+<varname>n</varname>
+honeypots and separate them with
+<varname>sep</varname>.
+Returns a line of:
+"honeypot.pick?"
+followed by the separator-separated honeypots surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>honeypot:remove:'value'</term>
+<listitem>
+<para>Remove the honeypot with the value
+<varname>value</varname>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>honeypot:remove:index</term>
+<listitem>
+<para>Remove the honeypot at
+<varname>index</varname>.
+WARNING: The indexes of the following honeypots will be decreased by one!</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:add:type:minlength:maxlength:'name'</term>
+<listitem>
+<para>Add a new password for
+<varname>name</varname>,
+with at least
+<varname>minlength</varname>
+letters, but no more than
+<varname>maxlength</varname>.
+If
+<varname>type</varname>
+is
+"10",
+the password will only contain digits.
+If
+<varname>type</varname>
+is
+"64",
+the password will contain big letters, small letters, digits, underscores and
+exclamation marks.
+It will not give any output.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:add_human:'name'</term>
+<listitem>
+<para>Add a human generated password for
+<varname>name</varname>.
+It will read the password on a new line.
+It will not give any output.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:get:'name'</term>
+<listitem>
+<para>Returns a line of:
+"passwd.get?"
+followed by the value of the password for
+<varname>name</varname>
+surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:get:index</term>
+<listitem>
+<para>Returns a line of:
+"passwd.get?"
+followed by the value of the password at
+<varname>index</varname>
+surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:help</term>
+<listitem>
+<para>Help message.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:list</term>
+<listitem>
+<para>List all passwords.
+Returns multiple lines of:
+"passwd.list?",
+the index, a colon and the name surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:meta:'name'</term>
+<listitem>
+<para>Get the meta-data for the password for
+<varname>name</varname>.
+Returns a line of:
+"passwd.meta?",
+the type surrounded by single quotes, a colon, the minimum length for the
+password surrounded by single quotes, a colon and the maximum length for the
+password surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:meta:index</term>
+<listitem>
+<para>Get the meta-data for the password at
+<varname>index</varname>.
+Returns a line of:
+"passwd.meta?",
+the type surrounded by single quotes, a colon, the minimum length for the
+password surrounded by single quotes, a colon and the maximum length for the
+password surrounded by single quotes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:remove:'name'</term>
+<listitem>
+<para>Remove the password for
+<varname>name</varname>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:remove:index</term>
+<listitem>
+<para>Remove the password at
+<varname>index</varname>.
+WARNING: The indexes of the following passwords will be decreased by one!</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:update:'name'</term>
+<listitem>
+<para>Update the password for
+<varname>name</varname>
+using its meta-data.
+Returns a line of:
+"passwd.update?",
+the old password, a colon and the new password.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:update:index</term>
+<listitem>
+<para>Update the password at
+<varname>index</varname>
+using its meta-data.
+Returns a line of:
+"passwd.update?",
+the old password, a colon and the new password.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:update_meta:type:min:max:'name'</term>
+<listitem>
+<para>Do the same thing as
+<command remap='Ic'>passwd:update:'name'</command>,
+but use
+<varname>type</varname>,
+<varname>min</varname>,
+and
+<varname>max</varname>
+as meta-data, instead of the passwords own (which might not even exist).</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>passwd:update_meta:type:min:max:index</term>
+<listitem>
+<para>Do the same thing as
+<command remap='Ic'>passwd:update:index</command>,
+but use
+<varname>type</varname>,
+<varname>min</varname>,
+and
+<varname>max</varname>
+as meta-data, instead of the passwords own (which might not even exist).</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>undo</term>
+<listitem>
+<para>CLI undo button; restore from latest auto-generated backup.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>verbose:on</term>
+<listitem>
+<para>Enable verbose mode; release mosquitoes from hell that will be noisy and give
+you a headache.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>verbose:off</term>
+<listitem>
+<para>Disable verbose mode; kill the mosquitoes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>whistles</term>
+<listitem>
+<para>Show message about the bells and whistles.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id='files'><title>FILES</title>
+<para><filename>~/.passwdman/passwords</filename>
+is a XML file containing all passwords.</para>
+
+<para><filename>~/.passwdman/honeypots</filename>
+is a XML file containing all honeypots.</para>
+
+<para><filename>~/.passwdman/undoable</filename>
+is a directory full of backups</para>
+</refsect1>
+
+<refsect1 id='diagnosis'><title>DIAGNOSIS</title>
+<para>All error messages are sent to standard output and are prefixed with an
+exclamation mark.</para>
+<variablelist remap='Bl -diag'>
+<varlistentry>
+<term>!syntax error</term>
+<listitem>
+<para>Bad speling or incorrect usage.
+The next line of output will be the offending input prefixed with an
+exclamation mark.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>!unhandled error</term>
+<listitem>
+<para>Holy fuck!
+That's a wasp.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>!no meta</term>
+<listitem>
+<para>The command requires meta-data, but the password doesn't have any.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>!not found</term>
+<listitem>
+<para>Not found or index out of range</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id='see_also'><title>SEE ALSO</title>
+<para><citerefentry><refentrytitle>passwdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>urandom</refentrytitle><manvolnum>4</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>passwdmanfiles</refentrytitle><manvolnum>5</manvolnum></citerefentry></para>
+</refsect1>
+
+<refsect1 id='bugs'><title>BUGS</title>
+<para>Wasps and mosquitoes.</para>
+
+<para>Wasps:</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>Missing some
+"try"
+and
+"except"
+blocks, causing unhandled errors.</para>
+</listitem>
+</itemizedlist>
+
+<para>Mosquitoes:</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>If verbose mode is enabled the message
+"#READY"
+is written too many times.</para>
+</listitem>
+<listitem>
+<para><command remap='Nm'> passwdmancli </command>
+doesn't like empty lines.</para>
+</listitem>
+<listitem>
+<para>KWrite thinks that I should spell honeypots
+"honey pots",
+but I use
+"honeypots"
+as filename and variables.
+It doesn't recognize its own name.</para>
+</listitem>
+</itemizedlist>
+</refsect1>
+
+<refsect1 id='security'><title>SECURITY</title>
+<para><command remap='Nm'> passwdmancli </command>
+uses
+<citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>
+or
+<citerefentry><refentrytitle>urandom</refentrytitle><manvolnum>4</manvolnum></citerefentry>
+for everything.</para>
+</refsect1>
+</refentry>
+

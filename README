@@ -1,0 +1,34 @@
+About passwdman
+Installation
+Quick GUIde
+Technical
+
+1.      passwdman is a program for remembering and updating passwords. It
+        also has support for honey pots (fake-passwords that activates
+        traps).
+
+2.      It requires Python. The graphical use interface requires Gtk3 (with
+        python bindings).
+        
+        The usual: (Type them at the prompt)
+            ./configure
+            make
+            make install
+
+3.      There will be two tabs, one for passwords and one for honeypots.
+        Select the password or honeypot and click on the button for the task.
+        In the honeypot tab, there is a 'pick'- and 'pick many'-button. They
+        do not care about what honeypot you have selected, they choose
+        randomly by themselves.
+
+4.      The "--update" option for "configure":
+            Required argument: name of the new "configure.2"
+            configure only checks for python, extracts a few scripts and
+            passes control to "configure.2" (written by "configure").
+            
+            "configure.2" can update "configure" to contains a newer
+            version of "configure.2"
+            
+            To update the rest of configure: update twice.
+        The "--halt" option for "configure":
+            Stop "configure.2", so that it can be read.

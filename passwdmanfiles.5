@@ -1,0 +1,67 @@
+.Dd Nov 02, 2013
+.Dt PASSWDMANFILES 5
+.Os
+.Sh NAME
+.Nm ~/.passwdman/passwords ,
+.Nm ~/.passwdman/honeypots ,
+.Nm ~/.passwdman/undoable/
+.Nd data-files for passwdman.
+.Sh Pa ~/.passwdman/passwords
+The password list.
+It is an XML file, you are expected to understand an example of the file.
+The real file is ugly.
+.Bd -literal
+<?xml version='1.0' encoding='UTF-8'?>
+<root magic="passwdman" file="passwords" version="0.1">
+    <!--The attribute 'magic' may not be changed.
+    The major version may not be greater than zero.
+    The attribute 'file' is used to make sure that it is the right file.-->
+    <passwd name="What the password is for" value="top_secret"/>
+    <passwd name="TEST" value="0123456789">
+        <!--A 'passwd'-element is allowed to contain a 'meta'-element.-->
+        <meta type="10" minlength="4" maxlength="255"/>
+        <!--type == "human":
+                Human generated password.
+            type == "10":
+                Digits only.
+            type == "64":
+                Digits, big letters, small letters, underscores and
+                exclamation marks.
+            'minlength' is the minimal length required for the password.
+            'maxlength' is the maximal length allowed for the password.
+            
+            The meta-data is used when updating the password.-->
+    </passwd>
+</root>
+.Ed
+.Sh Pa ~/.passwdman/honeypots
+The list of honeypots.
+The honeypots are fake-passwords, to help catching crackers.
+This too is an ugly XML file.
+.Bd -literal
+<?xml version='1.0' encoding='UTF-8'?>
+<root file="honeypots" magic="passwdman" version="0.1">
+    <!--look at ~/.passwdman/passwords-->
+    <honeypot value="BadPassword"/>
+    <honeypot value="putme_injail_ifi_typethis"/>
+</root>
+.Ed
+.Sh Pa ~/.passwdman/undoable
+Backups.
+The
+.Fn undo
+function looks for the newest file and doesn't care about the filename.
+.Qq passwords
+in the filename, the file is a backup of 
+.Pa ~/.passwdman/passwords .
+If
+.Qq honeypots
+in the filename, the file is a backups of
+.Pa ~/.passwdman/honeypots .
+.Sh SEE ALSO
+.Xr passwdmancli 1 ,
+.Xr passwdmangui 1
+and
+.Xr passwdmanapi 3 .
+.Sh BUGS
+The documentation.

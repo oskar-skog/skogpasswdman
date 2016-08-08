@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+ "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
+ [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!--all
+    <p style="margin-top: 1em"><b>&bull;</b></p>
+ has been replaced with
+    <p style="margin-top: 1em; margin-left:9%"><b>&bull;</b></p>
+<head>
+<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
+<meta name="Content-Style" content="text/css"/>
+<style type="text/css">
+       .center { text-align: center }
+       .right  { text-align: right }
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<!-- Creator     : groff version 1.21 -->
+<!-- CreationDate: Fri Nov  8 08:03:21 2013 -->
+<title></title>
+</head>
+<body>
+
+<hr/>
+
+
+<p>PASSWDMANCLI(1) BSD General Commands Manual
+PASSWDMANCLI(1)</p>
+
+<p style="margin-top: 1em"><b>NAME</b></p>
+
+<p style="margin-left:6%;"><b>passwdmancli</b> &mdash; CLI
+for storing, generating and updating passwords and
+honeypots.</p>
+
+<p style="margin-top: 1em"><b>SYNOPSIS</b></p>
+
+<p style="margin-left:23%;"><b>passwdmancli</b>
+[<i>infile</i>]</p>
+
+<p style="margin-top: 1em"><b>DESCRIPTION</b></p>
+
+<p style="margin-left:6%;"><i>infile</i> is the file
+<b>passwdmancli</b> will read its commands from, if
+<i>infile</i> is omitted <b>passwdmancli</b> will read from
+standard input.</p>
+
+
+<p style="margin-left:6%; margin-top: 1em"><b>passwdmancli</b>
+reads its input as colon separated values. Quotes are either
+forbidden or optional (look at <b>unquote</b>() in
+passwdmanapi(3) ). Integers are created with the python
+built-in <b>int</b>(). All commands are listed in
+<i>COMMANDS</i>. If the line begins with a number-sign, the
+line will be ignored. If the line begins with a pipe-sign,
+it will write the rest of the line to standard output.</p>
+
+<p style="margin-left:6%; margin-top: 1em">All outputs that
+are prefixed with an exclamation mark are error messages.
+All outputs that are prefixed with a number sign are
+messages for a human user. All other outputs are prefixed
+with their command (not their arguments), using dots instead
+of colons, followed by a question mark.</p>
+
+<p style="margin-left:6%; margin-top: 1em">Beware of
+whitespace. The whitespace comes after colons and/or
+question marks and before quotes.</p>
+
+<p style="margin-left:6%; margin-top: 1em">The passwords
+have meta-data. They have a minimum required length and a
+maximum allowed length. They also have a type which is one
+of:</p>
+
+<p style="margin-left:6%; margin-top: 1em"><b>10&nbsp;</b>
+The password may only use digits.</p>
+
+<p style="margin-left:6%; margin-top: 1em"><b>64&nbsp;</b>
+The password can use big letters, small letters, digits,
+underscores and exclamation marks.</p>
+
+
+<p style="margin-left:6%; margin-top: 1em"><b>human&nbsp;</b>
+The password is human generated.</p>
+
+<p style="margin-left:6%; margin-top: 1em">The honeypots
+are weak passwords intended to be used as traps.</p>
+
+<p style="margin-top: 1em"><b>COMMANDS</b> <br/>
+bells</p>
+
+<p style="margin-left:24%; margin-top: 1em">Show message
+about the bells and whistles.</p>
+
+<p style="margin-top: 1em">bugs</p>
+
+<p style="margin-left:24%; margin-top: 1em">Show message
+about wasps and mosquitoes.</p>
+
+<p style="margin-top: 1em">hell</p>
+
+<p style="margin-left:24%; margin-top: 1em">Synonym for
+<b>verbose:on</b>.</p>
+
+<p style="margin-top: 1em">help</p>
+
+<p style="margin-left:24%; margin-top: 1em">Help
+message.</p>
+
+
+<p style="margin-top: 1em">honeypot:add:&rsquo;value&rsquo;</p>
+
+<p style="margin-left:24%;">Add a new honeypot with the
+value <i>value</i>.</p>
+
+<p style="margin-top: 1em">honeypot:help</p>
+
+<p style="margin-left:24%;">Help message.</p>
+
+<p style="margin-top: 1em">honeypot:list</p>
+
+<p style="margin-left:24%;">List all honeypots. Returns
+multiple lines of: &quot;honeypot.list?&quot;, the index, a
+colon and the value surrounded by single quotes.</p>
+
+<p style="margin-top: 1em">honeypot:pick</p>
+
+<p style="margin-left:24%;">Pick a honeypot. Returns a line
+of: &quot;honeypot.pick?&quot; followed by the honeypot
+surrounded by single quotes.</p>
+
+
+<p style="margin-top: 1em">honeypot:pick:n:&rsquo;sep&rsquo;</p>
+
+<p style="margin-left:24%;">Pick <i>n</i> honeypots and
+separate them with <i>sep</i>. Returns a line of:
+&quot;honeypot.pick?&quot; followed by the
+separator-separated honeypots surrounded by single
+quotes.</p>
+
+
+<p style="margin-top: 1em">honeypot:remove:&rsquo;value&rsquo;</p>
+
+<p style="margin-left:24%;">Remove the honeypot with the
+value <i>value</i>.</p>
+
+<p style="margin-top: 1em">honeypot:remove:index</p>
+
+<p style="margin-left:24%;">Remove the honeypot at
+<i>index</i>. WARNING: The indexes of the following
+honeypots will be decreased by one!</p>
+
+
+<p style="margin-top: 1em">passwd:add:type:minlength:maxlength:&rsquo;name&rsquo;</p>
+
+<p style="margin-left:24%;">Add a new password for
+<i>name</i>, with at least <i>minlength</i> letters, but no
+more than <i>maxlength</i>. If <i>type</i> is
+&quot;10&quot;, the password will only contain digits. If
+<i>type</i> is &quot;64&quot;, the password will contain big
+letters, small letters, digits, underscores and exclamation
+marks. It will not give any output.</p>
+
+
+<p style="margin-top: 1em">passwd:add_human:&rsquo;name&rsquo;</p>
+
+<p style="margin-left:24%;">Add a human generated password
+for <i>name</i>. It will read the password on a new line. It
+will not give any output.</p>
+
+
+<p style="margin-top: 1em">passwd:get:&rsquo;name&rsquo;</p>
+
+<p style="margin-left:24%;">Returns a line of:
+&quot;passwd.get?&quot; followed by the value of the
+password for <i>name</i> surrounded by single quotes.</p>
+
+<p style="margin-top: 1em">passwd:get:index</p>
+
+<p style="margin-left:24%;">Returns a line of:
+&quot;passwd.get?&quot; followed by the value of the
+password at <i>index</i> surrounded by single quotes.</p>
+
+<p style="margin-top: 1em">passwd:help</p>
+
+<p style="margin-left:24%; margin-top: 1em">Help
+message.</p>
+
+<p style="margin-top: 1em">passwd:list</p>
+
+<p style="margin-left:24%; margin-top: 1em">List all
+passwords. Returns multiple lines of:
+&quot;passwd.list?&quot;, the index, a colon and the name
+surrounded by single quotes.</p>
+
+
+<p style="margin-top: 1em">passwd:meta:&rsquo;name&rsquo;</p>
+
+<p style="margin-left:24%;">Get the meta-data for the
+password for <i>name</i>. Returns a line of:
+&quot;passwd.meta?&quot;, the type surrounded by single
+quotes, a colon, the minimum length for the password
+surrounded by single quotes, a colon and the maximum length
+for the password surrounded by single quotes.</p>
+
+<p style="margin-top: 1em">passwd:meta:index</p>
+
+<p style="margin-left:24%;">Get the meta-data for the
+password at <i>index</i>. Returns a line of:
+&quot;passwd.meta?&quot;, the type surrounded by single
+quotes, a colon, the minimum length for the password
+surrounded by single quotes, a colon and the maximum length
+for the password surrounded by single quotes.</p>
+
+
+<p style="margin-top: 1em">passwd:remove:&rsquo;name&rsquo;</p>
+
+<p style="margin-left:24%;">Remove the password for
+<i>name</i>.</p>
+
+<p style="margin-top: 1em">passwd:remove:index</p>
+
+<p style="margin-left:24%;">Remove the password at
+<i>index</i>. WARNING: The indexes of the following
+passwords will be decreased by one!</p>
+
+
+<p style="margin-top: 1em">passwd:update:&rsquo;name&rsquo;</p>
+
+<p style="margin-left:24%;">Update the password for
+<i>name</i> using its meta-data. Returns a line of:
+&quot;passwd.update?&quot;, the old password, a colon and
+the new password.</p>
+
+<p style="margin-top: 1em">passwd:update:index</p>
+
+<p style="margin-left:24%;">Update the password at
+<i>index</i> using its meta-data. Returns a line of:
+&quot;passwd.update?&quot;, the old password, a colon and
+the new password.</p>
+
+
+<p style="margin-top: 1em">passwd:update_meta:type:min:max:&rsquo;name&rsquo;</p>
+
+<p style="margin-left:24%;">Do the same thing as
+<b>passwd:update:&rsquo;name&rsquo;</b>, but use
+<i>type</i>, <i>min</i>, and <i>max</i> as meta-data,
+instead of the passwords own (which might not even
+exist).</p>
+
+
+<p style="margin-top: 1em">passwd:update_meta:type:min:max:index</p>
+
+<p style="margin-left:24%;">Do the same thing as
+<b>passwd:update:index</b>, but use <i>type</i>, <i>min</i>,
+and <i>max</i> as meta-data, instead of the passwords own
+(which might not even exist).</p>
+
+<p style="margin-top: 1em">undo</p>
+
+<p style="margin-left:24%; margin-top: 1em">CLI undo
+button; restore from latest auto-generated backup.</p>
+
+<p style="margin-top: 1em">verbose:on</p>
+
+<p style="margin-left:24%; margin-top: 1em">Enable verbose
+mode; release mosquitoes from hell that will be noisy and
+give you a headache.</p>
+
+<p style="margin-top: 1em">verbose:off</p>
+
+<p style="margin-left:24%; margin-top: 1em">Disable verbose
+mode; kill the mosquitoes.</p>
+
+<p style="margin-top: 1em">whistles</p>
+
+<p style="margin-left:24%; margin-top: 1em">Show message
+about the bells and whistles.</p>
+
+<p style="margin-top: 1em"><b>FILES</b></p>
+
+<p style="margin-left:6%;"><i>~/.passwdman/passwords</i> is
+a XML file containing all passwords.</p>
+
+
+<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/honeypots</i>
+is a XML file containing all honeypots.</p>
+
+
+<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/undoable</i>
+is a directory full of backups</p>
+
+<p style="margin-top: 1em"><b>DIAGNOSIS</b></p>
+
+<p style="margin-left:6%;">All error messages are sent to
+standard output and are prefixed with an exclamation
+mark.</p>
+
+<p style="margin-left:6%; margin-top: 1em"><b>!syntax
+error&nbsp;</b> Bad speling or incorrect usage. The next
+line of output will be the offending input prefixed with an
+exclamation mark.</p>
+
+<p style="margin-left:6%; margin-top: 1em"><b>!unhandled
+error&nbsp;</b> Holy fuck! That&rsquo;s a wasp.</p>
+
+<p style="margin-left:6%; margin-top: 1em"><b>!no
+meta&nbsp;</b> The command requires meta-data, but the
+password doesn&rsquo;t have any.</p>
+
+<p style="margin-left:6%; margin-top: 1em"><b>!not
+found&nbsp;</b> Not found or index out of range</p>
+
+<p style="margin-top: 1em"><b>SEE ALSO</b></p>
+
+<p style="margin-left:6%;">passwdmanapi(3), random(4),
+urandom(4), passwdmanfiles(5)</p>
+
+<p style="margin-top: 1em"><b>BUGS</b></p>
+
+<p style="margin-left:6%;">Wasps and mosquitoes.</p>
+
+<p style="margin-left:6%; margin-top: 1em">Wasps:</p>
+
+<p style="margin-top: 1em; margin-left:9%"><b>&bull;</b></p>
+
+<p style="margin-left:12%;">Missing some &quot;try&quot;
+and &quot;except&quot; blocks, causing unhandled errors.</p>
+
+<p style="margin-left:6%; margin-top: 1em">Mosquitoes:</p>
+
+<p style="margin-top: 1em; margin-left:9%"><b>&bull;</b></p>
+
+<p style="margin-left:12%;">If verbose mode is enabled the
+message &quot;#READY&quot; is written too many times.</p>
+
+<p style="margin-top: 1em; margin-left:9%"><b>&bull;</b></p>
+
+<p style="margin-left:12%;"><b>passwdmancli</b>
+doesn&rsquo;t like empty lines.</p>
+
+<p style="margin-top: 1em; margin-left:9%"><b>&bull;</b></p>
+
+<p style="margin-left:12%;">KWrite thinks that I should
+spell honeypots &quot;honey pots&quot;, but I use
+&quot;honeypots&quot; as filename and variables. It
+doesn&rsquo;t recognize its own name.</p>
+
+<p style="margin-top: 1em"><b>SECURITY</b></p>
+
+<p style="margin-left:6%;"><b>passwdmancli</b> uses
+random(4) or urandom(4) for everything.</p>
+
+<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;01,
+2013 BSD</p>
+<hr/>
+</body>
+</html>

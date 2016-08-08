@@ -1,0 +1,413 @@
+.Dd Nov 02, 2013
+.Dt PASSWDMANAPI 3
+.Os
+.Sh NAME
+.Nm passwdmanapi
+.Nd library used by passwdmancli and passwdmangui
+.Sh SYNOPSIS
+.Fd #!/usr/bin/python
+.Fd import passwdmanapi
+.Pp
+.Fd open_rng()
+.Fd get64(length)
+.Fd get10(length)
+.Fd getint(a, b)
+.Fd unquote(x)
+.Fd undo(passwdobj=None, honeypotobj=None)
+.Fd class common_data()
+.Fd class passwd(common_data)
+.Fd class honeypot(common_data)
+.Ss class common_data():
+.Fd __init__(self, xmlfile)
+.Fd __iter__(self)
+.Fd __next__(self)
+.Fd next(self)
+.Fd __getitem__(self, i)
+.Fd __len__(self)
+.Fd remove(self, x, xmlfile, element_name, attrib_name)
+.Fd writexml(self, xmlfile)
+.Fd __del__(self)
+.Ss passwd(common_data):
+.Fd __init__(self)
+.Fd add(self, name, value, m_type, m_minlength, m_maxlength)
+.Fd add_nometa(self, name, value)
+.Fd remove(self, x)
+.Fd __repr__(self)
+.Fd mkindex(self, x)
+.Fd update(self, index)
+.Fd update_meta(self, index, m_type, m_minlength, m_maxlength)
+.Ss class honeypot(common_data):
+.Fd __init__(self)
+.Fd add(self, value)
+.Fd remove(self, x)
+.Fd pick(self, n=1, sep=",", log_vs_raise=True)
+.Fd __repr__(self)
+.Ss Exceptions
+.Fd class err_norandom(Exception)
+.Fd class err_nolength(Exception)
+.Fd class err_loaderr(Exception)
+.Fd class err_notfound(Exception)
+.Fd class err_duplicate(Exception)
+.Fd class err_idiot(Exception)
+.Fd class err_nometa(Exception)
+.Sh DESCRIPTION
+Unless otherwise noted,
+.Va xmlfile
+is a path.
+.Pp
+.Fn open_rng
+opens
+.Xr random 4
+(or
+.Xr urandom 4 ,
+if random could not be opened).
+Returns a file open for reading binary.
+Raises
+.Er err_norandom .
+.Pp
+.Fn get10
+and
+.Fn get64
+returns a random string of
+.Va length
+letters.
+.Fn get10
+returns digits.
+.Fn get64
+returns digits, big letters, small letters, underscores and exclamation
+marks.
+Raises
+.Er err_norandom
+and
+.Er err_nolength .
+.Pp
+.Fn getint
+returns a random integer >=
+.Va a ,
+<=
+.Va b .
+Raises
+.Er err_norandom
+and
+.Er err_nolength .
+.Pp
+.Fn unquote
+returns the string
+.Va x
+without its surrounding quotes.
+BUGGY.
+.Pp
+.Fn undo
+undoes the latest change to the password list or honey pot list, by restoring
+from the newest auto-generated backup.
+It requires
+.Va passwdobj
+which is the
+.Fn passwd
+object and
+.Va honeypotobj
+which is the
+.Fn honeypot
+object.
+Raises
+.Er err_idiot .
+.Pp
+.Fn common_data
+is a class defining methods used by both
+.Fn passwd
+and
+.Fn honeypot .
+.Pp
+.Fn passwd
+is a class for the password list.
+.Fn honeypot
+is a class for the honey pot list.
+See
+.Sx FILES .
+.Ss class common_data():
+.Fn __init__
+will load the data from
+.Va xmlfile .
+Raises
+.Er err_loaderr .
+.Pp
+.Fn __iter__
+resets the index and returns
+.Va self .
+.Fn __getitem__
+returns the password/honeypot at
+.Va i .
+.Fn __len__
+returns the number of passwords/honeypots.
+.Pp
+.Fn remove
+removes the password/honeypot at
+.Va x ,
+which can be an integer or a stringed integer or the value of the
+password/honeypot, from the datastructure
+.Va self
+and the file
+.Va xmlfile .
+.Va element_name
+and
+.Va attrib_name
+tells it what elements and attributes it should loop through, remove and find
+a match for
+.Va x
+in.
+Raises
+.Er err_notfound .
+.Pp
+.Fn writexml
+writes the datastructure
+.Va self
+to the file
+.Va xmlfile .
+It creates a backup of
+.Va xmlfile
+to
+.Pa ~/.passwdman/undoable .
+.Ss class passwd(common_data)
+.Fn passwd
+loads its data from the XML
+.Pa ~/.passwdman/passwords .
+.Pp
+.Va self[index]["name"]
+is the name/purpose of the password.
+.Va self[index]["value"]
+is the value of the password.
+.Va self[index]["meta"]["minlength"]
+is the minimal length required for the password.
+.Va self[index]["meta"]["maxlength"]
+is the maximal length allowed for the password.
+.Va self[index]["meta"]["type"]
+is the type of the password, which is one of:
+.Bl -diag
+.It "10"
+The password may only use digits.
+.It "64"
+The password can use big letters, small letters, digits, underscores and
+exclamation marks.
+.It "human"
+The password is human generated.
+.El
+.Pp
+If a password has no meta-data in
+.Pa ~/.passwdman/passwords ,
+its
+.Va minlength
+and
+.Va maxlength
+will be zero, and its
+.Va type
+will be
+.Qq human .
+.Pp
+.Fn passwd.add
+and
+.Fn passwd.add_nometa
+adds a password for
+.Va name
+with the value
+.Va value .
+.Fn add_nometa
+adds a password without real meta-data while
+.Fn add
+requires meta-data (the
+.Va m_type
+must be a string and
+.Va m_minlength
+and
+.Va m_maxlength
+can be either an integer or a stringed integer).
+Raises
+.Er err_duplicate .
+.Pp
+.Fn passwd.remove
+removes the password
+.Va x .
+.Va x
+can be either a string matching a password's name or an integer (index) or a
+stringed integer.
+Raises
+.Er err_notfound .
+.Pp
+.Fn passwd.mkindex
+find
+.Va x
+and return an index.
+.Va x
+can be either a string matching a password's name or a stringed integer
+(index).
+Raises
+.Er err_notfound .
+.Pp
+.Fn passwd.update
+and
+.Fn passwd.update_meta
+updates the password at
+.Va index
+automatically by generating a password of the right type and an acceptable
+length.
+.Fn update
+uses the password's own meta-data while
+.Fn update_meta
+gives the password new meta-data from
+.Va m_type ,
+.Va m_minlength
+and
+.Va m_maxlength .
+.Va m_type
+must be a string,
+.Va m_minlength
+and
+.Va m_maxlength
+can be either an integer or a stringed integer.
+Raises
+.Er err_notfound ,
+.Er err_idiot
+and
+.Er err_nometa .
+.Ss class honeypot(common_data)
+The honey pots are weak passwords supposed to only be used as traps.
+.Fn honeypot loads its data from the XML
+.Pa ~/.passwdman/honeypots .
+.Va self[index]
+is the value of the honeypot.
+.Pp
+.Fn honeypot.add
+adds a new honeypot with the value
+.Va value .
+Raises
+.Er err_duplicate .
+.Pp
+.Fn honeypot.remove
+removes the honeypot
+.Va x .
+.Va x
+is either an index (integer) or a stringed integer or the value of the
+honeypot.
+Raises
+.Er err_notfound .
+.Pp
+.Fn honeypot.pick
+picks
+.Va n
+random honeypots and returns a string of
+honeypots separated with
+.Va sep .
+If
+.Va log_vs_raise
+is true, it will log an error if
+.Va n
+is too big.
+If
+.Va log_vs_raise
+is false, it will raise
+.Er err_idiot .
+.Pp
+.Sh Exceptions
+.Er err_norandom
+is raised when neither
+.Xr random 4
+or
+.Xr urandom 4
+can be opened.
+.Bl -bullet
+.It
+.Fn open_rng
+.It
+.Fn get10
+.It
+.Fn get64
+.It
+.Fn getint
+.It
+.Fn passwd.update
+.It
+.Fn passwd.update_meta
+.It
+.Fn honeypot.pick
+.El
+.Pp
+.Er err_nolength
+is raised when a function is called with an invalid length.
+.Bl -bullet
+.It
+.Fn get64
+.It
+.Fn get10
+.It
+.Fn getint
+.El
+.Pp
+.Er err_loaderr
+is raised if data cannot be loaded from file.
+.Bl -bullet
+.It
+.Fn common_data
+.It
+.Fn passwd
+.It
+.Fn honeypot
+.El
+.Pp
+.Er err_notfound
+is raised if index is out of range or if it cannot find a match.
+.Bl -bullet
+.It
+.Fn common_data.remove
+.It
+.Fn passwd.remove
+.It
+.Fn passwd.mkindex
+.It
+.Fn passwd.update
+.It
+.Fn passwd.update_meta
+.It
+.Fn honeypot.remove
+.El
+.Pp
+.Er err_duplicate
+is raised if it is attempted to add a password with the same name as another
+or if its is attempted to add a honeypot with the same value as another.
+.Bl -bullet
+.It
+.Fn passwd.add
+.It
+.Fn passwd.add_nometa
+.It
+.Fn honeypot.add
+.El
+.Pp
+.Er err_idiot
+is raised if the function was not used correctly.
+.Bl -bullet
+.It
+.Fn passwd.update_meta
+.It
+.Fn honeypot.pick
+.It
+.Fn undo
+.El
+.Pp
+.Er err_nometa
+is raised when meta-data is required, but the meta-data was nonexistent,
+corrupt or no good.
+.Bl -bullet
+.It
+.Fn passwd.update
+.El
+.Sh BUGS
+.Fn unquote
+forgets about everything behind the second quote.
+.Sh FILES
+.Pa ~/.passwdman/passwords
+is the XML file containing the passwords and their meta-data.
+.Pp
+.Pa ~/.passwdman/honeypots
+is the XML file containing the honeypots.
+.Pp
+.Pa ~/.passwdman/undoable/
+is where the auto-generated backups live.

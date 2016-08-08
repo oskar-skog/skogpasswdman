@@ -1,0 +1,532 @@
+#!/usr/bin/python
+from gi.repository import Gtk, Gdk
+import passwdmanapi as api
+
+def err(parent, msg):
+    dialog = Gtk.MessageDialog(parent.parent, 0,
+                    Gtk.MessageType.ERROR, Gtk.ButtonsType.CLOSE,
+                    "ERROR")
+    dialog.format_secondary_text(msg)
+    dialog.run()
+    dialog.destroy()
+
+def passwd_add_d(parent):
+    #lots of this is reused in hp_add_d()
+    dialog = Gtk.Dialog("Add existing password.", parent.parent, 0,
+                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
+                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+    main_box = dialog.get_content_area()
+    
+    label_n = Gtk.Label("What is the password for?")
+    label_v = Gtk.Label("What is the password?")
+    
+    name = Gtk.Entry()
+    value = Gtk.Entry()
+    name.set_editable(True)
+    value.set_editable(True)
+    
+    box_n = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+    box_v = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+    box_n.pack_start(label_n, False, False, 0)
+    box_n.pack_start(name, True, True, 0)
+    box_v.pack_start(label_v, False, False, 0)
+    box_v.pack_start(value, True, True, 0)
+    
+    top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+    top_box.pack_start(box_n, False, False, 0)
+    top_box.pack_start(box_v, False, False, 0)
+    main_box.add(top_box)
+    dialog.show_all()
+    
+    response = dialog.run()
+    if response == Gtk.ResponseType.OK:
+        try:
+            parent.passwords.add_nometa(name.get_text(), value.get_text())
+            try:
+                parent.thelist.append([name.get_text(), value.get_text()])
+            except:
+                raise
+        except api.err_duplicate:
+            err(parent, "Another password has the same name.")
+        except:
+            err(parent, "In 'passwd_add_d()': unknown error.")
+        
+    dialog.destroy()
+ 
+def hp_add_d(parent):
+    #lots of this is reused in hp_add_d()
+    #copy-pasted and hand-hacked
+    dialog = Gtk.Dialog("Add honeypot.", parent.parent, 0,
+                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
+                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+    main_box = dialog.get_content_area()
+    
+    label_v = Gtk.Label("What is the fake-password?")
+    
+    value = Gtk.Entry()
+    value.set_editable(True)
+    
+    box_v = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+    box_v.pack_start(label_v, False, False, 0)
+    box_v.pack_start(value, True, True, 0)
+    
+    main_box.add(box_v)
+    dialog.show_all()
+    
+    response = dialog.run()
+    if response == Gtk.ResponseType.OK:
+        parent.honeypots.add(value.get_text())
+        #add to parent.thelist
+        parent.thelist.append([value.get_text()])
+    dialog.destroy()
+    
+def passwd_new_d(parent):
+    #label      entry
+    #label      spinny min
+    #label      spinny max
+    #radio      label
+    #radio      label
+    dialog = Gtk.Dialog("New (auto-generated)", parent.parent, 0,
+                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
+                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+    main_box = dialog.get_content_area()
+    
+    b64 = Gtk.RadioButton.new_with_label_from_widget(None, "Digits, "
+        "small letters, big letters, underscores and exclamation marks.")
+    b10 = Gtk.RadioButton.new_with_label_from_widget(b64, "Digits only.")
+    
+    name = Gtk.Entry()
+    name.set_editable(True)
+    
+    adj = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)
+    adj2 = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)
+    spinny_min = Gtk.SpinButton()
+    spinny_min.set_adjustment(adj)
+    spinny_max = Gtk.SpinButton()
+    spinny_max.set_adjustment(adj2)
+    
+    label_name = Gtk.Label("What is the password for?")
+    label_min = Gtk.Label("Minimal required length:")
+    label_max = Gtk.Label("Maximal length allowed:")
+    
+    spinners = Gtk.Table(2, 2, False)
+    spinners.attach(label_min, 0, 1, 0, 1)
+    spinners.attach(label_max, 0, 1, 1, 2)
+    spinners.attach(spinny_min, 1, 2, 0, 1)
+    spinners.attach(spinny_max, 1, 2, 1, 2)
+    
+    name_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+    radio_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+    
+    name_box.pack_start(label_name, False, False, 0)
+    name_box.pack_start(name, True, True, 0)
+    radio_box.pack_start(b10, False, False, 0)
+    radio_box.pack_end(b64, False, False, 0)
+    
+    top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+    top_box.pack_start(name_box, False, False, 0)
+    top_box.pack_start(spinners, False, False, 0)
+    top_box.pack_start(radio_box, False, False, 0)
+    main_box.add(top_box)
+    dialog.show_all()
+    
+    response = dialog.run()
+    if response == Gtk.ResponseType.OK:
+        passwd_type = b64.get_active()
+        passwd_min = spinny_min.get_value_as_int()
+        passwd_max = spinny_max.get_value_as_int()
+        passwd_name = name.get_text()
+        if passwd_min > passwd_max or passwd_min < 1 or passwd_max < 1:
+            err(parent, "Stupid min and max lengths.")
+            dialog.destroy()
+            return
+        thelength = api.getint(passwd_min, passwd_max + 1)
+        if passwd_type:
+            passwd_type = "64"
+            passwd_value = api.get64(thelength)
+        else:
+            passwd_type = "10"
+            passwd_value = api.get10(thelength)
+        try:
+            parent.passwords.add(passwd_name, passwd_value, passwd_type,
+                                 passwd_min, passwd_max)
+            try:
+                parent.thelist.append([passwd_name, passwd_value])
+            except:
+                raise
+        except api.err_duplicate:
+            err(parent, "Another password has the same name.")
+        except:
+            err(parent, "In 'passwd_new_d()': unknown error.")
+        
+    dialog.destroy()
+
+def passwd_updatemeta_d(parent):
+    #copy-pasted from passwd_new_d and hand-hacked
+    #label      entry
+    #label      spinny min
+    #label      spinny max
+    #radio      label
+    #radio      label
+    
+    if parent.index == None:
+        err(parent, "Select first.")
+        return
+    
+    dialog = Gtk.Dialog("Update with new settings.", parent.parent, 0,
+                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
+                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+    main_box = dialog.get_content_area()
+    
+    b64 = Gtk.RadioButton.new_with_label_from_widget(None, "Digits, "
+        "small letters, big letters, underscores and exclamation marks.")
+    b10 = Gtk.RadioButton.new_with_label_from_widget(b64, "Digits only.")
+    
+    a, b = parent.thelist[parent.index]       #remember a, b for a long time
+    the_index = parent.passwords.mkindex(a)
+    
+    adj = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["minlength"]),
+                            1, 1000000, 1, 16, 0)
+    adj2 = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["maxlength"]),
+                            1, 1000000, 1, 16, 0)
+    spinny_min = Gtk.SpinButton()
+    spinny_min.set_adjustment(adj)
+    spinny_max = Gtk.SpinButton()
+    spinny_max.set_adjustment(adj2)
+    
+    label_min = Gtk.Label("Minimal required length:")
+    label_max = Gtk.Label("Maximal length allowed:")
+    
+    spinners = Gtk.Table(2, 2, False)
+    spinners.attach(label_min, 0, 1, 0, 1)
+    spinners.attach(label_max, 0, 1, 1, 2)
+    spinners.attach(spinny_min, 1, 2, 0, 1)
+    spinners.attach(spinny_max, 1, 2, 1, 2)
+    
+    radio_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+    radio_box.pack_start(b10, False, False, 0)
+    radio_box.pack_end(b64, False, False, 0)
+    if parent.passwords[the_index]["meta"]["type"] == "10":
+        b10.set_active(True)
+    elif parent.passwords[the_index]["meta"]["type"] == "64":
+        b64.set_active(True)
+    else:
+        err(parent,
+            "I don't know what characters are allowed in the password")
+    
+    top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+    top_box.pack_start(spinners, False, False, 0)
+    top_box.pack_start(radio_box, False, False, 0)
+    main_box.add(top_box)
+    dialog.show_all()
+    
+    response = dialog.run()
+    if response == Gtk.ResponseType.OK:
+        passwd_type = b64.get_active()
+        passwd_min = spinny_min.get_value_as_int()
+        passwd_max = spinny_max.get_value_as_int()
+        if passwd_min > passwd_max or passwd_min < 1 or passwd_max < 1:
+            err(parent, "Stupid min and max lengths.")
+            dialog.destroy()
+            return
+        if passwd_type:
+            passwd_type = "64"
+        else:
+            passwd_type = "10"
+        parent.passwords.update_meta(the_index, passwd_type, passwd_min,
+                                            passwd_max)
+        parent.thelist[parent.index] = a, parent.passwords[the_index]["value"]
+        passwd_updated_d(parent, b, parent.passwords[the_index]["value"])
+    dialog.destroy()
+
+def passwd_updated_d(parent, old, new):
+    dialog = passwd_updated_c(parent, old, new)
+    dialog.run()
+    dialog.destroy()
+
+class passwd_updated_c(Gtk.Dialog):
+    def __init__(self, parent, old, new):
+        Gtk.Dialog.__init__(self, "Password has been updated.", parent.parent,
+                            0, ("Close", Gtk.ResponseType.CLOSE))
+        main_box = self.get_content_area()
+        
+        self.v_old = old
+        self.v_new = new
+        old_v = Gtk.Entry()
+        old_v.set_text(old)
+        old_v.set_editable(False)
+        new_v = Gtk.Entry()
+        new_v.set_text(new)
+        new_v.set_editable(False)
+        old_b = Gtk.Button("copy")
+        old_b.connect("clicked", self.copyold)
+        new_b = Gtk.Button("copy")
+        new_b.connect("clicked", self.copynew)
+        
+        table = Gtk.Table(2, 2, False)
+        table.attach(Gtk.Label("Old:"), 0, 1, 0, 1)
+        table.attach(Gtk.Label("New:"), 0, 1, 1, 2)
+        table.attach(old_v, 1, 2, 0, 1)
+        table.attach(new_v, 1, 2, 1, 2)
+        table.attach(old_b, 2, 3, 0, 1)
+        table.attach(new_b, 2, 3, 1, 2)
+        
+        main_box.add(table)
+        self.show_all()
+    def copyold(self, button):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.set_text(self.v_old, len(self.v_old))
+        clipboard.store()
+    def copynew(self, button):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.set_text(self.v_new, len(self.v_new))
+        clipboard.store()
+            
+def pick_many_d(parent):
+    """pick many dialog, parent is an instance of honeypot_tab_c()
+    It returns nothing"""
+    dialog = Gtk.Dialog("Pick many", parent.parent, 0,
+                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
+                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+    main_box = dialog.get_content_area()
+    
+    label_help = Gtk.Label("Randomly pick fake-passwords.")
+    label_n = Gtk.Label("How many:")
+    label_s = Gtk.Label("Separate them with:")
+    
+    spinny = Gtk.SpinButton()   #How many?
+    adj = Gtk.Adjustment(1, 1, len(parent.honeypots), 1, 10, 0)
+    spinny.set_adjustment(adj)
+    
+    sep = Gtk.Entry()           #Separator?
+    sep.set_editable(True)
+    sep.set_text(",")
+    
+    n_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)   #boxes
+    s_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+    top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+    
+    n_box.pack_start(label_n, False, False, 0)          #build the dialog
+    n_box.pack_start(spinny, True, True, 0)
+    s_box.pack_start(label_s, False, False, 0)
+    s_box.pack_start(sep, True, True, 0)
+    top_box.pack_start(label_help, False, False, 0)
+    top_box.pack_start(n_box, False, False, 0)
+    top_box.pack_start(s_box, False, False, 0)
+    
+    main_box.add(top_box)
+    dialog.show_all()
+    response = dialog.run()     #It is an OK/CANCEL
+    if response == Gtk.ResponseType.OK:
+        #copy or show
+        x = parent.honeypots.pick(spinny.get_value_as_int(), sep.get_text())
+        #x are the choices
+        dialog2 = Gtk.MessageDialog(parent.parent, 0,
+                    Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
+                    "copy to clipboard?")
+        dialog2.format_secondary_text("Chose 'No' to show the fake-passwords"
+            " in a window")
+        response2 = dialog2.run()
+        dialog2.destroy()       #copy or show
+        if response2 == Gtk.ResponseType.YES:
+            clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+            clipboard.set_text(x, len(x))
+            clipboard.store()
+        elif response2 == Gtk.ResponseType.NO:
+            dialog3 = Gtk.MessageDialog(parent.parent, 0,
+                Gtk.MessageType.OTHER, Gtk.ButtonsType.CLOSE, "Picked:")
+            dialog3.format_secondary_text(x)
+            dialog3.run()
+            dialog3.destroy()
+    dialog.destroy()    #do it here or spinny will die
+    
+class passwd_tab_c(Gtk.Box):
+    def __init__(self, arg=None):
+        self.parent = arg
+        Gtk.Box.__init__(self, orientation = Gtk.Orientation.HORIZONTAL)
+        self.passwords = api.passwd()   #needed by main_window.undo()
+        self.thelist = Gtk.ListStore(str, str)
+        tree = Gtk.TreeView(self.thelist)
+        for x in self.passwords:
+            self.thelist.append([x["name"], x["value"]])
+        
+        renderer = Gtk.CellRendererText()
+        renderer.set_property("ellipsize", True)
+        column1 = Gtk.TreeViewColumn("Name", renderer, text=0)
+        column1.set_property("resizable", True)
+        tree.append_column(column1)
+        column2 = Gtk.TreeViewColumn("Value", renderer, text=1)
+        column2.set_property("resizable", True)
+        tree.append_column(column2)
+        
+        select = tree.get_selection()
+        select.set_mode(Gtk.SelectionMode.SINGLE)
+        select.connect("changed", self.select_change)
+        
+        self.index = None
+        #create buttons
+        b_copy = Gtk.Button("Copy to clipboard")
+        b_update = Gtk.Button("Update")
+        b_updatemeta = Gtk.Button("Change settings & update")
+        b_add = Gtk.Button("Add existing", Gtk.STOCK_ADD)
+        b_new = Gtk.Button("Create new", Gtk.STOCK_NEW)
+        b_remove = Gtk.Button("Remove", Gtk.STOCK_REMOVE)
+        b_copy.connect("clicked", self.copy)
+        b_update.connect("clicked", self.update)
+        b_updatemeta.connect("clicked", self.update_meta)
+        b_add.connect("clicked", self.add)
+        b_new.connect("clicked", self.new)
+        b_remove.connect("clicked", self.rm)
+        #put the buttons in a box
+        box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+        box.pack_start(b_copy, False, False, 0)
+        box.pack_start(b_update, False, False, 0)
+        box.pack_start(b_updatemeta, False, False, 0)
+        box.pack_start(b_add, False, False, 0)
+        box.pack_start(b_new, False, False, 0)
+        box.pack_start(b_remove, False, False, 0)
+        self.pack_start(tree, True, True, 0)
+        self.pack_end(box, False, False, 0)
+    def select_change(self, selection):
+        forget, x = selection.get_selected()
+        if x != None:
+            self.index = x
+    def copy(self, button):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        a, b = self.thelist[self.index]
+        clipboard.set_text(b, len(b))
+        clipboard.store()
+    def update_meta(self, button):
+        passwd_updatemeta_d(self)
+    def update(self, button):
+        if self.index == None:
+            err(self, "Select first.")
+            return
+        a, b = self.thelist[self.index]
+        the_index = self.passwords.mkindex(a)
+        self.passwords.update(the_index)
+        self.thelist[self.index] = a, self.passwords[the_index]["value"]
+        passwd_updated_d(self, b, self.passwords[the_index]["value"])
+    def add(self, button):
+        passwd_add_d(self)
+    def new(self, button):
+        passwd_new_d(self)
+    def rm(self, button):
+        a, b = self.thelist[self.index]
+        self.passwords.remove(str(a))
+        self.thelist.remove(self.index)
+
+class honeypot_tab_c(Gtk.Box):
+    def __init__(self, arg=None):
+        self.parent = arg
+        #set the parent argument for dialogs
+        Gtk.Box.__init__(self, orientation = Gtk.Orientation.HORIZONTAL)
+        #a box inside a notebook
+        self.honeypots = api.honeypot() #needed by main_window.undo()
+        self.thelist = Gtk.ListStore(str)
+        for x in self.honeypots:
+            self.thelist.append([x])
+        tree = Gtk.TreeView(self.thelist)
+        
+        renderer = Gtk.CellRendererText()
+        renderer.set_property("ellipsize", True)
+        column = Gtk.TreeViewColumn("Value", renderer, text=0)
+        tree.append_column(column)
+        
+        select = tree.get_selection()
+        select.set_mode(Gtk.SelectionMode.SINGLE)
+        select.connect("changed", self.select_change)
+        
+        self.index = None
+        #create buttons
+        b_pick_c = Gtk.Button("Pick & copy")
+        b_pick_s = Gtk.Button("Pick & show")
+        b_pick_m = Gtk.Button("Pick many")
+        b_add = Gtk.Button("Add", Gtk.STOCK_ADD)
+        b_remove = Gtk.Button("Remove", Gtk.STOCK_REMOVE)
+        b_pick_c.connect("clicked", self.pick_copy)
+        b_pick_s.connect("clicked", self.pick_show)
+        b_pick_m.connect("clicked", self.pick_many)
+        b_add.connect("clicked", self.add_hp)
+        b_remove.connect("clicked", self.rm_hp)
+        #put the buttons in a box
+        box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+        box.pack_start(b_pick_c, False, False, 0)
+        box.pack_start(b_pick_s, False, False, 0)
+        box.pack_start(b_pick_m, False, False, 0)
+        box.pack_start(b_add, False, False, 0)
+        box.pack_start(b_remove, False, False, 0)
+        self.pack_start(tree, True, True, 0)
+        self.pack_end(box, False, False, 0)
+        
+    def select_change(self, selection):
+        #selection has changed, update index
+        forget, x = selection.get_selected()
+        if x != None:
+            self.index = x
+    def pick_copy(self, button):
+        #pick and copy to clipboard
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        x = self.honeypots.pick()
+        clipboard.set_text(x, len(x))
+        clipboard.store()
+    def pick_show(self, button):
+        #pick and show in a dialog
+        x = self.honeypots.pick()
+        dialog = Gtk.MessageDialog(self.parent, 0, Gtk.MessageType.OTHER,
+                    Gtk.ButtonsType.CLOSE, "Picked:")
+        dialog.format_secondary_text(x)
+        dialog.run()
+        dialog.destroy()
+    def pick_many(self, button):
+        pick_many_d(self)
+    def add_hp(self, button):
+        hp_add_d(self)
+    def rm_hp(self, button):
+        self.honeypots.remove(self.thelist[self.index][0])
+        self.thelist.remove(self.index)
+
+class main_window(Gtk.Window):
+    def __init__(self):
+        Gtk.Window.__init__(self, title="passwdmangui")
+        self.passwd_tab = passwd_tab_c(self)        #needed by undo()
+        self.honeypot_tab = honeypot_tab_c(self)    #needed by undo()
+        
+        tabs = Gtk.Notebook()
+        tabs.append_page(self.passwd_tab, Gtk.Label("Passwords"))
+        tabs.append_page(self.honeypot_tab, Gtk.Label("Honey pots"))
+        
+        button_undo = Gtk.Button("Undo", Gtk.STOCK_UNDO)
+        button_undo.connect("clicked", self.undo)
+        button_quit = Gtk.Button("Quit", Gtk.STOCK_QUIT)
+        button_quit.connect("clicked", Gtk.main_quit)
+        
+        box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
+        box2.pack_start(button_undo, False, False, 0)
+        box2.pack_end(button_quit, False, False, 0)
+        
+        box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+        box1.pack_start(tabs, True, True, 0)
+        box1.pack_start(box2, False, False, 0)
+        
+        self.add(box1)
+        self.connect("delete-event", Gtk.main_quit)
+        self.show_all()
+        
+    def undo(self, button):
+        try:
+            api.undo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
+            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            self.passwd_tab.thelist.clear()
+            self.honeypot_tab.thelist.clear()
+            for x in self.passwd_tab.passwords:
+                self.passwd_tab.thelist.append([x["name"], x["value"]])
+            for x in self.honeypot_tab.honeypots:
+                self.honeypot_tab.thelist.append([x])
+        except:
+            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            err(self.passwd_tab, "CANNOT UNDO")
+
+if __name__ == "__main__":
+    w = main_window()
+    Gtk.main()

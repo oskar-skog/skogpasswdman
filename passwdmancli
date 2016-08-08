@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ $# -gt "0" ]; then
+    cat $1 | ./passwdmancli.py
+else
+    ./passwdmancli.py
+fi

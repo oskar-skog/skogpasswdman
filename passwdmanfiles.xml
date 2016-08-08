@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!-- lifted from mdoc+troff by doclifter -->
+<!-- hand-hacked fixes -->
+<refentry id='passwdmanfiles5'>
+
+
+
+
+<refmeta>
+<refentrytitle>PASSWDMANFILES</refentrytitle>
+<manvolnum>5</manvolnum>
+</refmeta>
+
+<refnamediv id='purpose'>
+    <!--<refname> ~/.passwdman/passwords  @GLUE@,</refname>-->
+        <refname> ~/.passwdman/passwords </refname> <!--fix-->
+<refpurpose> data-files for passwdman. </refpurpose>
+</refnamediv>
+<!-- body begins here -->
+
+   <!--<refsect1 id='pa_passwdmanpasswords'><title>Pa ~/.passwdman/passwords</title>-->
+       <refsect1 id='pa_passwdmanpasswords'><title>~/.passwdman/passwords</title> <!--fix-->
+<para>The password list.
+It is an XML file, you are expected to understand an example of the file.
+The real file is ugly.</para>
+<programlisting remap='Bd'>
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;root magic="passwdman" file="passwords" version="0.1"&gt;
+    &lt;!--The attribute 'magic' may not be changed.
+    The major version may not be greater than zero.
+    The attribute 'file' is used to make sure that it is the right file.&mdash;&mdash;&gt;
+    &lt;passwd name="What the password is for" value="top_secret"/&gt;
+    &lt;passwd name="TEST" value="0123456789"&gt;
+        &lt;!--A 'passwd'-element is allowed to contain a 'meta'-element.&mdash;&mdash;&gt;
+        &lt;meta type="10" minlength="4" maxlength="255"/&gt;
+        &lt;!--type == "human":
+                Human generated password.
+            type == "10":
+                Digits only.
+            type == "64":
+                Digits, big letters, small letters, underscores and
+                exclamation marks.
+            'minlength' is the minimal length required for the password.
+            'maxlength' is the maximal length allowed for the password.
+            
+            The meta-data is used when updating the password.&mdash;&mdash;&gt;
+    &lt;/passwd&gt;
+&lt;/root&gt;
+</programlisting> <!-- remap='Ed (block)' -->
+</refsect1>
+
+   <!--<refsect1 id='pa_passwdmanhoneypots'><title>Pa ~/.passwdman/honeypots</title>-->
+       <refsect1 id='pa_passwdmanhoneypots'><title>~/.passwdman/honeypots</title> <!--fix-->
+<para>The list of honeypots.
+The honeypots are fake-passwords, to help catching crackers.
+This too is an ugly XML file.</para>
+<programlisting remap='Bd'>
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;root file="honeypots" magic="passwdman" version="0.1"&gt;
+    &lt;!--look at ~/.passwdman/passwords&mdash;&mdash;&gt;
+    &lt;honeypot value="BadPassword"/&gt;
+    &lt;honeypot value="putme_injail_ifi_typethis"/&gt;
+&lt;/root&gt;
+</programlisting> <!-- remap='Ed (block)' -->
+</refsect1>
+
+   <!--<refsect1 id='pa_passwdmanundoable'><title>Pa ~/.passwdman/undoable</title>-->
+       <refsect1 id='pa_passwdmanundoable'><title>~/.passwdman/undoable</title> <!--fix-->
+<para>Backups.
+The
+undo()
+function looks for the newest file and doesn't care about the filename.
+"passwords"
+in the filename, the file is a backup of 
+<filename>~/.passwdman/passwords</filename>.
+If
+"honeypots"
+in the filename, the file is a backups of
+<filename>~/.passwdman/honeypots</filename>.</para>
+</refsect1>
+
+<refsect1 id='see_also'><title>SEE ALSO</title>
+<para><citerefentry><refentrytitle>passwdmancli</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>passwdmangui</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+and
+<citerefentry><refentrytitle>passwdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>.</para>
+</refsect1>
+
+<refsect1 id='bugs'><title>BUGS</title>
+<para>The documentation.</para>
+</refsect1>
+</refentry>
+
