@@ -149,13 +149,12 @@ def edit_line(y, line):
     #Byte string.
     ver, f, f, f, f = sys.version_info
     if ver == 2:
-        head_b = ""
         def mk_head_b():
             return head_u.encode(code)
     else:
-        head_b = []
         def mk_head_b():
             return list(head_u.encode(code))
+    head_b = mk_head_b()
     #Tail.
     tail = api.u("")
     half_len = int(math.floor(xsize / 2))
@@ -259,6 +258,65 @@ def after_update(old, new):
                 return
 
 def vdictui(arg):
+    """ret = vdictui(arg)
+    `arg` is a list of dicts. `ret` is a dict.
+    
+    arg[x]['type'] is optional; a dict without 'type'-key is a synonym
+    for 'type': 'space'.
+    
+    `ret['button']` is either 'back' or the 'name' of a 'button'.
+    `ret` also contains key named after the 'name's of 'edit_num's and
+    'edit_line's.
+    
+    Look in `passwd_tab` or `honeypot_tab` for examples.
+    
+    Values for arg[x]['type']
+    =========================
+    
+        - 'text'        One line of text. Requires key
+                        'value': <the actual text>.
+        - 'space'       One empty line.
+        - 'edit_num'    Number spinner, returns the number in
+                        `ret[arg[x]['name']]`.  See also `edit_num`.
+                        Other keys
+                        ----------
+                        
+                            - 'value'   Optional; the initial value.
+                            - 'name'    Required; the key to store the
+                                        value in, in `ret`.
+                            - 'min'     Optional; default None.
+                            - 'max'     Optional; default None.
+                            - 'step'    Optional; default 1.
+                            
+        - 'edit_line'   One line textbox (input), returns the line in
+                        `ret[arg[x]['name']]`.  See also `edit_line`.
+                        Other keys
+                        ----------
+                        
+                            - 'value'   Optional; the initial text.
+                            - 'name'    Required; the key to store the
+                                        value in, in `ret`.
+                            
+        - 'button'      Button; something that can make
+                        ``ret['button'] != 'back'`` True.
+                        It will set `ret['button']` to its own 'name'
+                        if it is ''clicked''.
+                        Other keys
+                        ----------
+                        
+                            - 'value'   Optional; The text that wll be
+                                        seen on the screen.
+                                        Default: The value of the
+                                        'name'-key.
+                            - 'name'    Optional; What `ret['button']`
+                                        will be set to.
+                                        Default: The value of the
+                                        'value'-key.
+                            
+                            If neither of them are specified then both
+                            of them will be set to 'OK'.
+   
+    """
     ret_arg = {}
     where = wrap = 0
     # Initialize:

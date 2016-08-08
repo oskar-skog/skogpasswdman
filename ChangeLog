@@ -1,4 +1,8 @@
 2014-01-12      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.18
+    * passwdmanrli (edit_line): Bugfix: Initialize head_b to be an encoded
+        head_u instead of empty. Previously edited text no longer disappear.
+    * passwdmanrli (vdictui): __doc__-string.
 0.3.17
     * passwdmanrli (honeypot_tab): Code -> data.
     * passwdmanrli: Renamed dictui to vdictui.
