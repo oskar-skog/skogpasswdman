@@ -41,6 +41,29 @@ code = locale.getpreferredencoding()
 tty = curses.initscr()
 ysize, xsize = tty.getmaxyx()
 
+
+have_clipboard = __HAVE_CLIPBOARD__     # configure -> make -> sed
+#have_clipboard = True
+#have_clipboard = False
+DEBUG = False
+
+if DEBUG:
+    In debug mode there will be a 80x22 virtual screen and a
+    cursor-coordinate.
+    wrap_refresh() will print them.
+    The debug-mode is not Unicode-friendly with Python 2.x.
+    
+    debug_curses_cursor = y, x
+    int, int or None, None
+    debug_curses_screen[y][x]['key'] = ord(c)
+    list < list < dict < int
+    
+    0 <= y <= 19
+    0 <= x <= 79
+    
+    debug_curses_cursor == None, None:
+        Unknown. Only wrap_move() can set the cursor to a known value.
+
 function-tree
 <module>
     main
@@ -79,32 +102,152 @@ wrap_addstr
 """
 
 def die():
-    """die() - exit curses mode and quit."""
-    tty.keypad(0)
-    curses.echo()
-    curses.nocbreak()
-    curses.endwin()
+    """die() - exit curses mode and quit.
+    Affected by DEBUG.
+    """
+    if not DEBUG:
+        tty.keypad(0)
+        curses.echo()
+        curses.nocbreak()
+        curses.endwin()
+    else:
+        print('Killed curses')
     quit()
 
 def wrap_addch(y, x, c):
-    """wrap_addch(y, x, c) - tty.addch(y, x, c), without the evil corner."""
-    try:
-        tty.addch(y, x, c)
-    except:
-        #Row 23 column 79 (bottom right) is evil.
-        #Usually attempted by center_text().
-        pass
+    """wrap_addch(y, x, c)
+    tty.addch(y, x, c), without the evil corner.
+    Affected by DEBUG."""
+    if not DEBUG:
+        try:
+            tty.addch(y, x, c)
+        except:
+            # Row 23 column 79 (bottom right) is evil.
+            # Usually attempted by center_text().
+            pass
+    else:
+        global debug_curses_cursor
+        global debug_curses_screen
+        debug_curses_cursor = None, None
+        print("addch {0}, {1}: '{2}'".format(y, x, chr(c)))
+        debug_curses_screen[y][x] = {'key': c}
 
 def wrap_addstr(y, x, s):
     """wrap_addstr(y, x, s) - encode in Python2, decode in Python3
-    tty.addstr(y, x, s)"""
-    v, f, f, f, f = sys.version_info
-    tty.addstr(y, x, api.b2u3(s))
+    tty.addstr(y, x, s)
+    Affected by DEBUG.
+    """
+    s2 = api.b2u3(s)
+    if not DEBUG:
+        tty.addstr(y, x, s2)
+    else:
+        global debug_curses_cursor
+        global debug_curses_screen
+        debug_curses_cursor = None, None
+        print("addstr {0}, {1}: '{2}'".format(y, x, s2))
+        for c in api.u(s):
+            debug_curses_screen[y][x] = {'key': ord(c)}
+            x += 1
+
+def wrap_hline(y, x, c, length):
+    """wrap_hline(y, x, c, length)
+    tty.hline(y, x, c, length)
+    Affected by DEBUG.
+    """
+    if not DEBUG:
+        tty.hline(y, x, c, length)
+    else:
+        global debug_curses_cursor
+        global debug_curses_screen
+        debug_curses_cursor = None, None
+        print("hline {0}, {1}: {2}*'{3}'".format(y, x, length, chr(c)))
+        for x2 in range(length):
+            debug_curses_screen[y][x + x2] = {'key': c}
+
+def wrap_refresh():
+    """wrap_refresh()
+    tty.refresh()
+    Affected by DEBUG.
+    """
+    if not DEBUG:
+        tty.refresh()
+    else:
+        #y2 = x2 = []
+        #for y in debug_curses_screen:
+        #    x2 = []
+        #    print(type(y))
+        #    for x in y:
+        #        # Integer -> character.
+        #        print(type(x))
+        #        z = x['key']
+        #        x2.append(uchr(z))
+        #    # Characters -> string.
+        #    y2.append(''.join(x2))
+        #y2.append(api.u('{0}'.format(debug_curses_cursor)))
+        #print('\n'.join(y2))
+        #print(debug_curses_screen)
+        for y in range(20):
+            line = []
+            for x in range(80):
+                line.append(uchr(debug_curses_screen[y][x]['key']))
+            print(''.join(line))
+        print('{0}'.format(debug_curses_cursor))
+
+def wrap_getch():
+    """wrap_getch()
+    tty.getch()
+    Affected by DEBUG.
+    """
+    if not DEBUG:
+        return tty.getch()
+    else:
+        print('getch')
+        print('Enter OR character + enter OR integer; >=2 characters + enter')
+        x = sys.stdin.readline()
+        if len(x) > 2:
+            return int(x)
+        elif x == '\n':
+            return 10
+        else:
+            return ord(x[0])
+
+def wrap_erase():
+    """wrap_erase()
+    tty.erase()
+    Affected by DEBUG.
+    """
+    if not DEBUG:
+        tty.erase()
+    else:
+        global debug_curses_cursor
+        global debug_curses_screen
+        print('erase')
+        u = ord(' ')
+        for y in range(20):
+            for x in range(80):
+                debug_curses_screen[y][x] = {'key': u}
+        debug_curses_cursor = None, None
+
+def wrap_move(y, x):
+    """wrap_move(y, x)
+    tty.move(y, x)
+    Affected by DEBUG.
+    """
+    if not DEBUG:
+        tty.move(y, x)
+    else:
+        global debug_curses_cursor
+        debug_curses_cursor = y, x
+        print('move {0}, {1}'.format(y, x))
 
 def center_text(line, text):
     """center_text(line, text) - put text <text> in the center of line <line>.
-    Long lines f text will be truncated."""
+    Long lines f text will be truncated.
+    Affected by DEBUG.
+    """
     assert api.is_anystr(text) and line >= 0 and line < ysize
+    if DEBUG:
+        print("center_text {0}, '{1}'".format(line, text))
     start_pos = math.floor((xsize - len(text)) / 2)
     for x in range(xsize):
         if x < start_pos or x >= start_pos + len(text):
@@ -116,9 +259,9 @@ def rli_progressbar():
     """rli_progressbar()
     Erase screen and return a `api.progress_bar` object.
     """
-    tty.erase()
+    wrap_erase()
     center_text(2, "Wait...")
-    tty.refresh()
+    wrap_refresh()
     return api.progress_bar(1.0, 100.0, rli_progress)
 
 def rli_progress(percent, data):
@@ -130,10 +273,10 @@ def rli_progress(percent, data):
     wrap_addch(4, 0, ord("["))
     wrap_addch(4, xsize - 1, ord("]"))
     try:
-        tty.hline(4, 1, ord("*"), int(math.floor(percent/100.0 * length)))
+        wrap_hline(4, 1, ord("*"), int(math.floor(percent/100.0 * length)))
     except:
         pass
-    tty.refresh()
+    wrap_refresh()
 
 def edit_num(y, num, min_num, max_num, step=1):
     """direction, num = edit_num(y, num, min_num, max_num, step=1)
@@ -155,10 +298,10 @@ def edit_num(y, num, min_num, max_num, step=1):
             if num > max_num:
                 num = max_num
         #Print.
-        tty.hline(y, 0, ord(" "), xsize)
+        wrap_hline(y, 0, ord(" "), xsize)
         center_text(y, "left - a h home<" + str(num) + ">right + d l end")
-        tty.refresh()
-        ch = tty.getch()
+        wrap_refresh()
+        ch = wrap_getch()
         if ch in (curses.KEY_LEFT, ord("-"), ord("a"), ord("h")):
             num -= step
             continue
@@ -210,19 +353,19 @@ def edit_line(y, line):
     tail = api.u("")
     half_len = int(math.floor(xsize / 2))
     while True:
-        tty.hline(y, 0, ord(" "), xsize)
+        wrap_hline(y, 0, ord(" "), xsize)
         #Print line.
         if len(head_u) < xsize - 1:
             wrap_addstr(y, 0, head_u)
             wrap_addstr(y, len(head_u), tail[:xsize - len(head_u)])
-            tty.move(y, len(head_u))
+            wrap_move(y, len(head_u))
         else:
             wrap_addstr(y, 0, head_u[-half_len:])
             wrap_addstr(y, half_len, tail[:half_len])
-            tty.move(y, half_len)
-        tty.refresh()
+            wrap_move(y, half_len)
+        wrap_refresh()
         #Input.
-        ch = tty.getch()
+        ch = wrap_getch()
         #Navigate in string.
         if ch == curses.KEY_HOME:
             tail = head_u + tail
@@ -385,7 +528,7 @@ def vdictui(arg):
                 i['value'] = i['name']
     # Main loop.
     while True:
-        tty.erase()
+        wrap_erase()
         # Print.
         foobar = 0      # I cannot figure out a good name for this one.
         for y in range(len(arg)):
@@ -407,7 +550,7 @@ def vdictui(arg):
                         wrap_addstr(y, 0, "**")
                         wrap_addstr(y, xsize - 2, "**")
                 foobar += 1
-        tty.refresh()
+        wrap_refresh()
         # Input.
         foobar = 0
         for y in range(len(arg)):
@@ -422,7 +565,7 @@ def vdictui(arg):
                     direction, ret_arg[yname] = edit_num(y, ret_arg[yname],
                                                     min_num, max_num, step)
                 if ytype == "button":
-                    ch = tty.getch()
+                    ch = wrap_getch()
                     if ch == curses.KEY_UP:
                         direction = "up"
                     elif ch in (curses.KEY_DOWN, ord("\t")):
@@ -623,7 +766,7 @@ def show_copy_single(s, head=None):
         s2 = '##\n'.join(L)
         del L
         del tmp
-    tty.erase()
+    wrap_erase()
     if have_clipboard:
         center_text(ysize - 2, "Press 'C' to copy.")
     center_text(ysize - 1, "Press space, enter or escape to continue...")
@@ -632,7 +775,7 @@ def show_copy_single(s, head=None):
         roll_text(1, ysize - 3, s2, extra_input_handler=local_ch_handler)
     else:
         roll_text(0, ysize - 2, s2, extra_input_handler=local_ch_handler)
-    # roll_text() calls tty.refresh().
+    # roll_text() calls wrap_refresh().
 
 def honeypot_tab(x):
     """honeypot_tab(x)
@@ -641,7 +784,7 @@ def honeypot_tab(x):
     assert x >= 1 and x < 6
     if x == 1:
         # Pick.
-        tty.erase()
+        wrap_erase()
         s = h.pick(pb=rli_progressbar())
         show_copy_single(s)
     if x == 2:
@@ -749,7 +892,7 @@ def choice(honeypot):
     Return index for p if honeypot == False.
     Return index for h if honeypot == True.
     Returns False if the user cancels."""
-    tty.erase()
+    wrap_erase()
     thelist = []
     if honeypot:
         center_text(0, "Please select fake-password.")
@@ -768,7 +911,7 @@ def choice(honeypot):
 
 def zxcv_handler(x):
     """zxcv_handler(x)
-    x is whatever tty.getch() has returned.
+    x is whatever wrap_getch() has returned.
     Handle undo/redo/make backup/clear clipboard."""
     if x in (ord("z"), ord("Z"), ord("b"), ord("B")):
         api.undo(p, h)
@@ -798,11 +941,11 @@ def zxcv_handler(x):
         except:
             test = False
         if not test:
-            tty.erase()
+            wrap_erase()
             center_text(0, "Append suffix (Y/N)?")
-            tty.refresh()
+            wrap_refresh()
             while True:
-                ch = tty.getch()
+                ch = wrap_getch()
                 if ch in (ord("y"), ord("Y")):
                     tarball_name += ".tar.gz"
                     break
@@ -862,8 +1005,8 @@ def list_choice(ypos, yspace, thelist, ct=False):
             # Past end?
             if button_listpos >= size:
                 # Put empty.
-                tty.hline(button_ypos, 0, ord("#"), xspace)
-                tty.hline(button_ypos, xspace, ord(" "), x_leftover)
+                wrap_hline(button_ypos, 0, ord("#"), xspace)
+                wrap_hline(button_ypos, xspace, ord(" "), x_leftover)
             else:
                 # Put line.
                 if choice % page == i:  #Selected?
@@ -873,7 +1016,7 @@ def list_choice(ypos, yspace, thelist, ct=False):
                         wrap_addstr(button_ypos, xspace, "<-Choose")
                 else:
                     if show_arrow:
-                        tty.hline(button_ypos, xspace, 32, x_leftover)
+                        wrap_hline(button_ypos, xspace, 32, x_leftover)
                     wrap_addch(button_ypos, 1, ord(" "))
                     wrap_addch(button_ypos, xspace - 2, ord(" "))
                 #Print the characters.
@@ -886,16 +1029,16 @@ def list_choice(ypos, yspace, thelist, ct=False):
                                             thelist[button_listpos][x - 2])
         # Print the 'rollability-indicators'.
         if offset - page < 0:
-            tty.hline(ypos + 3, 0, ord("-"), xspace)
+            wrap_hline(ypos + 3, 0, ord("-"), xspace)
         else:
-            tty.hline(ypos + 3, 0, ord("^"), xspace)
+            wrap_hline(ypos + 3, 0, ord("^"), xspace)
         if offset + page > len(thelist) - 1:
-            tty.hline(ypos + yspace - 2, 0, ord("-"), xspace)
+            wrap_hline(ypos + yspace - 2, 0, ord("-"), xspace)
         else:
-            tty.hline(ypos + yspace - 2, 0, ord("v"), xspace)
-        tty.refresh()
+            wrap_hline(ypos + yspace - 2, 0, ord("v"), xspace)
+        wrap_refresh()
         # Handle input.
-        ch = tty.getch()
+        ch = wrap_getch()
         if ch == 27:    #Escape
             return False
         # Up/down.
@@ -938,7 +1081,7 @@ def roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None):
     ypos is the Y-coordinate.
     yspace is the number of rows roll_text() will eat of the screen.
     `extra_input_handler` is a function that takes 1 argument; integer
-    returned by tty.getch().
+    returned by wrap_getch().
     See also zxcv_handler.__doc__"""
     thelines = thetext.split("\n")
     page = yspace - 4
@@ -955,15 +1098,15 @@ def roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None):
                     uc = ' '
                 wrap_addstr(i + ypos + 2, x, uc)
         if linepos < 1:
-            tty.hline(ypos + 1, 0, ord("-"), xsize)
+            wrap_hline(ypos + 1, 0, ord("-"), xsize)
         else:
-            tty.hline(ypos + 1, 0, ord("^"), xsize)
+            wrap_hline(ypos + 1, 0, ord("^"), xsize)
         if linepos + page > len(thelines):
-            tty.hline(ypos + yspace - 2, 0, ord("-"), xsize)
+            wrap_hline(ypos + yspace - 2, 0, ord("-"), xsize)
         else:
-            tty.hline(ypos + yspace - 2, 0, ord("v"), xsize)
-        tty.refresh()
-        ch = tty.getch()
+            wrap_hline(ypos + yspace - 2, 0, ord("v"), xsize)
+        wrap_refresh()
+        ch = wrap_getch()
         if ct:  # Change tab?
             if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
                 set_tab("<")
@@ -1031,7 +1174,7 @@ def hdictui(arg):
         tab_names[1].append(i['name'].upper())
     while True:
         # Tab headers.
-        tty.erase()
+        wrap_erase()
         if xsize >= 80:
             s = "Home left a h 4"
             wrap_addstr(0, 0, s)
@@ -1054,9 +1197,9 @@ def hdictui(arg):
                 wrap_addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
                     " Make backup : (^C) quit")
             # Lines.
-            tty.hline(1, 0, ord("="), xsize)
-            tty.hline(ysize - 3, 0, ord("="), xsize)
-            tty.refresh()
+            wrap_hline(1, 0, ord("="), xsize)
+            wrap_hline(ysize - 3, 0, ord("="), xsize)
+            wrap_refresh()
         else:
             pass    #TODO
         # Tab content.
@@ -1154,6 +1297,22 @@ are not encrypted, so that you don't need to remember an extra password.
 DEBUG = False
 tabnum = 0
 have_clipboard = __HAVE_CLIPBOARD__
+
+if DEBUG:
+    # 80x20.
+    u = ord(' ')
+    tmp = debug_curses_screen = []
+    for x in range(80):
+        tmp.append({'key': u})
+    for y in range(20):
+        debug_curses_screen.append(tmp)
+    debug_curses_cursor = None, None
+    v, f, f, f, f = sys.version_info
+    if v == 2:
+        uchr = unichr
+    else:
+        uchr = chr
+
 if have_clipboard:
     import subprocess
 
@@ -1163,7 +1322,8 @@ if __name__ == "__main__":
     locale.setlocale(locale.LC_ALL, '')
     code = locale.getpreferredencoding()
     if DEBUG:
-        xsize, ysize = 80, 24
+        # 22 rows gives space for cursor coordinates and pdb prompt.
+        xsize, ysize = 80, 20
     else:
         tty = curses.initscr()
         curses.noecho()
@@ -1183,8 +1343,9 @@ if __name__ == "__main__":
     except KeyboardInterrupt: #^C
         die()
     except:
-        tty.keypad(0)
-        curses.echo()
-        curses.nocbreak()
-        curses.endwin()
+        if not DEBUG:
+            tty.keypad(0)
+            curses.echo()
+            curses.nocbreak()
+            curses.endwin()
         raise

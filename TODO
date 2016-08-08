@@ -10,7 +10,7 @@
 *       ``shortcuts`` in passwdmanrli.
 *       passwdmanrli: Code->data in passwd_tab and honeypot_tab.
 0.5     Unicode support in configure.
-0.5     RLI: 40 column tty, long passwords and honeypots.
+0.5     RLI: 40 column tty.
 *       Use argparse instead of getopt. argparse requires 2.7 or 3.x.
 0.5     THE BIG CHANGE: change the structure of passwdmangui:
             From:
@@ -24,6 +24,22 @@
                 - More interactive.
             Try also:
                 - Toggle show passwords/don't show without restarting the gui.
+*       THE REALLY BIG CHANGE: change passwdmanapi:
+            From:
+                Let multiple passwdman* touch the same files without any
+                locking and rereading.
+            To:
+                Client/server.
+                passwdmanapi will be a client that connects to the server,
+                which has eaten lots of the functionality in passwdmanapi.
+                Start the server if necessary.
+            Pros:
+                - Running multiple passwdman* at the same time.
+                - Running batched passwdmancli in background.
+            Needs:
+                - Better undo/redo code.
+            Try also:
+                - Fix passwdmancli to be multitasked rather than batched.
 
 Python 2.x drop schedule:
 
