@@ -37,6 +37,7 @@ import getopt
 import shutil
 import unicodedata
 import traceback
+import re
 
 __doc__ = """The functions show_help(), passwd_help(), honeypot_help(),
 bells_and_whistles() and bugs() takes no arguments and prints their
@@ -62,10 +63,7 @@ def se():
     """se() - syntax error
     Show error message containing global variable `theline`.
     """
-    sow("!syntax error, type 'help'\n")
-    sow('!')
-    sow(theline)        #str.format() doesn't like Unicode.
-    sow("\n")
+    sow(api.u("!syntax error, type 'help'\n!{0}\n").format(api.u(theline)))
     if not interactive:
         sys.exit(1)
 
@@ -75,7 +73,8 @@ def err(x):
     It prepends an exclamation mark and appends a newline.
     Program dies if not in interactive mode.
     """
-    sow("!")
+    # Prepend a newline to skip partial output.
+    sow("\n!")
     sow(x)
     sow("\n")
     if not interactive:
@@ -83,7 +82,7 @@ def err(x):
 
 def sow(x):             # Do the Unicode-stuff here.
     """sow(x) - Write to stdout."""
-    sys.stdout.write(api.b2u3(x))         #It is used a lot.
+    sys.stdout.write(api.b2u3(x))
 
 def siw():
     """siw() - Read from infile. It returns a unicode-string"""
@@ -97,31 +96,37 @@ def v(x):       # Verbose.
         sow("#" + x + "\n")
 """
     if verbose:
-        sow("#" + x + "\n")     # Make the output comments.
+        sow(api.u('#{0}\n').format(api.u(x)))     # Make the output comments.
+
+def escape(s):
+    '''escape(s)
+    Return `s` with all single-quotes backslash escaped.
+    '''
+    return re.sub("(')", r'\\\1', s)
 
 def show_help():
     """#HELP MESSAGE
-#passwdmancli uses  colon separated fields  as input. Everything inside angle
-#brackets < >,  is intended to be expanded in your brain.
+#passwdmancli uses colon separated fields as input.  Everything inside angle
+#brackets <>, is intended to be expanded in your brain.
 #It tries to be more grepable by making the first letter in error messages be
-#an exclamation  mark and  the first  letter in human-friendly  messages be a
-#hash/number sign.  Multi-line  outputs are  terminated by a "#READY"
-#message. Unless otherwise noted, quotes  around angle  brackets are optional
+#an exclamation mark and the first letter in human-friendly messages be a
+#hash/number sign.  Multi-line outputs are terminated by a "#DONE"
+#message.  Unless otherwise noted, quotes around angle brackets are optional
 #and may be either single quotes or double quotes. If the first letter in its
 #input is a '#', it will ignore the line. If the first letter in it input is
 # '|', it prints out the rest of the line
 #It allows ANY crap to surround the commands in the fields.
 #It's outputs are prepended with `<command> | tr : .` + '?'
 #The error messages are hopefully obvious enough.
-#passwd:help            Show help for passwd:*
-#honeypot:help          Show help for honeypot:*
-#verbose:on            Verbose output, the command 'hell' does the same thing.
-#verbose:off            Brief output.
-#undo                   Undo last change to passwd or honeypot, there is also
-#help                   Obvious.                                'redo'.
-#exit                   Obvious.
-#bugs                   Bugs.
-#whistles               Bells and whistles.
+#passwd:help    Show help for passwd:*
+#honeypot:help  Show help for honeypot:*
+#verbose:on     Verbose output, the command 'hell' does the same thing.
+#verbose:off    Brief output.
+#undo           Undo last change to passwd or honeypot, there is also 'redo'.
+#help           Obvious.        pb:on           ``progress-bars`'
+#exit           Obvious.        pb:off          Off by default.
+#bugs           Bugs.
+#whistles       Bells and whistles.
 """
     sow(show_help.__doc__)
 def passwd_help():      #22 lines + ('#READY') + new line for input
@@ -227,7 +232,40 @@ def bugs():
 #
 """
     sow(bugs.__doc__)
+
+def cli_progress(percent, data):
+    '''cli_progress(percent, data)
     
+    Called from a `progress_bar`-object.'''
+    for x in range(data['key']):
+        sow('\b')
+    s = '{0}%'.format(int(percent))
+    sow(s)
+    sys.stdout.flush()
+    data['key'] = len(s)
+
+def mk_pb():
+    '''mk_pb()
+    Make progress_bar.
+    Return a `progress_bar`-object.
+    
+    '#\t0%\b\b1%\b\b2%\b\b33%\b\b\b100%\n'
+    '''
+    if progress_bars:
+        data = {'key': 2}
+        sow('#\t0%')
+        sys.stdout.flush()
+        return api.progress_bar(1.0, 100.0, cli_progress, data=data)
+    else:
+        return api.no_pb()
+
+def pb_nl():
+    '''pb_nl()
+    Print the trailing newline. for the progress-counter.
+    '''
+    if progress_bars:
+        sow('\n')
+
 def passwd_update(x):
     """passwd_update(x) - update the password x using its own meta-data.
     x is either the name or the index.
@@ -241,13 +279,13 @@ def passwd_update(x):
                               #...it is probably required to change password.
     v("This may take a while.")       #Verbose.
     try:
-        p.update(index)              #Do lots of the work in the right place.
+        p.update(index, pb=mk_pb())
     except api.err_nometa:
         err("no meta")               #It requires the meta-data.
         return
+    pb_nl()
     new = p[index]["value"]
-    sow("#old:new\n")
-    sow("passwd.update?'{0}':'{1}'\n".format(old, new)) #Always 64 or 10.
+    sow("#old:new\npasswd.update?'{0}':'{1}'\n".format(old, new))
     return
     
 def passwd_update_meta(x):
@@ -260,22 +298,21 @@ def passwd_update_meta(x):
         return
     name = api.unquote(fields[3])
     try:
-        index = p.mkindex(name)     #Where is it?
+        index = p.mkindex(name)     # Where is it?
     except:
         err("not found")
         return
-    old = p[index]["value"]             #Remember old.
+    old = p[index]["value"]             # Remember old.
     v("This may take a while.")
     try:
-        p.update_meta(index, fields[0], fields[1], fields[2])
-    except api.err_idiot:       #Incorrect usage.
+        p.update_meta(index, fields[0], fields[1], fields[2], pb=mk_pb())
+    except api.err_idiot:       # Incorrect usage.
         err("stupid arguments")
         return
+    pb_nl()
     new = p[index]["value"]
-    sow("#old:new\n")
-    sow("passwd.update?'")
-    sow(old)
-    sow("':'{0}'\n".format(new))
+    sow(api.u("#old:new\npasswd.update?'{0}':'{1}'\n").format(
+                                            api.u(escape(old)), api.u(new)))
     
 def passwd_add(x):
     """passwd_add(x) - generate and add a new password.
@@ -309,18 +346,22 @@ def passwd_add(x):
         return
     elif "10" in add_type:
         try:            #Use digits only.
-            p.add(add_name, None, "10", str(add_min), str(add_max))
+            p.add(add_name, None, "10", str(add_min), str(add_max),
+                                                                pb=mk_pb())
         except api.err_duplicate:
             err("duplicate")
             return
+        pb_nl()
         v("Added base10 password.")
         return
     elif "64" in add_type:
         try:
-            p.add(add_name, None, "64", str(add_min), str(add_max))
+            p.add(add_name, None, "64", str(add_min), str(add_max),
+                                                                pb=mk_pb())
         except api.err_duplicate:
             err("duplicate")
             return
+        pb_nl()
         v("Added base64 password.")
         return
     else:
@@ -339,12 +380,11 @@ def passwd_cmds(x):
         if "list" in a:         #list doesn't take any arguments.
             index = 0
             sow("#\t\tindex:\tname\n")   #Human readable message.
-            for l in p:
-                sow("passwd.list?\t{0}:\t'".format(index))
-                sow(l["name"])
-                sow("'\n")
+            for L in p:
+                sow(api.u("passwd.list?\t{0}:\t'{1}'\n").format(index,
+                                                api.u(escape(L['name']))))
                 index += 1
-            sow("#READY\n")
+            sow("#DONE\n#READY\n")
             return
         elif "help" in a:       #All big messages are done by calling a...
             passwd_help()       #...function that prints out it's doc-string.
@@ -379,9 +419,7 @@ def passwd_cmds(x):
             except:
                 err("not found")
                 return
-            sow("passwd.get?'")
-            sow(the_value)
-            sow("'\n")
+            sow(api.u("passwd.get?'{0}'\n").format(api.u(escape(the_value))))
             return
         elif "update_meta" in a:        #WARNING: Must be before "update" and
                                         #"meta".
@@ -423,10 +461,10 @@ def honeypot_cmds(x):
             sow("#\t\tindex:\tname\n")
             for value in h:
                 sow("honeypot.list?\t{0}:\t'".format(index))
-                sow(value)
+                sow(escape(value))
                 sow("'\n")
                 index += 1
-            sow("#READY\n")
+            sow("#DONE\n#READY\n")
             return
         elif "help" in a:
             honeypot_help()
@@ -435,8 +473,10 @@ def honeypot_cmds(x):
             #pick takes either 0 or 2 arguments, look down.
             #This pick takes 0.
             v("This may take a while.")
+            s = h.pick(pb=mk_pb())
+            pb_nl()
             sow("honeypot.pick?'")
-            sow(h.pick())
+            sow(escape(s))
             sow("'\n")
             return
         else:
@@ -464,21 +504,15 @@ def honeypot_cmds(x):
             except:
                 err("Argument must be an integer.")
             try:
-                the_list = h.pickl(n, False)
+                the_list = h.pickl(n, False, pb=mk_pb())
             except api.err_idiot:
                 err("Argument is too big.")
-            sow("honeypot.pickl?")
-            tmp_str = ""
+            pb_nl()
+            tmp_list = []
             for x in the_list:
-                tmp_str += "'"  #Opening quote.
-                for y in x:
-                    if y == "'":
-                        tmp_str += "\\'"        #Escape.
-                    else:
-                        tmp_str += y
-                tmp_str += "'," #Closing quote and comma.
-            sow(tmp_str[:-1])   #No trailing comma.
-            sow("\n")
+                tmp_list.append(escape(x))
+            sow(api.u("honeypot.pickl?'{0}'\n#DONE\n").format(
+                                        api.u("', '").join(tmp_list)))
             return
         elif "pick" in a:       #WARNING: Must be after "pickl".
             args = b.split(':', 1)
@@ -492,13 +526,12 @@ def honeypot_cmds(x):
                 return
             sep = api.unquote(args[1])
             try:                       #3rd arg, make it raise instead of log.
-                tmp_str = h.pick(n, sep, False)
+                tmp_str = h.pick(n, sep, False, pb=mk_pb())
             except api.err_idiot:
                 err("n is too big")
                 return
-            sow("honeypot.pick?'")
-            sow(tmp_str)
-            sow("'\n")
+            pb_nl()
+            sow(api.u("honeypot.pick?'{0}'\n").format(api.u(escape(tmp_str))))
             return
         elif "remove" in a:
             try:
@@ -517,6 +550,7 @@ def main():
     global p
     global h
     global theline
+    global progress_bars
     sow(copywrong)
     while True:
         v("READY")  #Show this message after every command, if verbose.
@@ -587,6 +621,14 @@ def main():
                 else:
                     se()
                     continue
+            elif "pb" in a:
+                if "on" in b:
+                    progress_bars = True
+                elif "off" in b:
+                    progress_bars = False
+                else:
+                    se()
+                    continue
             else:
                 se()
                 continue
@@ -595,6 +637,7 @@ def main():
 p = api.passwd()
 h = api.honeypot()
 verbose = False
+progress_bars = False
 interactive = False
 theline = ""
 logging.basicConfig(level=logging.CRITICAL)     #STFU
@@ -628,6 +671,8 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt: #^C
         quit()
+    except SystemExit:
+        raise
     except:
         print("\n!!#AAARGH!   I'M DYING A PAINFUL DEATH!   AAARGH!")
         try:

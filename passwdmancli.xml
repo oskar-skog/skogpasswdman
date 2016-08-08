@@ -386,6 +386,24 @@ as meta-data, instead of the passwords own (which might not even exist).</para>
 </listitem>
 </varlistentry>
 <varlistentry>
+<term>pb:on</term>
+<listitem>
+<para>Enable progress-counters.
+start is
+"Number-sign, tab, zero, percent."
+Progress is
+"Enough backspaces, integer decimal digits, percent."
+Stop is
+"Newline."</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>pb:off</term>
+<listitem>
+<para>Disable progress-counters.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
 <term>redo</term>
 <listitem>
 <para>Opposite of

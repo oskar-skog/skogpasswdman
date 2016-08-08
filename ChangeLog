@@ -1,4 +1,8 @@
 2014-01-19      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.3
+    * passwdmancli: Escape single-quotes in multiple places.
+        Emits a '#DONE' after some commands.
+        Progress counters can be activated with the 'pb:on'-command.
 0.4.2
     * passwdmanapi.3: Added honeypot.pickf() to the list of functions that
         takes a 'pb' argument.
