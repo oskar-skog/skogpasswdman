@@ -27,18 +27,20 @@ POSSIBILITY OF SUCH DAMAGE."""
 SYNOPSIS
     import passwdmanapi
 DEFINITIONS
-    class passwdmanapi.passwd(common_data)      loads and modifies the XML
-                                                ~/.passwdman/passwords
-    class passwdmanapi.honeypot(common_data)    loads and modifies the XML
-                                                ~/.passwdman/honeypots
-    class passwdmanapi.common_data()            class defining lots of stuff
+    class passwdmanapi.passwd(common_data)      Loads and modifies the XML
+                                                '~/.passwdman/passwords'.
+    class passwdmanapi.honeypot(common_data)    Loads and modifies the XML
+                                                '~/.passwdman/honeypots'.
+    class passwdmanapi.common_data()            Class defining lots of stuff
                                                 passwd() and honeypot() have
-                                                in common
-    def get10(length)                           return base10 string
-    def get64(length)                           return base64 string
-    def getint(a, b)                            a <= random integer < b
-    def open_rng()                              returns a file-descriptor to
-                                                /dev/random or /dev/urandom
+                                                in common.
+    def get10(length)                           Return base10 string.
+    def get64(length)                           Return base64 string.
+    def getint(a, b)                            a <= random integer < b.
+    def open_rng()                              Returns a file-descriptor to
+                                                /dev/random or '/dev/urandom'.
+    def unquote(x)                              Returns x without optional
+                                                quotes.
     class err_norandom(Exception)               open_rng()
     class err_nolength(Exception)               get10() get64()
     class err_loaderr(Exception)                passwd() honeypot()
@@ -57,12 +59,11 @@ NOTES
         'xml.etree.ElementTree.ElementTree'.
     passwd.xmlroot, honeypot.xmlroot, common_data.xmlroot are class
         'xml.etree.ElementTree.Element'.
-    the argument <x>
 BUGS
     get64() wastes a few bits from the random device.
     get10() wastes lots of bits when it emits:
         "Bad nibble"
-    There is no redo!"""
+"""
 
 import xml.etree.ElementTree as XML
 import os.path
@@ -71,37 +72,37 @@ import logging
 import string
 
 class err_norandom(Exception):
-    """Cannot open /dev/random, cannot open /dev/urandom"""
+    """Cannot open '/dev/random', cannot open '/dev/urandom'."""
     pass
 
 class err_nolength(Exception):
-    """invalid length (get10() or get64())"""
+    """Invalid length (get10() or get64())."""
     pass
 
 class err_loaderr(Exception):
-    """failure to load data file (XML)"""
+    """Failure to load data file (XML)."""
     pass
 
 class err_notfound(Exception):
-    """the record in object.data cannot be found = cannot remove"""
+    """The record in object.data cannot be found = cannot remove."""
     pass
 
 class err_duplicate(Exception):
-    """the value to be added already exist in object.data"""
+    """The value to be added already exist in object.data."""
     pass
 
 class err_idiot(Exception):
-    """incorrect usage"""
+    """Incorrect usage."""
     pass
 
 class err_nometa(Exception):
-    """meta data required"""
+    """Meta-data is required."""
     pass
 
 def open_rng():
-    """open random(4) or urandom(4), returns an open file
+    """Open random(4) or urandom(4), returns an open file.
 ERRORS
-    err_norandom(Exception)             cannot open random(4) or urandom"""
+    err_norandom(Exception)             Cannot open random(4) or urandom."""
     #open /dev/urandom if /dev/random cannot be opened
     try:
         f = open('/dev/random', 'rb')
@@ -111,35 +112,35 @@ ERRORS
         try:
             f = open('/dev/urandom', 'rb')
         except:
-            raise err_norandom('Cannot open "/dev/random" or "/dev/urandom"')
+            raise err_norandom('Cannot open "/dev/random" or "/dev/urandom".')
     return f
 
 def get64(length):
     """get64(length)
     Returns a random string containing A-Z a-z 0-9 underscore and exclamation
-    mark, with the length <length>
+    mark, with the length <length>.
 ERRORS
-    err_nolength(Exception)             Invalid <length>
+    err_nolength(Exception)             Invalid <length>.
     err_norandom                        open_rng()"""
-    #rng        the random number generator /dev/random
-    #passwd     the password to be returned
-    #number     integer used as a buffer/pipe between rng and passwd
-    #bits       the amount of bits left in 'number'
+    #rng        The random number generator '/dev/random'.
+    #passwd     The password to be returned.
+    #number     Integer used as a buffer/pipe between rng and passwd.
+    #bits       The amount of bits left in 'number'.
     if not isinstance(length, int):   #check type
-        raise err_idiot('get64 called with non-integer length')
+        raise err_idiot('get64 called with non-integer length.')
     logging.info("get64:length={}".format(length))
     if length < 1:
-        raise err_nolength('get64 called with length < 1')
+        raise err_nolength('get64 called with length < 1.')
     letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"
-            "ghijklmnopqrstuvwxyz0123456789!_")
+            "ghijklmnopqrstuvwxyz0123456789!_") #Break line.
     passwd, bits, number = '', 0, 0
     try:
         rng = open_rng()
     except:
         raise
-    while len(passwd) < length: #main loop
+    while len(passwd) < length: #Main loop.
         if bits < 6:
-            logging.info("get64:need more random bits")
+            logging.info("get64:Need more random bits.")
             number |= ord(rng.read(1)) << bits #prepend the bits in number
                                                 #with a random byte
             bits += 8
@@ -147,7 +148,7 @@ ERRORS
         number >>= 6
         bits -= 6
         
-        logging.info("get64:added char {}/{}".format(len(passwd), length))
+        logging.info("get64:Added char {}/{}.".format(len(passwd), length))
     rng.close()
     del letters, bits, number, rng
     return passwd
@@ -155,40 +156,40 @@ ERRORS
 def get10(length):
     """get10(length)
     Returns a random string containing 0-9, with the length <length>.
-    Raises the same exceptions as get64()"""
-    #rng        the random number generator /dev/random
-    #passwd     the password to be returned
-    #number     integer used as a buffer/pipe between rng and passwd
-    #bits       the amount of bits left in 'number'
+    Raises the same exceptions as get64()."""
+    #rng        The random number generator '/dev/random'.
+    #passwd     The password to be returned.
+    #number     Integer used as a buffer/pipe between rng and passwd.
+    #bits       The amount of bits left in 'number'.
     if not isinstance(length, int):   #check type
-        raise err_nolength('get10 called with non-integer length')
+        raise err_nolength('get10 called with non-integer length.')
     logging.info("get10:length={}".format(length))
     if length < 1:
-        raise err_nolength('get10 called with length < 1')
+        raise err_nolength('get10 called with length < 1.')
     passwd, bits, number = '', 0, 0
     try:
         rng = open_rng()
     except:
         raise
-    while len(passwd) < length:    #main loop
+    while len(passwd) < length:    #Main loop.
         if bits < 4:
-            logging.info("get10:need more random bits")
+            logging.info("get10:Need more random bits.")
             number |= ord(rng.read(1)) << bits  #Prepend the bits in number
             bits += 8                           #with a random byte.
         if (number % 16) < 10:                  #I don't want 0...5 to be
-                                                #more popular than 6...9
+                                                #more popular than 6...9.
             passwd += chr(number % 16 + 48) #digits ASCII
-            logging.info("get10:added char {}/{}".format(len(passwd),length))
+            logging.info("get10:Added char {}/{}.".format(len(passwd),length))
         else:
-            logging.info("get10:bad nibble")
-        number >>= 4 #next nibble
+            logging.info("get10:Bad nibble.")
+        number >>= 4 #Next nibble.
         bits -= 4
     rng.close()
     del rng, bits, number
     return passwd
 
 def getint(a, b):
-    """return random integer with value a from <a> to <b> - 1"""
+    """Return random integer with value a from <a> to <b> - 1."""
     if b < a:
         raise err_nolength("b < a")
     try:
@@ -197,72 +198,69 @@ def getint(a, b):
         raise
     reqbits = bits = number = smallnum = 0
     while (1 << reqbits) < (b - a):
-        reqbits += 1            #how many bits are required?
-    number = b - a + 1          #force loop
-    while number >= (b - a):     #get a number in range
+        reqbits += 1            #How many bits are required?
+    number = b - a + 1          #Force loop.
+    while number >= (b - a):    #Get a number in range.
         logging.info("getint: getting number")
-        bits = number = 0       #at first I forgot to put <number> in there
-                                #it wasn't funny.
-        while bits < reqbits:   #need more
+        bits = number = 0
+        while bits < reqbits:   #Need more.
             if (reqbits - bits) < 8:
-                smallnum = ord(rng.read(1))             #get byte
-                smallnum %= 1 << (reqbits - bits)       #remove overflow bits
-                number |= smallnum << bits              #prepend
-            else:               #prepend a whole byte
+                smallnum = ord(rng.read(1))             #Get byte.
+                smallnum %= 1 << (reqbits - bits)       #Remove overflow bits.
+                number |= smallnum << bits              #Prepend.
+            else:               #Prepend a whole byte.
                 number |= ord(rng.read(1)) << bits
             bits += 8
     rng.close()
     return number + a
 
 def unquote_buggy(x):
-    """remove quotes from string, if any
+    """Remove quotes from string, if any
     BUGGY, called by unquote()"""
     c, quote, output = "", "", ""
     for index in range(len(x)):
         c = x[index]
         if c in string.whitespace and quote == "":
-            continue            #ignore leading whitespace
+            continue            #Ignore leading whitespace.
         if c == '"' and quote == "":
-            quote = '"' #found start
+            quote = '"' #Found start.
         elif c == "'" and quote == "":
-            quote = "'" #found start
+            quote = "'" #Found start.
         elif quote == "":
-            return x            #not whitespace or first quote, return
+            return x            #Not whitespace or first quote, return.
         elif c == quote:
-            return output       #ending quote
+            return output       #Ending quote.
         else:
             output += c
-    return x                    #not terminated
+    return x                    #Not terminated.
 
 def unquote(x):
-    """returns x without surrounding quotes"""
-    #check if quoted and ends with optional whitespace
+    """Returns x without surrounding quotes."""
+    #Check if quoted and ends with optional whitespace.
     quote = ""
     for c in x:
-        if c in string.whitespace:              #whitespace
+        if c in string.whitespace:              #Whitespace.
             continue
-        elif quote == "" and c == "'":          #begin
+        elif quote == "" and c == "'":          #Begin.
             quote = "'"
-        elif quote == "" and c == '"':          #begin
+        elif quote == "" and c == '"':          #Begin.
             quote == '"'
-        elif c == quote:                        #end
+        elif c == quote:                        #End.
             quote = ""
-        elif quote in "\"'":                    #quoted text
+        elif quote in "\"'":                    #Quoted text.
             continue
-        elif quote == "":                       #the string is not quoted
+        elif quote == "":                       #The string is not quoted.
             return x
     else:
         return unquote_buggy(x)
 class common_data():
-    """self.data[]      password-records or honey pots
-    self.index   used in for loops
+    """self.data[]      Password-records or honey pots.
+    self.index   Used in for loops.
     self.xmltree
     self.xmlroot
     __init__(self, xmlfile)
-        load the file xmlfile -> self.xmltree -> self.xmlroot
+        Load the file xmlfile -> self.xmltree -> self.xmlroot.
     __iter__(self)
-    __next__(self)     does not reset index
-    next(self)          resets index
     __getitem__(self, i)     self.data[i]
     __len__(self)            len(self.data)
     remove(self, x, xmlfile, element_name, attrib_name)
@@ -270,41 +268,42 @@ class common_data():
         self.data and xmlfile. x can also be a stringed integer used as index
         xmlfile is the path to the file from which the data was loaded
         element_name, attrib_name      "passwd","honeypot"  "name","value"
-        it needs them to find the data in the XML
-        raises err_notfound
+        it needs them to find the data in the XML.
+        Raises err_notfound.
     writexml(self, xmlfile)     save"""
     def __init__(self, xmlfile):
         """__init__(self, xmlfile)
         This function is called by passwd.__init__ and honeypot.__init__ and
         creates variables they both have. It loads them from the
-        path xmlfile -> self.xmltree -> self.xmlroot"""
+        path xmlfile -> self.xmltree -> self.xmlroot."""
         #    ~/.passwdman/passwords or ~/.passwdman/honeypots
         self.data = []
         self.index = 0
-        parser = XML.XMLParser(encoding="utf-8")
+        parser = XML.XMLParser(encoding="utf-8")        #Unicode stuff here.
         self.xmltree = XML.parse(os.path.expanduser(xmlfile), parser)
         self.xmlroot = self.xmltree.getroot()
-        #sanity checking
-        #root tag
+        #Sanity checking...
+        #Root tag.
         if self.xmlroot.tag != "root":
             raise err_loaderr(
                   "root element is not 'root' in '{}'".format(xmlfile))
-        #magic
+        #Magic.
         if self.xmlroot.attrib["magic"] != "passwdman":
             raise err_loaderr("incorrect magic in '{}'".format(xmlfile))
-        #version
+        #Version.
         version = self.xmlroot.attrib["version"].split('.', 2)
         if int(version[0]) != 0:
             raise err_loaderr("version too new in '{}'".format(xmlfile))
         if int(version[1]) > 1:
             logging.warning("High version number '{}' in '{}'".format(
                              self.xmlroot.attrib["version"], xmlfile))
-        #passwords/honey pots
-        #the attribute "file" should have the value <basename of xmlfile>
+        #Passwords/honey pots.
+        #The attribute "file" should have the value <basename of xmlfile>.
         if self.xmlroot.attrib["file"] != os.path.basename(xmlfile):
             raise err_loaderr("incorrect file magic in '{}'".format(xmlfile))
         logging.info("'{}' is successfully loaded".format(xmlfile))
     def __iter__(self):
+        """Reset index and return self."""
         self.index = 0
         return self
     def __next__(self):
@@ -326,36 +325,36 @@ class common_data():
     def remove(self, x, xmlfile, element_name, attrib_name, is_numstring):
         """xmlfile is a path
         x is an integer used as an index xor a string. It can also be a
-        stringed integer
-        it removes x from the file xmlfile and self.data
-        it looks for a match in self.xmltree in the attribute <attrib_name>
-        in the tags <element_name>
+        stringed integer.
+        It removes x from the file xmlfile and self.data
+        It looks for a match in self.xmltree in the attribute <attrib_name>
+        in the tags <element_name>.
+        is_numstring == True: String of digits not an integer.
         """
         #x is an integer used as an index xor a string used to loop until
-        #a match
-        if not is_numstring:    #detected bug in passwdmangui
+        #a match.
+        if not is_numstring:
             try:
-                x = int(x)  #is it an integer with quotes?
-                #solves a problem
+                x = int(x)  #Is it a stringed integer?
             except:
                 pass
         if isinstance(x, int):
             y = 0
             for z in self.xmlroot.findall(element_name):
-                #loop through the XML
-                if x == y: #y is the index
+                #Loop through the XML.
+                if x == y: #y is the index.
                     del self.data[y]
                     self.xmlroot.remove(z)
                     common_data.writexml(self, xmlfile)
                     return
                 else:
-                    y += 1   #try next
-            raise err_notfound("not found")
-        elif isinstance(x, unicode): #use unicode instead of str
+                    y += 1   #Try next.
+            raise err_notfound("Not found.")
+        elif isinstance(x, unicode): #Use unicode instead of str.
             y = 0
             for z in self.xmlroot.findall(element_name):
                 #Loop through the XML
-                if z.attrib[attrib_name] == x:  #check for a match
+                if z.attrib[attrib_name] == x:  #Check for a match.
                     del self.data[y]
                     self.xmlroot.remove(z)
                     common_data.writexml(self, xmlfile)
@@ -365,47 +364,47 @@ class common_data():
             raise err_notfound("not found")
         else:
             raise err_notfound("not integer and not string")
-    def writexml(self, xmlfile):  #write the XML tree to disk
-        """xmlfile is a path"""
+    def writexml(self, xmlfile):
+        """Write the XML tree to disk."""
         os.rename(os.path.expanduser(xmlfile),
                 os.path.join(os.path.expanduser("~/.passwdman/undoable"),
-                os.path.basename(xmlfile) + '-' + time.ctime())) #make backup
+                os.path.basename(xmlfile) + '-' + time.ctime())) #Make backup.
         self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8",
                                                 xml_declaration=True)
+        #Unicode-stuff here.
     def __del__(self):
         del self.data
         del self.index
         del self.xmlroot
         del self.xmltree
 class passwd(common_data):
-    """self.data                        list
-    self.data[*]["value"]               the password
-    self.data[*]["name"]                what is the password for (info for
-                                        the user)
-    self.data[*]["meta"][*]             information useful when updating the
-                                        password
+    """self.data                        List.
+    self.data[*]["value"]               The password.
+    self.data[*]["name"]                What is the password for (info for
+                                        the user).
+    self.data[*]["meta"][*]             Information useful when updating the
+                                        password.
     self.data[*]["meta"]["type"]        human, 10, 64
                                         human-generated, get10(), get64()
-    self.data[*]["meta"]["minlength"]   minimum length for a password
-    self.data[*]["meta"]["maxlength"]   maximum length for a password
-    stuff from common_data
+    self.data[*]["meta"]["minlength"]   Minimum length for a password.
+    self.data[*]["meta"]["maxlength"]   Maximum length for a password.
     add(name, value, m_type, m_minlength, m_maxlength)
-        raises err_duplicate
+        Raises err_duplicate
     add_nometa(name, value)
-        raises err_duplicate
+        Raises err_duplicate
     remove(x)
-        x can be a string, integer or a stringed integer
-        raises err_notfound
+        x can be a string, integer or a stringed integer.
+        Raises err_notfound.
     mkindex(x)
         x is a string that is either a stringed integer or a name of a
-        password
-        raises err_notfound
+        password.
+        Raises err_notfound.
     update(index), update_meta(index, m_type, m_minlength, m_maxlength)
-        they generate the value themselves
-        update_meta forces (new) meta-data
-        both raises err_notfound
-        update() raises err_nometa
-        update_meta() raises err_idiot
+        They generate the value themselves.
+        update_meta forces (new) meta-data.
+        Both raises err_notfound.
+        update() raises err_nometa.
+        update_meta() raises err_idiot.
     """
     #self.index          index for self.data[] when    'for x in this_object'
     #self.xmltree                        ~/.passwdman/passwords
