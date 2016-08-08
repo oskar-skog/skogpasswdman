@@ -252,12 +252,11 @@ ERRORS
     passwd, bits, number = '', 0, 0
     rng = open_rng()
     while len(passwd) < length: # Main loop.
+        pb.progress(float(len(passwd))/float(length) * 100.0)
         if bits < 6:
             logging.info("get64: Need more random bits.")
             number |= ord(rng.read(1)) << bits # Prepend the bits in number
                                                # with a random byte.
-            # Progress bar.
-            pb.progress(float(len(passwd))/float(length) * 100.0)
             bits += 8
         passwd += letters[number % 64] # Use 6 bits to pick a letter and...
                                        # ...append.
@@ -288,6 +287,7 @@ def get10(length, pb=None):
     passwd, bits, number = '', 0, 0
     rng = open_rng()
     while len(passwd) < length:    # Main loop.
+        pb.progress(float(len(passwd))/float(length) * 100.0)
         if bits < 4:
             # Prepend the bits in `number` with a random byte.
             logging.info("get10: Need more random bits.")
@@ -296,8 +296,6 @@ def get10(length, pb=None):
         if (number%16) < 10:
             # I don't want 0...5 to occur more frequently than 6...9.
             passwd += chr(number%16 + 48) # digits ASCII
-            # Progress bar.
-            pb.progress(float(len(passwd))/float(length) * 100.0)
             logging.info(
                 "get10: Added char {0}/{1}.".format(len(passwd), length))
         else:

@@ -50,14 +50,15 @@ def u(x):
 
 def gui_progressbar(percent, data):
     """gui_progressbar(percent, data)"""
-    pass
     #the_GdkWindow = w.get_window()
     ##the_cairo_region = the_GdkWindow.get_clip_region()
     ##the_GdkWindow.begin_paint_region(the_cairo_region)
     #the_cairo = the_GdkWindow.cairo_create()
-    #w.pb_widget.set_text("{0}%".format(int(percent)))
-    #w.pb_widget.set_show_text(True)
-    #w.pb_widget.set_fraction(percent / 100.0)
+    w.pb_widget.set_text("{0}%".format(int(percent)))
+    w.pb_widget.set_show_text(True)
+    w.pb_widget.set_fraction(percent / 100.0)
+    w.pb_widget.queue_draw()
+    Gtk.main_iteration_do(False)
     ##the_GdkWindow.end_paint()
     #w.pb_widget.draw(the_cairo)
 
@@ -862,9 +863,9 @@ class main_window(Gtk.Window):
         button_clear.connect("clicked", self.clear_clipboard)
         
         # Reinvent progress bar after THE BIG CHANGE.
-        #self.pb_widget = Gtk.ProgressBar()
-        #self.pb_widget.set_app_paintable(True)
-        #self.pb_widget.set_double_buffered(False)
+        self.pb_widget = Gtk.ProgressBar()
+        self.pb_widget.set_app_paintable(True)
+        self.pb_widget.set_double_buffered(False)
         
         box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
         box2.pack_start(button_undo, False, False, 5)
@@ -872,7 +873,7 @@ class main_window(Gtk.Window):
         box2.pack_start(button_backup, False, False, 10)
         box2.pack_end(button_quit, False, False, 5)
         box2.pack_end(button_clear, False, False, 10)
-        #box2.pack_end(self.pb_widget, True, True, 2)
+        box2.pack_end(self.pb_widget, True, True, 2)
         
         box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         box1.pack_start(tabs, True, True, 5)
