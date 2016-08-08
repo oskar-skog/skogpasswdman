@@ -30,7 +30,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
 
 def err(parent, msg):
-    """Expected to be called from passwd_tab_c() or honeypot_tab_c().
+    """err(parent, msg)
+    Expected to be called from passwd_tab_c() or honeypot_tab_c().
     If called from main_window(), use 'self.passwd_tab' as parent.
     Show the message 'err' in a dialog.
     """
@@ -42,7 +43,8 @@ def err(parent, msg):
     dialog.destroy()
 
 def passwd_add_d(parent):
-    """parent has attribute parent, which is the real parent window.
+    """passwd_add_d(parent)
+    parent has attribute parent, which is the real parent window.
     Add password dialog."""
     dialog = Gtk.Dialog("Add existing password.", parent.parent, 0,
                         ("OK", Gtk.ResponseType.OK,
@@ -81,7 +83,8 @@ def passwd_add_d(parent):
     dialog.destroy()
  
 def hp_add_d(parent):
-    """parent has attribute parent which is the real parent window.
+    """hp_add_d(parent)
+    parent has attribute parent which is the real parent window.
     Add honeypot dialog."""
     dialog = Gtk.Dialog("Add honeypot.", parent.parent, 0,
                         ("OK", Gtk.ResponseType.OK,
@@ -110,7 +113,8 @@ def hp_add_d(parent):
     dialog.destroy()
     
 def passwd_new_d(parent):
-    """parent has attribute parent which is the real parent window.
+    """passwd_new_d(parent)
+    parent has attribute parent which is the real parent window.
     Auto-generate new password dialog."""
     #label      entry
     #label      spinny min
@@ -190,7 +194,8 @@ def passwd_new_d(parent):
     dialog.destroy()
 
 def passwd_updatemeta_d(parent):
-    """parent has attribute parent which is the real parent window.
+    """passwd_updatemeta_d(parent)
+    parent has attribute parent which is the real parent window.
     Update password with new meta-data dialog."""
     #Copy-pasted from passwd_new_d and hand-hacked.
     #label      entry
@@ -272,15 +277,19 @@ def passwd_updatemeta_d(parent):
     dialog.destroy()
 
 def passwd_updated_d(parent, old, new):
-    """parent has attribute parent which is the real parent window.
+    """passwd_updated_d(parent, old, new)
+    parent has attribute parent which is the real parent window.
     Show old and new passwords. This is a wrapper for passwd_updated_c."""
     dialog = passwd_updated_c(parent, old, new)
     dialog.run()
     dialog.destroy()
 
 class passwd_updated_c(Gtk.Dialog):
+    """class passwd_updated_c(Gtk.Dialog)
+    Password has been updated dialog class."""
     def __init__(self, parent, old, new):
-        """parent has attribute parent which is the real parent window.
+        """__init__(self, parent, old, new)
+        parent has attribute parent which is the real parent window.
         There is a wrapper: passwd_updated_d(parent, old, new)."""
         Gtk.Dialog.__init__(self, "Password has been updated.", parent.parent,
                             0, ("Close", Gtk.ResponseType.CLOSE))
@@ -312,16 +321,19 @@ class passwd_updated_c(Gtk.Dialog):
         main_box.add(table)
         self.show_all()
     def copyold(self, button):
+        """copyold(self, button)"""
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         clipboard.set_text(self.v_old, len(self.v_old))
         clipboard.store()
     def copynew(self, button):
+        """copynew(self, button)"""
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         clipboard.set_text(self.v_new, len(self.v_new))
         clipboard.store()
             
 def pick_many_d(parent):
-    """Pick many dialog, parent is an instance of honeypot_tab_c().
+    """pick_many_d(parent)
+    Pick many dialog, parent is an instance of honeypot_tab_c().
     It returns nothing"""
     dialog = Gtk.Dialog("Pick many", parent.parent, 0,
                         ("OK", Gtk.ResponseType.OK,
@@ -380,9 +392,11 @@ def pick_many_d(parent):
     dialog.destroy()
     
 class passwd_tab_c(Gtk.Box):
-    """Used by main_window(). I am a Gtk.Box()."""
+    """class passwd_tab_c(Gtk.Box)
+    Used by main_window()."""
     def __init__(self, arg=None):
-        """arg is the main window."""
+        """__init__(self, arg=None)
+        arg is the main window."""
         self.parent = arg
         Gtk.Box.__init__(self, orientation = Gtk.Orientation.HORIZONTAL)
         self.passwords = api.passwd()
@@ -437,10 +451,12 @@ class passwd_tab_c(Gtk.Box):
         self.pack_start(scrolly, True, True, 5)
         self.pack_end(box, False, False, 5)
     def select_change(self, selection):
+        """select_change(self, selection)"""
         forget, x = selection.get_selected()
         if x != None:
             self.index = x      #Not an integer.
     def copy(self, button):
+        """copy(self, button)"""
         if self.index == None:
             err(self, "Select first.")
             return
@@ -449,6 +465,7 @@ class passwd_tab_c(Gtk.Box):
         clipboard.set_text(b, len(b))
         clipboard.store()
     def show(self, button):
+        """show(self, button)"""
         if self.index == None:
             err(self, "Select first.")
             return
@@ -459,11 +476,13 @@ class passwd_tab_c(Gtk.Box):
         dialog.run()
         dialog.destroy()
     def update_meta(self, button):
+        """update_meta(self, button)"""
         if self.index == None:
             err(self, "Select first.")
             return
         passwd_updatemeta_d(self)
     def update(self, button):
+        """update(self, button)"""
         if self.index == None:
             err(self, "Select first.")
             return
@@ -476,18 +495,23 @@ class passwd_tab_c(Gtk.Box):
         except api.err_nometa:
             self.update_meta(button)    #Just call the right one.
     def add(self, button):
+        """add(self, button)"""
         passwd_add_d(self)
     def new(self, button):
+        """new(self, button)"""
         passwd_new_d(self)
     def rm(self, button):
+        """rm(self, button)"""
         a, b = self.thelist[self.index]
         self.passwords.remove(str(a).decode(encoding="utf-8"), True)
         self.thelist.remove(self.index)
 
 class honeypot_tab_c(Gtk.Box):
-    """Used by main_window(). I'm a Gtk.Box()."""
+    """class honeypot_tab_c(Gtk.Box)
+    Used by main_window()."""
     def __init__(self, arg=None):
-        """arg is the main window."""
+        """__init__(self, arg=None)
+        arg is the main window."""
         self.parent = arg
         #Set the parent argument for dialogs.
         Gtk.Box.__init__(self, orientation = Gtk.Orientation.HORIZONTAL)
@@ -535,18 +559,19 @@ class honeypot_tab_c(Gtk.Box):
         self.pack_end(box, False, False, 5)
         
     def select_change(self, selection):
-        #[Ss]election has changed, update index.
+        """select_change(self, selection) - selection has changed, update
+        index."""
         forget, x = selection.get_selected()
         if x != None:
             self.index = x      #Not an integer.
     def pick_copy(self, button):
-        #Pick and copy to clipboard.
+        """pick_copy(self, button) - Pick and copy to clipboard."""
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         x = self.honeypots.pick()
         clipboard.set_text(x, len(x))
         clipboard.store()
     def pick_show(self, button):
-        #Pick and show in a dialog.
+        """pick_show(self, button) - Pick and show in a dialog."""
         x = self.honeypots.pick()
         dialog = Gtk.MessageDialog(self.parent, 0, Gtk.MessageType.OTHER,
                     Gtk.ButtonsType.CLOSE, "Picked:")
@@ -554,14 +579,18 @@ class honeypot_tab_c(Gtk.Box):
         dialog.run()
         dialog.destroy()
     def pick_many(self, button):
+        """pick_many(self, button)"""
         pick_many_d(self)
     def add_hp(self, button):
+        """add_hp(self, button)"""
         hp_add_d(self)
     def rm_hp(self, button):
+        """rm_hp(self, button)"""
         self.honeypots.remove(self.thelist[self.index][0].decode(
                                                 encoding="utf-8"), True)
         self.thelist.remove(self.index)
     def pick_many_list(self, button):
+        """pick_many_list(self, button)"""
         dialog = Gtk.Dialog("", self.parent, 0, ("OK", Gtk.ResponseType.OK,
                                            "Cancel", Gtk.ResponseType.CANCEL))
         main_box = dialog.get_content_area()
@@ -607,8 +636,10 @@ class honeypot_tab_c(Gtk.Box):
         dialog.destroy()
         
 class conf_tab_c(Gtk.Box):
-    """Used by main_window(). I'm a Gtk.Box()."""
+    """class conf_tab_c(Gtk.Box)
+    Used by main_window()."""
     def __init__(self, arg=None):
+        """__init__(self, arg=None)"""
         self.parent = arg
         Gtk.Box.__init__(self, orientation = Gtk.Orientation.VERTICAL)
         info_label = Gtk.Label("Changes are saved immediately.")
@@ -622,6 +653,7 @@ class conf_tab_c(Gtk.Box):
         self.pack_start(info_label, False, False, 5)
         self.pack_start(main_grid, False, False, 5)
     def update_conf(self, switch, gparam):
+        """update_conf(self, switch, gparam)"""
         global w
         global restart
         self.parent.show_passwd = self.show_passwd_switch.get_active()
@@ -647,7 +679,9 @@ class conf_tab_c(Gtk.Box):
         return          #What might happen now?
         
 class about_tab_c(Gtk.Box):
+    """class about_tab_c(Gtk.Box)"""
     def __init__(self):
+        """__init__(self)"""
         Gtk.Box.__init__(self)
         copyright_label = Gtk.Label(copywrong)
         info_label = Gtk.Label("""
@@ -678,7 +712,9 @@ are not encrypted, so that you don't need to remember an extra password.
         self.pack_start(scrolly_about, True, True, 5)
 
 class help_tab_c(Gtk.Box):
+    """class help_tab_c(Gtk.Box)"""
     def __init__(self):
+        """__init__(self)"""
         Gtk.Box.__init__(self)
         help_label = Gtk.Label("""
 The "change meta-data & update"-button in the "Passwords"-tab:
@@ -708,7 +744,9 @@ you have selected. You should add fake-passwords such as "password" and
         self.pack_start(scrolly_help, True, True, 5)
 
 class main_window(Gtk.Window):
+    """class main_window(Gtk.Window)"""
     def __init__(self):
+        """__init__(self)"""
         global restart
         Gtk.Window.__init__(self, title="passwdmangui")
         try:
@@ -766,6 +804,7 @@ class main_window(Gtk.Window):
         self.show_all()
 
     def undo(self, button):
+        """undo(self, button)"""
         try:
             api.undo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
             #Update self.passwd_tab.thelist and self.honeypot_tab.thelist.
@@ -780,6 +819,7 @@ class main_window(Gtk.Window):
             err(self.passwd_tab, "CANNOT UNDO!")
 
     def redo(self, button):
+        """redo(self, button)"""
         #Copy-pasted from undo() and hand-hacked.
         try:
             api.redo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
@@ -795,6 +835,7 @@ class main_window(Gtk.Window):
             err(self.passwd_tab, "CANNOT REDO!")
 
     def make_backup(self, button):
+        """make_backup(self, button)"""
         #Create a tarball of the files.
         dialog = Gtk.FileChooserDialog(
                 "passwdmangui - Choose name for tarball", self,

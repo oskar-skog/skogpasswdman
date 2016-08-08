@@ -1,4 +1,6 @@
 2013-Nov-18
+0.1.22  All __doc__-strings contain a synopsis for their function or are freed
+        from having it by their parent class/file.
 0.1.21  Improvements in passwdmanapi:
             Correct __repr__.
         Fixed a CLI bug: CLI didn't check for getopt.GetoptError.

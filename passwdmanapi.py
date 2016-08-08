@@ -94,35 +94,38 @@ import logging
 import string
 
 class err_norandom(Exception):
-    """Cannot open '/dev/random', cannot open '/dev/urandom'."""
+    """class err_norandom(Exception)
+    Cannot open '/dev/random', cannot open '/dev/urandom'."""
     pass
 
 class err_nolength(Exception):
-    """Invalid length (get10() or get64())."""
+    """class err_nolength(Exception) - Invalid length (get10() or get64())."""
     pass
 
 class err_loaderr(Exception):
-    """Failure to load data file (XML)."""
+    """class err_loaderr(Exception) - Failure to load data file (XML)."""
     pass
 
 class err_notfound(Exception):
-    """The record in object.data cannot be found = cannot remove."""
+    """class err_notfound(Exception)
+    The record in object.data cannot be found = cannot remove."""
     pass
 
 class err_duplicate(Exception):
-    """The value to be added already exist in object.data."""
+    """class err_duplicate(Exception)
+    The value to be added already exist in object.data."""
     pass
 
 class err_idiot(Exception):
-    """Incorrect usage."""
+    """class err_idiot(Exception) - Incorrect usage."""
     pass
 
 class err_nometa(Exception):
-    """Meta-data is required."""
+    """class err_nometa(Exception) - Meta-data is required."""
     pass
 
 def open_rng():
-    """Open random(4) or urandom(4), returns an open file.
+    """open_rng() - Open random(4) or urandom(4), returns an open file.
 ERRORS
     err_norandom(Exception)             Cannot open random(4) or urandom."""
     #Open /dev/urandom if /dev/random cannot be opened.
@@ -203,7 +206,8 @@ def get10(length):
     return passwd
 
 def getint(a, b):
-    """Return random integer with value a from <a> to <b> - 1."""
+    """getint(a, b) - Return random integer with value a from <a> to <b> - 1.
+    """
     if b < a:
         raise err_nolength("b < a")
     rng = open_rng()
@@ -226,7 +230,7 @@ def getint(a, b):
     return number + a
 
 def unquote(x):
-    """Returns x without surrounding quotes."""
+    """unquote(x) - Returns x without surrounding quotes."""
     the_output, the_input = "", []
     for c in x:
         the_input.append(c)     #I want to pop balloons.
@@ -261,6 +265,7 @@ def unquote(x):
 
 class common_data():
     """Use the source Luke.
+  class common_data():
     self.data[]      Password-records or honey pots.
     self.index   Used in for loops.
     self.xmltree
@@ -331,7 +336,8 @@ class common_data():
         return len(self.data)"""
         return len(self.data)
     def remove(self, x, xmlfile, element_name, attrib_name, is_numstring):
-        """x is an integer used as an index xor a string. It can also be a
+        """remove(self, x, xmlfile, element_name, attrib_name, is_numstring)
+        x is an integer used as an index xor a string. It can also be a
         stringed integer.
         It removes x from the file xmlfile and self.data
         It looks for a match in self.xmltree in the attribute <attrib_name>
@@ -373,7 +379,7 @@ class common_data():
         else:
             raise err_notfound("not integer and not string")
     def writexml(self, xmlfile):
-        """Write the XML tree to disk."""
+        """writexml(self, xmlfile) - Write the XML tree to disk."""
         self.xmlroot.text = "\n  "      #Make it look better.
         os.rename(os.path.expanduser(xmlfile),
                 os.path.join(os.path.expanduser("~/.passwdman/undoable"),
@@ -426,7 +432,8 @@ class passwd(common_data):
     #self.xmltree                        ~/.passwdman/passwords
     #self.xmlroot                        Root element of self.xmltree.
     def __init__(self):
-        """load ~/.passwdman/passwords -> self.xmltree 
+        """__init__(self)
+        load ~/.passwdman/passwords -> self.xmltree 
         -> self.xmlroot -> self.data[]
         self.data is a list of {'name': 'string',
                             'value': 'string',
@@ -460,7 +467,8 @@ class passwd(common_data):
                               "meta": meta_attrib})
     #Will not add __setitem__.
     def add(self, name, value, m_type, m_minlength, m_maxlength):
-        """Add the password for <name> with the value <value>.
+        """add(self, name, value, m_type, m_minlength, m_maxlength)
+        Add the password for <name> with the value <value>.
         m_type is "human" if the password is some old human generated
         password, "10" if it only contains digits, "64" if it contains A-Z,
         a-z, 0-9, underscore and exclamation mark.
@@ -490,14 +498,16 @@ class passwd(common_data):
         meta_element.set("maxlength", m_maxlength) #Attributes.
         common_data.writexml(self, "~/.passwdman/passwords")
     def add_nometa(self, name, value):
-        """Add password with only name and value.
+        """add_nometa(self, name, value)
+        Add password with only name and value.
         Raises err_duplicate if the password (<name>) already exist."""
         self.add(name, value, "human", "0", "0")
                                   #The magic used if there is no meta element.
         #MAYBE-TODO: Don't add a meta-tag.
     def remove(self, x, is_numstring=False):
         #Wrapper around common_data.remove.
-        """Remove the password <x>.
+        """remove(self, x, is_numstring=False)
+        Remove the password <x>.
         x is an integer used as an index for self.data xor a string (stringed
         integer).
         x is the purpose/name of a password, not the value.
@@ -505,7 +515,8 @@ class passwd(common_data):
         common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
                            "name", is_numstring)
     def mkindex(self, x, is_numstring=False):
-        """Make index of x (string). x can be a stringed index
+        """mkindex(self, x, is_numstring=False)
+        Make index of x (string). x can be a stringed index
            Set is_numstring to True if x is NOT an index!"""
         index = 0
         try:
@@ -521,7 +532,8 @@ class passwd(common_data):
             raise err_notfound("")
         return index
     def update(self, index):
-        """Update the password at index, use its meta-data to know how."""
+        """update(self, index)
+        Update the password at index, use its meta-data to know how."""
         if index >= len(self) or index < 0:
             raise err_notfound("Index out of range.")
         method = self[index]["meta"]["type"]
@@ -554,7 +566,8 @@ class passwd(common_data):
         common_data.writexml(self, "~/.passwdman/passwords")
         return
     def update_meta(self, index, m_type, m_minlength, m_maxlength):
-        """Update the password at index and its meta data."""
+        """update_meta(self, index, m_type, m_minlength, m_maxlength)
+        Update the password at index and its meta data."""
         if index >= len(self) or index < 0:
             raise err_notfound("index out of range")
         try:
@@ -608,14 +621,15 @@ class honeypot(common_data):
             False
                 Raise err_idiot if <n> is too high."""
     def __init__(self):
-        """Load ~/.passwdman/honeypots -> self.xmltree 
+        """__init__(self)
+        Load ~/.passwdman/honeypots -> self.xmltree 
         -> self.xmlroot -> self.data[].
         self.data is a list of strings."""
         common_data.__init__(self, "~/.passwdman/honeypots")
         for honeypot_element in self.xmlroot.findall("honeypot"):
             self.data.append(honeypot_element.attrib["value"])
     def add(self, value):
-        """Add a new honey pot with the value <value>."""
+        """add(self, value) - Add a new honey pot with the value <value>."""
         for x in self.data: #Check for duplicates.
             if x == value:
                 raise err_duplicate(
@@ -626,13 +640,14 @@ class honeypot(common_data):
         honeypot_element.set("value", value)
         common_data.writexml(self, "~/.passwdman/honeypots")
     def remove(self, x, is_numstring=False):
-        """Remove an existing honey pot.
+        """remove(self, x, is_numstring=False) - Remove an existing honey pot.
         x is an integer used as index for self.data xor a string.
         Set is_numstring to True if x is NOT an index!"""
         common_data.remove(self, x, "~/.passwdman/honeypots", "honeypot",
                            "value", is_numstring)
     def pick(self, n=1, sep=",", log_vs_raise=True):
-        """Pick randomly selected honey-pots."""
+        """pick(self, n=1, sep=",", log_vs_raise=True)
+        Pick randomly selected honey-pots."""
         if n > len(self):
             n = len(self)
             if log_vs_raise:
@@ -649,7 +664,8 @@ class honeypot(common_data):
             output += sep
         return output[:-(len(sep))] #Do not return the last separator.
     def pickl(self, n, log_vs_raise=True):
-        """Pick randomly selected honey-pots in a list."""
+        """pickl(self, n, log_vs_raise=True)
+        Pick randomly selected honey-pots in a list."""
         #Copy-pasted from pick()
         if n > len(self):
             n = len(self)
@@ -752,11 +768,14 @@ def redo(passwdobj=None, honeypotobj=None):
 
 #Run this when imported.
 def ckmkdir(x):
+    """ckmkdir(x) - make sure that the directory <x> exists."""
     try:
         os.stat(os.path.expanduser(x))
     except:     #stat will fail if the file doesn't exist.
         os.mkdir(os.path.expanduser(x), 0o700)
 def ckmkfile(x, y):
+    """ckmkdir(x) - make sure that the file <x> exists.
+    Its default content is <y>."""
     try:
         os.stat(os.path.expanduser(x))
     except:

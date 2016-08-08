@@ -34,6 +34,10 @@ import os
 import os.path
 import getopt
 
+"""The functions show_help(), passwd_help(), honeypot_help(),
+bells_and_whistles() and bugs() takes no arguments and prints their
+__doc__-string to standard output."""
+
 def se():
     """se() - syntax error
     Show error message containing theline.
@@ -57,11 +61,11 @@ def err(x):
         sys.exit(1)
 
 def sow(x):             #Do the Unicode-stuff here.
-    """Write to stdout. It encodes the string as UTF-8."""
+    """sow(x) - Write to stdout. It encodes the string as UTF-8."""
     sys.stdout.write(x.encode(encoding="utf-8"))         #It is used a lot.
 
 def siw():
-    """Read from infile. It decodes the UTF-8 input."""
+    """siw() - Read from infile. It decodes the UTF-8 input."""
     global infile
     return infile.readline().decode(encoding="utf-8")
 
@@ -204,6 +208,9 @@ def bugs():
     sow(bugs.__doc__)
     
 def passwd_update(x):
+    """passwd_update(x) - update the password x using its own meta-data.
+    x is either the name or the index.
+    passwd:update:<x>"""
     try:                        #unquote gets rid of optional quotes.
         index = p.mkindex(api.unquote(x))  #mkindex greps it's argument...
     except:                             #...in the list and returns an index.
@@ -223,7 +230,10 @@ def passwd_update(x):
     sow("passwd.update?'{}':'{}'\n".format(old, new)) #Always 64 or 10.
     return
     
-def passwd_update_meta(x):              #Update with new meta-data.
+def passwd_update_meta(x):
+    """passwd_update_meta(x) - Update the password x with new meta-data.
+    Variant of passwd_update().
+    passwd:update_meta:<type>:<min>:<max>:<name_or_index>"""
     fields = x.split(':', 3)
     if len(fields) < 4: #It takes 4 arguments.
         se() #Syntax error.
@@ -237,8 +247,7 @@ def passwd_update_meta(x):              #Update with new meta-data.
     old = p[index]["value"]             #Remember old.
     v("This may take a while.")
     try:
-        p.update_meta(index, fields[0], fields[1], fields[2]) #Put the work...
-                                                    #...at the right place.
+        p.update_meta(index, fields[0], fields[1], fields[2])
     except api.err_idiot:       #Incorrect usage.
         err("stupid arguments")
         return
@@ -250,7 +259,10 @@ def passwd_update_meta(x):              #Update with new meta-data.
     return
     
 def passwd_add(x):
-    #passwd:add:<type>:<min>:<max>:<name>
+    """passwd_add(x) - generate and add a new password.
+    Name xor index.
+    passwd:add:<type>:<min>:<max>:<name>"""
+    #
     add_args = x.split(':', 3)
     if len(add_args) < 4:
         se()
@@ -259,7 +271,7 @@ def passwd_add(x):
     try:
         add_min = int(add_args[1])
         add_max = int(add_args[2])
-    except:     #it requires integers
+    except:
         se()
         return
     add_name = api.unquote(add_args[3])
@@ -269,7 +281,7 @@ def passwd_add(x):
         sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
     except:
         pass
-    #start testing add_type
+    #Start testing add_type.
     if "human" in add_type:
         se()
         sow("#Use 'passwd:add_human'.\n") #add_human is inside passwd_cmds().
@@ -297,7 +309,8 @@ def passwd_add(x):
         se()
         return
 
-def passwd_cmds(x):  #Put all the passwd:* here.
+def passwd_cmds(x):
+    """passwd_cmds(x) - handle all "passwd:*"."""
     twofields = x.split(':', 1)
     a = twofields[0]
     if len(twofields) < 2:
@@ -317,7 +330,7 @@ def passwd_cmds(x):  #Put all the passwd:* here.
         else:
             se()
             return
-    else: #passwd:*:*
+    else: #passwd:<a>:<b>
         b = twofields[1]
         if "add_human" in a:            #WARNING: Must be before "add".
             s = siw()
@@ -329,7 +342,7 @@ def passwd_cmds(x):  #Put all the passwd:* here.
             except:
                 pass
             try:
-                p.add_nometa(name, s[:-1])    #Do the work at the right place.
+                p.add_nometa(name, s[:-1])
             except api.err_duplicate:
                 err("duplicate")
                 return
@@ -377,7 +390,8 @@ def passwd_cmds(x):  #Put all the passwd:* here.
             se()
             return
 
-def honeypot_cmds(x):           #honeypot:*
+def honeypot_cmds(x):
+    """honeypots_cmds(x) - handle all "honeypot:*"."""
     twofields = x.split(':', 1)
     a = twofields[0]
     if len(twofields) < 2:
@@ -405,7 +419,7 @@ def honeypot_cmds(x):           #honeypot:*
         else:
             se()
             return
-    else:       #honeypot:*:*
+    else:       #honeypot:<a>:<b>
         b = twofields[1]
         if "add" in a:
             name = api.unquote(b)
@@ -436,7 +450,7 @@ def honeypot_cmds(x):           #honeypot:*
                 tmp_str += "'"  #Opening quote.
                 for y in x:
                     if y == "'":
-                        tmp_str += "\\'"
+                        tmp_str += "\\'"        #Escape.
                     else:
                         tmp_str += y
                 tmp_str += "'," #Closing quote and comma.
@@ -444,8 +458,8 @@ def honeypot_cmds(x):           #honeypot:*
             sow("\n")
             return
         elif "pick" in a:       #WARNING: Must be after "pickl".
-            args = b.split(':', 1) #pick takes either 0 or 2 arguments.
-            if len(args) < 2:   #It does allow 0, reread this function.
+            args = b.split(':', 1)
+            if len(args) < 2:
                 se()
                 return
             try:
@@ -475,6 +489,7 @@ def honeypot_cmds(x):           #honeypot:*
             return
 
 def main():             #Finally.
+    """main() - main loop."""
     global verbose
     global p
     global h
@@ -532,9 +547,9 @@ def main():             #Finally.
                 verbose = True
                 sow("#verbose mode enabled\n")
             else:
-                se()    #syntax-error
+                se()    #Syntax error.
         else: #Check some longer ones.
-            #the string has been split
+            #The string has been split.
             b = twofields[1]
             if "passwd" in a:
                 passwd_cmds(b)      #passwd:*
@@ -553,7 +568,7 @@ def main():             #Finally.
                 se()
                 continue
 
-#initialization
+#Initialization.
 p = api.passwd()
 h = api.honeypot()
 verbose = False
@@ -569,7 +584,6 @@ if __name__ == "__main__":
     if len(a) > 0:
         infile = open(a[0], "r")
     else:
-        #infile = os.dup(sys.stdin.fileno())
         infile = sys.stdin
     for x, y in o:
         if x in ("-i", "--interactive"):
