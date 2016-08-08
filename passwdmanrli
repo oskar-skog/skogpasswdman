@@ -55,16 +55,16 @@ def busy():
     center_text(2, "Wait...")
     tty.refresh()
 
-def edit_num(y, num, min, max, step=1):
-    if min != None and max != None:
-        assert max >= min
+def edit_num(y, num, min_num, max_num, step=1):
+    if min_num != None and max_num != None:
+        assert max_num >= min_num
     while True:
-        if min != None:
-            if num < min:
-                num = min
-        if max != None:
-            if num > max:
-                num = max
+        if min_num != None:
+            if num < min_num:
+                num = min_num
+        if max_num != None:
+            if num > max_num:
+                num = max_num
         tty.hline(y, 0, ord(" "), xsize)
         center_text(y, "left - a h home<" + str(num) + ">right + d l end")
         tty.refresh()
@@ -76,14 +76,14 @@ def edit_num(y, num, min, max, step=1):
             num += step
             continue
         if ch in (curses.KEY_HOME, ord("A"), ord("H")):
-            if min != None:
-                num = min
+            if min_num != None:
+                num = min_num
             else:
                 num -= step * 5
             continue
         if ch in (curses.KEY_END, ord("D"), ord("L")):
-            if max != None:
-                num = max
+            if max_num != None:
+                num = max_num
             else:
                 num += step * 5
             continue
@@ -205,8 +205,8 @@ def passwd_tab(x):
     if x == 3:
         #Change meta-data and update.
         if p[selection]["meta"]["type"] in ("10", "64"):
-            minlen = p[selection]["meta"]["minlength"]
-            maxlen = p[selection]["meta"]["maxlength"]
+            minlen = int(p[selection]["meta"]["minlength"])
+            maxlen = int(p[selection]["meta"]["maxlength"])
         else:
             assert p[selection]["meta"]["type"] == "human"
             minlen = maxlen = 8
