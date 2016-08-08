@@ -1,4 +1,6 @@
 2013-Nov-16
+0.1.8   Scrollbars in HELP and About.
+        Sets default size 768x512.
 0.1.7   Backup button in GUI.
 0.1.6   Rewrote unquote().
         In CLI: "passwd:get:*" didn't use unquote(). FIXED.

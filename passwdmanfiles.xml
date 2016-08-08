@@ -75,7 +75,7 @@ It is an XML file, you are expected to understand an example of the file.</para>
 
 <refsect1 id='pa_passwdmanhoneypots'><title>~/.passwdman/honeypots</title>
 <para>The list of honeypots.
-The honeypots are fake-passwords, to help catching crackers.
+The honeypots are fake-passwords, to help catch crackers.
 This too is a XML file.</para>
 <programlisting remap='Bd'>
 &lt;?xml version='1.0' encoding='UTF-8'?&gt;
@@ -139,7 +139,7 @@ and
 <para>Written by
 Oskar Skog (oskar.skog.finland@gmail.com).</para>
 
-<para>Please, send patches, questions, bug reports and wish-lists.</para>
+<para>Please send patches, questions, bug reports and wish-lists.</para>
 </refsect1>
 </refentry>
 

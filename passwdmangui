@@ -616,21 +616,30 @@ class main_window(Gtk.Window):
                 self.show_passwd = False
         except:
             self.show_passwd = False
+        self.set_default_size(768, 512)
         self.passwd_tab = passwd_tab_c(self)        #needed by undo(), redo()
         self.honeypot_tab = honeypot_tab_c(self)    #needed by undo(), redo()
         self.conf_tab = conf_tab_c(self)
                             #The argument is their parent.
-        about_tab = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+        about_tab = Gtk.Box()
         copyright_label = Gtk.Label(copywrong)
         info_label = Gtk.Label("""
 passwdman is a program for remembering and updating passwords. It
 also has support for honey pots (fake-passwords that activates
 traps).""")
-        about_tab.pack_start(info_label, False, False, 0)
-        about_tab.pack_start(copyright_label, False, False, 0)
+        scrolly_about = Gtk.ScrolledWindow(None, None)
+        about_tab_scrolled = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
+        about_tab_scrolled.pack_start(info_label, False, False, 5)
+        about_tab_scrolled.pack_start(copyright_label, False, False, 5)
+        scrollable_about = Gtk.Viewport()
+        scrollable_about.add(about_tab_scrolled)
+        scrolly_about.add(scrollable_about)
+        about_tab.pack_start(scrolly_about, True, True, 5)
         
         help_tab = Gtk.Box()
-        help_tab.pack_start(Gtk.Label("""
+        scrolly_help = Gtk.ScrolledWindow(None, None)
+        scrollable_help = Gtk.Viewport()
+        scrollable_help.add(Gtk.Label("""
 The "change meta-data & update"-button in the "Passwords"-tab:
     1.  If the password was created with the "Add existing"-button: use the
         "change meta-data & update"-button.
@@ -651,13 +660,15 @@ crackers. The "pick"-buttons picks a random fake-password, independent of what
 you have selected. You should add fake-passwords such as "password" and
 "drowssap".
 
-    """), False, False, 0)
-        
+    """))
+        scrolly_help.add(scrollable_help)
+        help_tab.pack_start(scrolly_help, True, True, 5)
         tabs = Gtk.Notebook()
         tabs.append_page(self.passwd_tab, Gtk.Label("Passwords"))
         tabs.append_page(self.honeypot_tab, Gtk.Label("Fake-passwords"))
         tabs.append_page(help_tab, Gtk.Label("HELP"))
         tabs.append_page(about_tab, Gtk.Label("About"))
+        
         tabs.append_page(self.conf_tab, Gtk.Label("Settings"))
         if restart:     #BUG
             tabs.next_page()    #honeypots
