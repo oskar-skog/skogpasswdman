@@ -32,16 +32,50 @@ import tarfile
 import sys
 import locale
 
-__doc__ = """import passwdmanapi as api
+__doc__ = """
+
+import passwdmanapi as api
+
 h, p = api.honeypot(), api.passwd()
 code = locale.getpreferredencoding()
 tty = curses.initscr()
 ysize, xsize = tty.getmaxyx()
-0 <= tabnum <= 3 (main.__doc__, set_tab.__doc__)
-have_clipboard = True or False
-See also copy.__doc__, wrap_addch.__doc__, wrap_addstr.__doc__, busy.__doc__,
-edit_line.__doc__, edit_num.__doc__, main.__doc__, show_copy_single.__doc__
-and center_text.__doc__.
+
+function-tree
+<module>
+    main
+        hdictui
+            passwd_tab
+                list_choice
+                vdictui
+                p.*
+                after_update
+                    show_copy_single
+                show_copy_single
+            honeypot_tab
+                list_choice
+                vdictui
+                h.*
+                show_copy_single
+
+medium-level
+hdictui
+    roll_text
+        set_tab
+        zxcv_handler
+    list_choice
+        set_tab
+        zxcv_handler
+
+vdictui
+    edit_line
+    edit_num
+
+low-level
+center_text
+wrap_addch
+wrap_addstr
+
 """
 
 def die():
@@ -232,47 +266,10 @@ def edit_line(y, line):
 
 def after_update(old, new):
     """after_update(old, new)
-    Show old and new passwords and let the user copy them to clipboard."""
-    tty.erase()
-    if (math.ceil(len(old) / xsize + 0.0) +
-            math.ceil(len(new) / xsize + 0.0) + 2) > ysize - 2:
-        raise api.err_idiot("Not implented!")
-    else:
-        if have_clipboard:
-            center_text(0, "Old: (Press 1 to copy)")
-        else:
-            center_text(0, "Old:")
-        x_pos, y_pos = 0, 1
-        for c in old:
-            if x_pos >= xsize:
-                x_pos = 0
-                y_pos += 1
-            wrap_addstr(y_pos, x_pos, c)
-            x_pos += 1
-        if x_pos != 0: #Has it rolled over and increased y_pos?
-            y_pos += 1
-            x_pos = 0
-        if have_clipboard:
-            center_text(y_pos, "New: (Press 2 to copy)")
-        else:
-            center_text(y_pos, "New:")
-        y_pos += 1
-        for c in new:
-            if x_pos >= xsize:
-                x_pos = 0
-                y_pos += 1
-            wrap_addstr(y_pos, x_pos, c)
-            x_pos += 1
-        center_text(ysize - 1, "Press any other key to finish.")
-        tty.refresh()
-        while True:
-            ch = tty.getch()
-            if ch == ord("1") and have_clipboard:
-                copy(old)
-            elif ch == ord("2") and have_clipboard:
-                copy(new)
-            else:
-                return
+    Show old and new passwords and let the user copy them to clipboard.
+    """
+    show_copy_single(old, "--Old--")
+    show_copy_single(new, "--New--")
 
 def vdictui(arg):
     """ret = vdictui(arg)
@@ -459,37 +456,18 @@ def vdictui(arg):
 
 def passwd_tab(x):
     """passwd_tab(x)
-    x is the action to be performed on a password.
-    x begins from 0 (Copy to clipboard), or from 1 (Show password) if not
-    have_clipboard.
+    x (integer) is the action to be performed on a password.
     See also choice.__doc__ and after_update.__doc__.
     """
-    assert x >= 0 and x < 7
+    assert x >= 1 and x < 7
     if x < 4 or x == 6:
         selection = choice(False)
         if isinstance(selection, bool):
             assert selection == False
-            return      #Will never return True.
-    if x == 0:
-        # Copy to clipboard.
-        assert have_clipboard
-        copy(p[selection]["value"])
+            return      # Will never return True.
     if x == 1:
-        # Show password.
-        tty.erase()
-        if len(p[selection]["value"]) > (ysize - 2) * xsize:
-            raise api.err_idiot("Not implented!")
-        else:
-            x_pos = y_pos = 0
-            for c in p[selection]["value"]:
-                if x_pos >= xsize:
-                    x_pos = 0
-                    y_pos += 1
-                wrap_addstr(y_pos, x_pos, c)
-                x_pos += 1
-            center_text(ysize - 1, "Press any key.")
-            tty.refresh()
-            tty.getch()
+        # Show/copy password.
+        show_copy_single(p[selection]["value"])
     if x == 2:
         # Update.
         pb = rli_progressbar()
@@ -498,7 +476,7 @@ def passwd_tab(x):
         new = p[selection]["value"]
         after_update(old, new)
     if x == 3:
-        #Change meta-data and update.
+        # Change meta-data and update.
         if p[selection]["meta"]["type"] in ("10", "64"):
             minlen = int(p[selection]["meta"]["minlength"])
             maxlen = int(p[selection]["meta"]["maxlength"])
@@ -567,7 +545,7 @@ def passwd_tab(x):
             return
         p.add_nometa(result["name"], result["value"])
     if x == 5:
-        #Create new.
+        # Create new.
         result = vdictui([
             {
                 'type': 'text',
@@ -616,61 +594,56 @@ def passwd_tab(x):
         # Remove.
         p.remove(selection)
 
-def show_copy_single(s):
+def show_copy_single(s, head=None):
     """show_copy_single(s)
-    Show a string and let the user copy it to clipboard."""
-    if len(s) > (ysize - 3) * xsize:
-        raise api.err_idiot("Not implented!")
-    else:
-        tty.erase()
-        x_pos = y_pos = 0
-        for c in s:
-            if x_pos >= xsize:
-                x_pos = 0
-                y_pos += 1
-            wrap_addstr(y_pos, x_pos, c)
-            x_pos += 1
-        if have_clipboard:
-            center_text(ysize - 2, "Press 1 to copy.")
-            center_text(ysize - 1, "Press any other key to finish.")
-        else:
-            center_text(ysize - 1, "Press any key to finish.")
-        tty.refresh()
-        while True:
-            ch = tty.getch()
-            if ch == ord("1") and have_clipboard:
-                copy(s)
+    Show a string and let the user copy it to clipboard.
+    NOTE: If there is one or more newlines in the string then
+    show_copy_single() will believe that all lines will fit on the
+    screen!
+    """
+    def local_ch_handler(ch):
+        if ch in (ord("c"), ord("C")) and have_clipboard:
+            copy(s)
+    
+    if '\n' not in s:
+        # Wrap into lines.
+        L, i, n = [], 0, len(s)
+        line_length = xsize - 2
+        if line_length > 50:
+            line_length = 50
+        # Enough for end-of-line markers, but not too unreadably long lines.
+        while i < n:
+            tmp = s[i:]
+            if tmp > line_length:
+                L.append(tmp[:line_length])
             else:
-                break
+                L.append(tmp)
+            i += line_length
+        #L.append('')
+        s2 = '##\n'.join(L)
+        del L
+        del tmp
+    tty.erase()
+    if have_clipboard:
+        center_text(ysize - 2, "Press 'C' to copy.")
+    center_text(ysize - 1, "Press space, enter or escape to continue...")
+    if head is not None:
+        center_text(0, head)
+        roll_text(1, ysize - 3, s2, extra_input_handler=local_ch_handler)
+    else:
+        roll_text(0, ysize - 2, s2, extra_input_handler=local_ch_handler)
+    # roll_text() calls tty.refresh().
 
 def honeypot_tab(x):
     """honeypot_tab(x)
-    x is the action to be performed on a honeypot.
-    x begins from 0 (Pick & copy), or from 1 (Pick & show) if not
-    have_clipboard.
+    x (integer) is the action to be performed on a honeypot.
     See also choice.__doc__"""
-    assert x >= 0 and x < 6
-    if x == 0:
-        #Pick & copy.
-        assert have_clipboard
-        copy(h.pick())
+    assert x >= 1 and x < 6
     if x == 1:
-        #Pick & show.
+        # Pick.
         tty.erase()
-        s = h.pick()
-        if len(s) > (ysize - 2) * xsize:
-            raise api.err_idiot("Not implented!")
-        else:
-            x_pos = y_pos = 0
-            for c in s:
-                if x_pos >= xsize:
-                    x_pos = 0
-                    y_pos += 1
-                wrap_addstr(y_pos, x_pos, c)
-                x_pos += 1
-            center_text(ysize - 1, "Press any key.")
-            tty.refresh()
-            tty.getch()
+        s = h.pick(pb=rli_progressbar())
+        show_copy_single(s)
     if x == 2:
         # Bad pick many.
         result = vdictui([
@@ -694,8 +667,7 @@ def honeypot_tab(x):
             }])
         if result["button"] == "back":
             return
-        pb = rli_progressbar()
-        s = h.pick(result["num"], result["sep"], pb=pb)
+        s = h.pick(result["num"], result["sep"], pb=rli_progressbar())
         show_copy_single(s)
     if x == 3:
         # Good pick many.
@@ -802,7 +774,10 @@ def zxcv_handler(x):
         api.undo(p, h)
     if x in (ord("x"), ord("X"), ord("n"), ord("N")):
         api.redo(p, h)
+    if have_clipboard and x in (ord("v"), ord("V"), ord(",")):
+        copy("EMPTY")
     if x in (ord("c"), ord("C"), ord("m"), ord("M")):
+        # Make backup.
         result = vdictui([
             {
                 'type': 'text',
@@ -816,7 +791,7 @@ def zxcv_handler(x):
         if result["button"] == "back":
             return
         tarball_name = result['tarball_name']
-        try:    #Normal suffix?
+        try:    # Normal suffix?
             test = tarball_name[-4:] == ".tgz"
             if not test:
                 test = tarball_name[-7:] == ".tar.gz"
@@ -833,14 +808,13 @@ def zxcv_handler(x):
                     break
                 if ch in (ord("n"), ord("N")):
                     break
+        # Tarballize.
         old_dir = os.getcwd()
         os.chdir(os.path.expanduser("~"))
         tarball = tarfile.open(os.path.expanduser(tarball_name), "w:gz")
         tarball.add(".passwdman")
         tarball.close()
         os.chdir(old_dir)
-    if have_clipboard and x in (ord("v"), ord("V"), ord(",")):
-        copy("EMPTY")
 
 def list_choice(ypos, yspace, thelist, ct=False):
     """list_choice(ypos, yspace, thelist, ct=False)
@@ -955,29 +929,31 @@ def list_choice(ypos, yspace, thelist, ct=False):
                 continue
             return True
 
-def roll_text(ypos, yspace, thetext, ct=False):
-    """roll_text(ypos, yspace, thetext, ct = False)
+def roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None):
+    """roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None)
     Show a large amount of text on the screen.
     It can change tabs if ct == True.
     Returns True if the user changed tab.
     Returns False if the user canceled.
     ypos is the Y-coordinate.
     yspace is the number of rows roll_text() will eat of the screen.
+    `extra_input_handler` is a function that takes 1 argument; integer
+    returned by tty.getch().
     See also zxcv_handler.__doc__"""
     thelines = thetext.split("\n")
     page = yspace - 4
     linepos = 0
-    center_text(ypos, "Page-up up W K 8")
-    center_text(ypos + yspace - 1, "Page-down down S J 2")
+    center_text(ypos, "Page-up up w k 8")
+    center_text(ypos + yspace - 1, "Page-down down s j 2")
     while True:
         #Print.
         for i in range(page):
             for x in range(xsize):
                 try:
-                    c = ord(thelines[i + linepos][x])
+                    uc = thelines[i + linepos][x]
                 except:
-                    c = ord(" ")
-                wrap_addch(i + ypos + 2, x, c)
+                    uc = ' '
+                wrap_addstr(i + ypos + 2, x, uc)
         if linepos < 1:
             tty.hline(ypos + 1, 0, ord("-"), xsize)
         else:
@@ -988,7 +964,7 @@ def roll_text(ypos, yspace, thetext, ct=False):
             tty.hline(ypos + yspace - 2, 0, ord("v"), xsize)
         tty.refresh()
         ch = tty.getch()
-        if ct:  #Change tab?
+        if ct:  # Change tab?
             if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
                 set_tab("<")
                 return True
@@ -1001,8 +977,9 @@ def roll_text(ypos, yspace, thetext, ct=False):
             if ch in (ord("D"), ord("L"), curses.KEY_END):
                 set_tab("last")
                 return True
-        if ch == 27:
+        if ch in (27, ord('\n'), ord(' ')):
             return False
+        # Roll.
         oldpos = linepos
         if ch in (ord("w"), ord("k"), ord("8"), curses.KEY_UP):
             linepos -= 1
@@ -1012,11 +989,38 @@ def roll_text(ypos, yspace, thetext, ct=False):
             linepos -= page
         if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
             linepos += page
-        zxcv_handler(ch)
+        if extra_input_handler is not None:
+            extra_input_handler(ch)
         if linepos < 0 or linepos >= len(thelines):
             linepos = oldpos
 
 def hdictui(arg):
+    """hdictui(arg)
+    `arg` is a list of dicts.
+    
+    Required keys
+    -------------
+    
+        - 'name'        Name of the tab.
+        - 'type'        'list_choice' or 'roll_text'.
+    
+    
+    More required keys when 'type': 'list_choice'
+    ---------------------------------------------
+    
+        - 'choices'     list of strings; button labels.
+        - 'aliases'     A list that will be indexed by the integer
+                        return value of `list_choice`.
+        - 'function'    Function to be called, its first argument will
+                        be *the* value in 'aliases'.
+     
+     
+     More required keys when 'type': 'roll_text'
+     -------------------------------------------
+     
+        - 'text'        Obvious.
+    
+    """
     global tabnum
     global num_tabs
     tabnum = num_tabs = 0
@@ -1064,7 +1068,7 @@ def hdictui(arg):
                 # Call custom function with an alias for the result.
                 the_dict['function'](the_dict['aliases'][result])
         elif the_type == 'roll_text':
-            roll_text(2, ysize - 5, the_dict['text'], True)
+            roll_text(2, ysize - 5, the_dict['text'], True, zxcv_handler)
         else:
             assert False, "Odd type '{0}' in {1}".format(the_type, the_dict)
 
@@ -1110,28 +1114,20 @@ a normal text-editor (normal for unix), depending on the user. The XML files
 are not encrypted, so that you don't need to remember an extra password.
   If you want encryption you should encrypt your home-directory.
 """
-    passwd_choices = ["Copy to clipboard",
-                      "Show password",
+    passwd_choices = ["Show/copy password",
                       "Update",
                       "Change meta-data & update",
                       "Add existing",
                       "Create new",
                       "Remove"]
-    honeypot_choices = ["Pick & copy",
-                        "Pick & show",
+    honeypot_choices = ["Pick",
                         "Bad pick many",
                         "Good pick many",
                         "Add",
                         "Remove"]
     # Use numbers in order to not break passwd_tab and honeypot_tab.
-    passwd_aliases = [0, 1, 2, 3, 4, 5, 6]
-    honeypot_aliases = [0, 1, 2, 3, 4, 5]
-    # I'm lucky. The copy-only choices are on the top.
-    if not have_clipboard:
-        passwd_choices = passwd_choices[1:]
-        passwd_aliases = passwd_aliases[1:]
-        honeypot_choices = honeypot_choices[1:]
-        honeypot_aliases = honeypot_aliases[1:]
+    passwd_aliases = [1, 2, 3, 4, 5, 6]
+    honeypot_aliases = [1, 2, 3, 4, 5]
     hdictui([
         {
             'name': 'Passwords',

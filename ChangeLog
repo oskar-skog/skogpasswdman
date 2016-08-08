@@ -1,3 +1,14 @@
+2014-01-13      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.21
+    * TODO: More things to do in 0.4.x.
+    * passwdmanrli (roll_text): New keyword-argument: extra_input_handler.
+        No longer uses the zxcv_handler().
+        Unicode-friendly.
+        Accepts enter and space as escape.
+    * passwdmanrli (after_update, show_copy_single): Uses roll_text() to show
+        the strings.
+    * passwdmanrli (passwd_tab, honeypot_tab): Combine show with copy.
+
 2014-01-12      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.20
     * passwdmanapi.3: Bugfix: custom_function(percent, data)

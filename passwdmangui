@@ -32,6 +32,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+__doc__ = """
+NOTE: This code is a messy hell.
+Big change will occur in 0.4.x.
+"""
+
 def u(x):
     """u(x)
     
@@ -42,6 +47,22 @@ def u(x):
         return x.decode("utf-8")
     else:
         return x
+
+def gui_progressbar(percent, data):
+    """gui_progressbar(percent, data)"""
+    pass
+    #the_GdkWindow = w.get_window()
+    ##the_cairo_region = the_GdkWindow.get_clip_region()
+    ##the_GdkWindow.begin_paint_region(the_cairo_region)
+    #the_cairo = the_GdkWindow.cairo_create()
+    #w.pb_widget.set_text("{0}%".format(int(percent)))
+    #w.pb_widget.set_show_text(True)
+    #w.pb_widget.set_fraction(percent / 100.0)
+    ##the_GdkWindow.end_paint()
+    #w.pb_widget.draw(the_cairo)
+
+def create_pb():
+    return api.progress_bar(1.0, 100.0, gui_progressbar)
 
 def err(parent, msg):
     """err(parent, msg)
@@ -180,8 +201,11 @@ def passwd_new_d(parent):
     top_box.pack_start(name_box, False, False, 5)
     top_box.pack_start(spinners, False, False, 5)
     top_box.pack_start(radio_box, False, False, 5)
+    
     main_box.add(top_box)
     dialog.show_all()
+    
+    pb = create_pb()
     
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
@@ -193,13 +217,14 @@ def passwd_new_d(parent):
             err(parent, "Stupid min and max lengths.")
             dialog.destroy()
             return
-        thelength = api.getint(passwd_min, passwd_max + 1)  # randomize
+        thelength = api.getint(passwd_min, passwd_max + 1, 
+                                                pb.minibar(0.0, 10.0))
         if passwd_type:
             passwd_type = "64"
-            passwd_value = api.get64(thelength)
+            passwd_value = api.get64(thelength, pb.minibar(10.0, 100.0))
         else:
             passwd_type = "10"
-            passwd_value = api.get10(thelength)
+            passwd_value = api.get10(thelength, pb.minibar(10.0, 100.0))
         try:
             parent.passwords.add(passwd_name, passwd_value, passwd_type,
                                  passwd_min, passwd_max)
@@ -275,6 +300,7 @@ def passwd_updatemeta_d(parent):
     top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
     top_box.pack_start(spinners, False, False, 5)
     top_box.pack_start(radio_box, False, False, 5)
+    
     main_box.add(top_box)
     dialog.show_all()
     
@@ -292,7 +318,7 @@ def passwd_updatemeta_d(parent):
         else:
             passwd_type = "10"
         parent.passwords.update_meta(the_index, passwd_type, passwd_min,
-                                            passwd_max)
+                                            passwd_max, create_pb())
         parent.thelist[parent.index] = a, parent.passwords[the_index]["value"]
         passwd_updated_d(parent, b, parent.passwords[the_index]["value"])
     dialog.destroy()
@@ -395,7 +421,7 @@ def pick_many_d(parent):
     if response == Gtk.ResponseType.OK:
         # Copy xor show.
         x = parent.honeypots.pick(spinny.get_value_as_int(), u(
-                            sep.get_text()))
+                            sep.get_text()), pb=create_pb())
         # x are the choices.
         dialog2 = Gtk.MessageDialog(parent.parent, 0,
                     Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
@@ -516,7 +542,7 @@ class passwd_tab_c(Gtk.Box):
         a, b = self.thelist[self.index] # b is the old password.
         the_index = self.passwords.mkindex(u(a), True)
         try:
-            self.passwords.update(the_index)
+            self.passwords.update(the_index, create_pb())
             self.thelist[self.index] = a, self.passwords[the_index]["value"]
             passwd_updated_d(self, b, self.passwords[the_index]["value"])
         except api.err_nometa:
@@ -597,12 +623,12 @@ class honeypot_tab_c(Gtk.Box):
     def pick_copy(self, button):
         """pick_copy(self, button) - Pick and copy to clipboard."""
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        x = self.honeypots.pick()
+        x = self.honeypots.pick(pb=create_pb())
         clipboard.set_text(x, len(x))
         clipboard.store()
     def pick_show(self, button):
         """pick_show(self, button) - Pick and show in a dialog."""
-        x = self.honeypots.pick()
+        x = self.honeypots.pick(pb=create_pb())
         dialog = Gtk.MessageDialog(self.parent, 0, Gtk.MessageType.OTHER,
                     Gtk.ButtonsType.CLOSE, "Picked:")
         dialog.format_secondary_text(x)
@@ -630,12 +656,14 @@ class honeypot_tab_c(Gtk.Box):
         top_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
         top_box.pack_start(label, False, False, 5)
         top_box.pack_start(spinny, True, True, 5)
+        
         main_box.add(top_box)
         dialog.show_all()
         
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
-            thelist = self.honeypots.pickl(spinny.get_value_as_int())
+            thelist = self.honeypots.pickl(spinny.get_value_as_int(),
+                                                        pb=create_pb())
             clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
             while len(thelist) > 0:
                 # Begin popping up more dialogs.
@@ -833,12 +861,18 @@ class main_window(Gtk.Window):
         button_clear = Gtk.Button("Clear clipboard")
         button_clear.connect("clicked", self.clear_clipboard)
         
+        # Reinvent progress bar after THE BIG CHANGE.
+        #self.pb_widget = Gtk.ProgressBar()
+        #self.pb_widget.set_app_paintable(True)
+        #self.pb_widget.set_double_buffered(False)
+        
         box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
         box2.pack_start(button_undo, False, False, 5)
         box2.pack_start(button_redo, False, False, 5)
         box2.pack_start(button_backup, False, False, 10)
         box2.pack_end(button_quit, False, False, 5)
         box2.pack_end(button_clear, False, False, 10)
+        #box2.pack_end(self.pb_widget, True, True, 2)
         
         box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         box1.pack_start(tabs, True, True, 5)

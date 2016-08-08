@@ -7,10 +7,23 @@
             ?   Deutch
 *       in "configure.2": dirs() should figure out more directories.
 *       info
-*       Progress bars.
-*       Unicode support in configure.
-*       RLI: 40 column tty, long passwords and honeypots.
+*       ``shortcuts`` in passwdmanrli.
+*       passwdmanrli: Code->data in passwd_tab and honeypot_tab.
+0.5     Unicode support in configure.
+0.5     RLI: 40 column tty, long passwords and honeypots.
 *       Use argparse instead of getopt. argparse requires 2.7 or 3.x.
+0.5     THE BIG CHANGE: change the structure of passwdmangui:
+            From:
+                Wait a very long time reading /dev/random
+            To:
+                fork() a new process to read /dev/random and use a pipe
+                to update the progress-bar.
+            Pros:
+                - Progress-bar.
+                - Multitasking.
+                - More interactive.
+            Try also:
+                - Toggle show passwords/don't show without restarting the gui.
 
 Python 2.x drop schedule:
 

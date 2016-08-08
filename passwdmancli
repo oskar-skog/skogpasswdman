@@ -43,8 +43,8 @@ See passwdmancli(1) to understand the interface.
 Some global stuff:
     import passwdmanapi as api
     p, h = api.passwd(), api.honeypot()
-    verbose             verbose mode (command)
-    interactive         interactive mode (command line flag)
+    verbose             verbose mode (command) (bool)
+    interactive         interactive mode (command line flag) (bool)
     main()
     se()                complain about syntax errors
     err(x)              sow("!" + x + "\\n")
@@ -58,7 +58,7 @@ Some global stuff:
 
 def se():
     """se() - syntax error
-    Show error message containing theline.
+    Show error message containing global variable `theline`.
     """
     sow("!syntax error, type 'help'\n")
     sow('!')
@@ -69,7 +69,8 @@ def se():
 
 def err(x):
     """err(x) - error messages
-    "!{}\n".format(x)
+    Complain about `x`.
+    It prepends an exclamation mark and appends a newline.
     Program dies if not in interactive mode.
     """
     sow("!")
@@ -78,23 +79,23 @@ def err(x):
     if not interactive:
         sys.exit(1)
 
-def sow(x):             #Do the Unicode-stuff here.
-    """sow(x) - Write to stdout. It encodes the string as UTF-8."""
+def sow(x):             # Do the Unicode-stuff here.
+    """sow(x) - Write to stdout."""
     sys.stdout.write(api.b2u3(x))         #It is used a lot.
 
 def siw():
-    """siw() - Read from infile. It decodes the UTF-8 input."""
+    """siw() - Read from infile. It returns a unicode-string"""
     global infile
     return api.u(infile.readline())
 
-def v(x):       #Verbose.
+def v(x):       # Verbose.
     """def v(x):
     global verbose
     if verbose:
         sow("#" + x + "\n")
 """
     if verbose:
-        sow("#" + x + "\n")     #Make the output comments
+        sow("#" + x + "\n")     # Make the output comments.
 
 def show_help():
     """#HELP MESSAGE
@@ -273,7 +274,6 @@ def passwd_update_meta(x):
     sow("passwd.update?'")
     sow(old)
     sow("':'{0}'\n".format(new))
-    return
     
 def passwd_add(x):
     """passwd_add(x) - generate and add a new password.
@@ -509,7 +509,7 @@ def honeypot_cmds(x):
             se()
             return
 
-def main():             #Finally.
+def main():
     """main() - main loop."""
     global verbose
     global p
@@ -589,7 +589,7 @@ def main():             #Finally.
                 se()
                 continue
 
-#Initialization.
+# Initialization.
 p = api.passwd()
 h = api.honeypot()
 verbose = False
