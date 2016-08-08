@@ -88,14 +88,14 @@ def edit_num(y, num, min_num, max_num, step=1):
     y is the Y-coordinate.
     step is how much to increase/decrease per key-press."""
     assert y >= 0 and y < ysize
-    if min_num != None and max_num != None:
+    if min_num is not None and max_num is not None:
         assert max_num >= min_num
     while True:
         #Keep num within limits.
-        if min_num != None:
+        if min_num is not None:
             if num < min_num:
                 num = min_num
-        if max_num != None:
+        if max_num is not None:
             if num > max_num:
                 num = max_num
         #Print.
@@ -111,13 +111,13 @@ def edit_num(y, num, min_num, max_num, step=1):
             continue
         #Increase/decrease 5 * step if there is no limit in that direction.
         if ch in (curses.KEY_HOME, ord("A"), ord("H")):
-            if min_num != None:
+            if min_num is not None:
                 num = min_num
             else:
                 num -= step * 5
             continue
         if ch in (curses.KEY_END, ord("D"), ord("L")):
-            if max_num != None:
+            if max_num is not None:
                 num = max_num
             else:
                 num += step * 5
@@ -137,7 +137,7 @@ def edit_line(y, line):
     line is the line of text that will be/has been edited.
     y is the Y-coordinate."""
     #Unicode string.
-    if line == None:
+    if line is None:
         head_u = api.u("")
     else:
         head_u = api.u(line)
@@ -253,12 +253,133 @@ def after_update(old, new):
             else:
                 return
 
+def dictui(arg):
+    ret_arg = {}
+    where = wrap = 0
+    # Initialize.
+    for i in arg:
+        try:
+            if i['type'] not in ('space', 'text'):
+                wrap += 1
+            if i['type'] in ('edit_num', 'edit_line'):
+                try:
+                    ret_arg[i['name']] = i['value']
+                except KeyError:
+                    if i['type'] == 'edit_num':
+                        ret_arg[i['name']] = 1
+                    else:
+                        ret_arg[i['name']] = ""
+            else:
+                # Check the button.
+                try:
+                    forget = i['name']
+                except KeyError:
+                    # No name.
+                    try:
+                        i['name'] = i['value']
+                    except KeyError:
+                        # No value.
+                        i['name'] = 'OK'
+                try:
+                    forget = i['value']
+                except KeyError:
+                    i['value'] = i['name']
+        except KeyError:
+            pass
+    # Main loop.
+    while True:
+        tty.erase()
+        # Print.
+        foobar = 0      # I cannot figure out a good name for this one.
+        for y in range(len(arg)):
+            # y is both the Y coordinate and the index for arg.
+            try:
+                if arg[y]["type"] == "space":
+                    pass
+                elif arg[y]["type"] == "text":
+                    center_text(y, arg[y]["value"])
+                else:
+                    assert arg[y]["type"] in ("edit_line","edit_num","button")
+                    if arg[y]["type"] == "edit_line":
+                        center_text(y, ret_arg[arg[y]["name"]])
+                    if arg[y]["type"] == "edit_num":
+                        center_text(y, str(ret_arg[arg[y]["name"]]))
+                    if arg[y]["type"] == "button":
+                        center_text(y, arg[y]["value"])
+                    if foobar == where:
+                        wrap_addstr(y, 0, "**")
+                        wrap_addstr(y, xsize - 2, "**")
+                    foobar += 1
+            except KeyError:
+                pass
+        tty.refresh()
+        # Input.
+        foobar = 0
+        for y in range(len(arg)):
+            try:
+                if foobar == where:
+                    direction = None
+                    if arg[y]["type"] == "edit_line":
+                        direction, ret_arg[arg[y]["name"]] = edit_line(y,
+                                                ret_arg[arg[y]["name"]])
+                    if arg[y]["type"] == "edit_num":
+                        # Set the defaults if necessary.
+                        try:
+                            min_num = arg[y]["min"]
+                        except:
+                            min_num = None
+                        try:
+                            max_num = arg[y]["max"]
+                        except:
+                            max_num = None
+                        try:
+                            step = arg[y]["step"]
+                        except:
+                            step = 1
+                        direction, ret_arg[arg[y]["name"]] = edit_num(y,
+                            ret_arg[arg[y]["name"]], min_num, max_num, step)
+                    if arg[y]["type"] == "button":
+                        ch = tty.getch()
+                        if ch == curses.KEY_UP:
+                            direction = "up"
+                        elif ch in (curses.KEY_DOWN, ord("\t")):
+                            direction = "down"
+                        elif ch == 27:
+                            direction = "back"
+                        elif ch in (ord(" "), ord("\n")):
+                            ret_arg["button"] = arg[y]["name"]
+                            return ret_arg
+                        elif ch == curses.KEY_PPAGE:
+                            where = 0
+                            break # Back to main loop.
+                        elif ch == curses.KEY_NPAGE:
+                            where = wrap - 1
+                            break # Back to main loop.
+                    # Check what value direction has.
+                    assert direction in ("up", "down", "back", None)
+                    if direction == "back":
+                        ret_arg["button"] = "back"
+                        return ret_arg
+                    if direction == "up":
+                        where -= 1
+                        break   # Back to main loop.
+                    if direction == "down":
+                        where += 1
+                        break   # Back to main loop.
+                if arg[y]["type"] in ("button", "edit_num", "edit_line"):
+                    foobar += 1
+            except KeyError:
+                pass
+        # Keep where in range.
+        where %= wrap
+
 def passwd_tab(x):
     """passwd_tab(x)
     x is the action to be performed on a password.
     x begins from 0 (Copy to clipboard), or from 1 (Show password) if not
     have_clipboard.
-    See also choice.__doc__ and after_update.__doc__."""
+    See also choice.__doc__ and after_update.__doc__.
+    """
     assert x >= 0 and x < 7
     if x < 4 or x == 6:
         selection = choice(False)
@@ -266,11 +387,11 @@ def passwd_tab(x):
             assert selection == False
             return      #Will never return True.
     if x == 0:
-        #Copy to clipboard.
+        # Copy to clipboard.
         assert have_clipboard
         copy(p[selection]["value"])
     if x == 1:
-        #Show password.
+        # Show password.
         tty.erase()
         if len(p[selection]["value"]) > (ysize - 2) * xsize:
             raise api.err_idiot("Not implented!")
@@ -299,218 +420,115 @@ def passwd_tab(x):
         else:
             assert p[selection]["meta"]["type"] == "human"
             minlen = maxlen = 8
-        where = 0
-        tty.erase()
-        center_text(6, "Big & small letters, digits, '!', '_'")
-        center_text(9, "Digits only")
-        while True:
-            if where != 0:
-                center_text(0, "  Minimal required length  ")
-            if where != 1:
-                center_text(3, "  Maximal allowed length  ")
-            if where != 2:
-                center_text(7, "  OK  ")
-            if where != 3:
-                center_text(10, "  OK  ")
-            if where == 0:
-                center_text(0, "**Minimal required length**")
-                direction, minlen = edit_num(1, minlen, 1, maxlen)
-                if direction == "up":
-                    where = 3
-                    continue
-                elif direction == "down":
-                    where = 1
-                    continue
-                else:
-                    assert direction == "back"
-                    return
-            if where == 1:
-                center_text(3, "**Maximal allowed length**")
-                direction, maxlen = edit_num(4, maxlen, minlen, None)
-                if direction == "up":
-                    where = 0
-                    continue
-                elif direction == "down":
-                    where = 2
-                    continue
-                else:
-                    assert direction == "back"
-                    return
-            if where == 2:
-                center_text(7, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch == curses.KEY_UP:
-                    where = 1
-                    continue
-                if ch in (curses.KEY_DOWN, ord("\t")):
-                    where = 3
-                    continue
-                if ch in (ord(" "), ord("\n")):
-                    mode = "64"
-                    break
-                if ch == 27:
-                    return
-            if where == 3:
-                center_text(10, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch == curses.KEY_UP:
-                    where = 2
-                    continue
-                if ch in (curses.KEY_DOWN, ord("\t")):
-                    where = 0
-                    continue
-                if ch in (ord(" "), ord("\n")):
-                    mode = "10"
-                    break
-                if ch == 27:
-                    return
+        result = dictui([
+            {
+                'type': 'text',
+                'value': 'Minimal required length'
+            }, {
+                'type': 'edit_num',
+                'name': 'min',
+                'value': minlen,
+                'min': 1
+            }, {}, {
+                'type': 'text',
+                'value': 'Maximal allowed length'
+            }, {
+                'type': 'edit_num',
+                'name': 'max',
+                'value': maxlen,
+                'min': 1
+            }, {}, {
+                'type': 'text',
+                'value': "Big & small letters, digits, '!', '_'"
+            }, {
+                'type': 'button',
+                'name': '64',
+                'value': 'OK'
+            }, {}, {
+                'type': 'text',
+                'value': 'Digits only'
+            }, {
+                'type': 'button',
+                'name': '10',
+                'value': 'OK'
+            }])
+        if result["button"] == "back":
+            return
         busy()
         old = p[selection]["value"]
-        p.update_meta(selection, mode, minlen, maxlen)
+        #BUG TODO stop user from having minlength > maxlength.
+        p.update_meta(selection, result["button"],
+                                        result["min"], result["max"])
         new = p[selection]["value"]
         after_update(old, new)
     if x == 4:
-        #Add existing.
-        tty.erase()
-        where = 0
-        name = value = None
-        while True:
-            if where != 0:
-                center_text(0, "  What is the password for?  ")
-            if where != 1:
-                center_text(3, "  What is the password?  ")
-            if where != 2:
-                center_text(6, "  OK  ")
-            if where == 0:
-                center_text(0, "**What is the password for?**")
-                direction, name = edit_line(1, name)
-                if direction == "up":
-                    where = 2
-                    continue
-                elif direction == "back":
-                    return
-                else:
-                    assert direction == "down"
-                    where = 1
-                    continue
-            if where == 1:
-                center_text(3, "**What is the password?**")
-                direction, value = edit_line(4, value)
-                if direction == "up":
-                    where = 0
-                    continue
-                elif direction == "back":
-                    return
-                else:
-                    assert direction == "down"
-                    where = 2
-                    continue
-            if where == 2:
-                center_text(6, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch == curses.KEY_UP:
-                    where = 1
-                    continue
-                if ch in (curses.KEY_DOWN, ord("\t")):
-                    where = 0
-                    continue
-                if ch in (ord(" "), ord("\n")):
-                    p.add_nometa(name, value)
-                    return
-                if ch == 27:
-                    return
+        result = dictui([
+            {
+                'type': 'text',
+                'value': 'What is the password for?'
+            }, {
+                'type': 'edit_line',
+                'name': 'name'
+            }, {}, {
+                'type': 'text',
+                'value': 'What is the password?'
+            }, {
+                'type': 'edit_line',
+                'name': 'value'
+            }, {}, {
+                'type': 'button'
+            }])
+        if result["button"] == "back":
+            return
+        p.add_nometa(result["name"], result["value"])
     if x == 5:
         #Create new.
-        minlen = maxlen = 8
-        name = ""
-        where = 0
-        tty.erase()
-        center_text(9, "Big & small letters, digits, '!', '_'")
-        center_text(12, "Digits only")
-        while True:
-            if where != 0:
-                center_text(0, "  What is the password for?  ")
-            if where != 1:
-                center_text(3, "  Minimal required length  ")
-            if where != 2:
-                center_text(6, "  Maximal allowed length  ")
-            if where != 3:
-                center_text(10, "  OK  ")
-            if where != 4:
-                center_text(13, "  OK  ")
-            if where == 0:
-                center_text(0, "**What is the password for?**")
-                direction, name = edit_line(1, name)
-                if direction == "up":
-                    where = 4
-                    continue
-                elif direction == "back":
-                    return
-                else:
-                    assert direction == "down"
-                    where = 1
-                    continue
-            if where == 1:
-                center_text(3, "**Minimal required length**")
-                direction, minlen = edit_num(4, minlen, 1, maxlen)
-                if direction == "up":
-                    where = 0
-                    continue
-                elif direction == "down":
-                    where = 2
-                    continue
-                else:
-                    assert direction == "back"
-                    return
-            if where == 2:
-                center_text(6, "**Maximal allowed length**")
-                direction, maxlen = edit_num(7, maxlen, minlen, None)
-                if direction == "up":
-                    where = 1
-                    continue
-                elif direction == "down":
-                    where = 3
-                    continue
-                else:
-                    assert direction == "back"
-                    return
-            if where == 3:
-                center_text(10, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch == curses.KEY_UP:
-                    where = 2
-                    continue
-                if ch in (curses.KEY_DOWN, ord("\t")):
-                    where = 4
-                    continue
-                if ch in (ord(" "), ord("\n")):
-                    mode = "64"
-                    break
-                if ch == 27:
-                    return
-            if where == 4:
-                center_text(13, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch == curses.KEY_UP:
-                    where = 3
-                    continue
-                if ch in (curses.KEY_DOWN, ord("\t")):
-                    where = 0
-                    continue
-                if ch in (ord(" "), ord("\n")):
-                    mode = "10"
-                    break
-                if ch == 27:
-                    return
+        result = dictui([
+            {
+                'type': 'text',
+                'value': 'What is the password for?'
+            }, {
+                'type': 'edit_line',
+                'name': 'name'
+            }, {}, {
+                'type': 'text',
+                'value': 'Minimal required length'
+            }, {
+                'type': 'edit_num',
+                'name': 'minlen',
+                'value': 8,
+                'min': 1
+            }, {}, {
+                'type': 'text',
+                'value': 'Maximal allowed length'
+            }, {
+                'type': 'edit_num',
+                'name': 'maxlen',
+                'value': 8,
+                'min': 1
+            }, {}, {
+                'type': 'text',
+                'value': "Big & small letters, digits, '!', '_'"
+            }, {
+                'type': 'button',
+                'name': '64',
+                'value': 'OK'
+            }, {}, {
+                'type': 'text',
+                'value': 'Digits only'
+            }, {
+                'type': 'button',
+                'name': '10',
+                'value': 'OK'
+            }])
+        if result == "back":
+            return
         busy()
-        p.add(name, None, mode, minlen, maxlen)
+        #BUG TODO stop user from having minlength > maxlength.
+        p.add(result["name"], None, result["button"], result["minlen"],
+                                                        result["maxlen"])
     if x == 6:
-        #Remove.
+        # Remove.
         p.remove(selection)
 
 def show_copy_single(s):
