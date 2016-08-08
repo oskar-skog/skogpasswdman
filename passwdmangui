@@ -420,6 +420,10 @@ class passwd_tab_c(Gtk.Box):
         b_add.connect("clicked", self.add)
         b_new.connect("clicked", self.new)
         b_remove.connect("clicked", self.rm)
+        b_undo = Gtk.Button("Undo")
+        b_redo = Gtk.Button("Redo")
+        b_undo.connect("clicked", self.undo)
+        b_redo.connect("clicked", self.redo)
         #put the buttons in a box
         box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         box.pack_start(b_copy, False, False, 0)
@@ -429,6 +433,8 @@ class passwd_tab_c(Gtk.Box):
         box.pack_start(b_add, False, False, 0)
         box.pack_start(b_new, False, False, 0)
         box.pack_start(b_remove, False, False, 0)
+        box.pack_end(b_redo, False, False, 0)
+        box.pack_end(b_undo, False, False, 0)
         self.pack_start(tree, True, True, 0)
         self.pack_end(box, False, False, 0)
     def select_change(self, selection):
@@ -472,6 +478,33 @@ class passwd_tab_c(Gtk.Box):
         a, b = self.thelist[self.index]
         self.passwords.remove(str(a))
         self.thelist.remove(self.index, True)
+    def undo(self, button):
+        try:
+            api.undo(self.passwords, self.parent.honeypot_tab.honeypots)
+            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            self.thelist.clear()
+            self.parent.honeypot_tab.thelist.clear()
+            for x in self.passwords:
+                self.thelist.append([x["name"], x["value"]])
+            for x in self.parent.honeypot_tab.honeypots:
+                self.parent.honeypot_tab.thelist.append([x])
+        except:
+            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            err(self.passwd_tab, "CANNOT UNDO")
+    def redo(self, button):
+        #copy-pasted from undo() and hand-hacked
+        try:
+            api.redo(self.passwords, self.parent.honeypot_tab.honeypots)
+            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            self.thelist.clear()
+            self.parent.honeypot_tab.thelist.clear()
+            for x in self.passwords:
+                self.thelist.append([x["name"], x["value"]])
+            for x in self.parent.honeypot_tab.honeypots:
+                self.parent.honeypot_tab.thelist.append([x])
+        except:
+            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            err(self, "CANNOT REDO")
 
 class honeypot_tab_c(Gtk.Box):
     """Used by main_window(). I'm a Gtk.Box()."""
@@ -508,6 +541,10 @@ class honeypot_tab_c(Gtk.Box):
         b_pick_m.connect("clicked", self.pick_many)
         b_add.connect("clicked", self.add_hp)
         b_remove.connect("clicked", self.rm_hp)
+        b_undo = Gtk.Button("Undo")
+        b_redo = Gtk.Button("Redo")
+        b_undo.connect("clicked", self.undo)
+        b_redo.connect("clicked", self.redo)
         #put the buttons in a box
         box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         box.pack_start(b_pick_c, False, False, 0)
@@ -515,6 +552,8 @@ class honeypot_tab_c(Gtk.Box):
         box.pack_start(b_pick_m, False, False, 0)
         box.pack_start(b_add, False, False, 0)
         box.pack_start(b_remove, False, False, 0)
+        box.pack_end(b_redo, False, False, 0)
+        box.pack_end(b_undo, False, False, 0)
         self.pack_start(tree, True, True, 0)
         self.pack_end(box, False, False, 0)
         
@@ -544,6 +583,33 @@ class honeypot_tab_c(Gtk.Box):
     def rm_hp(self, button):
         self.honeypots.remove(self.thelist[self.index][0], True)
         self.thelist.remove(self.index)
+    def undo(self, button):
+        try:
+            api.undo(self.parent.passwd_tab.passwords, self.honeypots)
+            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            self.parent.passwd_tab.thelist.clear()
+            self.thelist.clear()
+            for x in self.parent.passwd_tab.passwords:
+                self.parent.passwd_tab.thelist.append([x["name"], x["value"]])
+            for x in self.honeypots:
+                self.thelist.append([x])
+        except:
+            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            err(self, "CANNOT UNDO")
+    def redo(self, button):
+        #copy-pasted from undo() and hand-hacked
+        try:
+            api.redo(self.parent.passwd_tab.passwords, self.honeypots)
+            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            self.parent.passwd_tab.thelist.clear()
+            self.thelist.clear()
+            for x in self.parent.passwd_tab.passwords:
+                self.parent.passwd_tab.thelist.append([x["name"], x["value"]])
+            for x in self.honeypots:
+                self.thelist.append([x])
+        except:
+            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            err(self, "CANNOT REDO")
         
 class conf_tab_c(Gtk.Box):
     """Used by main_window(). I'm a Gtk.Box()."""
@@ -639,16 +705,10 @@ Difference between "Add existing" and "Create new":
             tabs.next_page()    #settings
             restart = False
         
-        button_undo = Gtk.Button("Undo", Gtk.STOCK_UNDO)
-        button_undo.connect("clicked", self.undo)
-        button_redo = Gtk.Button("Redo", Gtk.STOCK_REDO)
-        button_redo.connect("clicked", self.redo)
         button_quit = Gtk.Button("Quit", Gtk.STOCK_QUIT)
         button_quit.connect("clicked", Gtk.main_quit)
         
         box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
-        box2.pack_start(button_undo, False, False, 0)
-        box2.pack_start(button_redo, False, False, 0)
         box2.pack_end(button_quit, False, False, 0)
         
         box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
@@ -658,34 +718,6 @@ Difference between "Add existing" and "Create new":
         self.add(box1)
         self.connect("delete-event", Gtk.main_quit)
         self.show_all()
-        
-    def undo(self, button):
-        try:
-            api.undo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
-            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
-            self.passwd_tab.thelist.clear()
-            self.honeypot_tab.thelist.clear()
-            for x in self.passwd_tab.passwords:
-                self.passwd_tab.thelist.append([x["name"], x["value"]])
-            for x in self.honeypot_tab.honeypots:
-                self.honeypot_tab.thelist.append([x])
-        except:
-            #'self.passwd_tab' has attribute 'parent' which is 'self'
-            err(self.passwd_tab, "CANNOT UNDO")
-    def redo(self, button):
-        #copy-pasted from undo() and hand-hacked
-        try:
-            api.redo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
-            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
-            self.passwd_tab.thelist.clear()
-            self.honeypot_tab.thelist.clear()
-            for x in self.passwd_tab.passwords:
-                self.passwd_tab.thelist.append([x["name"], x["value"]])
-            for x in self.honeypot_tab.honeypots:
-                self.honeypot_tab.thelist.append([x])
-        except:
-            #'self.passwd_tab' has attribute 'parent' which is 'self'
-            err(self.passwd_tab, "CANNOT REDO")
 
 if __name__ == "__main__":
     restart = False
