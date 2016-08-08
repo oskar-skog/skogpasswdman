@@ -1,3 +1,7 @@
+2014-02-27      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.11
+    * README: Rewritten.
+
 2014-02-18      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.4.10
     * passwdmangui: Got progressbars to work without redesigning the GUI.

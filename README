@@ -2,31 +2,42 @@
 Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
 Read the file 'LICENSE' (2-clause BSD)
 
-passwdman is a program for remembering and updating passwords. It also
-remembers fake-passwords to catch crackers.
+passwdman is a program for remembering, generating and updating passwords.
+It's also prepared for the future when password protected stuff supports
+fake-passwords to catch crackers.
 
-It stores the passwords and honey-pots in XML files, so they can be read with
-a normal text-editor (normal for unix), depending on the user.
+It stores the passwords and honey-pots in unencrypted XML files, they are
+expected to be kept safe. You don't need a password for your passwords.
 
-It has infinite undo/redo by making backups of the files. It supports Unicode.
+It has infinite undo/redo.
 
-The XML files are not encrypted, so that you don't need to remember an extra
-password.
+It can tarballize the datafiles, including the infinite undo/redo. NOTE: It
+doesn't encrypt the tarball.
 
-It can remember old human-generated passwords, create new passwords (base10
-or a variant of base64) with randomized length, update passwords and obviously
-show and remove passwords.      The variant of base64 uses underscores=63 and
-exclamation marks=62.
+Polyvalent:
+    shared engine               Python
+    scripting interface         Python only, import passwdmanapi
+    CLI                         Python; ed pattern; verbose
+    GUI                         Python; Gtk+ 3
+    curses mode                 GUIish
 
-It can add, remove honey-pots and randomly choose (pick) honey-pots in two
-different flavors.
+Commands:
+    passwdmancli
+    passwdmangui        Graphical
+    passwdmanrli        curses mode
 
-The CLI began as a interactive program, but it is no longer the default
-behavior. It is quite noisy, but that can be filtered with grep and cut. It
-supports 'pipe-through' and comments, as an attempt to make it better. It's
-an ed pattern and it will tell which command generated the output.
+Man-pages:
+    passwdmancli(1)
+    passwdmangui(1)     Garbage
+    passwdmanrli(1)     Garbage
+    passwdmanapi(3)
+    passwdmanfiles(5)
+
+Works with Python 2.7 and Python 3.x, should work with Python 2.6.
 
 BUGS:
+    Cannot copy-paste to piece of paper.
+    
     Sometimes the "Quit"-button must be clicked 3 times.
     
     The --single-backup option in the CLI actually requires 2 undos.
