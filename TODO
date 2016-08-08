@@ -1,14 +1,11 @@
-**      Permanent backup (GUI)
-*       More GUI-polishing
-            *   Markup in HELP and About.
-***     More debugging
+*       Permanent backup (GUI)
+?       Improvements in HELP and About.
+*       More debugging
 *       Fix broken Docbook XML
 *       gettext()
             *   Svenska
             *   Suomi
             *   Deutch
 *       in "configure.2": dirs() should figure out more directories.
-*       Better XML.
 *       A pick() that returns a list.
-*       can_undo() and can_redo().
-
+*       Rewrite unquote().

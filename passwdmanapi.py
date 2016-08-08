@@ -382,6 +382,7 @@ class common_data():
             raise err_notfound("not integer and not string")
     def writexml(self, xmlfile):
         """Write the XML tree to disk."""
+        self.xmlroot.text = "\n  "      #Make it look better.
         os.rename(os.path.expanduser(xmlfile),
                 os.path.join(os.path.expanduser("~/.passwdman/undoable"),
                 os.path.basename(xmlfile) + '-' + time.ctime())) #Make backup.
@@ -481,7 +482,10 @@ class passwd(common_data):
                       "meta": {"type": m_type, "minlength": m_minlength,
                                                "maxlength": m_maxlength}})
         passwd_element = XML.SubElement(self.xmlroot, "passwd")
+        passwd_element.text = "\n    "  #Make them look better.
+        passwd_element.tail = "\n  "
         meta_element = XML.SubElement(passwd_element, "meta")   #add new tags
+        meta_element.tail = "\n  "
         passwd_element.set("name", name) #attributes
         passwd_element.set("value", value)
         meta_element.set("type", m_type)
@@ -622,6 +626,7 @@ class honeypot(common_data):
                         "honeypot.add(value='{}') #duplicate".format(value))
         self.data.append(value)
         honeypot_element = XML.SubElement(self.xmlroot, "honeypot")
+        honeypot_element.tail = "\n  " #Make it look better.
         honeypot_element.set("value", value)
         common_data.writexml(self, "~/.passwdman/honeypots")
     def remove(self, x, is_numstring=False):
