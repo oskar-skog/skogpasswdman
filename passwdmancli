@@ -103,7 +103,7 @@ def escape(s):
     '''escape(s)
     Return `s` with all single-quotes backslash escaped.
     '''
-    return api.u(re.sub("(')", r'\\\1', s))
+    return api.u(re.sub(r"(['\\])", r'\\\1', s))
 
 def show_help():
     """#HELP MESSAGE
@@ -396,7 +396,8 @@ def parse(line, data):
                         # with the same name.
                         break
                 elif dst_arg['type'] == 'str':
-                    args[dst_arg['name']] = api.unquote(arg_list[src_arg])
+                    args[dst_arg['name']] = api.unquote(arg_list[src_arg],
+                                                                    escapes)
                 elif dst_arg['type'] == 'lit_str':
                     args[dst_arg['name']] = arg_list[src_arg]
                 else:
@@ -420,7 +421,7 @@ def passwd_update_meta(x):
     args:       blank
     code:       'err("CEM-00:VSU")'
     # Cryptic-error-message 0x00 Very-stupid-user
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
     for y in ('10', '64'):
         data += r"""
@@ -443,14 +444,15 @@ try:
     p.update_meta(index, '{2}', args['minlen'], args['maxlen'], pb=mk_pb())
     pb_nl()
     new = p[index]['value']
-    sow(api.u("#old:new\\npasswd.update?'{0}':'{1}'\\n").format(
+    sow(api.u("#old:new\\\\npasswd.update?'{0}':'{1}'\\\\n").format(
                                             api.u(escape(old)), api.u(new)))
 except api.err_nolength:
     err('CEM-01:LIM')
+    # Less is more.
 except api.err_notfound:
     err('not found')
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """.format('{0}', '{1}', y)
     
     parse(x, api.parse_text(data, {'blank': []}))
@@ -464,7 +466,7 @@ def passwd_add(x):
     command:    'human'
     args:       blank
     code:       '''err("Use 'passwd:add_human'.")'''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
     for y in ('10', '64'):
         data += """
@@ -488,7 +490,7 @@ try:
 except api.err_duplicate:
     err('duplicate')
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """.format(y)
 
     parse(x, api.parse_text(data, {'blank': []}))
@@ -504,16 +506,16 @@ def passwd_cmds(x):
     args:       blank
     # TODO: Implement raw-strings.
     code:       '''
-sow("#\\t\\tindex:\\tname\\n")
+sow("#\\\\t\\\\tindex:\\\\tname\\\\n")
 for i, L in enumerate(p):
-    sow(api.u("passwd.list?\\t{0}:\\t'{1}'\\n").format(i, L['name']))
-sow("#DONE\\n#READY\\n")
+    sow(api.u("passwd.list?\\\\t{0}:\\\\t'{1}'\\\\n").format(i, L['name']))
+sow("#DONE\\\\n#READY\\\\n")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'help'
     args:       blank
     code:       'passwd_help()'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'add_human'
     args:
                 type:   'str'
@@ -523,8 +525,8 @@ sow("#DONE\\n#READY\\n")
 s = siw()
 try:
     int(args['name'])
-    sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\\n")
-    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\\n")
+    sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\\\\n")
+    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\\\\n")
 except:
     pass
 try:
@@ -533,14 +535,14 @@ try:
 except api.err_duplicate:
     err("duplicate")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'add'
     args:
                 type:   'lit_str'
                 name:   'cmd'
                 %
     code:       'passwd_add(args["cmd"])'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'get'
     args:
                 type:   'str'
@@ -549,11 +551,11 @@ except api.err_duplicate:
     code:       '''
 try:
     the_value = p[p.mkindex(args['name'])]["value"]
-    sow(api.u("passwd.get?'{0}'\\n").format(api.u(escape(the_value))))
+    sow(api.u("passwd.get?'{0}'\\\\n").format(api.u(escape(the_value))))
 except api.err_notfound:
     err("not found")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'update'
     args:
                 type:   'str'
@@ -567,20 +569,20 @@ try:
     p.update(index, pb=mk_pb())
     pb_nl()
     new = p[index]["value"]
-    sow("#old:new\\npasswd.update?'{0}':'{1}'\\n".format(old, new))
+    sow("#old:new\\\\npasswd.update?'{0}':'{1}'\\\\n".format(old, new))
 except api.err_nometa:
     err("no meta")
 except api.err_notfound:
     err("not found")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'update_meta'
     args:
                 type:   'lit_str'
                 name:   'cmd'
                 %
     code:       'passwd_update_meta(args["cmd"])'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'meta'
     args:
                 type:   'str'
@@ -589,14 +591,15 @@ except api.err_notfound:
     code:       '''
 try:                #Get meta-data for a password.
     metadata = p[p.mkindex(args['name'])]["meta"]
-    sow("#\\t\\ttype:\\tminlength:\\tmaxlength\\n")      #safe
-    sow("passwd.meta?\\t'{0}':\\t'{1}':\\t\\t'{2}'\\n".format(metadata["type"],
+    sow("#\\\\t\\\\ttype:\\\\tminlength:\\\\tmaxlength\\\\n")      #safe
+    sow("passwd.meta?\\\\t'{0}':\\\\t'{1}':\\\\t\\\\t'{2}'\\\\n".format(
+                                                metadata["type"],
                                                 metadata["minlength"],
                                                  metadata["maxlength"]))
 except:
     err("no meta")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'remove'
     args:
                 type:   'str'
@@ -608,7 +611,7 @@ try:
 except api.err_notfound:
     err("not found")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
     parse(x, api.parse_text(data, {'blank': []}))
 
@@ -620,25 +623,26 @@ def honeypot_cmds(x):
     command:    'list'
     args:       blank
     code:       '''
-sow("#\\t\\tindex:\\tname\\n")
+sow("#\\\\t\\\\tindex:\\\\tname\\\\n")
 for index, value in enumerate(h):
-   sow(api.u("honeypot.list?\\t{0}:\\t'{1}'\\n").format(index, escape(value)))
-sow("#DONE\\n#READY\\n")
+   sow(api.u("honeypot.list?\\\\t{0}:\\\\t'{1}'\\\\n").format(index,
+                                                            escape(value)))
+sow("#DONE\\\\n#READY\\\\n")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'help'
     args:       blank
     code:       'honeypot_help()'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'pick'
     args:       blank
     code:       '''
 v("This may take a while.")
 s = escape(h.pick(pb=mk_pb()))
 pb_nl()
-sow(api.u("honeypot.pick?'{0}'\\n").format(s))
+sow(api.u("honeypot.pick?'{0}'\\\\n").format(s))
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'add'
     args:
                 type:   'str'
@@ -647,8 +651,8 @@ sow(api.u("honeypot.pick?'{0}'\\n").format(s))
     code:       '''
 try:
     int(args['value'])          # Check if it will be treated as an integer.
-    sow("#WARNING: ITS VALUE WILL BE BELIEVED TO BE AN INDEX!\\n")
-    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\\n")
+    sow("#WARNING: ITS VALUE WILL BE BELIEVED TO BE AN INDEX!\\\\n")
+    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\\\\n")
 except ValueError:
     pass
 try:
@@ -656,7 +660,7 @@ try:
 except api.err_duplicate:
     err("duplicate")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'pickl'
     args:
                 type:   'int'
@@ -671,10 +675,10 @@ pb_nl()
 tmp_list = []
 for x in the_list:
     tmp_list.append(escape(x))
-sow(api.u("honeypot.pickl?'{0}'\\n#DONE\\n").format(
+sow(api.u("honeypot.pickl?'{0}'\\\\n#DONE\\n").format(
                                             api.u("', '").join(tmp_list)))
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'pick'
     args:
                 type:   'int'
@@ -690,9 +694,9 @@ try:
 except api.err_idiot:
     err("n is too big")
 pb_nl()
-sow(api.u("honeypot.pick?'{0}'\\n").format(api.u(escape(tmp_str))))
+sow(api.u("honeypot.pick?'{0}'\\\\n").format(api.u(escape(tmp_str))))
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'remove'
     args:
                 type:   'str'
@@ -704,7 +708,7 @@ try:
 except api.err_notfound:
     err('not found')
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
     parse(x, api.parse_text(data, {'blank': []}))
 
@@ -733,19 +737,19 @@ def main():
     command:    'exit'
     args:       blank
     code:       'quit()'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'help'
     args:       blank
     code:       'show_help()'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'bells'
     args:       blank
     code:       'bells_and_whistles()'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'whistles'
     args:       blank
     code:       'bells_and_whistles()'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'undo'
     args:       blank
     code:       '''
@@ -758,7 +762,7 @@ if interactive:
 else:
     err("Not in interactive mode.")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'redo'
     args:       blank
     code:       '''
@@ -771,11 +775,11 @@ if interactive:
 else:
     err("Not in interactive mode.")
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'bugs'
     args:       blank
     code:       'bugs()'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'hell'
     args:       blank
     code:       '''
@@ -783,21 +787,21 @@ global verbose
 verbose = True
 v('Verbose mode enabled.')
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'passwd'
     args:
                 type:   'lit_str'
                 name:   'cmd'
                 %
     code:       'passwd_cmds(args["cmd"])'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'honeypot'
     args:
                 type:   'lit_str'
                 name:   'cmd'
                 %
     code:       'honeypot_cmds(args["cmd"])'
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'verbose'
     args:
                 type:   'str'
@@ -813,7 +817,7 @@ elif 'off' in args['mode']:
 else:
     se()
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'pb'
     args:
                 type:   'str'
@@ -828,7 +832,22 @@ elif 'off' in args['mode']:
 else:
     se()
 '''
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    command:    'esc'
+    args:
+                type:   'str'
+                name:   'mode'
+                %
+    code:       '''
+global escapes
+if 'on' in args['mode']:
+    escapes = True
+elif 'off' in args['mode']:
+    escapes = False
+else:
+    se()
+'''
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """, {'blank': []}))
 
 # Initialization.
@@ -836,6 +855,7 @@ p = api.passwd()
 h = api.honeypot()
 verbose = False
 progress_bars = False
+escapes = False
 interactive = False
 theline = ""
 logging.basicConfig(level=logging.CRITICAL)     #STFU

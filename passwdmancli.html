@@ -32,6 +32,8 @@ Integers are created with the python built-in
 int().
 All commands are listed in
 <a class="link" href="#commands" title="COMMANDS">COMMANDS</a>.
+The first command you really should use is
+"esc:on".
 If the line begins with a number-sign, the line will be ignored.
 If the line begins with a pipe-sign, it will write the rest of the line to
 standard output.</p><p>All outputs that are prefixed with an exclamation mark are error messages.
@@ -50,7 +52,8 @@ ground.</p><p>WARNING: If a command accepts a
 <code class="varname">name</code>
 and
 <code class="varname">index</code>
-argument, any string of digits will be treated as an index.</p></div><div class="refsect1" title="COMMANDS"><a id="commands"></a><h2>COMMANDS</h2><div class="variablelist"><dl><dt><span class="term">bells</span></dt><dd><p>Show message about the bells and whistles.</p></dd><dt><span class="term">bugs</span></dt><dd><p>Show message about wasps and mosquitoes.</p></dd><dt><span class="term">hell</span></dt><dd><p>Synonym for
+argument, any string of digits will be treated as an index.</p></div><div class="refsect1" title="COMMANDS"><a id="commands"></a><h2>COMMANDS</h2><div class="variablelist"><dl><dt><span class="term">bells</span></dt><dd><p>Show message about the bells and whistles.</p></dd><dt><span class="term">bugs</span></dt><dd><p>Show message about wasps and mosquitoes.</p></dd><dt><span class="term">esc:off</span></dt><dd><p>Disable really simple escapes for quoted strings.</p></dd><dt><span class="term">esc:on</span></dt><dd><p>Enable really simple escapes for quoted strings.
+They are only useful for escaping quotes.</p></dd><dt><span class="term">hell</span></dt><dd><p>Synonym for
 <span class="command"><strong>verbose:on</strong></span>.</p></dd><dt><span class="term">help</span></dt><dd><p>Help message.</p></dd><dt><span class="term">honeypot:add:'value'</span></dt><dd><p>Add a new honeypot with the value
 <code class="varname">value</code>.</p></dd><dt><span class="term">honeypot:help</span></dt><dd><p>Help message.</p></dd><dt><span class="term">honeypot:list</span></dt><dd><p>List all honeypots.
 Returns multiple lines of:

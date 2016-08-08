@@ -21,8 +21,6 @@ exclamation marks=62.
 It can add, remove honey-pots and randomly choose (pick) honey-pots in two
 different flavors.
 
-The GUI (graphical) can copy to clipboard.
-
 The CLI began as a interactive program, but it is no longer the default
 behavior. It is quite noisy, but that can be filtered with grep and cut. It
 supports 'pipe-through' and comments, as an attempt to make it better. It's

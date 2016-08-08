@@ -23,7 +23,6 @@
             Try also:
                 - Toggle show passwords/don't show without restarting the gui.
 *       Use tuples instead of dicts for the makefile-variables.
-*       New function in api: Generate list of dicts from text.
 
 Python 2.x drop schedule:
 

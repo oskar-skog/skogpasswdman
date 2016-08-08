@@ -1,3 +1,13 @@
+2014-01-27      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.6
+    * passwdmancli, passwdmanapi.py: New command: 'esc': really simple
+        escapes in api.unquote().
+    * passwdmanapi.py (parse_text and friends): doc-strings.
+    * passwdmanapi.py (parsetext_getvalue): Use eval().
+    * passwdmancli: Should have been 0.4.3: Escape backslashes
+    * passwdmancli: Fixed lots of too-little-backslashes bugs caused by
+        0.4.5.
+
 2014-01-26      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.4.5
     * passwdmanapi.py: parse_text() and friends.

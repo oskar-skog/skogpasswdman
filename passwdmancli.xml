@@ -3,7 +3,7 @@
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
 <refentry id='passwdmancli1'>
-<!-- Copyright (c) 2013, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
+<!-- Copyright (c) 2013, 2014, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
 <!-- Redistribution and use in source and binary forms, with or without
@@ -88,6 +88,8 @@ Integers are created with the python built-in
 int().
 All commands are listed in
 <link  linkend='commands'>COMMANDS</link>.
+The first command you really should use is
+"esc:on".
 If the line begins with a number-sign, the line will be ignored.
 If the line begins with a pipe-sign, it will write the rest of the line to
 standard output.</para>
@@ -151,6 +153,19 @@ argument, any string of digits will be treated as an index.</para>
 <term>bugs</term>
 <listitem>
 <para>Show message about wasps and mosquitoes.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>esc:off</term>
+<listitem>
+<para>Disable really simple escapes for quoted strings.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>esc:on</term>
+<listitem>
+<para>Enable really simple escapes for quoted strings.
+They are only useful for escaping quotes.</para>
 </listitem>
 </varlistentry>
 <varlistentry>

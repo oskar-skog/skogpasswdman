@@ -337,8 +337,15 @@ def getint(a, b, pb=None):
     rng.close()
     return number + a
 
-def unquote(x):
-    """unquote(x) - Returns `x` without surrounding quotes.
+def unquote(x, esc=False):
+    """unquote(x, esc=False) - Returns `x` without surrounding quotes.
+    
+    Setting `esc` to `True` will make `unquote` return every character
+    behind a backslash without parsing them.
+    
+    \'\"
+    
+    \n\t\b\e    Does not work.
     
     >>> #This is Python 3.x
     >>> import passwdmanapi as api
@@ -372,6 +379,14 @@ def unquote(x):
             c = the_input.pop(0)
         except:
             return x    # String with a quote inside.
+        if esc and c == '\\':
+            # Simple escapes.
+            try:
+                c = the_input.pop(0)
+            except:
+                return x    # String with a quote inside.
+            the_output += c
+            continue
         if c == quote:
             break       # Possible end of string.
         the_output += c
@@ -500,6 +515,8 @@ def parsetext_getvalue(s, *args):
     
     What is `s`?
     
+    Returns eval(s).
+    
     Single quoted: string
     Triple quoted: string
     int, float, complex
@@ -515,28 +532,34 @@ def parsetext_getvalue(s, *args):
         if c not in ' \t':
             break
     s = s[i:]
-    # Strings.
-    for n, sq, dq in [(3, "'''", '"""'), (1, "'", '"')]:
-        if len(s) >= n * 2:
-            if s[:n] in (sq, dq) and s[:n] == s[-n:]:
-                return re.sub('\x01', "'", re.sub('\x02', '"', s[n:-n]))
-    # Numbers.
-    numlist = []
-    numtypes = ('int', 'float', 'complex')
-    for x in numtypes:
-        try:
-            v = eval('{0}("{1}")'.format(x, s))
-        except ValueError:
-            v = None
-        numlist.append(v)
-    # Choose the simplest.
-    b = numlist[-1]
-    for a in reversed(numlist[:-1]):
-        if a != b:
-            break
-        b = a
-    if b != None:
-        return b
+    
+    ## Strings.
+    #for n, sq, dq in [(3, "'''", '"""'), (1, "'", '"')]:
+    #    if len(s) >= n * 2:
+    #        if s[:n] in (sq, dq) and s[:n] == s[-n:]:
+    #            return re.sub('\x01', "'", re.sub('\x02', '"', s[n:-n]))
+    ## Numbers.
+    #numlist = []
+    #numtypes = ('int', 'float', 'complex')
+    #for x in numtypes:
+    #    try:
+    #        v = eval('{0}("{1}")'.format(x, s))
+    #    except ValueError:
+    #        v = None
+    #    numlist.append(v)
+    ## Choose the simplest.
+    #b = numlist[-1]
+    #for a in reversed(numlist[:-1]):
+    #    if a != b:
+    #        break
+    #    b = a
+    #if b != None:
+    #    return b
+    
+    # The commented code above was from before the use of eval().
+    # They will come back when this can do stuff like get the value of a
+    # item in a list or dictionary without using eval().
+    
     # Variables
     # None, True and False are added to the list of variables.
     # It is only used internally, so eval() is not a big risk.
@@ -698,6 +721,12 @@ def parsetext_untext(text):
     return final
 
 def parsetext_list(text_list, *args):
+    '''
+    This is used by `parse_text`.
+    
+    In `parse_text`:
+        ``return parsetext_list(text_list, *args)``
+    '''
     ret = []
     list_item = []
     dict_item = {}
@@ -766,6 +795,89 @@ def parsetext_list(text_list, *args):
             list_item.append(parsetext_getvalue(line, *args))
 
 def parse_text(inp, *args):
+    '''
+    parse_text(text, *args)
+    
+    Return a list of dicts from text.
+    The format is based on Stanza and Python.
+    
+    args are dicts like locals() and globals().
+    
+    \t \n \' \" \\ and backslash-newline.
+    Triple strings.
+    
+    Note:       SyntaxError()s are often caused by off-by-one errors and
+                small unnoticeable characters.
+                
+                It works recursively with indention.  parse_text returns
+                and recurses when the indention decreases and increases.
+                
+                # Indent properly
+                blah
+                    blah
+                    %
+                  blah
+                  %
+                %
+                #[[blah, [[blah]], [[blah]]]]
+    
+    main:
+    [
+        [stuff],     If no           key: value
+        {stuff},     If only         key: value
+        {}           If empty
+        SyntaxError  If mixed.
+    ]
+    
+    Indented stuff in a list or a dict will have a `main`.
+    
+    'str'
+        'Hello world!'
+        'Good bye cruel world!'
+        %
+        '!dlrow olleH'
+        '!dlrow leurc eyb dooG'
+        %
+    %
+    key:        'value'
+    stuff:
+        key:    value
+        number: 88
+        %
+        'alpha'
+        'beta'
+        %
+    %
+    # Will return:
+    [
+        [
+            'str',
+            [
+                [
+                    'Hello world!',
+                    'Good bye cruel world!'
+                ],
+                [
+                    '!dlrow olleH',
+                    '!dlrow leurc eyb dooG'
+                ]
+            ]
+        ],
+        {
+            'key':      'value',
+            'stuff':    [
+                            {
+                                'key':          'value',
+                                'number':       88
+                            },
+                            [
+                                'alpha',
+                                'beta
+                            ]
+            ]
+        }
+    ]
+    '''
     args = list(args)
     args.append({
         'True': True,
