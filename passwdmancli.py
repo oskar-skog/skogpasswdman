@@ -248,6 +248,12 @@ def passwd_add(x):
         se()
         return
     add_name = api.unquote(add_args[3])
+    try:
+        int(add_name)          #Check if it will be treated as an integer.
+        sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
+        sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
+    except:
+        pass
     #start testing add_type
     if "human" in add_type:
         se()
@@ -299,10 +305,17 @@ def passwd_cmds(x):  #Put all the passwd:* here.
     else: #passwd:*:*
         b = twofields[1]
         if "add_human" in a:            #WARNING: Must be before "add".
-            s = siw()                           #It is easier to take the...
-            try:                                #...password on a new line.
-                p.add_nometa(api.unquote(b), s[:-1]) #Do the work at the...
-            except api.err_duplicate:                       #...right place.
+            s = siw()
+            name = api.unquote(b)
+            try:
+                int(name)          #Check if it will be treated as an integer.
+                sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
+                sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
+            except:
+                pass
+            try:
+                p.add_nometa(name, s[:-1])    #Do the work at the right place.
+            except api.err_duplicate:
                 sow("!duplicate\n")
                 return
             except:
@@ -315,11 +328,13 @@ def passwd_cmds(x):  #Put all the passwd:* here.
             return
         elif "get" in a:      #Get the value of a password; get the password.
             try:
-                sow("passwd.get?'")
-                sow(p[p.mkindex(b)]["value"])
-                sow("'\n")
+                the_value = p[p.mkindex(b)]["value"]
             except:
                 sow("!not found \n")
+                return
+            sow("passwd.get?'")
+            sow(the_value)
+            sow("'\n")
             return
         elif "update_meta" in a:        #WARNING: Must be before "update" and
                                         #"meta".
@@ -381,8 +396,15 @@ def honeypot_cmds(x):           #honeypot:*
     else:       #honeypot:*:*
         b = twofields[1]
         if "add" in a:
+            name = api.unquote(b)
             try:
-                h.add(api.unquote(b))
+                int(name)          #Check if it will be treated as an integer.
+                sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
+                sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
+            except:
+                pass
+            try:
+                h.add(name)
             except api.err_duplicate:
                 sow("!duplicate\n")
                 return
