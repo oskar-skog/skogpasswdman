@@ -1,0 +1,65 @@
+?       Improvements in HELP and About.
+*       More debugging
+*       Fix broken Docbook XML
+*       gettext()
+            *   Svenska
+            *   Suomi
+            ?   Deutch
+*       in "configure.2": dirs() should figure out more directories.
+*       info
+*       ``shortcuts`` in passwdmanrli.
+*       passwdmanrli: Code->data in passwd_tab and honeypot_tab.
+0.5     honeypot.pickf().  Deprecate honeypot.pick().
+0.5     Unicode support in configure.
+0.5     RLI: 40 column tty.
+*       Use argparse instead of getopt. argparse requires 2.7 or 3.x.
+0.5     THE BIG CHANGE: change the structure of passwdmangui:
+            From:
+                Wait a very long time reading /dev/random
+            To:
+                fork() a new process to read /dev/random and use a pipe
+                to update the progress-bar.
+            Pros:
+                - Progress-bar.
+                - Multitasking.
+                - More interactive.
+            Try also:
+                - Toggle show passwords/don't show without restarting the gui.
+*       THE REALLY BIG CHANGE: change passwdmanapi:
+            From:
+                Let multiple passwdman* touch the same files without any
+                locking and rereading.
+            To:
+                Client/server.
+                passwdmanapi will be a client that connects to the server,
+                which has eaten lots of the functionality in passwdmanapi.
+                Start the server if necessary.
+            Pros:
+                - Running multiple passwdman* at the same time.
+                - Running batched passwdmancli in background.
+            Needs:
+                - Better undo/redo code.
+            Try also:
+                - Fix passwdmancli to be multitasked rather than batched.
+
+Python 2.x drop schedule:
+
+configure       Drop 2.6        (February-March)
+GUI & RLI       Drop 2.6        ()
+CLI             Drop 2.6        ()
+API             Drop 2.6        (2015)
+configure       Drop 2.7        -
+GUI & RLI       Drop 2.7        (When security updates ends!)
+CLI             Drop 2.7        -
+API             Drop 2.7        -
+
+
+
+honeypot.pick*:
+
+honeypot.pickf                  0.5
+Remove honeypot.pick            Jan 2015
+honeypot.pick() [1]             Feb 2015
+
+[1]     Convenience feature.  Use a keyword argument to choose between pickl
+        and pickf.  Might not be implemented.

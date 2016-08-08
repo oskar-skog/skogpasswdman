@@ -1,3 +1,12 @@
+2014-01-16      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.27
+    * passwdmanapi.py (getint): Bugfix: s/b < a/b <= a/
+    * passwdmanapi.py: Big improvements in __doc__-strings.
+    * passwdmanapi.py (common_data): New keyword argument: make_backups;
+        sets self.make_backups
+    * passwdmanapi.py (passwd, honeypot): Use the new keyword-argument in
+        common_data.__init__ instead of setting self.make_backups directly.
+
 2014-01-15      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.26
     * passwdmanapi.py: Partial big improvements in __doc__-strings.

@@ -59,6 +59,7 @@ passwdmanapi - functions and classes used by passwdman
     redo(passwdobj,honeypotobj)
     ckmkdir(d)                  Internally used. Not in man-page.
     ckmkfile(f, content)        Internally used. Not in man-page.
+    ope = os.path.expanduser    Internally used. Not in man-page.
 
     Progress-bar
     ------------
@@ -76,14 +77,20 @@ passwdmanapi - functions and classes used by passwdman
     err_idiot(Exception)
     err_nometa(Exception)
 
-    Notes
+    NOTES
     -----
     What I call strings is really:
     
         - Python 2:     unicode
         - Python 3:     str
         
-    `xmlfile` is a path.
+    The `pb`-keyword argument, seen in lots of functions, expects a
+    `progress_bar`-object.
+    
+    _auto_pb = compile('''
+if pb is None:
+    pb = no_pb()
+''', '<string>', 'exec')
 
 """
 
@@ -196,6 +203,8 @@ def b2u3(x):
     else:
         return u(x)
 
+ope = os.path.expanduser
+
 _auto_pb = compile('''
 if pb is None:
     pb = no_pb()
@@ -287,16 +296,17 @@ def get10(length, pb=None):
     rng = open_rng()
     while len(passwd) < length:    # Main loop.
         if bits < 4:
+            # Prepend the bits in `number` with a random byte.
             logging.info("get10: Need more random bits.")
-            number |= ord(rng.read(1)) << bits  # Prepend the bits in number
-            bits += 8                           # with a random byte.
-        if (number%16) < 10:                    # I don't want 0...5 to be
-                                                # more popular than 6...9.
+            number |= ord(rng.read(1)) << bits
+            bits += 8
+        if (number%16) < 10:
+            # I don't want 0...5 to occur more frequently than 6...9.
             passwd += chr(number%16 + 48) # digits ASCII
             # Progress bar.
             pb.progress(float(len(passwd))/float(length) * 100.0)
-            logging.info("get10: Added char {0}/{1}.".format(len(passwd),
-                                                                  length))
+            logging.info(
+                "get10: Added char {0}/{1}.".format(len(passwd), length))
         else:
             logging.info("get10: Bad nibble.")
         number >>= 4 # Next nibble.
@@ -310,8 +320,8 @@ def getint(a, b, pb=None):
     Return random integer with value a from `a` to `b` - 1.
     """
     assert is_int(a) and is_int(b)
-    if b < a:
-        raise err_nolength("b < a")
+    if b <= a:
+        raise err_nolength("b <= a")
     exec _auto_pb
     rng = open_rng()
     reqbits = bits = number = smallnum = 0
@@ -334,7 +344,19 @@ def getint(a, b, pb=None):
     return number + a
 
 def unquote(x):
-    """unquote(x) - Returns x without surrounding quotes."""
+    """unquote(x) - Returns `x` without surrounding quotes.
+    
+    >>> #This is Python 3.x
+    >>> import passwdmanapi as api
+    >>> api.unquote('\t"Hello, world!"  ')
+    'Hello, world!'
+    >>> api.unquote('        "Good bye cruel world!')
+    '        "Good bye cruel world!'
+    >>> api.unquote('foobar')
+    'foobar'
+    >>> api.unquote("'foobar'")
+    'foobar'
+    """
     assert is_unicodestr(x)
     the_output, the_input = "", []
     for c in x:
@@ -395,12 +417,18 @@ def randomize(method, minlength, maxlength, pb=None):
 class progress_bar():
     """class progress_bar()
     
-    object = progress_bar(start=0.0, stop=100.0, function, data=None)
-    object.progress(percent)
-    object2 = object.minibar(start, stop)
+    pb = progress_bar(start=0.0, stop=100.0, function, data=None)
+    pb.progress(percent)
+    pb2 = pb.minibar(start, stop)
     brain_dead_object = no_pb()
     brain_dead_object.progress(percent)
     brain_dead_object2 = brain_dead_object.minibar(start, stop)
+    
+    Methods
+    -------
+        
+        - progress(percent)
+        - minibar(start, stop)
     
     start, stop and percent are floating point numbers in the range 0...100.
     """
@@ -409,6 +437,15 @@ class progress_bar():
         All values are float.
         The values are internally in the range 0...1.
         They are externally in the range 0...100.
+        
+        `start` and `stop` is where 0% and 100% really is.
+        
+        `function` is the function used to show progress.
+        `function` is ``function(percent, data)``.
+        `function`'s `percent` is the total progress in the range
+        0...100.
+        `function`'s `data` is the `progress_bar`-object's `data`.
+        `data` defaults to None and can be whatever you want.
         """
         self.start = start/100.0
         self.stop = stop/100.0
@@ -417,6 +454,10 @@ class progress_bar():
         # Full range.
         self.full = self.stop - self.start
     def progress(self, percent):
+        """progress(self, percent)
+        `percent` is in the range 0...100.
+        Show progress inside `self`'s range.
+        """
         if percent < 0.0:
             percent = 0.0
         if percent > 100.0:
@@ -428,6 +469,9 @@ class progress_bar():
         
         A progress-bar that is a part of another (the parent)
         progress-bar.
+        
+        `start` and `stop` is where local-0% and local-100% is in the
+        parent.
         
         >>> import passwdmanapi as api
         >>> def simple_progress(percent, data):
@@ -458,26 +502,30 @@ class progress_bar():
 
 class common_data():
     """class common_data():
-    self.data[]      Password-records or honey pots.
-    self.index   Used in for loops.
-    self.xmltree
-    self.xmlroot
-    __init__(self, xmlfile)
-        Load the file xmlfile -> self.xmltree -> self.xmlroot.
-    __iter__(self)
-    __getitem__(self, i)     self.data[i]
-    __len__(self)            len(self.data)
-    remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)
-        x is an integer used as an index xor a string that it removes from
-        self.data and xmlfile. x can also be a stringed integer used as index
-        xmlfile is the path to the file from which the data was loaded
-        element_name, attrib_name      "passwd","honeypot"  "name","value"
-        it needs them to find the data in the XML.
-        Set is_numstring to True if x is NOT an index!
-        Raises err_notfound.
-    writexml(self, xmlfile)     save
+    
+    `xmlfile` is a path.
+    All classes based on common_data are list-like with legs.
+    
+    __init__(self, xmlfile, make_backups=True)
+    
+    Variables
+    ---------
+    self.index                  integer; __iter__ and __next__
+    self.data                   list
+    self.xmltree                `xmlfile` is loaded into this.
+    self.xmlroot                The <root> tag.
+    self.make_backups           bool; will `writexml` generate a backup
+                                in '~/.passwdman/undoable/'.
+    
+    Methods
+    -------
+    __iter__
+    __getitem__
+    __next__ = next
+    remove(x, xmlfile, element_name, attrib_name, is_numstring)
+    writexml(xmlfile, pb=None)
     """
-    def __init__(self, xmlfile):
+    def __init__(self, xmlfile, make_backups=True):
         """__init__(self, xmlfile)
         This function is called by passwd.__init__ and honeypot.__init__ and
         creates variables they both have. It loads them from the
@@ -487,11 +535,12 @@ class common_data():
         assert is_anystr(xmlfile)
         self.data = []
         self.index = 0
+        self.make_backups = make_backups
         try:
-            parser = XML.XMLParser(encoding="UTF-8")     # Unicode stuff here.
+            parser = XML.XMLParser(encoding="UTF-8")
         except:
             parser = XML.XMLParser() # Above will fail with Python 2.6.
-        self.xmltree = XML.parse(os.path.expanduser(xmlfile), parser)
+        self.xmltree = XML.parse(ope(xmlfile), parser)
         self.xmlroot = self.xmltree.getroot()
         # Sanity checking...
         # Root tag.
@@ -514,7 +563,6 @@ class common_data():
             raise err_loaderr("incorrect file magic in '{0}'".format(xmlfile))
         logging.info("'{0}' is successfully loaded".format(xmlfile))
     def __iter__(self):
-        """Reset index and return self."""
         self.index = 0
         return self
     def __next__(self):
@@ -526,32 +574,41 @@ class common_data():
     def next(self):
         return self.__next__()
     def __getitem__(self, i):
-        """__getitem__(self,i)
-        return self.data[i]"""
         return self.data[i]
     def __len__(self):
-        """__len__(self)
-        return len(self.data)"""
         return len(self.data)
     def remove(self, x, xmlfile, element_name, attrib_name, is_numstring):
         """remove(self, x, xmlfile, element_name, attrib_name, is_numstring)
-        x is an integer used as an index xor a string. It can also be a
-        stringed integer.
-        It removes x from the file xmlfile and self.data
-        It looks for a match in self.xmltree in the attribute <attrib_name>
-        in the tags <element_name>.
-        is_numstring == True: x is a string of digits, not an integer.
-        Set is_numstring to True if x is NOT an index!
+        `x` is an integer used as an index xor a string. It can also be
+        a stringed integer.
+        
+        It removes `x` from the file `xmlfile` and `self.data`.
+        It looks for a match in self.xmltree in the attribute
+        `attrib_name` in the tags `element_name`
+        .
+        is_numstring == True:
+            `x` is a string of digits, not an integer.
+        
+        Set is_numstring to True if `x` is NOT an index!
+        
+        Raises err_notfound.
+        
+        Example (from passwd.remove)
+        ----------------------------
+        
+        common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
+                                                        "name", is_numstring)
+        
         """
-        # x is an integer used as an index xor a string used to loop until
-        # a match.
         assert is_anystr(attrib_name) and is_anystr(element_name)
         assert is_anystr(xmlfile)
+        
         if not is_numstring:
             try:
                 x = int(x)  # Is it a stringed integer?
             except:
                 pass
+        
         if is_int(x):
             y = 0
             for z in self.xmlroot.findall(element_name):
@@ -579,25 +636,28 @@ class common_data():
         else:
             raise err_notfound("not integer and not unicode-string")
     def writexml(self, xmlfile, pb=None):
-        """writexml(self, xmlfile) - Write the XML tree to disk."""
+        """writexml(self, xmlfile)
+        
+        Write the XML tree (self.xmltree) to `xmlfile`.
+        It will add a backup to '~/.passwdman/undoable/' if
+        `self.make_backups` is True."""
         assert is_anystr(xmlfile)
         self.xmlroot.text = "\n  "      # Make it look better.
         self.xmlroot.tail = "\n"
         if self.make_backups:
             # Make backup.
-            os.rename(os.path.expanduser(xmlfile),
-                    os.path.join(os.path.expanduser("~/.passwdman/undoable"),
-                    os.path.basename(xmlfile) + '-' + time.ctime()))
+            os.rename(ope(xmlfile),
+                    os.path.join(ope("~/.passwdman/undoable"),
+                            os.path.basename(xmlfile) + '-' + time.ctime()))
             if pb is not None:
                 pb.progress(50.0)
         try:
-            self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8",
+            self.xmltree.write(ope(xmlfile), encoding="UTF-8",
                                                     xml_declaration=True)
         except:         # For Python 2.6.
-            self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8")
+            self.xmltree.write(ope(xmlfile), encoding="UTF-8")
         if pb is not None:
             pb.progress(100.0)
-        # Unicode-stuff here.
     def __del__(self):
         """Used by undo() and redo(). Make sure the object is 0xdeadbeef."""
         del self.data
@@ -607,9 +667,10 @@ class common_data():
     def __repr__(self):
         return "<passwdmanapi.common_data object with id {0}>".format(
                                                                 id(self))
+
 class passwd(common_data):
     """passwd(common_data) - The passwords.
-    All classes based on common_data are lists with legs.
+    All classes based on common_data are list-like with legs.
     __init__(self, backups=True)
     With `backups`=True changes can be undone.
     
@@ -631,7 +692,9 @@ class passwd(common_data):
     
         - 'name'        What is the password for.
         - 'value'       The password.
-        - 'meta'        A dict inside a dict.
+        - 'meta'        A dict inside a dict.  The keys are needed for
+                        (re)`randomize`ing the password.  See `add` and
+                        `update`  The password's meta-data.
                         
                 - 'minlength'   Minimal required length for the
                                 password.  Use int() on this.
@@ -653,8 +716,7 @@ class passwd(common_data):
     writexml()  Not so well hidden method inherited from common_data.
     """
     def __init__(self, backups=True):
-        common_data.__init__(self, "~/.passwdman/passwords")
-        self.make_backups = backups
+        common_data.__init__(self, "~/.passwdman/passwords", backups)
         for passwd_element in self.xmlroot.findall("passwd"): # Get the data.
             meta_element = passwd_element.find("meta")
             # Got the tags/elements.
@@ -664,7 +726,8 @@ class passwd(common_data):
                     "maxlength": int(meta_element.attrib["maxlength"]),
                     "type": meta_element.attrib["type"]
                 }
-            else:    # The meta tag is optional.
+            else:
+                # The meta tag is optional.
                 # This is the magic dictionary.
                 meta_attrib = {
                     "minlength": 0,
@@ -677,29 +740,28 @@ class passwd(common_data):
                 "value": passwd_element.attrib["value"],
                 "meta": meta_attrib
             })
-    def _common_code_update(self, prefix, suffix):
-        return compile('''
-assert is_int(index)
-if index >= len(self) or index < 0:
-    raise err_notfound("index out of range")
-try:
-    minlength = int({0}minlength{1})
-    maxlength = int({0}maxlength{1})
-except:
-    raise err_idiot("INTEGERS")
-'''.format(prefix, suffix), '<string>', 'exec')
     def add(self, name, value, m_type, m_minlength, m_maxlength, pb=None):
         assert is_unicodestr(name)
         assert is_unicodestr(value) or value is None
         assert is_anystr(m_type)
         """add(self, name, value, m_type, m_minlength, m_maxlength)
-        Add the password for <name> with the value <value>.
-        m_type is "human" if the password is some old human generated
-        password, "10" if it only contains digits, "64" if it contains A-Z,
-        a-z, 0-9, underscore and exclamation mark.
-        m_minlength is the minimum length required for the password.
-        m_maxlength is the maximum length allowed for the password.
-        Raises err_duplicate if the password (<name>) already exist.
+        
+        Add the password for `name` with the value `value`.  If `value`
+        is None then the password will be `randomize`d.
+        
+        `m_type`
+        ------
+        
+            - "human"   The password is some human generated password.
+                        Cannot be `randomize`d.
+            - "10"      It only contains digits.
+            - "64"      It contains A-Z, a-z, 0-9, underscore and
+                        exclamation mark.
+        
+        `m_minlength` is the minimum length required for the password.
+        `m_maxlength` is the maximum length allowed for the password.
+        
+        Raises err_duplicate if the password for `name` already exist.
         """
         if is_int(m_minlength):
             m_minlength = str(m_minlength)
@@ -709,6 +771,7 @@ except:
         forget = int(m_minlength)   # Raise an exception if not a number.
         forget = int(m_maxlength)   # Raise an exception if not a number.
         exec _auto_pb
+        
         for x in self.data: # Check for duplicates.
             if x["name"] == name:
                 raise err_duplicate(
@@ -717,35 +780,52 @@ except:
         if value is None:
             value = randomize(m_type, int(m_minlength), int(m_maxlength),
                                                     pb.minibar(5.0, 90.0))
-        self.data.append({"name": name, "value": value,
-                      "meta": {"type": m_type, "minlength": m_minlength,
-                                               "maxlength": m_maxlength}})
+        self.data.append({
+            "name": name,
+            "value": value,
+            "meta": {
+                "type": m_type,
+                "minlength": m_minlength,
+                "maxlength": m_maxlength
+                }
+            })
+         
+        # Add new tags.
         passwd_element = XML.SubElement(self.xmlroot, "passwd")
         passwd_element.text = "\n    "  # Make them look better.
         passwd_element.tail = "\n  "
-        meta_element = XML.SubElement(passwd_element, "meta")   # Add new tags.
+        meta_element = XML.SubElement(passwd_element, "meta")
         meta_element.tail = "\n  "
-        passwd_element.set("name", name) # Attributes.
+        
+        # Attributes.
+        passwd_element.set("name", name)
         passwd_element.set("value", value)
         meta_element.set("type", m_type)
         meta_element.set("minlength", m_minlength)
-        meta_element.set("maxlength", m_maxlength) # Attributes.
+        meta_element.set("maxlength", m_maxlength)
+        
         pb.progress(95.0)
         common_data.writexml(self, "~/.passwdman/passwords")
         pb.progress(100.0)
     def add_nometa(self, name, value):
         """add_nometa(self, name, value)
-        Add password with only name and value.
-        Raises err_duplicate if the password (<name>) already exist.
+        ``self.add(name, value, "human", 0, 0)``
+        Add a password without meta-data.
         """
         assert is_unicodestr(name) and is_unicodestr(value)
         for x in self.data: # Check for duplicates.
             if x["name"] == name:
                 raise err_duplicate(
                     "passwd.add_nometa(name='{0}') #duplicate".format(value))
-        self.data.append({"name": name, "value": value,
-                      "meta": {"type": "human", "minlength": 0,
-                                               "maxlength": 0}})
+        self.data.append({
+            "name": name,
+            "value": value,
+            "meta": {
+                "type": "human",
+                "minlength": 0,
+                "maxlength": 0
+                }
+            })
         passwd_element = XML.SubElement(self.xmlroot, "passwd")
         passwd_element.tail = "\n  "
         passwd_element.set("name", name) #Attributes.
@@ -753,19 +833,22 @@ except:
         common_data.writexml(self, "~/.passwdman/passwords")
     def remove(self, x, is_numstring=False):
         """remove(self, x, is_numstring=False)
-        Remove the password <x>.
-        x is an integer used as an index for self.data xor a string (stringed
-        integer).
-        x is the purpose/name of a password, not the value.
-        Set is_numstring to True if x is NOT an index!
+        Remove the password `x`.
+        `x` is an integer used as an index for `self.data` xor a string
+        xor a stringed integer (index).
+        `x` is what the password is for, not the value.
+        Set is_numstring to True if x is a string containing only
+        digits, but is NOT an index!
         """
-        # Wrapper around common_data.remove.
         common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
-                           "name", is_numstring)
+                                                    "name", is_numstring)
     def mkindex(self, x, is_numstring=False):
         """mkindex(self, x, is_numstring=False)
-        Make index of x (string). x can be a stringed index
-           Set is_numstring to True if x is NOT an index!
+        Return the index of the password for `x`.
+        `x` is either an integer=index, a string to find xor a stringed
+        integer.
+        Set is_numstring to True if x is a string containing only
+        digits, but is NOT an index!
         """
         index = 0
         try:
@@ -785,7 +868,14 @@ except:
         """update(self, index)
         Update the password at index, use its meta-data to know how.
         """
-        exec self._common_code_update('self[index]["meta"]["', '"]')
+        assert is_int(index)
+        if index >= len(self) or index < 0:
+            raise err_notfound("index out of range")
+        try:
+            minlength = int(self[index]['meta']['minlength'])
+            maxlength = int(self[index]['meta']['maxlength'])
+        except:
+            raise err_idiot("INTEGERS")
         method = self[index]["meta"]["type"]
         if method == "human":   # It would probably work with get64, but
             raise err_nometa(   # it will need a check for a meta-element and
@@ -810,7 +900,14 @@ except:
         Update the password at index and its meta data.
         """
         assert is_anystr(m_type)
-        exec self._common_code_update('m_', '')
+        assert is_int(index)
+        if index >= len(self) or index < 0:
+            raise err_notfound("index out of range")
+        try:
+            minlength = int(m_minlength)
+            maxlength = int(m_maxlength)
+        except:
+            raise err_idiot("INTEGERS")
         exec _auto_pb
         new = self[index]["value"] = randomize(m_type, minlength, maxlength,
                                                     pb.minibar(0.0, 90.0))
@@ -840,17 +937,28 @@ except:
         return "<passwdmanapi.passwd object with id {0}>".format(id(self))
 
 class honeypot(common_data):
-    """self.data[]      List of honey pots.
+    """honeypot(common_data) - The honeypots.
+    All classes based on common_data are list-like with legs.
+    __init__(self, backups=True)
+    With `backups`=True changes can be undone.
+    
+    Methods (including those from common_data)
+    ------------------------------------------
     add(value)
-    remove(x)
-    pick(self, n=1, sep=",", log_vs_raise=True)
-        Randomly pick <n> honey pots and separate them with <sep>.
-        log_vs_raise
-            True
-                Log an error if <n> is too high.
-            False
-                Raise err_idiot if <n> is too high.
-    pickl(n, log_vs_raise=True) returns a list of n honeypots
+    pick(n=1, sep=",", log_vs_raise=True, pb=None)
+    pickl(n, log_vs_raise=True, pb=None)
+    __iter__
+    next = __next__
+    __len__
+    __getitem__
+    
+    A `honeypot`-object is list of strings.
+    
+    Internals
+    ---------
+    xmltree     A 'xml.etree.ElementTree.ElementTree'.
+    xmlroot     A 'xml.etree.ElementTree.Element'. The 'root' tag.
+    writexml()  Not so well hidden method inherited from common_data.
     """
     def __init__(self, backups=True):
         """__init__(self, backups=True)
@@ -858,28 +966,9 @@ class honeypot(common_data):
         -> self.xmlroot -> self.data[].
         self.data is a list of strings.
         """
-        common_data.__init__(self, "~/.passwdman/honeypots")
-        self.make_backups = backups
+        common_data.__init__(self, "~/.passwdman/honeypots", backups)
         for honeypot_element in self.xmlroot.findall("honeypot"):
             self.data.append(honeypot_element.attrib["value"])
-        self.common_code_pick = compile('''
-assert is_int(n)
-exec _auto_pb
-if n > len(self):
-    n = len(self)
-    if log_vs_raise:
-        logging.error("honeypot.pick: <n> is too big.")
-    else:
-        raise err_idiot("")
-balloons, outlist, output = [], [], ""
-for x in self:                  # Create popable list.
-    balloons.append(x)
-while len(outlist) < n:         # Pop random balloons.
-    s = float(len(outlist))
-    N = float(n)
-    outlist.append(balloons.pop(getint(0, len(balloons),
-                                pb.minibar(s/N* 100.0, (s+1.0)/N * 100.0))))
-''', '<string>', 'exec')
     def add(self, value):
         assert is_unicodestr(value)
         """add(self, value) - Add a new honey pot with the value <value>."""
@@ -901,62 +990,85 @@ while len(outlist) < n:         # Pop random balloons.
                            "value", is_numstring)
     def pick(self, n=1, sep=",", log_vs_raise=True, pb=None):
         """pick(self, n=1, sep=",", log_vs_raise=True)
-        Pick randomly selected honey-pots.
+        Pick `n` randomly selected honey-pots and separate them with
+        `sep`.
+        
+        If `log_vs_raise` is True then `pick` will log an error if `n`
+        is too big.  It will pick fewer fake-passwords than it is
+        supposed to.
+        If `log_vs_raise` is False it will raise `err_idiot`.
         """
         # Its default is not unicode on Python 2.x.
         assert is_unicodestr(sep) or sep == ","
-        exec self.common_code_pick
-        for y in outlist:
-            output += y
-            output += sep
-        return output[:-(len(sep))] # Do not return the last separator.
+        return sep.join(self.pickl(n, log_vs_raise=log_vs_raise, pb=pb))
     def pickl(self, n, log_vs_raise=True, pb=None):
         """pickl(self, n, log_vs_raise=True)
-        Pick randomly selected honey-pots in a list.
+        Pick `n` randomly selected honey-pots and return a list.
+        
+        If `log_vs_raise` is True then `pick` will log an error if `n`
+        is too big.  It will pick fewer fake-passwords than it is
+        supposed to.
+        If `log_vs_raise` is False it will raise `err_idiot`.
         """
-        exec self.common_code_pick
+        assert is_int(n)
+        exec _auto_pb
+        if n > len(self):
+            n = len(self)
+            if log_vs_raise:
+                logging.error("honeypot.pick: <n> is too big.")
+            else:
+                raise err_idiot("n is too big!")
+        balloons, outlist, output = [], [], ""
+        for x in self:                  # Create popable list.
+            balloons.append(x)
+        while len(outlist) < n:         # Pop random balloons.
+            s = float(len(outlist))
+            N = float(n)
+            outlist.append(balloons.pop(getint(0, len(balloons),
+                                pb.minibar(s/N* 100.0, (s+1.0)/N * 100.0))))
         return outlist
     def __repr__(self):
         return "<passwdmanapi.honeypot object with id {0}>".format(id(self))
 
 def _unredo(passwdobj, honeypotobj, undo_unodable, undo_redoable):
     """_unredo(passwdobj=None, honeypotobj=None,
-                            undo_unodable, undo_redoable)
+                                        undo_unodable, undo_redoable)
+    `passwdobj` and `honeypotobj` are the passwd and honeypot OBJECTS.
+    
     Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
     `undo_redoable`.
+    
     Moves the newest file from `undo_unodable` to
     '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
-    It's arguments are the passwd and honeypot OBJECTS.
+    
     """
     if not isinstance(passwdobj, passwd):
         raise err_idiot("Read the fucking __doc__ string")
     if not isinstance(honeypotobj, honeypot):
         raise err_idiot("Read the fucking __doc__ string")
     filename, birth = "", 0
-    for x in os.listdir(os.path.expanduser(undo_unodable)):
-        y = os.stat(os.path.join(
-            os.path.expanduser(undo_unodable), x))
+    for x in os.listdir(ope(undo_unodable)):
+        y = os.stat(os.path.join(ope(undo_unodable), x))
         if y.st_ctime > birth:      # Newer file.
             del filename
-            filename = os.path.join(
-                os.path.expanduser(undo_unodable), x)
+            filename = os.path.join(ope(undo_unodable), x)
             # Update filename to the newer file.
             birth = y.st_ctime      # Increase birth.
     del birth
     # Filename is now the name of the file.
     if "passwords" in filename:
-        os.rename(os.path.expanduser("~/.passwdman/passwords"),
-            os.path.join(os.path.expanduser(undo_redoable),
+        os.rename(ope("~/.passwdman/passwords"),
+            os.path.join(ope(undo_redoable),
                 "passwords" + '-' + time.ctime())) # Copy to redoable.
         passwdobj.__del__()
-        os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
+        os.rename(filename, ope("~/.passwdman/passwords"))
         passwdobj.__init__() # Reload the data structure.
     elif "honeypots" in filename:
-        os.rename(os.path.expanduser("~/.passwdman/honeypots"),
-            os.path.join(os.path.expanduser(undo_redoable),
+        os.rename(ope("~/.passwdman/honeypots"),
+            os.path.join(ope(undo_redoable),
                 "honeypots" + '-' + time.ctime())) # Copy to redoable.
         honeypotobj.__del__()
-        os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
+        os.rename(filename, ope("~/.passwdman/honeypots"))
         honeypotobj.__init__() # Reload the data structure.
     else:
         logging.error("function undo in module passwdmanapi:" +
@@ -964,41 +1076,48 @@ def _unredo(passwdobj, honeypotobj, undo_unodable, undo_redoable):
 
 def undo(passwdobj=None, honeypotobj=None):
     """undo(passwdobj=None, honeypotobj=None)
+    It's arguments are the passwd and honeypot OBJECTS.
+    
     Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
     '~/.passwdman/redoable/*'.
+    
     Moves the newest file from '~/.passwdman/undoable/*' to
     '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
-    It's arguments are the passwd and honeypot OBJECTS.
+
     """
     _unredo(passwdobj, honeypotobj, "~/.passwdman/undoable",
                                             "~/.passwdman/redoable")
 
 def redo(passwdobj=None, honeypotobj=None):
     """redo(passwdobj=None, honeypotobj=None)
+    It's arguments are the passwd and honeypot OBJECTS.
+    
     Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
     '~/.passwdman/undoable/*'.
+    
     Moves the newest file from '~/.passwdman/redoable/*' to
     '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
-    It's arguments are the passwd and honeypot OBJECTS.
     """
     _unredo(passwdobj, honeypotobj, "~/.passwdman/redoable",
                                             "~/.passwdman/undoable")
 
 # Run this when imported.
+assert __name__ != "__main__"
+
 def ckmkdir(x):
     """ckmkdir(x) - make sure that the directory `x` exists."""
     try:
-        os.stat(os.path.expanduser(x))
+        os.stat(ope(x))
     except:
-        os.mkdir(os.path.expanduser(x), 0o700)
+        os.mkdir(ope(x), 0o700)
 def ckmkfile(x, y):
     """ckmkfile(x, y) - make sure that the file `x` exists.
     Its default content is `y`.
     """
     try:
-        os.stat(os.path.expanduser(x))
+        os.stat(ope(x))
     except:
-        f = open(os.path.expanduser(x), "w")
+        f = open(ope(x), "w")
         f.write(y)
         f.close()
 # Make sure all the needed files exist.
@@ -1015,7 +1134,7 @@ ckmkfile("~/.passwdman/honeypots", """<?xml version='1.0' encoding='UTF-8'?>
 """)
 # Simple exclusive lock for all the files.
 ckmkfile("~/.passwdman/lock", "")
-f = open(os.path.expanduser("~/.passwdman/lock"), 'w')
+f = open(ope("~/.passwdman/lock"), 'w')
 try:
     fcntl.lockf(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
 except IOError:
@@ -1027,6 +1146,3 @@ try:
 except:
     logging.error("Cannot figure out encoding.")
     code = 'ascii'
-
-if __name__ == "__main__":
-    print ("I-D-10-T")
