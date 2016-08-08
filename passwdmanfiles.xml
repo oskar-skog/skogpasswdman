@@ -2,8 +2,31 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
-<!-- hand-hacked fixes -->
 <refentry id='passwdmanfiles5'>
+<!-- Copyright (c) 2013, Oskar Skog
+All rights reserved. -->
+
+<!-- Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met: -->
+
+<!-- 1.  Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer. -->
+
+<!-- 2.  Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution. -->
+
+<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE. -->
 
 
 
@@ -14,14 +37,12 @@
 </refmeta>
 
 <refnamediv id='purpose'>
-    <!--<refname> ~/.passwdman/passwords  @GLUE@,</refname>-->
-        <refname> ~/.passwdman/passwords </refname> <!--fix-->
+<refname> ~/.passwdman/passwords  @GLUE@,</refname>
 <refpurpose> data-files for passwdman. </refpurpose>
 </refnamediv>
 <!-- body begins here -->
 
-   <!--<refsect1 id='pa_passwdmanpasswords'><title>Pa ~/.passwdman/passwords</title>-->
-       <refsect1 id='pa_passwdmanpasswords'><title>~/.passwdman/passwords</title> <!--fix-->
+<refsect1 id='pa_passwdmanpasswords'><title>Pa ~/.passwdman/passwords</title>
 <para>The password list.
 It is an XML file, you are expected to understand an example of the file.
 The real file is ugly.</para>
@@ -51,8 +72,7 @@ The real file is ugly.</para>
 </programlisting> <!-- remap='Ed (block)' -->
 </refsect1>
 
-   <!--<refsect1 id='pa_passwdmanhoneypots'><title>Pa ~/.passwdman/honeypots</title>-->
-       <refsect1 id='pa_passwdmanhoneypots'><title>~/.passwdman/honeypots</title> <!--fix-->
+<refsect1 id='pa_passwdmanhoneypots'><title>Pa ~/.passwdman/honeypots</title>
 <para>The list of honeypots.
 The honeypots are fake-passwords, to help catching crackers.
 This too is an ugly XML file.</para>
@@ -66,11 +86,10 @@ This too is an ugly XML file.</para>
 </programlisting> <!-- remap='Ed (block)' -->
 </refsect1>
 
-   <!--<refsect1 id='pa_passwdmanundoable'><title>Pa ~/.passwdman/undoable</title>-->
-       <refsect1 id='pa_passwdmanundoable'><title>~/.passwdman/undoable</title> <!--fix-->
+<refsect1 id='pa_passwdmanundoable'><title>Pa ~/.passwdman/undoable</title>
 <para>Backups.
 The
-undo()
+undo();
 function looks for the newest file and doesn't care about the filename.
 "passwords"
 in the filename, the file is a backup of 
