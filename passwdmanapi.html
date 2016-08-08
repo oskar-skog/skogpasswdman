@@ -16,11 +16,11 @@
        h1      { text-align: center }
 </style>
 <!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Sat Nov  9 21:02:54 2013 -->
-<!-- hand-hacked <p style="margin-top: 1em"><b>&bull;</b></p>
-  to
-  <p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
-  -->
+<!-- CreationDate: Sun Nov 10 23:04:03 2013 -->
+<!--
+<p style="margin-top: 1em"><b>&bull;</b></p>
+<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+-->
 <!-- Copyright (c) 2013, Oskar Skog
 All rights reserved. -->
 
@@ -72,6 +72,7 @@ get10(length) <br/>
 getint(a, b) <br/>
 unquote(x) <br/>
 undo(passwdobj=None, honeypotobj=None) <br/>
+redo(passwdobj=None, honeypotobj=None) <br/>
 class common_data() <br/>
 class passwd(common_data) <br/>
 class honeypot(common_data)</b></p>
@@ -153,9 +154,11 @@ requires <i>passwdobj</i> which is the <b>passwd</b>()
 object and <i>honeypotobj</i> which is the <b>honeypot</b>()
 object. Raises err_idiot.</p>
 
-
-<p style="margin-left:6%; margin-top: 1em"><b>common_data</b>()
-is a class defining methods used by both <b>passwd</b>() and
+<p style="margin-left:6%; margin-top: 1em"><b>redo</b>()
+redoes the latest undone change to the password list or
+honey pot list, by restoring from the newest auto-generated
+backup from <b>undo</b>(). <b>common_data</b>() is a class
+defining methods used by both <b>passwd</b>() and
 <b>honeypot</b>().</p>
 
 <p style="margin-left:6%; margin-top: 1em"><b>passwd</b>()

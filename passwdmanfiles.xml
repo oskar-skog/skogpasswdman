@@ -31,6 +31,7 @@ POSSIBILITY OF SUCH DAMAGE. -->
 
 
 
+
 <refmeta>
 <refentrytitle>PASSWDMANFILES</refentrytitle>
 <manvolnum>5</manvolnum>
@@ -91,13 +92,24 @@ This too is an ugly XML file.</para>
 The
 undo();
 function looks for the newest file and doesn't care about the filename.
+If
 "passwords"
 in the filename, the file is a backup of 
 <filename>~/.passwdman/passwords</filename>.
 If
 "honeypots"
 in the filename, the file is a backups of
-<filename>~/.passwdman/honeypots</filename>.</para>
+<filename>~/.passwdman/honeypots</filename>.
+It copies the current state to
+<filename>~/.passwdman/redoable</filename>
+before it restores from the backup.</para>
+</refsect1>
+
+<refsect1 id='pa_passwdmanredoable'><title>Pa ~/.passwdman/redoable</title>
+<para>The opposite of
+<filename>~/.passwdman/undoable</filename>.
+The function is
+redo(.);</para>
 </refsect1>
 
 <refsect1 id='see_also'><title>SEE ALSO</title>

@@ -52,6 +52,8 @@ POSSIBILITY OF SUCH DAMAGE. -->
     <arg choice='plain'><replaceable>unquote(x)</replaceable></arg>
     <arg choice='plain'><replaceable>undo(passwdobj=None,</replaceable></arg>
     <arg choice='plain'><replaceable>honeypotobj=None)</replaceable></arg>
+    <arg choice='plain'><replaceable>redo(passwdobj=None,</replaceable></arg>
+    <arg choice='plain'><replaceable>honeypotobj=None)</replaceable></arg>
     <arg choice='plain'><replaceable>class</replaceable></arg>
     <arg choice='plain'><replaceable>common_data()</replaceable></arg>
     <arg choice='plain'><replaceable>class</replaceable></arg>
@@ -167,7 +169,11 @@ object.
 Raises
 <errorcode>err_idiot</errorcode>.</para>
 
-<para>common_data();
+<para>redo();
+redoes the latest undone change to the password list or honey pot list, by
+restoring from the newest auto-generated backup from
+undo(.);
+common_data();
 is a class defining methods used by both
 passwd();
 and

@@ -618,8 +618,10 @@ class honeypot(common_data):
 
 def undo(passwdobj=None, honeypotobj=None):
     """undo(passwdobj=None, honeypotobj=None)
-    It restores either ~/.passwdman/passwords or ~/.passwdman/honeypots from
-    the latest backup <~/.passwdman/undoable/*>
+    moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
+    '~/.passwdman/redoable/*'
+    moves the newest file from '~/.passwdman/undoable/*' to
+    '~/.passwdman/passwords' or '~/.passwdman/honeypots'
     It's arguments are the passwd and honeypot OBJECTS"""
     if isinstance(passwdobj, passwd) and isinstance(honeypotobj, honeypot):
         #undo
@@ -636,10 +638,16 @@ def undo(passwdobj=None, honeypotobj=None):
         del birth
         #filename is now the name of the file
         if "passwords" in filename:
+            os.rename(os.path.expanduser("~/.passwdman/passwords"),
+                os.path.join(os.path.expanduser("~/.passwdman/redoable"),
+                    "passwords" + '-' + time.ctime())) #copy to redoable
             passwdobj.__del__()
             os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
             passwdobj.__init__() #reload the data structure
         elif "honeypots" in filename:
+            os.rename(os.path.expanduser("~/.passwdman/honeypots"),
+                os.path.join(os.path.expanduser("~/.passwdman/redoable"),
+                    "honeypots" + '-' + time.ctime())) #copy to redoable
             honeypotobj.__del__()
             os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
             honeypotobj.__init__() #reload the data structure
@@ -648,3 +656,73 @@ def undo(passwdobj=None, honeypotobj=None):
                           "confused by the file '{}'".format(filename))
     else:
         raise err_idiot("Read the fucking __doc__ string")
+
+def redo(passwdobj=None, honeypotobj=None):
+    #copy-pasted from undo() and hand-hacked
+    """redo(passwdobj=None, honeypotobj=None)
+    moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
+    '~/.passwdman/undoable/*'
+    moves the newest file from '~/.passwdman/redoable/*' to
+    '~/.passwdman/passwords' or '~/.passwdman/honeypots'
+    It's arguments are the passwd and honeypot OBJECTS"""
+    if isinstance(passwdobj, passwd) and isinstance(honeypotobj, honeypot):
+        #undo
+        filename, birth = "", 0
+        for x in os.listdir(os.path.expanduser("~/.passwdman/redoable")):
+            y = os.stat(os.path.join(
+                os.path.expanduser("~/.passwdman/redoable"), x))
+            if y.st_ctime > birth:      #newer file
+                del filename
+                filename = os.path.join(
+                    os.path.expanduser("~/.passwdman/redoable"), x)
+                #update filename to the newer file
+                birth = y.st_ctime      #increase birth
+        del birth
+        #filename is now the name of the file
+        if "passwords" in filename:
+            os.rename(os.path.expanduser("~/.passwdman/passwords"),
+                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+                    "passwords" + '-' + time.ctime())) #copy to undoable
+            passwdobj.__del__()
+            os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
+            passwdobj.__init__() #reload the data structure
+        elif "honeypots" in filename:
+            os.rename(os.path.expanduser("~/.passwdman/honeypots"),
+                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+                    "honeypots" + '-' + time.ctime())) #copy to undoable
+            honeypotobj.__del__()
+            os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
+            honeypotobj.__init__() #reload the data structure
+        else:
+            logging.error("function undo in module passwdmanapi:"   #continue
+                          "confused by the file '{}'".format(filename))
+    else:
+        raise err_idiot("Read the fucking __doc__ string")
+    
+#Run this when imported
+def ckmkdir(x):
+    try:
+        os.stat(os.path.expanduser(x))
+    except:
+        os.mkdir(os.path.expanduser(x), 0o700)
+def ckmkfile(x, y):
+    try:
+        os.stat(os.path.expanduser(x))
+    except:
+        f = open(os.path.expanduser(x), "w")
+        f.write(y)
+        f.close()
+ckmkdir("~/.passwdman")
+ckmkdir("~/.passwdman/undoable")
+ckmkdir("~/.passwdman/redoable")
+ckmkfile("~/.passwdman/passwords", """<?xml version='1.0' encoding='UTF-8'?>
+<root file="passwords" magic="passwdman" version="0.1">
+</root>
+""")
+ckmkfile("~/.passwdman/honeypots", """<?xml version='1.0' encoding='UTF-8'?>
+<root file="honeypots" magic="passwdman" version="0.1">
+</root>
+""")
+
+if __name__ == "__main__":
+    print ("I-D-10-T")

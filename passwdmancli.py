@@ -438,6 +438,13 @@ def main():             #finally
                     ssw("!cannot undo\n")
                     continue
                 v("#undone something\n")
+            elif "redo" in a:
+                try:
+                    api.redo(p, h)
+                except:
+                    ssw("!cannot redo")
+                    continue
+                v("#redone something\n")
             elif "bells" in a or "whistles" in a:
                 bells_and_whistles()
                 continue

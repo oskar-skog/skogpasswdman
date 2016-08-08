@@ -16,7 +16,7 @@
        h1      { text-align: center }
 </style>
 <!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Fri Nov  8 08:03:36 2013 -->
+<!-- CreationDate: Sun Nov 10 23:04:18 2013 -->
 <!-- Copyright (c) 2013, Oskar Skog
 All rights reserved. -->
 
@@ -54,7 +54,8 @@ PASSWDMANFILES(5)</p>
 <p style="margin-top: 1em"><b>NAME</b></p>
 
 <p style="margin-left:6%;"><b>~/.passwdman/passwords</b>,
-<b>~/.passwdman/honeypots</b>, <b>~/.passwdman/undoable/</b>
+<b>~/.passwdman/honeypots</b>,
+<b>~/.passwdman/undoable/</b>, <b>~/.passwdman/redoable/</b>
 &mdash; data-files for passwdman.</p>
 
 
@@ -123,10 +124,20 @@ value=&quot;putme_injail_ifi_typethis&quot;/&gt; <br/>
 
 <p style="margin-left:6%;">Backups. The <b>undo</b>()
 function looks for the newest file and doesn&rsquo;t care
-about the filename. &quot;passwords&quot; in the filename,
-the file is a backup of <i>~/.passwdman/passwords</i>. If
-&quot;honeypots&quot; in the filename, the file is a backups
-of <i>~/.passwdman/honeypots</i>.</p>
+about the filename. If &quot;passwords&quot; in the
+filename, the file is a backup of
+<i>~/.passwdman/passwords</i>. If &quot;honeypots&quot; in
+the filename, the file is a backups of
+<i>~/.passwdman/honeypots</i>. It copies the current state
+to <i>~/.passwdman/redoable</i> before it restores from the
+backup.</p>
+
+
+<p style="margin-top: 1em"><i>~/.passwdman/redoable</i></p>
+
+<p style="margin-left:6%;">The opposite of
+<i>~/.passwdman/undoable</i>. The function is
+<b>redo</b>().</p>
 
 <p style="margin-top: 1em"><b>SEE ALSO</b></p>
 

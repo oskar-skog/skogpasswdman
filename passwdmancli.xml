@@ -349,6 +349,13 @@ as meta-data, instead of the passwords own (which might not even exist).</para>
 </listitem>
 </varlistentry>
 <varlistentry>
+<term>redo</term>
+<listitem>
+<para>Opposite of
+<command remap='Ic'>undo</command>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
 <term>undo</term>
 <listitem>
 <para>CLI undo button; restore from latest auto-generated backup.</para>

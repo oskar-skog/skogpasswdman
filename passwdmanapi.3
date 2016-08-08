@@ -38,6 +38,7 @@
 .Fd getint(a, b)
 .Fd unquote(x)
 .Fd undo(passwdobj=None, honeypotobj=None)
+.Fd redo(passwdobj=None, honeypotobj=None)
 .Fd class common_data()
 .Fd class passwd(common_data)
 .Fd class honeypot(common_data)
@@ -136,6 +137,10 @@ object.
 Raises
 .Er err_idiot .
 .Pp
+.Fn redo
+redoes the latest undone change to the password list or honey pot list, by
+restoring from the newest auto-generated backup from
+.Fn undo .
 .Fn common_data
 is a class defining methods used by both
 .Fn passwd

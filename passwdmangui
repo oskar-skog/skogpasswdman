@@ -523,11 +523,14 @@ class main_window(Gtk.Window):
         
         button_undo = Gtk.Button("Undo", Gtk.STOCK_UNDO)
         button_undo.connect("clicked", self.undo)
+        button_redo = Gtk.Button("Redo", Gtk.STOCK_REDO)
+        button_redo.connect("clicked", self.redo)
         button_quit = Gtk.Button("Quit", Gtk.STOCK_QUIT)
         button_quit.connect("clicked", Gtk.main_quit)
         
         box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
         box2.pack_start(button_undo, False, False, 0)
+        box2.pack_start(button_redo, False, False, 0)
         box2.pack_end(button_quit, False, False, 0)
         
         box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
@@ -551,6 +554,20 @@ class main_window(Gtk.Window):
         except:
             #'self.passwd_tab' has attribute 'parent' which is 'self'
             err(self.passwd_tab, "CANNOT UNDO")
+    def redo(self, button):
+        #copy-pasted from undo() and hand-hacked
+        try:
+            api.redo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
+            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            self.passwd_tab.thelist.clear()
+            self.honeypot_tab.thelist.clear()
+            for x in self.passwd_tab.passwords:
+                self.passwd_tab.thelist.append([x["name"], x["value"]])
+            for x in self.honeypot_tab.honeypots:
+                self.honeypot_tab.thelist.append([x])
+        except:
+            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            err(self.passwd_tab, "CANNOT REDO")
 
 if __name__ == "__main__":
     w = main_window()

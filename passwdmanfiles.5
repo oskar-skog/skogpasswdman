@@ -28,7 +28,8 @@
 .Sh NAME
 .Nm ~/.passwdman/passwords ,
 .Nm ~/.passwdman/honeypots ,
-.Nm ~/.passwdman/undoable/
+.Nm ~/.passwdman/undoable/ ,
+.Nm ~/.passwdman/redoable/
 .Nd data-files for passwdman.
 .Sh Pa ~/.passwdman/passwords
 The password list.
@@ -75,6 +76,7 @@ Backups.
 The
 .Fn undo
 function looks for the newest file and doesn't care about the filename.
+If
 .Qq passwords
 in the filename, the file is a backup of 
 .Pa ~/.passwdman/passwords .
@@ -82,6 +84,14 @@ If
 .Qq honeypots
 in the filename, the file is a backups of
 .Pa ~/.passwdman/honeypots .
+It copies the current state to
+.Pa ~/.passwdman/redoable
+before it restores from the backup.
+.Sh Pa ~/.passwdman/redoable
+The opposite of
+.Pa ~/.passwdman/undoable .
+The function is
+.Fn redo .
 .Sh SEE ALSO
 .Xr passwdmancli 1 ,
 .Xr passwdmangui 1
