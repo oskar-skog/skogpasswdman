@@ -676,12 +676,18 @@ printf '\n' >> configure.2
 printf 'def maketarget_install():\n' >> configure.2
 printf '    def install_file(src, dst, x):\n' >> configure.2
 printf '        global installed_files\n' >> configure.2
-printf '        makefile.write(\042\\tcp \044(srcdir){} \044(DESTDIR){}\\n\042.format(src, dst))\n' >> configure.2
+printf '        if src[-2:] in (\042.1\042, \042.3\042, \042.5\042):      #man-pages\n' >> configure.2
+printf '            makefile.write(\042\\t-cp \044(srcdir){} \044(DESTDIR){}\\n\042.format(src,dst))\n' >> configure.2
+printf '        else:\n' >> configure.2
+printf '            makefile.write(\042\\tcp \044(srcdir){} \044(DESTDIR){}\\n\042.format(src, dst))\n' >> configure.2
 printf '        makefile.write(\042\\tchown root:root \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        if x:\n' >> configure.2
 printf '            makefile.write(\042\\tchmod 755 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        else:\n' >> configure.2
-printf '            makefile.write(\042\\tchmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
+printf '            if src[-2:] in (\042.1\042, \042.3\042, \042.5\042):      #man-pages\n' >> configure.2
+printf '                makefile.write(\042\\t-chmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
+printf '            else:\n' >> configure.2
+printf '                makefile.write(\042\\tchmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        installed_files.append(dst)\n' >> configure.2
 printf '    global gui\n' >> configure.2
 printf '    global guidoc\n' >> configure.2
@@ -743,9 +749,10 @@ printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanfiles.{0}
 printf '\n' >> configure.2
 printf 'def maketarget_clean():\n' >> configure.2
 printf '    v(\042Writing the \047clean\047 target...\042)\n' >> configure.2
-printf '    makefile.write(\042clean :\\n\042)\n' >> configure.2
-printf '    makefile.write(\042\\t-rm all.made *.out configure.2\\n\\t-rm xml.copyright\\n\042)\n' >> configure.2
-printf '    \n' >> configure.2
+printf '    makefile.write(\042clean :\\n\\t-rm *.made *.out configure.2\\n\042)\n' >> configure.2
+printf '    makefile.write(\042\\t-rm *.1.xml *.3.xml *.5.xml\\n\042)\n' >> configure.2
+printf '    makefile.write(\042maintainer-clean :\\n\\t-rm *~\\n\042)\n' >> configure.2
+printf '\n' >> configure.2
 printf 'def maketarget_dist():\n' >> configure.2
 printf '    global makefile\n' >> configure.2
 printf '    v(\042Writing the \047dist\047 target...\042)\n' >> configure.2
@@ -885,7 +892,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall\n' >> configure.2
 printf 'makefile = None         #make it global\n' >> configure.2
-printf 'VERSION = \0420.1.9\042\n' >> configure.2
+printf 'VERSION = \0420.1.10\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()\n' >> configure.2
 printf '    dirs()\n' >> configure.2
