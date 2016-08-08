@@ -22,12 +22,13 @@
 .\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 .\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\"POSSIBILITY OF SUCH DAMAGE.
-.Dd Jan 12, 2014
+.Dd Jan 19, 2014
 .Dt PASSWDMANAPI 3
 .Os
 .Sh NAME
 .Nm passwdmanapi
 .Nd library used by passwdmancli and passwdmangui
+.\"     ###     Synposis                        ###
 .Sh SYNOPSIS
 .Fd #!/usr/bin/python
 .Fd import passwdmanapi
@@ -40,6 +41,7 @@
 .Fd u(x)
 .Fd b(x)
 .Fd b2u3(x)
+.\"     ###     ...                             ###
 .Fd open_rng()
 .Fd get64(length, pb=None)
 .Fd get10(length, pb=None)
@@ -50,14 +52,17 @@
 .Fd redo(passwdobj=None, honeypotobj=None)
 .Fd no_pb()
 .Fd no_pb_f(percent, data)
+.\"     ###     Classes                         ###
 .Fd class progress_bar()
 .Fd class common_data()
 .Fd class passwd(common_data)
 .Fd class honeypot(common_data)
+.\"     ###     progress_bar                    ###
 .Ss class progress_bar():
 .Fd __init__(self, start, stop, function, data=None)
 .Fd progress(self, percent)
 .Fd minibar(self, start, stop)
+.\"     ###     common_data                     ###
 .Ss class common_data():
 .Fd __init__(self, xmlfile)
 .Fd __iter__(self)
@@ -68,6 +73,7 @@
 .Fd remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)
 .Fd writexml(self, xmlfile, pb=None)
 .Fd __del__(self)
+.\"     ###     passwd                          ###
 .Ss passwd(common_data):
 .Fd __init__(self, backups=True)
 .Fd add(self, name, value, m_type, m_minlength, m_maxlength, pb=None)
@@ -77,13 +83,16 @@
 .Fd mkindex(self, x, is_numstring=False)
 .Fd update(self, index, pb=None)
 .Fd update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None)
+.\"     ###     honeypot                        ###
 .Ss class honeypot(common_data):
 .Fd __init__(self, backups=True)
 .Fd add(self, value)
 .Fd remove(self, x, is_numstring=False)
 .Fd pick(self, n=1, sep=",", log_vs_raise=True, pb=None)
 .Fd pickl(self, n, log_vs_raise=True, pb=None)
+.Fd pickf(self, n, **arg)
 .Fd __repr__(self)
+.\"     ###     Exceptions                      ###
 .Ss Exceptions
 .Fd class err_norandom(Exception)
 .Fd class err_nolength(Exception)
@@ -92,6 +101,7 @@
 .Fd class err_duplicate(Exception)
 .Fd class err_idiot(Exception)
 .Fd class err_nometa(Exception)
+.\"     ###     Description                     ###
 .Sh DESCRIPTION
 Unless otherwise noted,
 .Va xmlfile
@@ -103,6 +113,7 @@ is either
 or a
 .Dv progress_bar
 object.
+.\"     ###     is_anystr                       ###
 .Fn is_anystr
 returns True if
 .Va x
@@ -110,6 +121,7 @@ is any kind of string, and False if
 .Va x
 is not.
 .Pp
+.\"     ###     is_bytestr                      ###
 .Fn is_bytestr
 returns True if
 .Va x
@@ -117,6 +129,7 @@ is an encoded string/bytes, and False if
 .Va x
 is not.
 .Pp
+.\"     ###     is_int                          ###
 .Fn is_int
 returns True if
 .Va x
@@ -124,6 +137,7 @@ is an integer, and False if
 .Va x
 is not.
 .Pp
+.\"     ###     is_num                          ###
 .Fn is_num
 returns True if
 .Va x
@@ -131,6 +145,7 @@ is an integer or a float, and False if
 .Va x
 is not.
 .Pp
+.\"     ###     is_unicodestr                   ###
 .Fn is_unicodestr
 returns True if
 .Va x
@@ -138,16 +153,19 @@ is a decoded string/unicode, and False if
 .Va x
 is not.
 .Pp
+.\"     ###     u                               ###
 .Fn u
 returns
 .Va x
 as a unicode/decoded string.
 .Pp
+.\"     ###     b                               ###
 .Fn b
 returns
 .Va x
 as a byte/encoded string.
 .Pp
+.\"     ###     b2u3                            ###
 .Fn b2u3
 is the same as
 .Fn b
@@ -158,6 +176,7 @@ is the same as
 .Fn u
 if the Python version is 3.x.
 .Pp
+.\"     ###     open_rng                        ###
 .Fn open_rng
 opens
 .Xr random 4
@@ -168,6 +187,7 @@ Returns a file open for reading binary.
 Raises
 .Er err_norandom .
 .Pp
+.\"     ###     get10, get64                    ###
 .Fn get10
 and
 .Fn get64
@@ -184,6 +204,7 @@ Raises
 and
 .Er err_nolength .
 .Pp
+.\"     ###     getint                          ###
 .Fn getint
 returns a random integer >=
 .Va a ,
@@ -194,6 +215,7 @@ Raises
 and
 .Er err_nolength .
 .Pp
+.\"     ###     unquote                         ###
 .Fn unquote
 returns the string
 .Va x
@@ -201,6 +223,7 @@ without its surrounding quotes.
 If the string is not surrounded be quotes, the string will be returned
 unchanged.
 .Pp
+.\"     ###     randomize                       ###
 .Fn randomize
 returns a random string with a length >=
 .Va minlength
@@ -221,6 +244,7 @@ is
 will use
 .Fn get64 .
 .Pp
+.\"     ###     undo                            ###
 .Fn undo
 undoes the latest change to the password list or honey pot list, by restoring
 from the newest auto-generated backup.
@@ -236,6 +260,7 @@ object.
 Raises
 .Er err_idiot .
 .Pp
+.\"     ###     redo                            ###
 .Fn redo
 redoes the latest undone change to the password list or honey pot list, by
 restoring from the newest auto-generated backup from
@@ -243,6 +268,7 @@ restoring from the newest auto-generated backup from
 Raises
 .Er err_idiot .
 .Pp
+.\"     ###     no_pb, no_pb_f                  ###
 .Fn no_pb
 returns a No-op
 .Dv progress_bar
@@ -253,6 +279,7 @@ instead of a function that would actually do something).
 .Fn no_pb_f
 does nothing.
 .Pp
+.\"     ###     Classes                         ###
 .Fn common_data
 is a class defining methods used by both
 .Fn passwd
@@ -265,6 +292,7 @@ is a class for the password list.
 is a class for the honey-pot list.
 See
 .Sx FILES .
+.\"     ###     progress_bar                    ###
 .Ss class progress_bar():
 The class
 .Fn progress_bar
@@ -303,6 +331,7 @@ argument:
 .Fn no_pb
 is a useful function.
 .Pp
+.\"     ###     progress_bar.__init__           ###
 .Fn progress_bar.__init__
 creates a
 .Dv progress_bar
@@ -329,9 +358,11 @@ is a float in the range 0...100 and
 .Va data
 is all other necessary data.
 .Pp
+.\"     ###     progress_bar.progress           ###
 .Fn progress
 updates the progress-bar.
 .Pp
+.\"     ###     progress_bar.minibar            ###
 .Fn minibar
 creates a new
 .Dv progress_bar
@@ -343,6 +374,7 @@ and
 is where in the parent object the child's 0% is and
 .Va stop
 is where in the parent object the child's 100% is.
+.\"     ###     common_data                     ###
 .Ss class common_data():
 .Fn __init__
 will load the data from
@@ -359,6 +391,7 @@ returns the password/honeypot at
 .Fn __len__
 returns the number of passwords/honeypots.
 .Pp
+.\"     ###     common_data.remove              ###
 .Fn remove
 removes the password/honeypot at
 .Va x ,
@@ -385,6 +418,7 @@ will be treated as an index.
 Raises
 .Er err_notfound .
 .Pp
+.\"     ###     common_data.writexml            ###
 .Fn writexml
 writes the datastructure
 .Va self
@@ -394,6 +428,7 @@ It creates a backup of
 .Va xmlfile
 to
 .Pa ~/.passwdman/undoable .
+.\"     ###     passwd                          ###
 .Ss class passwd(common_data)
 .Fn passwd
 loads its data from the XML
@@ -438,6 +473,7 @@ if you do not want
 .Fn passwd
 to make any change undoable (as in can be undone not impossible).
 .Pp
+.\"     ###     passwd.add, passwd.add_nometa   ###
 .Fn passwd.add
 and
 .Fn passwd.add_nometa
@@ -464,6 +500,7 @@ which will make it randomize a value automatically.
 Raises
 .Er err_duplicate .
 .Pp
+.\"     ###     passwd.remove                   ###
 .Fn passwd.remove
 removes the password
 .Va x .
@@ -481,6 +518,7 @@ will be treated as an index.
 Raises
 .Er err_notfound .
 .Pp
+.\"     ###     passwd.mkindex                  ###
 .Fn passwd.mkindex
 find
 .Va x
@@ -499,6 +537,7 @@ will be treated as an index.
 Raises
 .Er err_notfound .
 .Pp
+.\"     ###     passwd.update, passwd.update_meta ###
 .Fn passwd.update
 and
 .Fn passwd.update_meta
@@ -525,6 +564,7 @@ Raises
 .Er err_idiot
 and
 .Er err_nometa .
+.\"     ###     honeypot                        ###
 .Ss class honeypot(common_data)
 The honey pots are weak passwords supposed to only be used as traps.
 .Fn honeypot
@@ -541,12 +581,14 @@ if you do not want
 .Fn passwd
 to make any change undoable (as in can be undone not impossible).
 .Pp
+.\"     ###     honeypot.add                    ###
 .Fn honeypot.add
 adds a new honeypot with the value
 .Va value .
 Raises
 .Er err_duplicate .
 .Pp
+.\"     ###     honeypot.remove                 ###
 .Fn honeypot.remove
 removes the honeypot
 .Va x .
@@ -564,6 +606,9 @@ will be treated as an index.
 Raises
 .Er err_notfound .
 .Pp
+.\"     ###     honeypot.pick (OLD)             ###
+.Fn honeypot.pick
+IS DEPRECATED AND WILL BE REMOVED 2015-01-01.
 .Fn honeypot.pick
 picks
 .Va n
@@ -580,7 +625,7 @@ If
 is false, it will raise
 .Er err_idiot .
 .Pp
-.\"Copy-pasted from just above.
+.\"     ###     honeypot.pickl                  ###
 .Fn honeypot.pickl
 picks
 .Va n
@@ -594,6 +639,57 @@ If
 .Va log_vs_raise
 is false, it will raise
 .Er err_idiot .
+.Pp
+.\"     ###     honeypot.pickf                  ###
+.Fn honeypot.pickf
+picks
+.Va n
+random honeypots and returns a string.
+Arguments:
+.Bl -tag
+.It "n"
+Required.
+.It "pb"
+Default is None.
+The progress bar.
+.It "pattern"
+Default is single quote.
+.Qq (['])
+.It "replacement"
+Default is to backslash-escape.
+.It "sep"
+Default is single-quote---comma---single-quote.
+.Qq ', '
+.It "head"
+Default is single quote.
+.It "tail"
+Default is single quote.
+.It "log_vs_raise"
+Default is True.
+.El
+The string is prepended with
+.Va head
+and appended with
+.Va tail .
+The honeypots are escaped with the regular expressions
+.Va pattern
+and
+.Va replacement ,
+and separated with
+.Va sep .
+If
+.Va log_vs_raise
+is True then
+.Fn honeypot.pickf
+will log an error if
+.Va n
+is too big.
+It will pick fewer fake-passwords than it is supposed to.
+If
+.Va log_vs_raise
+is False it will raise
+.Er err_idiot .
+.\"     ###     Exceptions, err_norandom        ###
 .Sh Exceptions
 .Er err_norandom
 is raised when neither
@@ -622,8 +718,11 @@ can be opened.
 .Fn honeypot.pick
 .It
 .Fn honeypot.pickl
+.It
+.Fn honeypot.pickf
 .El
 .Pp
+.\"     ###     err_nolength                    ###
 .Er err_nolength
 is raised when a function is called with an invalid length.
 .Bl -bullet
@@ -635,6 +734,7 @@ is raised when a function is called with an invalid length.
 .Fn getint
 .El
 .Pp
+.\"     ###     err_loaderr                     ###
 .Er err_loaderr
 is raised if data cannot be loaded from file.
 .Bl -bullet
@@ -646,6 +746,7 @@ is raised if data cannot be loaded from file.
 .Fn honeypot
 .El
 .Pp
+.\"     ###     err_notfound                    ###
 .Er err_notfound
 is raised if index is out of range or if it cannot find a match.
 .Bl -bullet
@@ -663,6 +764,7 @@ is raised if index is out of range or if it cannot find a match.
 .Fn honeypot.remove
 .El
 .Pp
+.\"     ###     err_duplicate                   ###
 .Er err_duplicate
 is raised if it is attempted to add a password with the same name as another
 or if its is attempted to add a honeypot with the same value as another.
@@ -675,6 +777,7 @@ or if its is attempted to add a honeypot with the same value as another.
 .Fn honeypot.add
 .El
 .Pp
+.\"     ###     err_idiot                       ###
 .Er err_idiot
 is raised if the function was not used correctly.
 .Bl -bullet
@@ -685,11 +788,14 @@ is raised if the function was not used correctly.
 .It
 .Fn honeypot.pickl
 .It
+.Fn honeypot.pickf
+.It
 .Fn undo
 .It
 .Fn redo
 .El
 .Pp
+.\"     ###     err_nometa                      ###
 .Er err_nometa
 is raised when meta-data is required, but the meta-data was nonexistent,
 corrupt or no good.
@@ -701,7 +807,19 @@ corrupt or no good.
 .It
 .Fn passwd.update
 .El
+.\"     ###     Bugs                            ###
 .Sh BUGS
+.Bl -bullet
+.It
+Single-backup mode actually requires TWO undos.
+.It
+.Fn honeypot.pick
+is deprecated and will be removed 2015-01-01.
+A new
+.Fn honeypot.pick
+will appear in 2015-02-01.
+.El
+.\"     ###     Files                           ###
 .Sh FILES
 .Pa ~/.passwdman/passwords
 is the XML file containing the passwords and their meta-data.
@@ -716,6 +834,14 @@ is where the auto-generated backups live.
 is where the backups generated by
 .Fn undo
 live.
+.\"     ###     Examples                        ###
+.Sh EXAMPLES
+.Pa $(bindir)/passwdmangui
+.Pp
+.Pa $(bindir)/passwdmancli
+.Pp
+.Pa $(bindir)/passwdmanrli
+.\"     ###     Author                          ###
 .Sh AUTHOR
 Written by
 .An Oskar Skog Aq oskar.skog.finland@gmail.com .

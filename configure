@@ -174,7 +174,7 @@ for test_dir in \`echo \$PATH | tr : " "\`; do
 done
 while [ \$# -gt 0 ]; do
     echo "#!\$python_exec" > \`basename \$1\`.out
-    cat \$1 >> \$1.out
+    cat \$1 >> \`basename \$1\`.out
     shift
 done
 __EOF__
@@ -202,6 +202,32 @@ cd xfilemanager-*/
 cd \$old_wd
 __EOF__
 chmod +x cdxfm
+# Crate pick-autorm
+verbose Creating pick-autorm...
+cat > pick-autorm << __EOF__
+#!/bin/sh
+
+if [ \$# -gt 1 ]; then
+    if [ -n \$2 ]; then
+        sed -f \$2 \$1 > passwdmanapi.py.out
+    fi
+fi
+
+if [ \`date +%Y%m%d\` -ge 20150101 ]; then
+    old_pick='s/_OLD_PICK_/False/'
+else
+    old_pick='s/_OLD_PICK_/True/'
+fi
+
+if [ \`date +%Y%m%d\` -ge 20150201 ]; then
+    new_pick='s/_NEW_PICK_/True/'
+else
+    new_pick='s/_NEW_PICK_/False/'
+fi
+
+sed -e \${old_pick} \$1 | sed -e \${new_pick} > passwdmanapi.py.out
+__EOF__
+chmod +x pick-autorm
 #create configure.2             python-script
 if [ -z $python_exec ]; then
     echo "#!/usr/bin/false" > configure.2
@@ -210,13 +236,6 @@ else
 fi
 verbose Creating configure.2...
 cat >> configure.2 << __configure_EOF__
-#!/usr/bin/python
-#!/usr/bin/python
-#!/usr/bin/python
-#!/usr/bin/python
-#!/usr/bin/python
-#!/usr/bin/python
-#!/usr/bin/python
 #!/usr/bin/python
 
 copywrong = """
@@ -310,9 +329,6 @@ def v(x):
 
 def usage():
     """Options:
-__configure_EOF__
-verbose Line 100/1103...
-cat >> configure.2 << __configure_EOF__
   Long options; only for variables in Makefile:
     --prefix    --exec_prefix   --bindir        --datarootdir   --datadir
     --docdir    --infodir       --htmldir       --dvidir        --pdfdir
@@ -320,6 +336,9 @@ cat >> configure.2 << __configure_EOF__
     --man1dir           --man3dir       --man5dir
     --man1ext           --man3ext       --man5ext
     --applications      /usr/share/applications         Full of '*.desktop'.
+__configure_EOF__
+verbose Line 100/1134...
+cat >> configure.2 << __configure_EOF__
   Long and short pairs:
     --moduledir -m      Where to install the API
                                     ex. /usr/lib/python2.7/dist-packages
@@ -413,9 +432,6 @@ def update(x):
 #INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 #CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-__configure_EOF__
-verbose Line 200/1103...
-cat >> configure.2 << __configure_EOF__
 #POSSIBILITY OF SUCH DAMAGE.
 verbose_mode=0
 for x in \$*; do
@@ -423,6 +439,9 @@ for x in \$*; do
         verbose_mode=1
         break
     fi
+__configure_EOF__
+verbose Line 200/1134...
+cat >> configure.2 << __configure_EOF__
     if [ \$x = "-v" ]; then
         verbose_mode=1
         break
@@ -516,9 +535,6 @@ while True:
                 else:
                     sys.stdout.write(" ")
             except:
-__configure_EOF__
-verbose Line 300/1103...
-cat >> configure.2 << __configure_EOF__
                 pass
         sys.stdout.write("</synopsis>")
         while True:
@@ -526,6 +542,9 @@ cat >> configure.2 << __configure_EOF__
             if l == "</refsect1>\\\\n":
                 sys.stdout.write("</refsynopsisdiv>\\\\n")
                 #End synopsis here.
+__configure_EOF__
+verbose Line 300/1134...
+cat >> configure.2 << __configure_EOF__
                 break
             if "<para>" in l or not "<" in l:
                 sys.stdout.write(l[:-1] + "<sbr/>\\\\n")
@@ -569,7 +588,7 @@ for test_dir in \\\\\`echo \\\\\$PATH | tr : " "\\\\\`; do
 done
 while [ \\\\\$# -gt 0 ]; do
     echo "#!\\\\\$python_exec" > \\\\\`basename \\\\\$1\\\\\`.out
-    cat \\\\\$1 >> \\\\\$1.out
+    cat \\\\\$1 >> \\\\\`basename \\\\\$1\\\\\`.out
     shift
 done
 __EOF__
@@ -598,8 +617,37 @@ cd xfilemanager-*/
 cd \\\\\$old_wd
 __EOF__
 chmod +x cdxfm
+# Crate pick-autorm
+verbose Creating pick-autorm...
+cat > pick-autorm << __EOF__
+#!/bin/sh
+
+if [ \\\\\$# -gt 1 ]; then
+    if [ -n \\\\\$2 ]; then
+        sed -f \\\\\$2 \\\\\$1 > passwdmanapi.py.out
+    fi
+fi
+
+if [ \\\\\`date +%Y%m%d\\\\\` -ge 20150101 ]; then
+    old_pick='s/_OLD_PICK_/False/'
+else
+    old_pick='s/_OLD_PICK_/True/'
+fi
+
+if [ \\\\\`date +%Y%m%d\\\\\` -ge 20150201 ]; then
+    new_pick='s/_NEW_PICK_/True/'
+else
+    new_pick='s/_NEW_PICK_/False/'
+fi
+
+sed -e \\\\\${old_pick} \\\\\$1 | sed -e \\\\\${new_pick} > passwdmanapi.py.out
+__EOF__
+chmod +x pick-autorm
 #create configure.2             python-script
 if [ -z \$python_exec ]; then
+__configure_EOF__
+verbose Line 400/1134...
+cat >> configure.2 << __configure_EOF__
     echo "#!/usr/bin/false" > configure.2
 else
     echo "#!\${python_exec}" > configure.2
@@ -619,9 +667,6 @@ verbose Creating configure.2...
             sys.exit(1)
         # Escape some characters from being interpreted by the shell.
         configure.write(re.sub(r'([\$\`\\\\])', r'\\\\\\1', line))
-__configure_EOF__
-verbose Line 400/1103...
-cat >> configure.2 << __configure_EOF__
         if linecounter%100 == 0:
             configure.write('''{0}
 verbose Line {1}/{2}...
@@ -703,6 +748,9 @@ def main():
             sys.exit(0)
         elif o in ("--verbose", "-v"):
             verbose = True
+__configure_EOF__
+verbose Line 500/1134...
+cat >> configure.2 << __configure_EOF__
             continue
         elif o in ("--moduledir", "-m"):# ex. /usr/lib/python2.7/dist-packages
             moduledir = a                 # Where passwdmanapi.py should live.
@@ -722,9 +770,6 @@ def main():
             continue
         elif o in ("--disable-techdoc", "-t"):
             techdoc = False
-__configure_EOF__
-verbose Line 500/1103...
-cat >> configure.2 << __configure_EOF__
             continue
         elif o in ("--disable-rli", "-r"):
             rli = False
@@ -806,6 +851,9 @@ def moduledep():
     fatal = False
     v("Module 'xml.etree.ElementTree'...")
     try:
+__configure_EOF__
+verbose Line 600/1134...
+cat >> configure.2 << __configure_EOF__
         import xml.etree.ElementTree
     except:
         sys.stderr.write("ERROR: Cannot import 'xml.etree.ElementTree',")
@@ -825,9 +873,6 @@ def moduledep():
 
 def dirs():
     """dirs() - Figure out the Makefile variables."""
-__configure_EOF__
-verbose Line 600/1103...
-cat >> configure.2 << __configure_EOF__
     def tryset(x):      # Always check.
         """tryset(x) - Return True if x is not manually set."""
         for y in dirs_set:
@@ -909,6 +954,9 @@ def getmoduledir():
         list_of_xx = []
         path = unvar("libdir", dirs_final)
         dirlist = os.listdir(path)
+__configure_EOF__
+verbose Line 700/1134...
+cat >> configure.2 << __configure_EOF__
         for x in dirlist:
             if pyver in x:       # pyver is either "python2" or "python3".
                 try:
@@ -928,9 +976,6 @@ def getmoduledir():
                 return list_of_xx[0]
             if len(list_of_xx) > 1:
                 # Look for the newest minor.
-__configure_EOF__
-verbose Line 700/1103...
-cat >> configure.2 << __configure_EOF__
                 ver = -1
                 right_version = None
                 for pythonxx in list_of_xx:
@@ -1002,7 +1047,9 @@ def maketarget_all():
         makefile.write(" \$(srcdir)passwdmangui")
     if rli:
         makefile.write(" \$(srcdir)passwdmanrli")
-    makefile.write("\\n")
+    # pick-autorm will automatically choose which pick() OLD/NEW.
+    makefile.write("\\n\\t./pick-autorm \$(srcdir)passwdmanapi.py\\n")
+    # passwdmanapi.py.out
     if gui:
         makefile.write("\\tsed -e s/__XFM__/")
         if xfm:
@@ -1010,6 +1057,9 @@ def maketarget_all():
         else:
             makefile.write("False")
         makefile.write("/ passwdmangui.out > passwdmangui.out.out\\n")
+__configure_EOF__
+verbose Line 800/1134...
+cat >> configure.2 << __configure_EOF__
     if rli:
         makefile.write("\\tsed -e s/__HAVE_CLIPBOARD__/")
         if rli_clipboard:
@@ -1031,9 +1081,6 @@ def maketarget_all():
         makefile.write("\\n\\t./cdxfm make\\n")
     makefile.write("\\ttouch all.made\\n")    # make all, made all, all.made
     makefile.write("all : all.made\\n")          # The all target.
-__configure_EOF__
-verbose Line 800/1103...
-cat >> configure.2 << __configure_EOF__
 
 def maketarget_install():
     """maketarget_install() - Add the 'install' target."""
@@ -1046,18 +1093,23 @@ def maketarget_install():
         if \`x\`: \`dst\` must be chmoded 755
         else: \`dst\` must be chmoded 644
         
-        It adds \`\`\$(srcdir)\`\` and \`\`\$(DESTDIR)\`\` to \`src\` and \`dst\`.
+        It adds \`\`\$(DESTDIR)\`\` to \`dst\`.
+        It adds \`\`\$(srcdir)\`\` to \`src\` if it does not end with \`\`.out\`\`.
         It appends \`dst\` to \`installed_files\`.
         
         \`installed_files\` will be used later in \`maketarget_uninstall\`.
         """
         global installed_files
-        if src[-2:] in (".1", ".3", ".5"):      #man-pages
-            makefile.write("\\t-cp \$(srcdir){0} \$(DESTDIR){1}\\n".format(src,
-                                                                        dst))
+        if src[-4:] == '.out':
+            srcdir = ''
         else:
-            makefile.write("\\tcp \$(srcdir){0} \$(DESTDIR){1}\\n".format(src,
-                                                                        dst))
+             srcdir = '\$(srcdir)'
+        if src[-2:] in (".1", ".3", ".5"):      #man-pages
+            makefile.write("\\t-cp {2}{0} \$(DESTDIR){1}\\n".format(src, dst,
+                                                                    srcdir))
+        else:
+            makefile.write("\\tcp {2}{0} \$(DESTDIR){1}\\n".format(src, dst,
+                                                                    srcdir))
         makefile.write("\\tchown root \$(DESTDIR){0}\\n".format(dst))
         if x:
             makefile.write("\\tchmod 755 \$(DESTDIR){0}\\n".format(dst))
@@ -1079,10 +1131,10 @@ def maketarget_install():
         makefile.write(" passwdmanrli.out.out")
     makefile.write("\\n")
     if moduledir is not None:
-        install_file("passwdmanapi.py", "\$(moduledir)/passwdmanapi.py",
+        install_file("passwdmanapi.py.out", "\$(moduledir)/passwdmanapi.py",
             False)
     if moduledir3 is not None:
-        install_file("passwdmanapi.py", "\$(moduledir3)/passwdmanapi.py",
+        install_file("passwdmanapi.py.out", "\$(moduledir3)/passwdmanapi.py",
             False)
     if techdoc:
         install_file("passwdmanapi.3", "\$(man3dir)/passwdmanapi\$(man3ext)",
@@ -1108,6 +1160,9 @@ def maketarget_install():
     makefile.write("\\t\$(POST_INSTALL)\\n")
     if gui:
         Vmaj = VERSION.split(".")[0]
+__configure_EOF__
+verbose Line 900/1134...
+cat >> configure.2 << __configure_EOF__
         Vmin = VERSION.split(".")[1]
         makefile.write("\\tsed -e 's/_VERSION_/{0}.{1}/' ".format(Vmaj, Vmin))
         makefile.write("\$(srcdir)passwdman.desktop > ")
@@ -1134,9 +1189,6 @@ def maketarget__doc_(x):
     makefile.write("install-{0} : {0}\\n{0} :\\n".format(x))
     if guidoc:
         makefile.write("\\t-cp \$(srcdir)passwdmangui.{0}".format(x))
-__configure_EOF__
-verbose Line 900/1103...
-cat >> configure.2 << __configure_EOF__
         makefile.write(" \$(DESTDIR)\$({0}dir)/passwdmangui.{0}\\n".format(x))
     if cli:
         makefile.write("\\t-cp \$(srcdir)passwdmancli.{0}".format(x))
@@ -1211,6 +1263,9 @@ def maketarget__doc_auto():
     mdoc -> [doclifter] -> Docbook -> [sed + scripts + xmlto] ->
         ([sed] -> xhtml, pdf, ps)
     """
+__configure_EOF__
+verbose Line 1000/1134...
+cat >> configure.2 << __configure_EOF__
     global makefile
     f = open("xml.copyright", "w")
     f.write("""
@@ -1237,9 +1292,6 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-__configure_EOF__
-verbose Line 1000/1103...
-cat >> configure.2 << __configure_EOF__
 POSSIBILITY OF SUCH DAMAGE. -->
 """)
     f.close()
@@ -1314,6 +1366,9 @@ dirs_def= [ {"name": "PKGNAME", "value": "passwdman"},
 # These booleans will be used when generating Makefile.
 cli = gui = guidoc = techdoc = xfm = rli = rlidoc = rli_clipboard = True
 verbose = False
+__configure_EOF__
+verbose Line 1100/1134...
+cat >> configure.2 << __configure_EOF__
 # Where to install passwdmanapi.py.
 # ex. moduledir = '/usr/lib/python2.7/dist-packages'
 # ex. moduledir3 = '/usr/lib/python3.2/dist-packages'
@@ -1326,8 +1381,8 @@ installed_files = []    # Filled in by maketarget_install and used by
                         # maketarget_uninstall.
 xfm_options = []
 makefile = None
-VERSION = "0.4.0"
-LINES = 1103
+VERSION = "0.4.1"
+LINES = 1134
 if __name__ == "__main__":
     main()              # Handle options.
     moduledep()         # Check dependencies
@@ -1340,9 +1395,6 @@ if __name__ == "__main__":
     maketarget__doc_("html")
     maketarget__doc_("pdf")
     maketarget__doc_("ps")
-__configure_EOF__
-verbose Line 1100/1103...
-cat >> configure.2 << __configure_EOF__
     maketarget__doc_("dvi")
     maketarget_clean()
     maketarget_dist()
@@ -1350,8 +1402,6 @@ cat >> configure.2 << __configure_EOF__
     maketarget__doc_auto()
     maketarget_paperdoc()       # PDF/PS paperdoc.made
     makefile.close()
-    # Must end with empty line!
-    
 __configure_EOF__
 chmod +x configure.2
 verbose exec configure.2

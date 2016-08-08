@@ -6,7 +6,7 @@
     *   Works on FreeBSD.
     *   The RLI and the CLI uses the locale's encoding. 
     *   passwd.add can randomize the password itself.
-
+%
 0.3 is here.
     *   HTML docs validates.
     *   Edit history buttons.
@@ -15,7 +15,7 @@
     *   Single change mode for the CLI. 2 undos undoes everything.
     *   passwd.add_nometa() doesn't add meta-data to the file.
     *   In configure: --update works without argument.
-
+%
 0.2 is here.
     *   All Docbook XML generates good HTML, but passwdmanapi.xml requires
         --skip-validation.
@@ -26,3 +26,4 @@
     *   Better makefile.
     *   Useful CLI. You need to specify the -i, --interactive to enable undo,
         redo and survive errors.
+%

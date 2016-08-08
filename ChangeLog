@@ -1,3 +1,18 @@
+2014-01-19      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.1
+    * passwdmanapi.py: honeypot.pickf()
+        _OLD_PICK_      sed'ed to a bool
+        _NEW_PICK_      sed'ed to a bool
+    * passwdmanapi.3: Deprecated honeypot.pick()
+    * configure.2: New file: pick-autorm
+        reads passwdmanapi.py, runs sed, writes passwdmanapi.py.out
+    * configure.2 (maketarget_install.install_file): Bugfix: Copy *.out
+        from current working directory instead of $(srcdir).
+    * shebang: Bugfix ($(srcdir) related):
+        Line 12:
+            from:  cat $1 >> $1.out
+            to:    cat $1 >> `basename $1`.out
+
 2014-01-18      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.4.0
     * passwdmanrli: Handle I-D-10-T (minlength > maxlength) errors

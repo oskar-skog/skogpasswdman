@@ -97,6 +97,7 @@ import string
 import sys
 import locale
 import fcntl
+import re
 
 class err_norandom(Exception):
     """class err_norandom(Exception)
@@ -984,19 +985,44 @@ class honeypot(common_data):
         """
         common_data.remove(self, x, "~/.passwdman/honeypots", "honeypot",
                            "value", is_numstring)
-    def pick(self, n=1, sep=",", log_vs_raise=True, pb=None):
-        """pick(self, n=1, sep=",", log_vs_raise=True)
-        Pick `n` randomly selected honey-pots and separate them with
-        `sep`.
-        
-        If `log_vs_raise` is True then `pick` will log an error if `n`
-        is too big.  It will pick fewer fake-passwords than it is
-        supposed to.
-        If `log_vs_raise` is False it will raise `err_idiot`.
-        """
-        # Its default is not unicode on Python 2.x.
-        assert is_unicodestr(sep) or sep == ","
-        return sep.join(self.pickl(n, log_vs_raise=log_vs_raise, pb=pb))
+    assert not (_OLD_PICK_ and _NEW_PICK_), "Which pick?"
+    if _OLD_PICK_:
+        def pick(self, n=1, sep=",", log_vs_raise=True, pb=None):
+            """pick(self, n=1, sep=",", log_vs_raise=True)
+            Pick `n` randomly selected honey-pots and separate them with
+            `sep`.
+            
+            If `log_vs_raise` is True then `pick` will log an error if `n`
+            is too big.  It will pick fewer fake-passwords than it is
+            supposed to.
+            If `log_vs_raise` is False it will raise `err_idiot`.
+            """
+            # Its default is not unicode on Python 2.x.
+            assert is_unicodestr(sep) or sep == ","
+            return sep.join(self.pickl(n, log_vs_raise=log_vs_raise, pb=pb))
+    if _NEW_PICK_:
+        def pick(self, n=1, pb=None, **pickf_arg):
+            '''pick(self, n=1, pb=None, **pickf_arg)
+            
+            Pick `n` randomly selected honey-pots.
+            
+            If `pickf_arg` is not empty:
+                See `honeypot.pickf`.
+            Elif `n` is one:
+                This will return a string.
+            Else:
+                See `honeypot.pickl`.
+            '''
+            # pickf().
+            if pickf_arg:
+                return self.pickf(n, pb=pb, log_vs_raise=False, **pickf_arg)
+            
+            # Single.
+            if n == 1:
+                return self.pickl(1, log_vs_raise=False, pb=pb)[0]
+            
+            # Many.
+            return self.pickl(n, log_vs_raise=False, pb=pb)
     def pickl(self, n, log_vs_raise=True, pb=None):
         """pickl(self, n, log_vs_raise=True)
         Pick `n` randomly selected honey-pots and return a list.
@@ -1024,6 +1050,61 @@ class honeypot(common_data):
             outlist.append(balloons.pop(getint(0, len(balloons),
                                 pb.minibar(s/N* 100.0, (s+1.0)/N * 100.0))))
         return outlist
+    def pickf(self, n, **arg):
+        """pickf(self, n,
+            pb = None,
+            pattern = "(['])",
+            replacement = r'\\\1',
+            sep = "', '",
+            head = "'",
+            tail = "'",
+            log_vs_raise = True
+        )
+        
+        Pick `n` randomly selected honey-pots and return a string.
+        
+        The string is prepended with `head` and appended with `tail`.
+        The honeypots are escaped with the regular expressions
+        `pattern` and `replacement`, and separated with `sep`.
+        
+        If `log_vs_raise` is True then `pick` will log an error if `n`
+        is too big.  It will pick fewer fake-passwords than it is
+        supposed to.
+        If `log_vs_raise` is False it will raise `err_idiot`.
+        """
+        assert is_int(n)
+        defaults = {
+            'pb': None,
+            'pattern': "(['])",
+            'replacement': r'\\\1',
+            'sep': "', '",
+            'head': "'",
+            'tail': "'",
+            'log_vs_raise': True
+            }
+        # Set to defaults if necessary.
+        for key in defaults:
+            try:
+                forget = arg[key]
+            except KeyError:
+                arg[key] = defaults[key]
+        # Unicode, usability.
+        for key in arg:
+            if key not in ('pb', 'log_vs_raise'):
+                arg[key] = u(arg[key])
+            try:
+                forget = defaults[key]
+            except KeyError:
+                raise err_idiot('Unknown keyword argument: {0}'.format(key))
+        # pb.
+        if arg['pb'] is None:
+            arg['pb'] = no_pb()
+        # Escape some bad characters.
+        escaped = []
+        for x in self.pickl(n, pb=arg['pb']):
+            escaped.append(re.sub(arg['pattern'], arg['replacement'], x))
+        # Return.
+        return arg['head'] + arg['sep'].join(escaped) + arg['tail']
     def __repr__(self):
         return "<passwdmanapi.honeypot object with id {0}>".format(id(self))
 

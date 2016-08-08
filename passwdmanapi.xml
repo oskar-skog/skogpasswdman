@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE. -->
 
 <refnamediv id='purpose'>
 <refname> passwdmanapi </refname>
-<refpurpose> library used by passwdmancli and passwdmangui </refpurpose>
+<refpurpose> library used by passwdmancli and passwdmangui  <!-- ###     Synposis                        ### --></refpurpose>
 </refnamediv>
 <refsynopsisdiv id='synopsis'>
 <synopsis>
@@ -71,6 +71,7 @@ class honeypot(common_data)<sbr/>
 <para>__init__(self, start, stop, function, data=None)<sbr/>
 progress(self, percent)<sbr/>
 minibar(self, start, stop)</para>
+<!-- ###     common_data                     ### -->
 </refsect2>
 <sbr/>
 <refsect2 id='class_common_data'><title>class common_data():</title>
@@ -83,6 +84,7 @@ __len__(self)<sbr/>
 remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)<sbr/>
 writexml(self, xmlfile, pb=None)<sbr/>
 __del__(self)</para>
+<!-- ###     passwd                          ### -->
 </refsect2>
 <sbr/>
 <refsect2 id='passwdcommon_data'><title>passwd(common_data):</title>
@@ -94,6 +96,7 @@ __repr__(self)<sbr/>
 mkindex(self, x, is_numstring=False)<sbr/>
 update(self, index, pb=None)<sbr/>
 update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None)</para>
+<!-- ###     honeypot                        ### -->
 </refsect2>
 <sbr/>
 <refsect2 id='class_honeypotcommon_data'><title>class honeypot(common_data):</title>
@@ -102,7 +105,9 @@ add(self, value)<sbr/>
 remove(self, x, is_numstring=False)<sbr/>
 pick(self, n=1, sep=",", log_vs_raise=True, pb=None)<sbr/>
 pickl(self, n, log_vs_raise=True, pb=None)<sbr/>
+pickf(self, n, **arg)<sbr/>
 __repr__(self)</para>
+<!-- ###     Exceptions                      ### -->
 </refsect2>
 <sbr/>
 <refsect2 id='exceptions'><title>Exceptions</title>
@@ -113,6 +118,7 @@ class err_notfound(Exception)<sbr/>
 class err_duplicate(Exception)<sbr/>
 class err_idiot(Exception)<sbr/>
 class err_nometa(Exception)</para>
+<!-- ###     Description                     ### -->
 </refsect2>
 </refsynopsisdiv>
 
@@ -127,6 +133,7 @@ is either
 or a
 <constant>progress_bar</constant>
 object.
+<!-- ###     is_anystr                       ### -->
 is_anystr()
 returns True if
 <varname>x</varname>
@@ -134,6 +141,7 @@ is any kind of string, and False if
 <varname>x</varname>
 is not.</para>
 
+<!-- ###     is_bytestr                      ### -->
 <para>is_bytestr()
 returns True if
 <varname>x</varname>
@@ -141,6 +149,7 @@ is an encoded string/bytes, and False if
 <varname>x</varname>
 is not.</para>
 
+<!-- ###     is_int                          ### -->
 <para>is_int()
 returns True if
 <varname>x</varname>
@@ -148,6 +157,7 @@ is an integer, and False if
 <varname>x</varname>
 is not.</para>
 
+<!-- ###     is_num                          ### -->
 <para>is_num()
 returns True if
 <varname>x</varname>
@@ -155,6 +165,7 @@ is an integer or a float, and False if
 <varname>x</varname>
 is not.</para>
 
+<!-- ###     is_unicodestr                   ### -->
 <para>is_unicodestr()
 returns True if
 <varname>x</varname>
@@ -162,16 +173,19 @@ is a decoded string/unicode, and False if
 <varname>x</varname>
 is not.</para>
 
+<!-- ###     u                               ### -->
 <para>u()
 returns
 <varname>x</varname>
 as a unicode/decoded string.</para>
 
+<!-- ###     b                               ### -->
 <para>b()
 returns
 <varname>x</varname>
 as a byte/encoded string.</para>
 
+<!-- ###     b2u3                            ### -->
 <para>b2u3()
 is the same as
 b()
@@ -182,6 +196,7 @@ is the same as
 u()
 if the Python version is 3.x.</para>
 
+<!-- ###     open_rng                        ### -->
 <para>open_rng()
 opens
 <citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>
@@ -192,6 +207,7 @@ Returns a file open for reading binary.
 Raises
 <errorcode>err_norandom</errorcode>.</para>
 
+<!-- ###     get10, get64                    ### -->
 <para>get10()
 and
 get64()
@@ -208,6 +224,7 @@ Raises
 and
 <errorcode>err_nolength</errorcode>.</para>
 
+<!-- ###     getint                          ### -->
 <para>getint()
 returns a random integer &gt;=
 <varname>a</varname>,
@@ -218,6 +235,7 @@ Raises
 and
 <errorcode>err_nolength</errorcode>.</para>
 
+<!-- ###     unquote                         ### -->
 <para>unquote()
 returns the string
 <varname>x</varname>
@@ -225,6 +243,7 @@ without its surrounding quotes.
 If the string is not surrounded be quotes, the string will be returned
 unchanged.</para>
 
+<!-- ###     randomize                       ### -->
 <para>randomize()
 returns a random string with a length &gt;=
 <varname>minlength</varname>
@@ -245,6 +264,7 @@ randomize()
 will use
 get64().</para>
 
+<!-- ###     undo                            ### -->
 <para>undo()
 undoes the latest change to the password list or honey pot list, by restoring
 from the newest auto-generated backup.
@@ -260,6 +280,7 @@ object.
 Raises
 <errorcode>err_idiot</errorcode>.</para>
 
+<!-- ###     redo                            ### -->
 <para>redo()
 redoes the latest undone change to the password list or honey pot list, by
 restoring from the newest auto-generated backup from
@@ -267,6 +288,7 @@ undo().
 Raises
 <errorcode>err_idiot</errorcode>.</para>
 
+<!-- ###     no_pb, no_pb_f                  ### -->
 <para>no_pb()
 returns a No-op
 <constant>progress_bar</constant>
@@ -277,6 +299,7 @@ instead of a function that would actually do something).</para>
 <para>no_pb_f()
 does nothing.</para>
 
+<!-- ###     Classes                         ### -->
 <para>common_data()
 is a class defining methods used by both
 passwd()
@@ -289,6 +312,7 @@ honeypot()
 is a class for the honey-pot list.
 See
 <link  linkend='files'>FILES</link>.</para>
+<!-- ###     progress_bar                    ### -->
 
 <refsect2 id='class_progress_bar2'><title>class progress_bar():</title>
 <para>The class
@@ -338,6 +362,7 @@ argument:</para>
 <para>no_pb()
 is a useful function.</para>
 
+<!-- ###     progress_bar.__init__           ### -->
 <para>progress_bar.__init__()
 creates a
 <constant>progress_bar</constant>
@@ -363,9 +388,11 @@ is a float in the range 0...100 and
 <varname>data</varname>
 is all other necessary data.</para>
 
+<!-- ###     progress_bar.progress           ### -->
 <para>progress()
 updates the progress-bar.</para>
 
+<!-- ###     progress_bar.minibar            ### -->
 <para>minibar()
 creates a new
 <constant>progress_bar</constant>
@@ -377,6 +404,7 @@ and
 is where in the parent object the child's 0% is and
 <varname>stop</varname>
 is where in the parent object the child's 100% is.</para>
+<!-- ###     common_data                     ### -->
 </refsect2>
 
 <refsect2 id='class_common_data2'><title>class common_data():</title>
@@ -395,6 +423,7 @@ returns the password/honeypot at
 __len__()
 returns the number of passwords/honeypots.</para>
 
+<!-- ###     common_data.remove              ### -->
 <para>remove()
 removes the password/honeypot at
 <varname>x</varname>,
@@ -421,6 +450,7 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
+<!-- ###     common_data.writexml            ### -->
 <para>writexml()
 writes the datastructure
 <varname>self</varname>
@@ -430,6 +460,7 @@ It creates a backup of
 <varname>xmlfile</varname>
 to
 <filename>~/.passwdman/undoable</filename>.</para>
+<!-- ###     passwd                          ### -->
 </refsect2>
 
 <refsect2 id='class_passwdcommon_data'><title>class passwd(common_data)</title>
@@ -488,6 +519,7 @@ if you do not want
 passwd()
 to make any change undoable (as in can be undone not impossible).</para>
 
+<!-- ###     passwd.add, passwd.add_nometa   ### -->
 <para>passwd.add()
 and
 passwd.add_nometa()
@@ -514,6 +546,7 @@ which will make it randomize a value automatically.
 Raises
 <errorcode>err_duplicate</errorcode>.</para>
 
+<!-- ###     passwd.remove                   ### -->
 <para>passwd.remove()
 removes the password
 <varname>x</varname>.
@@ -531,6 +564,7 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
+<!-- ###     passwd.mkindex                  ### -->
 <para>passwd.mkindex()
 find
 <varname>x</varname>
@@ -549,6 +583,7 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
+<!-- ###     passwd.update, passwd.update_meta ### -->
 <para>passwd.update()
 and
 passwd.update_meta()
@@ -575,6 +610,7 @@ Raises
 <errorcode>err_idiot</errorcode>
 and
 <errorcode>err_nometa</errorcode>.</para>
+<!-- ###     honeypot                        ### -->
 </refsect2>
 
 <refsect2 id='class_honeypotcommon_data2'><title>class honeypot(common_data)</title>
@@ -593,12 +629,14 @@ if you do not want
 passwd()
 to make any change undoable (as in can be undone not impossible).</para>
 
+<!-- ###     honeypot.add                    ### -->
 <para>honeypot.add()
 adds a new honeypot with the value
 <varname>value</varname>.
 Raises
 <errorcode>err_duplicate</errorcode>.</para>
 
+<!-- ###     honeypot.remove                 ### -->
 <para>honeypot.remove()
 removes the honeypot
 <varname>x</varname>.
@@ -616,7 +654,10 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
+<!-- ###     honeypot.pick (OLD)             ### -->
 <para>honeypot.pick()
+IS DEPRECATED AND WILL BE REMOVED 2015-01-01.
+honeypot.pick()
 picks
 <varname>n</varname>
 random honeypots and returns a string of
@@ -632,7 +673,7 @@ If
 is false, it will raise
 <errorcode>err_idiot</errorcode>.</para>
 
-<!-- Copy&bsol;-pasted from just above. -->
+<!-- ###     honeypot.pickl                  ### -->
 <para>honeypot.pickl()
 picks
 <varname>n</varname>
@@ -646,6 +687,89 @@ If
 <varname>log_vs_raise</varname>
 is false, it will raise
 <errorcode>err_idiot</errorcode>.</para>
+
+<!-- ###     honeypot.pickf                  ### -->
+<para>honeypot.pickf()
+picks
+<varname>n</varname>
+random honeypots and returns a string.
+Arguments:</para>
+<variablelist remap='Bl -tag'>
+<varlistentry>
+<term>n</term>
+<listitem>
+<para>Required.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>pb</term>
+<listitem>
+<para>Default is None.
+The progress bar.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>pattern</term>
+<listitem>
+<para>Default is single quote.
+"(['])"</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>replacement</term>
+<listitem>
+<para>Default is to backslash-escape.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>sep</term>
+<listitem>
+<para>Default is single-quote---comma---single-quote.
+"', '"</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>head</term>
+<listitem>
+<para>Default is single quote.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>tail</term>
+<listitem>
+<para>Default is single quote.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>log_vs_raise</term>
+<listitem>
+<para>Default is True.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+<para>The string is prepended with
+<varname>head</varname>
+and appended with
+<varname>tail</varname>.
+The honeypots are escaped with the regular expressions
+<varname>pattern</varname>
+and
+<varname>replacement</varname>,
+and separated with
+<varname>sep</varname>.
+If
+<varname>log_vs_raise</varname>
+is True then
+honeypot.pickf()
+will log an error if
+<varname>n</varname>
+is too big.
+It will pick fewer fake-passwords than it is supposed to.
+If
+<varname>log_vs_raise</varname>
+is False it will raise
+<errorcode>err_idiot</errorcode>.</para>
+<!-- ###     Exceptions, err_norandom        ### -->
 </refsect2>
 </refsect1>
 
@@ -687,8 +811,12 @@ can be opened.</para>
 <listitem>
 <para>honeypot.pickl()</para>
 </listitem>
+<listitem>
+<para>honeypot.pickf()</para>
+</listitem>
 </itemizedlist>
 
+<!-- ###     err_nolength                    ### -->
 <para><errorcode>err_nolength</errorcode>
 is raised when a function is called with an invalid length.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
@@ -703,6 +831,7 @@ is raised when a function is called with an invalid length.</para>
 </listitem>
 </itemizedlist>
 
+<!-- ###     err_loaderr                     ### -->
 <para><errorcode>err_loaderr</errorcode>
 is raised if data cannot be loaded from file.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
@@ -717,6 +846,7 @@ is raised if data cannot be loaded from file.</para>
 </listitem>
 </itemizedlist>
 
+<!-- ###     err_notfound                    ### -->
 <para><errorcode>err_notfound</errorcode>
 is raised if index is out of range or if it cannot find a match.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
@@ -740,6 +870,7 @@ is raised if index is out of range or if it cannot find a match.</para>
 </listitem>
 </itemizedlist>
 
+<!-- ###     err_duplicate                   ### -->
 <para><errorcode>err_duplicate</errorcode>
 is raised if it is attempted to add a password with the same name as another
 or if its is attempted to add a honeypot with the same value as another.</para>
@@ -755,6 +886,7 @@ or if its is attempted to add a honeypot with the same value as another.</para>
 </listitem>
 </itemizedlist>
 
+<!-- ###     err_idiot                       ### -->
 <para><errorcode>err_idiot</errorcode>
 is raised if the function was not used correctly.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
@@ -768,6 +900,9 @@ is raised if the function was not used correctly.</para>
 <para>honeypot.pickl()</para>
 </listitem>
 <listitem>
+<para>honeypot.pickf()</para>
+</listitem>
+<listitem>
 <para>undo()</para>
 </listitem>
 <listitem>
@@ -775,6 +910,7 @@ is raised if the function was not used correctly.</para>
 </listitem>
 </itemizedlist>
 
+<!-- ###     err_nometa                      ### -->
 <para><errorcode>err_nometa</errorcode>
 is raised when meta-data is required, but the meta-data was nonexistent,
 corrupt or no good.</para>
@@ -789,6 +925,23 @@ corrupt or no good.</para>
 <para>passwd.update()</para>
 </listitem>
 </itemizedlist>
+<!-- ###     Bugs                            ### -->
+</refsect1>
+
+<refsect1 id='bugs'><title>BUGS</title>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>Single-backup mode actually requires TWO undos.</para>
+</listitem>
+<listitem>
+<para>honeypot.pick()
+is deprecated and will be removed 2015-01-01.
+A new
+honeypot.pick()
+will appear in 2015-02-01.</para>
+</listitem>
+</itemizedlist>
+<!-- ###     Files                           ### -->
 </refsect1>
 
 <refsect1 id='files'><title>FILES</title>
@@ -805,6 +958,16 @@ is where the auto-generated backups live.</para>
 is where the backups generated by
 undo()
 live.</para>
+<!-- ###     Examples                        ### -->
+</refsect1>
+
+<refsect1 id='examples'><title>EXAMPLES</title>
+<para><filename>$(bindir)/passwdmangui</filename></para>
+
+<para><filename>$(bindir)/passwdmancli</filename></para>
+
+<para><filename>$(bindir)/passwdmanrli</filename></para>
+<!-- ###     Author                          ### -->
 </refsect1>
 
 <refsect1 id='author'><title>AUTHOR</title>

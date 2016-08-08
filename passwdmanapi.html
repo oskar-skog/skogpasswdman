@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANAPI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANAPI"><a id="passwdmanapi3"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmanapi  —  library used by passwdmancli and passwdmangui </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><pre class="synopsis">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANAPI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANAPI"><a id="passwdmanapi3"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmanapi  —  library used by passwdmancli and passwdmangui  </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><pre class="synopsis">
 #!/usr/bin/python<br />
 import passwdmanapi<br />
 is_anystr(x)<br />
@@ -47,6 +47,7 @@ add(self, value)<br />
 remove(self, x, is_numstring=False)<br />
 pick(self, n=1, sep=",", log_vs_raise=True, pb=None)<br />
 pickl(self, n, log_vs_raise=True, pb=None)<br />
+pickf(self, n, **arg)<br />
 __repr__(self)</p></div><br /><div class="refsect2" title="Exceptions"><a id="exceptions"></a><h3>Exceptions</h3><p>class err_norandom(Exception)<br />
 class err_nolength(Exception)<br />
 class err_loaderr(Exception)<br />
@@ -61,6 +62,7 @@ is either
 or a
 <code class="constant">progress_bar</code>
 object.
+
 is_anystr()
 returns True if
 <code class="varname">x</code>
@@ -408,6 +410,8 @@ If you don't set it, then
 will be treated as an index.
 Raises
 <span class="errorcode">err_notfound</span>.</p><p>honeypot.pick()
+IS DEPRECATED AND WILL BE REMOVED 2015-01-01.
+honeypot.pick()
 picks
 <code class="varname">n</code>
 random honeypots and returns a string of
@@ -433,24 +437,56 @@ is too big.
 If
 <code class="varname">log_vs_raise</code>
 is false, it will raise
+<span class="errorcode">err_idiot</span>.</p><p>honeypot.pickf()
+picks
+<code class="varname">n</code>
+random honeypots and returns a string.
+Arguments:</p><div class="variablelist"><dl><dt><span class="term">n</span></dt><dd><p>Required.</p></dd><dt><span class="term">pb</span></dt><dd><p>Default is None.
+The progress bar.</p></dd><dt><span class="term">pattern</span></dt><dd><p>Default is single quote.
+"(['])"</p></dd><dt><span class="term">replacement</span></dt><dd><p>Default is to backslash-escape.</p></dd><dt><span class="term">sep</span></dt><dd><p>Default is single-quote---comma---single-quote.
+"', '"</p></dd><dt><span class="term">head</span></dt><dd><p>Default is single quote.</p></dd><dt><span class="term">tail</span></dt><dd><p>Default is single quote.</p></dd><dt><span class="term">log_vs_raise</span></dt><dd><p>Default is True.</p></dd></dl></div><p>The string is prepended with
+<code class="varname">head</code>
+and appended with
+<code class="varname">tail</code>.
+The honeypots are escaped with the regular expressions
+<code class="varname">pattern</code>
+and
+<code class="varname">replacement</code>,
+and separated with
+<code class="varname">sep</code>.
+If
+<code class="varname">log_vs_raise</code>
+is True then
+honeypot.pickf()
+will log an error if
+<code class="varname">n</code>
+is too big.
+It will pick fewer fake-passwords than it is supposed to.
+If
+<code class="varname">log_vs_raise</code>
+is False it will raise
 <span class="errorcode">err_idiot</span>.</p></div></div><div class="refsect1" title="Exceptions"><a id="exceptions2"></a><h2>Exceptions</h2><p><span class="errorcode">err_norandom</span>
 is raised when neither
 <span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>
 or
 <span class="citerefentry"><span class="refentrytitle">urandom</span>(4)</span>
-can be opened.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>open_rng()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li><li class="listitem" style="list-style-type: disc"><p>randomize()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li></ul></div><p><span class="errorcode">err_nolength</span>
+can be opened.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>open_rng()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li><li class="listitem" style="list-style-type: disc"><p>randomize()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickf()</p></li></ul></div><p><span class="errorcode">err_nolength</span>
 is raised when a function is called with an invalid length.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li></ul></div><p><span class="errorcode">err_loaderr</span>
 is raised if data cannot be loaded from file.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>common_data()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot()</p></li></ul></div><p><span class="errorcode">err_notfound</span>
 is raised if index is out of range or if it cannot find a match.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>common_data.remove()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.remove()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.mkindex()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.remove()</p></li></ul></div><p><span class="errorcode">err_duplicate</span>
 is raised if it is attempted to add a password with the same name as another
 or if its is attempted to add a honeypot with the same value as another.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add_nometa()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.add()</p></li></ul></div><p><span class="errorcode">err_idiot</span>
-is raised if the function was not used correctly.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li><li class="listitem" style="list-style-type: disc"><p>undo()</p></li><li class="listitem" style="list-style-type: disc"><p>redo()</p></li></ul></div><p><span class="errorcode">err_nometa</span>
+is raised if the function was not used correctly.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickf()</p></li><li class="listitem" style="list-style-type: disc"><p>undo()</p></li><li class="listitem" style="list-style-type: disc"><p>redo()</p></li></ul></div><p><span class="errorcode">err_nometa</span>
 is raised when meta-data is required, but the meta-data was nonexistent,
-corrupt or no good.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>randomize()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li></ul></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
+corrupt or no good.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>randomize()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li></ul></div></div><div class="refsect1" title="BUGS"><a id="bugs"></a><h2>BUGS</h2><div class="itemizedlist"><ul class="itemizedlist" type="bullet"><li class="listitem" style="list-style-type: disc"><p>Single-backup mode actually requires TWO undos.</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()
+is deprecated and will be removed 2015-01-01.
+A new
+honeypot.pick()
+will appear in 2015-02-01.</p></li></ul></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
 is the XML file containing the passwords and their meta-data.</p><p><code class="filename">~/.passwdman/honeypots</code>
 is the XML file containing the honeypots.</p><p><code class="filename">~/.passwdman/undoable/</code>
 is where the auto-generated backups live.</p><p><code class="filename">~/.passwdman/redoable/</code>
 is where the backups generated by
 undo()
-live.</p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
+live.</p></div><div class="refsect1" title="EXAMPLES"><a id="examples"></a><h2>EXAMPLES</h2><p><code class="filename">$(bindir)/passwdmangui</code></p><p><code class="filename">$(bindir)/passwdmancli</code></p><p><code class="filename">$(bindir)/passwdmanrli</code></p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
 Oskar Skog (oskar.skog.finland@gmail.com).</p><p>Please send patches, questions, bug reports and wish-lists.</p></div></div></body></html>

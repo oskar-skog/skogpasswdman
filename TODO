@@ -8,7 +8,6 @@
 *       in "configure.2": dirs() should figure out more directories.
 *       info
 *       ``shortcuts`` in passwdmanrli.
-*       passwdmanrli: Code->data in passwd_tab and honeypot_tab.
 0.5     honeypot.pickf().  Deprecate honeypot.pick().
 0.5     Unicode support in configure.
 0.5     RLI: 40 column tty.
