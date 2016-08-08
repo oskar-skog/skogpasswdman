@@ -51,18 +51,27 @@ u(x)<sbr/>
 b(x)<sbr/>
 b2u3(x)<sbr/>
 open_rng()<sbr/>
-get64(length)<sbr/>
-get10(length)<sbr/>
-getint(a, b)<sbr/>
+get64(length, pb=None)<sbr/>
+get10(length, pb=None)<sbr/>
+getint(a, b, pb=None)<sbr/>
 unquote(x)<sbr/>
-randomize(method, minlength, maxlength)<sbr/>
+randomize(method, minlength, maxlength, pb=None)<sbr/>
 undo(passwdobj=None, honeypotobj=None)<sbr/>
 redo(passwdobj=None, honeypotobj=None)<sbr/>
+no_pb()<sbr/>
+no_pb_f(percent, data)<sbr/>
+class progress_bar()<sbr/>
 class common_data()<sbr/>
 class passwd(common_data)<sbr/>
 class honeypot(common_data)<sbr/>
 </synopsis><sbr/>
 <!-- body begins here -->
+<sbr/>
+<refsect2 id='class_progress_bar'><title>class progress_bar():</title>
+<para>__init__(self, start, stop, function, data=None)<sbr/>
+progress(self, percent)<sbr/>
+minibar(self, start, stop)</para>
+</refsect2>
 <sbr/>
 <refsect2 id='class_common_data'><title>class common_data():</title>
 <para>__init__(self, xmlfile)<sbr/>
@@ -72,27 +81,27 @@ next(self)<sbr/>
 __getitem__(self, i)<sbr/>
 __len__(self)<sbr/>
 remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)<sbr/>
-writexml(self, xmlfile)<sbr/>
+writexml(self, xmlfile, pb=None)<sbr/>
 __del__(self)</para>
 </refsect2>
 <sbr/>
 <refsect2 id='passwdcommon_data'><title>passwd(common_data):</title>
 <para>__init__(self, backups=True)<sbr/>
-add(self, name, value, m_type, m_minlength, m_maxlength)<sbr/>
+add(self, name, value, m_type, m_minlength, m_maxlength, pb=None)<sbr/>
 add_nometa(self, name, value)<sbr/>
 remove(self, x, is_numstring=False)<sbr/>
 __repr__(self)<sbr/>
 mkindex(self, x, is_numstring=False)<sbr/>
-update(self, index)<sbr/>
-update_meta(self, index, m_type, m_minlength, m_maxlength)</para>
+update(self, index, pb=None)<sbr/>
+update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None)</para>
 </refsect2>
 <sbr/>
 <refsect2 id='class_honeypotcommon_data'><title>class honeypot(common_data):</title>
 <para>__init__(self, backups=True)<sbr/>
 add(self, value)<sbr/>
 remove(self, x, is_numstring=False)<sbr/>
-pick(self, n=1, sep=",", log_vs_raise=True)<sbr/>
-pickl(self, n, log_vs_raise=True)<sbr/>
+pick(self, n=1, sep=",", log_vs_raise=True, pb=None)<sbr/>
+pickl(self, n, log_vs_raise=True, pb=None)<sbr/>
 __repr__(self)</para>
 </refsect2>
 <sbr/>
@@ -112,7 +121,13 @@ class err_nometa(Exception)</para>
 <varname>xmlfile</varname>
 is a path.</para>
 
-<para>is_anystr()
+<para><varname>pb</varname>
+is either
+<constant>None</constant>
+or a
+<constant>progress_bar</constant>
+object.
+is_anystr()
 returns True if
 <varname>x</varname>
 is any kind of string, and False if
@@ -252,6 +267,16 @@ undo().
 Raises
 <errorcode>err_idiot</errorcode>.</para>
 
+<para>no_pb()
+returns a No-op
+<constant>progress_bar</constant>
+object (which calls
+no_pb_f()
+instead of a function that would actually do something).</para>
+
+<para>no_pb_f()
+does nothing.</para>
+
 <para>common_data()
 is a class defining methods used by both
 passwd()
@@ -264,6 +289,99 @@ honeypot()
 is a class for the honey-pot list.
 See
 <link  linkend='files'>FILES</link>.</para>
+
+<refsect2 id='class_progress_bar2'><title>class progress_bar():</title>
+<para>The class
+progress_bar()
+is a class for simple interface-independent progress-bars.
+The keyword-argument
+<varname>pb</varname>
+accepts a
+<constant>progress_bar</constant>
+object.
+Only these functions have a
+<varname>pb</varname>
+argument:</para>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>randomize()</para>
+</listitem>
+<listitem>
+<para>getint()</para>
+</listitem>
+<listitem>
+<para>get10()</para>
+</listitem>
+<listitem>
+<para>get64()</para>
+</listitem>
+<listitem>
+<para>common_data.writexml()</para>
+</listitem>
+<listitem>
+<para>passwd.add()</para>
+</listitem>
+<listitem>
+<para>passwd.update()</para>
+</listitem>
+<listitem>
+<para>passwd.update_meta()</para>
+</listitem>
+<listitem>
+<para>honeypot.pick()</para>
+</listitem>
+<listitem>
+<para>honeypot.pickl()</para>
+</listitem>
+</itemizedlist>
+
+<para>no_pb()
+is a useful function.</para>
+
+<para>progress_bar.__init__()
+creates a
+<constant>progress_bar</constant>
+object.
+<varname>start</varname>
+and
+<varname>stop</varname>
+are floats in the range 0...100.
+<varname>function</varname>
+is a function that will update the progress-bar.
+It takes exactly two arguments.
+The first is the percentage and the other is
+<varname>data</varname>
+which defaults to
+<constant>None</constant>.</para>
+<programlisting remap='Bd'>
+<funcsynopsis>
+<funcprototype>
+<funcdef><function>custom_function</function></funcdef>
+<paramdef><parameter>percent</parameter></paramdef>
+<paramdef><parameter>data</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+</programlisting> <!-- remap='Ed (block)' -->
+<para><varname>percent</varname>
+is a float in the range 0...100 and
+<varname>data</varname>
+is all other necessary data.</para>
+
+<para>progress()
+updates the progress-bar.</para>
+
+<para>minibar()
+creates a new
+<constant>progress_bar</constant>
+with identical
+<varname>function</varname>
+and
+<varname>data</varname>.
+<varname>start</varname>
+is where in the parent object the child's 0% is and
+<varname>stop</varname>
+is where in the parent object the child's 100% is.</para>
+</refsect2>
 
 <refsect2 id='class_common_data2'><title>class common_data():</title>
 <para>__init__()

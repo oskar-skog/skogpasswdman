@@ -22,7 +22,7 @@
 .\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 .\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\"POSSIBILITY OF SUCH DAMAGE.
-.Dd Jan 11, 2014
+.Dd Jan 12, 2014
 .Dt PASSWDMANAPI 3
 .Os
 .Sh NAME
@@ -41,16 +41,23 @@
 .Fd b(x)
 .Fd b2u3(x)
 .Fd open_rng()
-.Fd get64(length)
-.Fd get10(length)
-.Fd getint(a, b)
+.Fd get64(length, pb=None)
+.Fd get10(length, pb=None)
+.Fd getint(a, b, pb=None)
 .Fd unquote(x)
-.Fd randomize(method, minlength, maxlength)
+.Fd randomize(method, minlength, maxlength, pb=None)
 .Fd undo(passwdobj=None, honeypotobj=None)
 .Fd redo(passwdobj=None, honeypotobj=None)
+.Fd no_pb()
+.Fd no_pb_f(percent, data)
+.Fd class progress_bar()
 .Fd class common_data()
 .Fd class passwd(common_data)
 .Fd class honeypot(common_data)
+.Ss class progress_bar():
+.Fd __init__(self, start, stop, function, data=None)
+.Fd progress(self, percent)
+.Fd minibar(self, start, stop)
 .Ss class common_data():
 .Fd __init__(self, xmlfile)
 .Fd __iter__(self)
@@ -59,23 +66,23 @@
 .Fd __getitem__(self, i)
 .Fd __len__(self)
 .Fd remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)
-.Fd writexml(self, xmlfile)
+.Fd writexml(self, xmlfile, pb=None)
 .Fd __del__(self)
 .Ss passwd(common_data):
 .Fd __init__(self, backups=True)
-.Fd add(self, name, value, m_type, m_minlength, m_maxlength)
+.Fd add(self, name, value, m_type, m_minlength, m_maxlength, pb=None)
 .Fd add_nometa(self, name, value)
 .Fd remove(self, x, is_numstring=False)
 .Fd __repr__(self)
 .Fd mkindex(self, x, is_numstring=False)
-.Fd update(self, index)
-.Fd update_meta(self, index, m_type, m_minlength, m_maxlength)
+.Fd update(self, index, pb=None)
+.Fd update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None)
 .Ss class honeypot(common_data):
 .Fd __init__(self, backups=True)
 .Fd add(self, value)
 .Fd remove(self, x, is_numstring=False)
-.Fd pick(self, n=1, sep=",", log_vs_raise=True)
-.Fd pickl(self, n, log_vs_raise=True)
+.Fd pick(self, n=1, sep=",", log_vs_raise=True, pb=None)
+.Fd pickl(self, n, log_vs_raise=True, pb=None)
 .Fd __repr__(self)
 .Ss Exceptions
 .Fd class err_norandom(Exception)
@@ -90,6 +97,12 @@ Unless otherwise noted,
 .Va xmlfile
 is a path.
 .Pp
+.Va pb
+is either
+.Dv None
+or a
+.Dv progress_bar
+object.
 .Fn is_anystr
 returns True if
 .Va x
@@ -230,6 +243,16 @@ restoring from the newest auto-generated backup from
 Raises
 .Er err_idiot .
 .Pp
+.Fn no_pb
+returns a No-op
+.Dv progress_bar
+object (which calls
+.Fn no_pb_f
+instead of a function that would actually do something).
+.Pp
+.Fn no_pb_f
+does nothing.
+.Pp
 .Fn common_data
 is a class defining methods used by both
 .Fn passwd
@@ -242,6 +265,82 @@ is a class for the password list.
 is a class for the honey-pot list.
 See
 .Sx FILES .
+.Ss class progress_bar():
+The class
+.Fn progress_bar
+is a class for simple interface-independent progress-bars.
+The keyword-argument
+.Va pb
+accepts a
+.Dv progress_bar
+object.
+Only these functions have a
+.Va pb
+argument:
+.Bl -bullet
+.It
+.Fn randomize
+.It
+.Fn getint
+.It
+.Fn get10
+.It
+.Fn get64
+.It
+.Fn common_data.writexml
+.It
+.Fn passwd.add
+.It
+.Fn passwd.update
+.It
+.Fn passwd.update_meta
+.It
+.Fn honeypot.pick
+.It
+.Fn honeypot.pickl
+.El
+.Pp
+.Fn no_pb
+is a useful function.
+.Pp
+.Fn progress_bar.__init__
+creates a
+.Dv progress_bar
+object.
+.Va start
+and
+.Va stop
+are floats in the range 0...100.
+.Va function
+is a function that will update the progress-bar.
+It takes exactly two arguments.
+The first is the percentage and the other is
+.Va data
+which defaults to
+.Dv None .
+.Bd -literal
+custom_function(percent, data)
+.Ed
+.Pp
+.Va percent
+is a float in the range 0...100 and
+.Va data
+is all other necessary data.
+.Pp
+.Fn progress
+updates the progress-bar.
+.Pp
+.Fn minibar
+creates a new
+.Dv progress_bar
+with identical
+.Va function
+and
+.Va data .
+.Va start
+is where in the parent object the child's 0% is and
+.Va stop
+is where in the parent object the child's 100% is.
 .Ss class common_data():
 .Fn __init__
 will load the data from

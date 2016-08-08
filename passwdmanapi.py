@@ -181,6 +181,18 @@ def b2u3(x):
         return b(x)
     else:
         return u(x)
+
+def no_pb_f(percent, data):
+    """no_pb_f(percent, data)
+    The actual function used by a progress bar created by `no_pb`.
+    """
+    pass
+
+def no_pb():
+    """no_pb()
+    Return an invisible progress_bar.
+    """
+    return progress_bar(0.0, 100.0, no_pb_f, None)
     
 def open_rng():
     """open_rng() - Open random(4) or urandom(4), returns an open file.
@@ -197,7 +209,7 @@ ERRORS
             raise err_norandom('Cannot open "/dev/random" or "/dev/urandom".')
     return f
 
-def get64(length):
+def get64(length, pb=None):
     """get64(length)
     Returns a random string containing A-Z a-z 0-9 underscore and
     exclamation mark, with the length `length`.
@@ -214,6 +226,8 @@ ERRORS
     logging.info("get64: length={0}".format(length))
     if length < 1:
         raise err_nolength('get64 called with length < 1.')
+    if pb is None:
+        pb = no_pb()    # No-op progress bar.
     letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" +
             "ghijklmnopqrstuvwxyz0123456789!_")
     passwd, bits, number = '', 0, 0
@@ -223,6 +237,7 @@ ERRORS
             logging.info("get64: Need more random bits.")
             number |= ord(rng.read(1)) << bits # Prepend the bits in number
                                                # with a random byte.
+            pb.progress(len(passwd)/length * 100)       # Progress bar.
             bits += 8
         passwd += letters[number % 64] # Use 6 bits to pick a letter and...
                                        # ...append.
@@ -234,7 +249,7 @@ ERRORS
     del letters, bits, number, rng
     return u(passwd)
 
-def get10(length):
+def get10(length, pb=None):
     """get10(length)
     Returns a random string containing 0-9, with the length `length`.
     Raises the same exceptions as get64().
@@ -248,6 +263,8 @@ def get10(length):
     logging.info("get10: length={0}".format(length))
     if length < 1:
         raise err_nolength('get10 called with length < 1.')
+    if pb is None:
+        pb = no_pb()    # No-op progress bar.
     passwd, bits, number = '', 0, 0
     rng = open_rng()
     while len(passwd) < length:    # Main loop.
@@ -258,6 +275,7 @@ def get10(length):
         if (number%16) < 10:                    # I don't want 0...5 to be
                                                 # more popular than 6...9.
             passwd += chr(number%16 + 48) # digits ASCII
+            pb.progress(len(passwd)/length * 100)       # Progress bar.
             logging.info("get10: Added char {0}/{1}.".format(len(passwd),
                                                                   length))
         else:
@@ -268,13 +286,15 @@ def get10(length):
     del rng, bits, number
     return u(passwd)
 
-def getint(a, b):
+def getint(a, b, pb=None):
     """getint(a, b)
     Return random integer with value a from `a` to `b` - 1.
     """
     assert is_int(a) and is_int(b)
     if b < a:
         raise err_nolength("b < a")
+    if pb is None:
+        pb = no_pb()    # No-op progress bar.
     rng = open_rng()
     reqbits = bits = number = smallnum = 0
     while (1 << reqbits) < (b - a):
@@ -290,6 +310,7 @@ def getint(a, b):
                 number |= smallnum << bits              # Prepend.
             else:                       # Prepend a whole byte.
                 number |= ord(rng.read(1)) << bits
+            pb.progress(bits/reqbits * 100.0)   # Progress bar.
             bits += 8
     rng.close()
     return number + a
@@ -329,7 +350,7 @@ def unquote(x):
         if not c in string.whitespace:
             return x            # Bad tail.
 
-def randomize(method, minlength, maxlength):
+def randomize(method, minlength, maxlength, pb=None):
     """randomize(method, minlength, maxlength)
     Return random string with a length >= `minlength` and
         <= `maxlength`.
@@ -339,14 +360,55 @@ def randomize(method, minlength, maxlength):
     """
     assert is_int(minlength) and is_int(maxlength)
     assert is_anystr(method)
-    length = getint(minlength, maxlength+1) # Even the length should be
-                                            # randomized.
+    if pb is not None:
+        getint_pb = pb.minibar(0.0, 10.0)
+        get6410_pb = pb.minibar(10.0, 100.0)
+    else:
+        getint_pb = get6410_pb = None
+    length = getint(minlength, maxlength+1, getint_pb)
+    # Even the length should be randomized.
     if method == "10":
-        return get10(length)
+        return get10(length, get6410_pb)
     elif method == "64":
-        return get64(length)
+        return get64(length, get6410_pb)
     else:
         raise err_nometa("weird 'method'")
+
+class progress_bar():
+    """class progress_bar()
+    
+    object = progress_bar(start=0.0, stop=100.0, function, data=None)
+    object.progress(percent)
+    object2 = object.minibar(start, stop)
+    brain_dead_object = no_pb()
+    brain_dead_object.progress(percent)
+    brain_dead_object2 = brain_dead_object.minibar(start, stop)
+    
+    start, stop and percent are floating point numbers in the range 0...100.
+    """
+    def __init__(self, start, stop, function, data=None):
+        # The values are internally in the range 0...1.
+        # They are externally in the range 0...100.
+        self.start = start/100.0
+        self.stop = stop/100.0
+        self.function = function
+        self.data = data
+        self.full = self.stop - self.start
+    def progress(self, percent):
+        if percent < 0:
+            percent = 0
+        if percent > 100:
+            percent = 100
+        real_percent = self.start  +  (percent/100.0 * self.full)
+        self.function(real_percent*100.0, self.data)
+    def minibar(self, start, stop):
+        start /= 100.0
+        stop /= 100.0
+        return progress_bar(
+            (self.start + start*self.full) * 100.0,
+            (self.start + stop*self.full) * 100.0,
+            self.function,
+            self.data)
 
 class common_data():
     """class common_data():
@@ -470,7 +532,7 @@ class common_data():
             raise err_notfound("not found")
         else:
             raise err_notfound("not integer and not unicode-string")
-    def writexml(self, xmlfile):
+    def writexml(self, xmlfile, pb=None):
         """writexml(self, xmlfile) - Write the XML tree to disk."""
         assert is_anystr(xmlfile)
         self.xmlroot.text = "\n  "      # Make it look better.
@@ -480,12 +542,16 @@ class common_data():
             os.rename(os.path.expanduser(xmlfile),
                     os.path.join(os.path.expanduser("~/.passwdman/undoable"),
                     os.path.basename(xmlfile) + '-' + time.ctime()))
+            if pb is not None:
+                pb.progress(50.0)
         try:
             self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8",
                                                     xml_declaration=True)
         except:         # For Python 2.6.
             self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8")
-        #Unicode-stuff here.
+        if pb is not None:
+            pb.progress(100.0)
+        # Unicode-stuff here.
     def __del__(self):
         """Used by undo() and redo(). Make sure the object is 0xdeadbeef."""
         del self.data
@@ -566,7 +632,7 @@ class passwd(common_data):
                               "value": passwd_element.attrib["value"],
                               "meta": meta_attrib})
     # Will not add __setitem__.
-    def add(self, name, value, m_type, m_minlength, m_maxlength):
+    def add(self, name, value, m_type, m_minlength, m_maxlength, pb=None):
         assert is_unicodestr(name)
         assert is_unicodestr(value) or value is None
         assert is_anystr(m_type)
@@ -586,12 +652,16 @@ class passwd(common_data):
         assert is_anystr(m_minlength) and is_anystr(m_maxlength)
         forget = int(m_minlength)   # Raise an exception if not a number.
         forget = int(m_maxlength)   # Raise an exception if not a number.
+        if pb is None:
+            pb = no_pb()        # No-op progress bar.
         for x in self.data: # Check for duplicates.
             if x["name"] == name:
                 raise err_duplicate(
                     "passwd.add_nometa(name='{0}') #duplicate".format(value))
+        pb.progress(5.0)
         if value is None:
-            value = randomize(m_type, int(m_minlength), int(m_maxlength))
+            value = randomize(m_type, int(m_minlength), int(m_maxlength),
+                                                    pb.minibar(5.0, 90.0))
         self.data.append({"name": name, "value": value,
                       "meta": {"type": m_type, "minlength": m_minlength,
                                                "maxlength": m_maxlength}})
@@ -605,7 +675,9 @@ class passwd(common_data):
         meta_element.set("type", m_type)
         meta_element.set("minlength", m_minlength)
         meta_element.set("maxlength", m_maxlength) # Attributes.
+        pb.progress(95.0)
         common_data.writexml(self, "~/.passwdman/passwords")
+        pb.progress(100.0)
     def add_nometa(self, name, value):
         """add_nometa(self, name, value)
         Add password with only name and value.
@@ -654,7 +726,7 @@ class passwd(common_data):
                 index += 1
             raise err_notfound("")
         return index
-    def update(self, index):
+    def update(self, index, pb=None):
         """update(self, index)
         Update the password at index, use its meta-data to know how.
         """
@@ -672,7 +744,10 @@ class passwd(common_data):
             maxlength = int(self[index]["meta"]["maxlength"])
         except:
             raise err_nometa("Weird 'minlength' or 'maxlength'.")
-        new = self[index]["value"] = randomize(method, minlength, maxlength)
+        if pb is None:
+            pb = no_pb()        # No-op progress bar.
+        new = self[index]["value"] = randomize(method, minlength, maxlength,
+                                                    pb.minibar(0.0, 90.0))
         # Write the new password to the passwd file.
         counter = 0
         for element in self.xmlroot.findall("passwd"):
@@ -680,8 +755,10 @@ class passwd(common_data):
                 element.set("value", new)
                 break
             counter += 1
-        common_data.writexml(self, "~/.passwdman/passwords")
-    def update_meta(self, index, m_type, m_minlength, m_maxlength):
+            pb.progress(90.0  +  (counter+1) / (index+1) * 5)
+        common_data.writexml(self, "~/.passwdman/passwords",
+                                                    pb.minibar(95.0, 100.0))
+    def update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None):
         """update_meta(self, index, m_type, m_minlength, m_maxlength)
         Update the password at index and its meta data.
         """
@@ -694,7 +771,10 @@ class passwd(common_data):
             maxlength = int(m_maxlength)
         except:
             raise err_idiot("INTEGERS")
-        new = self[index]["value"] = randomize(m_type, minlength, maxlength)
+        if pb is None:
+            pb = no_pb()        # No-op progress bar.
+        new = self[index]["value"] = randomize(m_type, minlength, maxlength,
+                                                    pb.minibar(0.0, 90.0))
         self[index]["meta"]["type"] = m_type
         self[index]["meta"]["minlength"] = m_minlength
         self[index]["meta"]["maxlength"] = m_maxlength
@@ -714,7 +794,9 @@ class passwd(common_data):
                 meta.set("maxlength", str(m_maxlength))
                 break
             counter += 1
-        common_data.writexml(self, "~/.passwdman/passwords")
+            pb.progress(90.0  +  (counter+1) / (index+1) * 5)
+        common_data.writexml(self, "~/.passwdman/passwords",
+                                                    pb.minibar(95.0, 100.0))
     def __repr__(self):
         return "<passwdmanapi.passwd object with id {0}>".format(id(self))
 
@@ -760,13 +842,15 @@ class honeypot(common_data):
         """
         common_data.remove(self, x, "~/.passwdman/honeypots", "honeypot",
                            "value", is_numstring)
-    def pick(self, n=1, sep=",", log_vs_raise=True):
+    def pick(self, n=1, sep=",", log_vs_raise=True, pb=None):
         """pick(self, n=1, sep=",", log_vs_raise=True)
         Pick randomly selected honey-pots.
         """
         assert is_int(n)
         # Its default is not unicode on Python 2.x.
         assert is_unicodestr(sep) or sep == ","
+        if pb is None:
+            pb = no_pb()        # No-op progress bar.
         if n > len(self):
             n = len(self)
             if log_vs_raise:
@@ -777,17 +861,21 @@ class honeypot(common_data):
         for x in self:                  # Create popable list.
             balloons.append(x)
         while len(outlist) < n:         # Pop random balloons.
-            outlist.append(balloons.pop(getint(0, len(balloons))))
+            s = len(outlist)
+            outlist.append(balloons.pop(getint(0, len(balloons),
+                            pb.minibar(s/n* 100.0, (s+1)/n * 100.0))))
         for y in outlist:
             output += y
             output += sep
         return output[:-(len(sep))] # Do not return the last separator.
-    def pickl(self, n, log_vs_raise=True):
+    def pickl(self, n, log_vs_raise=True, pb=None):
         """pickl(self, n, log_vs_raise=True)
         Pick randomly selected honey-pots in a list.
         """
         # Copy-pasted from pick()
         assert is_int(n)
+        if pb is None:
+            pb = no_pb()        # No-op progress bar.
         if n > len(self):
             n = len(self)
             if log_vs_raise:
@@ -798,7 +886,9 @@ class honeypot(common_data):
         for x in self:                  # Create popable list.
             balloons.append(x)
         while len(outlist) < n:         # Pop random balloons.
-            outlist.append(balloons.pop(getint(0, len(balloons))))
+            s = len(outlist)
+            outlist.append(balloons.pop(getint(0, len(balloons),
+                            pb.minibar(s/n* 100.0, (s+1)/n * 100.0))))
         return outlist
     def __repr__(self):
         return "<passwdmanapi.honeypot object with id {0}>".format(id(self))

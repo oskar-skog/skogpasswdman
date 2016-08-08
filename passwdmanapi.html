@@ -12,36 +12,41 @@ u(x)<br />
 b(x)<br />
 b2u3(x)<br />
 open_rng()<br />
-get64(length)<br />
-get10(length)<br />
-getint(a, b)<br />
+get64(length, pb=None)<br />
+get10(length, pb=None)<br />
+getint(a, b, pb=None)<br />
 unquote(x)<br />
-randomize(method, minlength, maxlength)<br />
+randomize(method, minlength, maxlength, pb=None)<br />
 undo(passwdobj=None, honeypotobj=None)<br />
 redo(passwdobj=None, honeypotobj=None)<br />
+no_pb()<br />
+no_pb_f(percent, data)<br />
+class progress_bar()<br />
 class common_data()<br />
 class passwd(common_data)<br />
 class honeypot(common_data)<br />
-</pre><br /><br /><div class="refsect2" title="class common_data():"><a id="class_common_data"></a><h3>class common_data():</h3><p>__init__(self, xmlfile)<br />
+</pre><br /><br /><div class="refsect2" title="class progress_bar():"><a id="class_progress_bar"></a><h3>class progress_bar():</h3><p>__init__(self, start, stop, function, data=None)<br />
+progress(self, percent)<br />
+minibar(self, start, stop)</p></div><br /><div class="refsect2" title="class common_data():"><a id="class_common_data"></a><h3>class common_data():</h3><p>__init__(self, xmlfile)<br />
 __iter__(self)<br />
 __next__(self)<br />
 next(self)<br />
 __getitem__(self, i)<br />
 __len__(self)<br />
 remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)<br />
-writexml(self, xmlfile)<br />
+writexml(self, xmlfile, pb=None)<br />
 __del__(self)</p></div><br /><div class="refsect2" title="passwd(common_data):"><a id="passwdcommon_data"></a><h3>passwd(common_data):</h3><p>__init__(self, backups=True)<br />
-add(self, name, value, m_type, m_minlength, m_maxlength)<br />
+add(self, name, value, m_type, m_minlength, m_maxlength, pb=None)<br />
 add_nometa(self, name, value)<br />
 remove(self, x, is_numstring=False)<br />
 __repr__(self)<br />
 mkindex(self, x, is_numstring=False)<br />
-update(self, index)<br />
-update_meta(self, index, m_type, m_minlength, m_maxlength)</p></div><br /><div class="refsect2" title="class honeypot(common_data):"><a id="class_honeypotcommon_data"></a><h3>class honeypot(common_data):</h3><p>__init__(self, backups=True)<br />
+update(self, index, pb=None)<br />
+update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None)</p></div><br /><div class="refsect2" title="class honeypot(common_data):"><a id="class_honeypotcommon_data"></a><h3>class honeypot(common_data):</h3><p>__init__(self, backups=True)<br />
 add(self, value)<br />
 remove(self, x, is_numstring=False)<br />
-pick(self, n=1, sep=",", log_vs_raise=True)<br />
-pickl(self, n, log_vs_raise=True)<br />
+pick(self, n=1, sep=",", log_vs_raise=True, pb=None)<br />
+pickl(self, n, log_vs_raise=True, pb=None)<br />
 __repr__(self)</p></div><br /><div class="refsect2" title="Exceptions"><a id="exceptions"></a><h3>Exceptions</h3><p>class err_norandom(Exception)<br />
 class err_nolength(Exception)<br />
 class err_loaderr(Exception)<br />
@@ -50,7 +55,13 @@ class err_duplicate(Exception)<br />
 class err_idiot(Exception)<br />
 class err_nometa(Exception)</p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p>Unless otherwise noted,
 <code class="varname">xmlfile</code>
-is a path.</p><p>is_anystr()
+is a path.</p><p><code class="varname">pb</code>
+is either
+<code class="constant">None</code>
+or a
+<code class="constant">progress_bar</code>
+object.
+is_anystr()
 returns True if
 <code class="varname">x</code>
 is any kind of string, and False if
@@ -158,7 +169,13 @@ redoes the latest undone change to the password list or honey pot list, by
 restoring from the newest auto-generated backup from
 undo().
 Raises
-<span class="errorcode">err_idiot</span>.</p><p>common_data()
+<span class="errorcode">err_idiot</span>.</p><p>no_pb()
+returns a No-op
+<code class="constant">progress_bar</code>
+object (which calls
+no_pb_f()
+instead of a function that would actually do something).</p><p>no_pb_f()
+does nothing.</p><p>common_data()
 is a class defining methods used by both
 passwd()
 and
@@ -167,7 +184,48 @@ is a class for the password list.
 honeypot()
 is a class for the honey-pot list.
 See
-<a class="link" href="#files" title="FILES">FILES</a>.</p><div class="refsect2" title="class common_data():"><a id="class_common_data2"></a><h3>class common_data():</h3><p>__init__()
+<a class="link" href="#files" title="FILES">FILES</a>.</p><div class="refsect2" title="class progress_bar():"><a id="class_progress_bar2"></a><h3>class progress_bar():</h3><p>The class
+progress_bar()
+is a class for simple interface-independent progress-bars.
+The keyword-argument
+<code class="varname">pb</code>
+accepts a
+<code class="constant">progress_bar</code>
+object.
+Only these functions have a
+<code class="varname">pb</code>
+argument:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>randomize()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>common_data.writexml()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li></ul></div><p>no_pb()
+is a useful function.</p><p>progress_bar.__init__()
+creates a
+<code class="constant">progress_bar</code>
+object.
+<code class="varname">start</code>
+and
+<code class="varname">stop</code>
+are floats in the range 0...100.
+<code class="varname">function</code>
+is a function that will update the progress-bar.
+It takes exactly two arguments.
+The first is the percentage and the other is
+<code class="varname">data</code>
+which defaults to
+<code class="constant">None</code>.</p><pre class="programlisting">
+<div class="funcsynopsis"><table border="0" summary="Function synopsis" cellspacing="0" cellpadding="0" class="funcprototype-table"><tr><td><code class="funcdef"><strong>fsfunccustom_function</strong>(</code></td><td><var class="pdparam">percent</var>, </td><td> </td></tr><tr><td> </td><td><var class="pdparam">data</var><code>)</code>;</td><td> </td></tr></table><div class="paramdef-list"><code><var class="pdparam">percent</var></code>;<br /><code><var class="pdparam">data</var></code>;</div><div class="funcprototype-spacer"> </div></div>
+</pre><p><code class="varname">percent</code>
+is a float in the range 0...100 and
+<code class="varname">data</code>
+is all other necessary data.</p><p>progress()
+updates the progress-bar.</p><p>minibar()
+creates a new
+<code class="constant">progress_bar</code>
+with identical
+<code class="varname">function</code>
+and
+<code class="varname">data</code>.
+<code class="varname">start</code>
+is where in the parent object the child's 0% is and
+<code class="varname">stop</code>
+is where in the parent object the child's 100% is.</p></div><div class="refsect2" title="class common_data():"><a id="class_common_data2"></a><h3>class common_data():</h3><p>__init__()
 will load the data from
 <code class="varname">xmlfile</code>.
 Raises

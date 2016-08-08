@@ -1,4 +1,6 @@
 2014-01-12      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.19
+    * passwdmanapi.py: New class: progress_bar.
 0.3.18
     * passwdmanrli (edit_line): Bugfix: Initialize head_b to be an encoded
         head_u instead of empty. Previously edited text no longer disappear.
