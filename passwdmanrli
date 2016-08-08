@@ -25,7 +25,12 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
 import passwdmanapi as api
-import curses, math, os, tarfile, sys
+import curses
+import math
+import os
+import tarfile
+import sys
+import locale
 
 __doc__ = """import passwdmanapi as api
 h, p = api.honeypot(), api.passwd()
@@ -253,39 +258,59 @@ def after_update(old, new):
             else:
                 return
 
-def dictui(arg):
+def vdictui(arg):
     ret_arg = {}
     where = wrap = 0
-    # Initialize.
+    # Initialize:
+    #   - Set defaults.
+    #   - Set wrap.
+    #   - Create the return-variables and set their values.
     for i in arg:
         try:
-            if i['type'] not in ('space', 'text'):
-                wrap += 1
-            if i['type'] in ('edit_num', 'edit_line'):
-                try:
-                    ret_arg[i['name']] = i['value']
-                except KeyError:
-                    if i['type'] == 'edit_num':
-                        ret_arg[i['name']] = 1
-                    else:
-                        ret_arg[i['name']] = ""
-            else:
-                # Check the button.
-                try:
-                    forget = i['name']
-                except KeyError:
-                    # No name.
-                    try:
-                        i['name'] = i['value']
-                    except KeyError:
-                        # No value.
-                        i['name'] = 'OK'
-                try:
-                    forget = i['value']
-                except KeyError:
-                    i['value'] = i['name']
+            iname = i['name']
         except KeyError:
-            pass
+            iname = i['name'] = None
+        try:
+            itype = i['type']
+        except KeyError:
+            itype = i['type'] = 'space'
+        if itype not in ('space', 'text'):
+            wrap += 1
+        if itype in ('edit_num', 'edit_line'):
+            try:
+                ret_arg[iname] = i['value']
+            except KeyError:
+                # Default values.
+                if itype == 'edit_num':
+                    ret_arg[iname] = 1
+                else:
+                    ret_arg[iname] = ""
+            if itype == 'edit_num':
+                try:
+                    forget = i['min']
+                except KeyError:
+                    i['min'] = None
+                try:
+                    forget = i['max']
+                except KeyError:
+                    i['max'] = None
+                try:
+                    forget = i['step']
+                except KeyError:
+                    i['step'] = 1
+        else:
+            # Check the button.
+            if iname is None:
+                # No name.
+                try:
+                    i['name'] = i['value']
+                except KeyError:
+                    # No value.
+                    i['name'] = 'OK'
+            try:
+                forget = i['value']
+            except KeyError:
+                i['value'] = i['name']
     # Main loop.
     while True:
         tty.erase()
@@ -293,83 +318,67 @@ def dictui(arg):
         foobar = 0      # I cannot figure out a good name for this one.
         for y in range(len(arg)):
             # y is both the Y coordinate and the index for arg.
-            try:
-                if arg[y]["type"] == "space":
-                    pass
-                elif arg[y]["type"] == "text":
+            yname, ytype = arg[y]["name"], arg[y]["type"]
+            if ytype == "space":
+                pass
+            elif ytype == "text":
+                center_text(y, arg[y]["value"])
+            else:
+                assert ytype in ("edit_line", "edit_num", "button")
+                if ytype == "edit_line":
+                    center_text(y, ret_arg[yname])
+                if ytype == "edit_num":
+                    center_text(y, str(ret_arg[yname]))
+                if ytype == "button":
                     center_text(y, arg[y]["value"])
-                else:
-                    assert arg[y]["type"] in ("edit_line","edit_num","button")
-                    if arg[y]["type"] == "edit_line":
-                        center_text(y, ret_arg[arg[y]["name"]])
-                    if arg[y]["type"] == "edit_num":
-                        center_text(y, str(ret_arg[arg[y]["name"]]))
-                    if arg[y]["type"] == "button":
-                        center_text(y, arg[y]["value"])
                     if foobar == where:
                         wrap_addstr(y, 0, "**")
                         wrap_addstr(y, xsize - 2, "**")
-                    foobar += 1
-            except KeyError:
-                pass
+                foobar += 1
         tty.refresh()
         # Input.
         foobar = 0
         for y in range(len(arg)):
-            try:
-                if foobar == where:
-                    direction = None
-                    if arg[y]["type"] == "edit_line":
-                        direction, ret_arg[arg[y]["name"]] = edit_line(y,
-                                                ret_arg[arg[y]["name"]])
-                    if arg[y]["type"] == "edit_num":
-                        # Set the defaults if necessary.
-                        try:
-                            min_num = arg[y]["min"]
-                        except:
-                            min_num = None
-                        try:
-                            max_num = arg[y]["max"]
-                        except:
-                            max_num = None
-                        try:
-                            step = arg[y]["step"]
-                        except:
-                            step = 1
-                        direction, ret_arg[arg[y]["name"]] = edit_num(y,
-                            ret_arg[arg[y]["name"]], min_num, max_num, step)
-                    if arg[y]["type"] == "button":
-                        ch = tty.getch()
-                        if ch == curses.KEY_UP:
-                            direction = "up"
-                        elif ch in (curses.KEY_DOWN, ord("\t")):
-                            direction = "down"
-                        elif ch == 27:
-                            direction = "back"
-                        elif ch in (ord(" "), ord("\n")):
-                            ret_arg["button"] = arg[y]["name"]
-                            return ret_arg
-                        elif ch == curses.KEY_PPAGE:
-                            where = 0
-                            break # Back to main loop.
-                        elif ch == curses.KEY_NPAGE:
-                            where = wrap - 1
-                            break # Back to main loop.
-                    # Check what value direction has.
-                    assert direction in ("up", "down", "back", None)
-                    if direction == "back":
-                        ret_arg["button"] = "back"
+            yname, ytype = arg[y]["name"], arg[y]["type"]
+            if foobar == where:
+                direction = None
+                if ytype == "edit_line":
+                    direction, ret_arg[yname] = edit_line(y, ret_arg[yname])
+                if ytype == "edit_num":
+                    min_num, max_num = arg[y]["min"], arg[y]["max"]
+                    step = arg[y]["step"]
+                    direction, ret_arg[yname] = edit_num(y, ret_arg[yname],
+                                                    min_num, max_num, step)
+                if ytype == "button":
+                    ch = tty.getch()
+                    if ch == curses.KEY_UP:
+                        direction = "up"
+                    elif ch in (curses.KEY_DOWN, ord("\t")):
+                        direction = "down"
+                    elif ch == 27:
+                        direction = "back"
+                    elif ch in (ord(" "), ord("\n")):
+                        ret_arg["button"] = yname
                         return ret_arg
-                    if direction == "up":
-                        where -= 1
-                        break   # Back to main loop.
-                    if direction == "down":
-                        where += 1
-                        break   # Back to main loop.
-                if arg[y]["type"] in ("button", "edit_num", "edit_line"):
-                    foobar += 1
-            except KeyError:
-                pass
+                    elif ch == curses.KEY_PPAGE:
+                        where = 0
+                        break # Back to main loop.
+                    elif ch == curses.KEY_NPAGE:
+                        where = wrap - 1
+                        break # Back to main loop.
+                # Check what value direction has.
+                assert direction in ("up", "down", "back", None)
+                if direction == "back":
+                    ret_arg["button"] = "back"
+                    return ret_arg
+                if direction == "up":
+                    where -= 1
+                    break   # Back to main loop.
+                if direction == "down":
+                    where += 1
+                    break   # Back to main loop.
+            if ytype in ("button", "edit_num", "edit_line"):
+                foobar += 1
         # Keep where in range.
         where %= wrap
 
@@ -420,7 +429,7 @@ def passwd_tab(x):
         else:
             assert p[selection]["meta"]["type"] == "human"
             minlen = maxlen = 8
-        result = dictui([
+        result = vdictui([
             {
                 'type': 'text',
                 'value': 'Minimal required length'
@@ -462,7 +471,7 @@ def passwd_tab(x):
         new = p[selection]["value"]
         after_update(old, new)
     if x == 4:
-        result = dictui([
+        result = vdictui([
             {
                 'type': 'text',
                 'value': 'What is the password for?'
@@ -483,7 +492,7 @@ def passwd_tab(x):
         p.add_nometa(result["name"], result["value"])
     if x == 5:
         #Create new.
-        result = dictui([
+        result = vdictui([
             {
                 'type': 'text',
                 'value': 'What is the password for?'
@@ -587,123 +596,66 @@ def honeypot_tab(x):
             tty.refresh()
             tty.getch()
     if x == 2:
-        #Bad pick many.
-        where = 0
-        num = 1
-        sep = ","
-        tty.erase()
-        while True:
-            if where != 0:
-                center_text(0, "  How many?  ")
-            if where != 1:
-                center_text(3, "  Separate them with?  ")
-            if where != 2:
-                center_text(6, "  OK  ")
-            if where == 0:
-                center_text(0, "**How many?**")
-                direction, num = edit_num(1, num, 1, len(h))
-                if direction == "up":
-                    where = 2
-                    continue
-                if direction == "down":
-                    where = 1
-                    continue
-                assert direction == "back"
-                return
-            if where == 1:
-                center_text(3, "**Separate them with?**")
-                direction, sep = edit_line(4, sep)
-                if direction == "up":
-                    where = 0
-                    continue
-                if direction == "down":
-                    where = 2
-                    continue
-                assert direction == "back"
-                return
-            if where == 2:
-                center_text(6, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch == curses.KEY_UP:
-                    where = 1
-                    continue
-                if ch in (curses.KEY_DOWN, ord("\t")):
-                    where = 0
-                    continue
-                if ch in (ord(" "), ord("\n")):
-                    break
-                if ch == 27:
-                    return
+        # Bad pick many.
+        result = vdictui([
+            {
+                'type': 'text',
+                'value': 'How many?'
+            }, {
+                'type': 'edit_num',
+                'name': 'num',
+                'min': 1,
+                'max': len(h)
+            }, {}, {
+                'type': 'text',
+                'value': 'Separate them with?'
+            }, {
+                'type': 'edit_line',
+                'name': 'sep',
+                'value': ','
+            }, {}, {
+                'type': 'button'
+            }])
+        if result["button"] == "back":
+            return
         busy()
-        s = h.pick(num, sep)
+        s = h.pick(result["num"], result["sep"])
         show_copy_single(s)
     if x == 3:
-        #Good pick many.
-        where = 0
-        num = 1
-        tty.erase()
-        while True:
-            if where != 0:
-                center_text(0, "  How many?  ")
-            if where != 1:
-                center_text(3, "  OK  ")
-            if where == 0:
-                center_text(0, "**How many?**")
-                direction, num = edit_num(1, num, 1, len(h))
-                if direction == "up":
-                    where = 1
-                    continue
-                if direction == "down":
-                    where = 1
-                    continue
-                assert direction == "back"
-                return
-            if where == 1:
-                center_text(3, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch == curses.KEY_UP:
-                    where = 0
-                    continue
-                if ch in (curses.KEY_DOWN, ord("\t")):
-                    where = 0
-                    continue
-                if ch in (ord(" "), ord("\n")):
-                    break
-                if ch == 27:
-                    return
+        # Good pick many.
+        ui_result = vdictui([
+            {
+                'type': 'text',
+                'value': 'How many?'
+            }, {
+                'type': 'edit_num',
+                'name': 'num',
+                'min': 1,
+                'max': len(h)
+            }, {}, {
+                'type': 'button'
+            }])
+        if ui_result["button"] == "back":
+            return
         busy()
-        result = h.pickl(num)
+        result = h.pickl(ui_result["num"])
         for s in result:
             show_copy_single(s)
     if x == 4:
-        #Add.
-        tty.erase()
-        where = 0
-        line = None
-        while True:
-            if where == 0:
-                center_text(0, "**What is the fake-password?**")
-                center_text(3, "  Add  ")
-                direction, line = edit_line(1, line)
-                if direction == "back":
-                    return
-                else:
-                    assert direction in ("up", "down")
-                    where = 1
-            if where == 1:
-                center_text(0, "  What is the fake-password?  ")
-                center_text(3, "**Add**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch in (ord("\n"), ord(" ")):
-                    h.add(line)
-                    return
-                if ch == 27:
-                    return
-                if ch in (ord("\t"), curses.KEY_UP, curses.KEY_DOWN):
-                    where = 0
+        # Add.
+        result = vdictui([
+            {
+                'type': 'text',
+                'value': 'What is the fake password?'
+            }, {
+                'type': 'edit_line',
+                'name': 'line'
+            }, {}, {
+                'type': 'button'
+            }])
+        if result["button"] == "back":
+            return
+        h.add(result["line"])
     if x == 5:
         #Remove.
         selection = choice(True)
@@ -728,20 +680,21 @@ def set_tab(direction):
     Move to another tab in main().
     0 <= direction <= 3 or direction in ("<", ">")"""
     global tabnum
-    try:
-        x = int(direction)
-        tabnum = x
-    except:
-        if direction == ">":
-            tabnum += 1
-        elif direction == "<":
-            tabnum -= 1
-        else:
-            raise api.err_idiot("What the fuck does that mean?")
-    if tabnum < 0:
+    assert api.is_anystr(direction)
+    if direction == ">":
+        tabnum += 1
+    elif direction == "<":
+        tabnum -= 1
+    elif direction == "first":
         tabnum = 0
-    if tabnum > 3:
-        tabnum = 3
+    elif direction == "last":
+        tabnum = num_tabs - 1
+    else:
+        raise api.err_idiot("What the fuck does that mean?")
+    if tabnum < 0:
+        tabnum = num_tabs - 1
+    if tabnum >= num_tabs:
+        tabnum = 0
 
 def choice(honeypot):
     """choice(honeypot)
@@ -774,29 +727,19 @@ def zxcv_handler(x):
     if x in (ord("x"), ord("X"), ord("n"), ord("N")):
         api.redo(p, h)
     if x in (ord("c"), ord("C"), ord("m"), ord("M")):
-        tty.erase()
-        where = 0
-        tarball_name = None
-        while True:
-            if where == 0:
-                center_text(0, "**path**")
-                center_text(3, "  OK  ")
-                direction, tarball_name = edit_line(1, tarball_name)
-                if direction == "back":
-                    return
-                assert direction in ("up", "down")
-                where = 1
-            if where == 1:
-                center_text(0, "  path  ")
-                center_text(3, "**OK**")
-                tty.refresh()
-                ch = tty.getch()
-                if ch in (ord(" "), ord("\n")):
-                    break
-                if ch == 27:
-                    return
-                if ch in (ord("\t"), curses.KEY_UP, curses.KEY_DOWN):
-                    where = 0
+        result = vdictui([
+            {
+                'type': 'text',
+                'value': 'File name (.tar.gz)'
+            }, {
+                'type': 'edit_line',
+                'name': 'tarball_name'
+            }, {}, {
+                'type': 'button'
+            }])
+        if result["button"] == "back":
+            return
+        tarball_name = result['tarball_name']
         try:    #Normal suffix?
             test = tarball_name[-4:] == ".tgz"
             if not test:
@@ -823,8 +766,8 @@ def zxcv_handler(x):
     if have_clipboard and x in (ord("v"), ord("V"), ord(",")):
         copy("EMPTY")
 
-def list_choice(ypos, yspace, thelist, ct = False):
-    """list_choice(ypos, yspace, thelist, ct = False)
+def list_choice(ypos, yspace, thelist, ct=False):
+    """list_choice(ypos, yspace, thelist, ct=False)
     thelist is a list of strings (buttons).
     It can change tabs if ct == True.
     Returns True if the user changed tab.
@@ -839,77 +782,73 @@ def list_choice(ypos, yspace, thelist, ct = False):
     for x in thelist:
         if len(x) > xspace:
             xspace = len(x)
-    xspace += 4
+    xspace += 4         # [**]
     assert yspace >= 7 and xspace <= xsize
     center_text(ypos, "Page-up up w k 8")
     center_text(ypos + 1, "Choose with space, tab or enter")
     center_text(ypos + 2, "or escape to cancel.")
     center_text(ypos + yspace - 1, "Page-down down s j 2")
+    # The size of a ``page``.
     page = yspace - 6
-    if xsize - xspace >= 8: #Enough room for "<-Choose"?
+    # Leftover columns on the right.
+    x_leftover = xsize - xspace
+    if x_leftover >= 8: # Enough room for "<-Choose"?
         show_arrow = True
     else:
         show_arrow = False
+    # The currently selected button.
     choice = 0
     size = len(thelist)
     while True:
-        #Draw.
+        # Draw.
         for i in range(page):
-            #Surrounding brackets.
-            wrap_addch(i + ypos + 4, 0, ord("["))
-            wrap_addch(i + ypos + 4, xspace - 1, ord("]"))
-            #Past end?
-            if i + (choice - choice % page) >= size:
-                #Put empty
-                tty.hline(i + ypos + 4, 0, ord("-"), xspace)
-                tty.hline(i + ypos + 4, xspace, 32, xsize - xspace)
+            # Offset of the current page in the list.
+            offset = choice - choice%page
+            button_listpos = offset + i
+            button_ypos = i + ypos + 4
+            # Surrounding brackets.
+            wrap_addch(button_ypos, 0, ord("["))
+            wrap_addch(button_ypos, xspace - 1, ord("]"))
+            # Past end?
+            if button_listpos >= size:
+                # Put empty.
+                tty.hline(button_ypos, 0, ord("#"), xspace)
+                tty.hline(button_ypos, xspace, ord(" "), x_leftover)
             else:
-                #put line
+                # Put line.
                 if choice % page == i:  #Selected?
-                    wrap_addch(i + ypos + 4, 1, ord("*"))
-                    wrap_addch(i + ypos + 4, xspace - 2, ord("*"))
+                    wrap_addch(button_ypos, 1, ord("*"))
+                    wrap_addch(button_ypos, xspace - 2, ord("*"))
                     if show_arrow:
-                        wrap_addstr(i + ypos + 4, xspace, "<-Choose")
+                        wrap_addstr(button_ypos, xspace, "<-Choose")
                 else:
                     if show_arrow:
-                        tty.hline(i + ypos + 4, xspace, 32, xsize - xspace)
-                    wrap_addch(i + ypos + 4, 1, ord(" "))
-                    wrap_addch(i + ypos + 4, xspace - 2, ord(" "))
+                        tty.hline(button_ypos, xspace, 32, x_leftover)
+                    wrap_addch(button_ypos, 1, ord(" "))
+                    wrap_addch(button_ypos, xspace - 2, ord(" "))
                 #Print the characters.
                 for x in range(2, xspace - 2):
-                    if x - 2 >= len(thelist[(i +        #Iterate for one page.
-                            choice - choice % page)]):  #Which page * page.
-                        wrap_addch(i + ypos + 4, x, ord(" "))
+                    # Print the buttons.
+                    if x - 2 >= len(thelist[button_listpos]):
+                        wrap_addch(button_ypos, x, ord(" "))
                     else:
-                        wrap_addstr(i + ypos + 4, x, thelist[int(i +
-                            choice - choice % page)][x - 2])
-        #Print the 'rollability-indicators'.
-        if choice - page < 0:
+                        wrap_addstr(button_ypos, x,
+                                            thelist[button_listpos][x - 2])
+        # Print the 'rollability-indicators'.
+        if offset - page < 0:
             tty.hline(ypos + 3, 0, ord("-"), xspace)
         else:
             tty.hline(ypos + 3, 0, ord("^"), xspace)
-        if choice + page - choice % page > len(thelist) - 1:
+        if offset + page > len(thelist) - 1:
             tty.hline(ypos + yspace - 2, 0, ord("-"), xspace)
         else:
             tty.hline(ypos + yspace - 2, 0, ord("v"), xspace)
         tty.refresh()
-        #Handle input.
+        # Handle input.
         ch = tty.getch()
-        if ct:  #Change tab?
-            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
-                set_tab("<")
-                return True
-            if ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
-                set_tab(">")
-                return True
-            if ch in (ord("A"), ord("H"), curses.KEY_HOME):
-                set_tab(0)
-                return True
-            if ch in (ord("D"), ord("L"), curses.KEY_END):
-                set_tab(3)
-                return True
         if ch == 27:    #Escape
             return False
+        # Up/down.
         if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
             choice -= 1
         if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
@@ -918,16 +857,29 @@ def list_choice(ypos, yspace, thelist, ct = False):
             choice -= page
         if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
             choice += page
-        if ch in (ord("\t"), ord(" "), ord("\n")):
-            return choice
-        zxcv_handler(ch)
-        #Don't let choice be out of range
+        # Don't let choice be out of range
         if choice >= len(thelist):
             choice = len(thelist) - 1
         if choice < 0:
             choice = 0
+        # Choose.
+        if ch in (ord("\t"), ord(" "), ord("\n")):
+            return choice
+        zxcv_handler(ch)
+        if ct:  # Change tab?
+            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
+                set_tab("<")
+            elif ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
+                set_tab(">")
+            elif ch in (ord("A"), ord("H"), curses.KEY_HOME):
+                set_tab("first")
+            elif ch in (ord("D"), ord("L"), curses.KEY_END):
+                set_tab("last")
+            else:
+                continue
+            return True
 
-def roll_text(ypos, yspace, thetext, ct = False):
+def roll_text(ypos, yspace, thetext, ct=False):
     """roll_text(ypos, yspace, thetext, ct = False)
     Show a large amount of text on the screen.
     It can change tabs if ct == True.
@@ -968,10 +920,10 @@ def roll_text(ypos, yspace, thetext, ct = False):
                 set_tab(">")
                 return True
             if ch in (ord("A"), ord("H"), curses.KEY_HOME):
-                set_tab(0)
+                set_tab("first")
                 return True
             if ch in (ord("D"), ord("L"), curses.KEY_END):
-                set_tab(3)
+                set_tab("last")
                 return True
         if ch == 27:
             return False
@@ -988,22 +940,24 @@ def roll_text(ypos, yspace, thetext, ct = False):
         if linepos < 0 or linepos >= len(thelines):
             linepos = oldpos
 
-def main():
-    """See list_choice.__doc__, passwd_tab.__doc__, honeypot_tab.__doc__,
-    roll_text.__doc__ and die.__doc__."""
+def hdictui(arg):
     global tabnum
+    global num_tabs
+    tabnum = num_tabs = 0
+    tab_names = [[], []]
+    for i in arg:
+        num_tabs += 1
+        tab_names[0].append(i['name'].lower())
+        tab_names[1].append(i['name'].upper())
     while True:
-        #Render.
-        tab_names = [["passwords", "fake passwords", "help", "about"],
-            ["PASSWORDS", "FAKE PASSWORDS", "HELP", "ABOUT"]]
+        # Tab headers.
         tty.erase()
         if xsize >= 80:
-            #Tabs.
             s = "Home left a h 4"
             wrap_addstr(0, 0, s)
             wrap_addstr(0, len(s), "::")
             x_pos = len(s) + 2
-            for i in range(4):
+            for i in range(num_tabs):
                 if i == tabnum:
                     wrap_addstr(0, x_pos, tab_names[1][i])
                 else:
@@ -1012,64 +966,36 @@ def main():
                 wrap_addstr(0, x_pos, ":")
                 x_pos += 1
             wrap_addstr(0, x_pos, ":6 l d right end")
-            #zxcv
+            # zxcv
             if have_clipboard:
                 wrap_addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
                     " Make backup : (v/,) Clear clipboard : (^C) quit")
             else:
                 wrap_addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
                     " Make backup : (^C) quit")
-            #Lines.
+            # Lines.
             tty.hline(1, 0, ord("="), xsize)
             tty.hline(ysize - 3, 0, ord("="), xsize)
             tty.refresh()
         else:
             pass    #TODO
-        if tabnum == 0: #Passwords.
-            thelist = ["Copy to clipboard",
-                    "Show password",
-                    "Update",
-                    "Change meta-data & update",
-                    "Add existing",
-                    "Create new",
-                    "Remove"]
-            if have_clipboard:
-                result = list_choice(2, ysize - 5, thelist, True)
-            else:
-                result = list_choice(2, ysize - 5, thelist[1:], True)
-                if not isinstance(result, bool):
-                    result += 1 #There was no first option.
-            #Check for booleans last, to avoid misinterpreting 0 and 1.
+        # Tab content.
+        the_dict = arg[tabnum]
+        the_type = the_dict['type']
+        if the_type == 'list_choice':
+            result = list_choice(2, ysize - 5, the_dict['choices'], True)
             if not isinstance(result, bool):
-                passwd_tab(result)
-                continue
-            if result == False:
-                die()
-            if result == True:
-                continue
-        if tabnum == 1: #Honeypots.
-            thelist = ["Pick & copy",
-                    "Pick & show",
-                    "Bad pick many",
-                    "Good pick many",
-                    "Add",
-                    "Remove"]
-            if have_clipboard:
-                result = list_choice(2, ysize - 5, thelist, True)
-            else:
-                result = list_choice(2, ysize - 5, thelist[1:], True)
-                if not isinstance(result, bool):
-                    result += 1 #There was no first option.
-            #Check for booleans last, to avoid misinterpreting 0 and 1.
-            if not isinstance(result, bool):
-                honeypot_tab(result)
-                continue
-            if result == False:
-                die()
-            if result == True:
-                continue
-        if tabnum == 2: #Help.
-            result = roll_text(2, ysize - 5, """
+                # Call custom function with an alias for the result.
+                the_dict['function'](the_dict['aliases'][result])
+        elif the_type == 'roll_text':
+            roll_text(2, ysize - 5, the_dict['text'], True)
+        else:
+            assert False, "Odd type '{0}' in {1}".format(the_type, the_dict)
+
+def main():
+    """See list_choice.__doc__, passwd_tab.__doc__, honeypot_tab.__doc__,
+    roll_text.__doc__ and die.__doc__."""
+    help_text = """
 Uppercase W/K, A/H, S/J, D/L will be treated as Page up, Home, Page down, end.
 
 The "change meta-data & update"-button in the "Passwords"-tab:
@@ -1091,13 +1017,8 @@ The fake-passwords/honey pots are intended to be used as traps to catch
 crackers. The "pick"-buttons picks a random fake-password, independent of what
 you have selected. You should add fake-passwords such as "password" and
 "drowssap".
-    """, True)
-            if result == False:
-                die()
-            if result == True:
-                continue
-        if tabnum == 3: #about.
-            result = roll_text(2, ysize - 5, copywrong + "\n" + """
+"""
+    about_text = """
 passwdman is a program for remembering and updating passwords. It also
 remembers honey-pots (fake-passwords to catch crackers). It has infinite
 undo/redo.
@@ -1112,11 +1033,51 @@ It stores the passwords and honey-pots in XML files, so they can be read with
 a normal text-editor (normal for unix), depending on the user. The XML files
 are not encrypted, so that you don't need to remember an extra password.
   If you want encryption you should encrypt your home-directory.
-""", True)
-            if result == False:
-                die()
-            if result == True:
-                continue
+"""
+    passwd_choices = ["Copy to clipboard",
+                      "Show password",
+                      "Update",
+                      "Change meta-data & update",
+                      "Add existing",
+                      "Create new",
+                      "Remove"]
+    honeypot_choices = ["Pick & copy",
+                        "Pick & show",
+                        "Bad pick many",
+                        "Good pick many",
+                        "Add",
+                        "Remove"]
+    # Use numbers in order to not break passwd_tab and honeypot_tab.
+    passwd_aliases = [0, 1, 2, 3, 4, 5, 6]
+    honeypot_aliases = [0, 1, 2, 3, 4, 5]
+    # I'm lucky. The copy-only choices are on the top.
+    if not have_clipboard:
+        passwd_choices = passwd_choices[1:]
+        passwd_aliases = passwd_aliases[1:]
+        honeypot_choices = honeypot_choices[1:]
+        honeypot_aliases = honeypot_aliases[1:]
+    hdictui([
+        {
+            'name': 'Passwords',
+            'type': 'list_choice',
+            'choices': passwd_choices,
+            'aliases': passwd_aliases,
+            'function': passwd_tab
+        }, {
+            'name': 'Fake passwords',
+            'type': 'list_choice',
+            'choices': honeypot_choices,
+            'aliases': honeypot_aliases,
+            'function': honeypot_tab
+        }, {
+            'name': 'Help',
+            'type': 'roll_text',
+            'text': help_text
+        }, {
+            'name': 'About',
+            'type': 'roll_text',
+            'text': copywrong + about_text
+        }])
 
 DEBUG = False
 tabnum = 0
@@ -1127,7 +1088,6 @@ if have_clipboard:
 if __name__ == "__main__":
     h = api.honeypot()
     p = api.passwd()
-    import locale
     locale.setlocale(locale.LC_ALL, '')
     code = locale.getpreferredencoding()
     if DEBUG:

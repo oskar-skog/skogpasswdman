@@ -764,7 +764,9 @@ class honeypot(common_data):
         """pick(self, n=1, sep=",", log_vs_raise=True)
         Pick randomly selected honey-pots.
         """
-        assert is_int(n) and is_unicodestr(sep)
+        assert is_int(n)
+        # Its default is not unicode on Python 2.x.
+        assert is_unicodestr(sep) or sep == ","
         if n > len(self):
             n = len(self)
             if log_vs_raise:

@@ -1,4 +1,11 @@
 2014-01-12      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.17
+    * passwdmanrli (honeypot_tab): Code -> data.
+    * passwdmanrli: Renamed dictui to vdictui.
+    * passwdmanrli (main): Using new function hdictui.
+    * passwdmanapi.py (honeypot.pick): If called without `sep` it was raising
+        an AssertionError because "," is not unicode in Python 2.x.
+    * passwdmanrli (list_choice): Hell -> good code.
 0.3.16
     * passwdmanrli: New function dictui().
 
