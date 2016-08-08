@@ -1,3 +1,20 @@
+0.4.14  The 0's are *slushed*.
+    A complete restart is in progress.
+    2.x         No stupid misfeature a.k.a fake-passwords.
+    2.x         Fool-proof(er) undo/redo.
+    2.x         Stanzaish datafiles.
+    2.x         10/64/human will be replaced by a generic customizable
+                randomizer.
+    2.x         Datafile porter 0.x->2.x (at least).
+    2.x         os.urandom()
+    2.x         Unicode since day 0. (With gettext friendly side-effect.)
+    2.x         Glade.
+    2.x         Better and uniquer curses-mode interface.
+    2.x         Non-stupid CLI.
+    2.x         No more full-adhoc configure script.
+    2.x         No progress-bars, they were useless.
+    2.x         Less exceptions.
+%
 0.4 is here.
     *   Easier to read code. Lots of code -> data.
     *   Rogue-like interface. RLI
