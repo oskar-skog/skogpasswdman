@@ -1,0 +1,70 @@
+.\"Copyright (c) 2013, Oskar Skog
+.\"All rights reserved.
+.\"
+.\"Redistribution and use in source and binary forms, with or without
+.\"modification, are permitted provided that the following conditions are met:
+.\"
+.\"1.  Redistributions of source code must retain the above copyright notice,
+.\"    this list of conditions and the following disclaimer.
+.\"
+.\"2.  Redistributions in binary form must reproduce the above copyright notice,
+.\"    this list of conditions and the following disclaimer in the documentation
+.\"    and/or other materials provided with the distribution.
+.\"
+.\"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+.\"AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\"IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\"ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+.\"LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\"CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\"SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\"INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\"POSSIBILITY OF SUCH DAMAGE.
+.Dd Nov 12, 2013
+.Dt PASSWDMANGUI 1
+.Os
+.Sh NAME
+.Nm passwdmangui
+.Nd Graphical user interface for passwdman
+.Sh The change meta-data and update button
+.Bl -bullet
+.It
+If the password was created with the
+.Qq Add existing
+button: use the
+.Qq change meta-data & update
+button.
+.It
+If the password was created with the
+.Qq "Create new"
+button: use the
+.Qq "update"
+button.
+.It
+If the minimal required length for the password or the maximal allowed length
+or the allowable characters have changed: use the
+.Qq change meta-data & update
+button.
+.El
+.Sh Difference between "Add existing" and "Create new"
+Click on those buttons and see what happens.
+They are not dangerous.
+.Sh Undo Redo
+The
+.Qq Undo
+and
+.Qq Redo
+buttons undoes/redoes the LATEST change in the password tab or the
+fake-password tab, independent of which tab you're currently in.
+.Sh fake-passwords/honey pots
+The fake-passwords/honey pots are intended to be used as traps to catch
+crackers.
+The 
+.Qq pick
+buttons picks a random fake-password, independent of what you have selected.
+You should add fake-passwords such as
+.Qq password
+and
+.Qq "drowssap" .

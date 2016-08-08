@@ -626,11 +626,13 @@ The "change meta-data & update"-button in the "Passwords"-tab:
 Difference between "Add existing" and "Create new":
     Click on those buttons and see what happens. They are not dangerous.
 
-The "Undo"- and "Redo"-buttons affect both the passwords and the
-fake-passwords/honey pots.
+The "Undo"- and "Redo"-buttons undoes/redoes the LATEST change in the password
+tab or the fake-password tab, independent of which tab you're currently in.
 
-The fake-passwords are intended to be used as traps to catch crackers. The are
-randomly picked by this program.
+The fake-passwords/honey pots are intended to be used as traps to catch
+crackers. The "pick"-buttons picks a random fake-password, independent of what
+you have selected. You should add fake-passwords such as "password" and
+"drowssap".
 
     """), False, False, 0)
         

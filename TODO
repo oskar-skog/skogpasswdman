@@ -2,12 +2,10 @@
 **      Permanent backup (GUI)
 *       More GUI-polishing
             *   Markup in HELP and About
-            *   Scroll bars
+            **  Scroll bars
 ***     More debugging
 *       Fix broken Docbook XML
-***     Finish passwdmangui documentation
-            *   Explain honey pots better
-            *   Explain Undo/Redo better
+
 *       gettext()
             *   Svenska
             *   Suomi

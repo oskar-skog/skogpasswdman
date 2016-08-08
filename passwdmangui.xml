@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!-- lifted from mdoc+troff by doclifter -->
+<refentry id='passwdmangui1'>
+<!-- Copyright (c) 2013, Oskar Skog
+All rights reserved. -->
+
+<!-- Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met: -->
+
+<!-- 1.  Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer. -->
+
+<!-- 2.  Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution. -->
+
+<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE. -->
+
+
+<refmeta>
+<refentrytitle>PASSWDMANGUI</refentrytitle>
+<manvolnum>1</manvolnum>
+</refmeta>
+
+<refnamediv id='purpose'>
+<refname> passwdmangui </refname>
+<refpurpose> Graphical user interface for passwdman </refpurpose>
+</refnamediv>
+<!-- body begins here -->
+
+<refsect1 id='the_change_metadata_and_update_button'><title>The change meta-data and update button</title>
+<itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>If the password was created with the
+"Add existing"
+button: use the
+"change meta-data &amp; update"
+button.</para>
+</listitem>
+<listitem>
+<para>If the password was created with the
+"Create new"
+button: use the
+"update"
+button.</para>
+</listitem>
+<listitem>
+<para>If the minimal required length for the password or the maximal allowed length
+or the allowable characters have changed: use the
+"change meta-data &amp; update"
+button.</para>
+</listitem>
+</itemizedlist>
+</refsect1>
+
+<refsect1 id='difference_between_add_existing_and_crea'><title>Difference between Add existing and Create new</title>
+<para>Click on those buttons and see what happens.
+They are not dangerous.</para>
+</refsect1>
+
+<refsect1 id='undo_redo'><title>Undo Redo</title>
+<para>The
+"Undo"
+and
+"Redo"
+buttons undoes/redoes the LATEST change in the password tab or the
+fake-password tab, independent of which tab you're currently in.</para>
+</refsect1>
+
+<refsect1 id='fakepasswordshoney_pots'><title>fake-passwords/honey pots</title>
+<para>The fake-passwords/honey pots are intended to be used as traps to catch
+crackers.
+The 
+"pick"
+buttons picks a random fake-password, independent of what you have selected.
+You should add fake-passwords such as
+"password"
+and
+"drowssap".</para>
+</refsect1>
+</refentry>
+
