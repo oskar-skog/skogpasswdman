@@ -1,27 +1,28 @@
+0.0.22  API comments and documentation improvements.
 0.0.21  Some code improvements.
-0.0.20  Unicode GUI/API fixed
-0.0.19  Unicode CLI/API fixed
+0.0.20  Unicode GUI/API fixed.
+0.0.19  Unicode CLI/API fixed.
 0.0.18  Unicode fixing beginning...
-0.0.17  Bug fixes CLI, GUI
-0.0.16  configure bug fix
-0.0.15  passwdmangui documentation
-0.0.14  INSTALL, minor changes in README
-0.0.13  auto-generate Docbook and HTML from the Makefile
-0.0.12  fixed unquote()
-0.0.11  Improvements in passwdmangui
+0.0.17  Bug fixes in CLI and GUI.
+0.0.16  configure bug fix.
+0.0.15  passwdmangui documentation.
+0.0.14  INSTALL, minor changes in README.
+0.0.13  Auto-generate Docbook and HTML from the Makefile.
+0.0.12  Fixed unquote().
+0.0.11  Improvements in passwdmangui.
 0.0.10  BUGFIXES:
-            "Remove" buttons "is_numstr=True" to the right remove()
-            Fixed the string of digits problem in passwd.mkindex()
+            "Remove" buttons "is_numstr=True" to the right remove().
+            Fixed the string of digits problem in passwd.mkindex().
 0.0.9   Moved them back!
-0.0.8   Moved undo/redo buttons
-0.0.7   fixed bug in remove() in passwdmanapi
-        still incomplete improvements in passwdmangui
-        made TODO even longer
-0.0.6   incomplete improvements in passwdmangui
-0.0.5   minor code improvements in passwdmancli
-0.0.4   minor code improvements in passwdmangui
-0.0.3   redo and data-file creation
-        passwdmancli bugfix
-0.0.2   license (2-clause BSD)
-0.0.1   in 'configure.2': got 'getmoduledir' and 'maketarget_installdirs"
-        working
+0.0.8   Moved undo/redo buttons.
+0.0.7   Fixed bug in remove() in passwdmanapi.
+        Still incomplete improvements in passwdmangui.
+        Made TODO even longer.
+0.0.6   Incomplete improvements in passwdmangui.
+0.0.5   Minor code improvements in passwdmancli.
+0.0.4   Minor code improvements in passwdmangui.
+0.0.3   Redo and data-file creation.
+        passwdmancli bugfix.
+0.0.2   License (2-clause BSD).
+0.0.1   In 'configure.2': got 'getmoduledir' and 'maketarget_installdirs"
+        working.

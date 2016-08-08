@@ -10,3 +10,4 @@
             *   Suomi
 *       in "configure.2": dirs() should figure out more directories.
 *       Better XML.
+*       A pick() that returns a list.

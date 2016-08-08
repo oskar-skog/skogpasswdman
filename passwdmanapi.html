@@ -1,30 +1,3 @@
-<?xml version="1.0" encoding="us-ascii"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
- "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
- [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
-<meta name="Content-Style" content="text/css"/>
-<style type="text/css">
-       .center { text-align: center }
-       .right  { text-align: right }
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Tue Nov 12 17:39:20 2013 -->
-
-
-<!--hand-hacked 
-    <p style="margin-top: 1em"><b>&bull;</b></p>
-to
-    <p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
--->
-<!--passwdman-->
 <!-- Copyright (c) 2013, Oskar Skog
 All rights reserved. -->
 
@@ -49,6 +22,25 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE. -->
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+ "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
+ [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
+<meta name="Content-Style" content="text/css"/>
+<style type="text/css">
+       .center { text-align: center }
+       .right  { text-align: right }
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<!-- Creator     : groff version 1.21 -->
+<!-- CreationDate: Wed Nov 13 21:29:24 2013 -->
 <title></title>
 </head>
 <body>
@@ -89,7 +81,8 @@ __next__(self) <br/>
 next(self) <br/>
 __getitem__(self, i) <br/>
 __len__(self) <br/>
-remove(self, x, xmlfile, element_name, attrib_name) <br/>
+remove(self, x, xmlfile, element_name, attrib_name,
+is_numstring=False) <br/>
 writexml(self, xmlfile) <br/>
 __del__(self)</b></p>
 
@@ -100,9 +93,9 @@ __init__(self) <br/>
 add(self, name, value, m_type, m_minlength, m_maxlength)
 <br/>
 add_nometa(self, name, value) <br/>
-remove(self, x) <br/>
+remove(self, x, is_numstring=False) <br/>
 __repr__(self) <br/>
-mkindex(self, x) <br/>
+mkindex(self, x, is_numstring=False) <br/>
 update(self, index) <br/>
 update_meta(self, index, m_type, m_minlength,
 m_maxlength)</b></p>
@@ -111,7 +104,7 @@ m_maxlength)</b></p>
 honeypot(common_data): <br/>
 __init__(self) <br/>
 add(self, value) <br/>
-remove(self, x) <br/>
+remove(self, x, is_numstring=False) <br/>
 pick(self, n=1, sep=&quot;,&quot;, log_vs_raise=True) <br/>
 __repr__(self)</b></p>
 
@@ -148,8 +141,9 @@ Raises err_norandom and err_nolength.</p>
 
 
 <p style="margin-left:6%; margin-top: 1em"><b>unquote</b>()
-returns the string <i>x</i> without its surrounding
-quotes.</p>
+returns the string <i>x</i> without its surrounding quotes.
+If the string is not surrounded be quotes, the string will
+be returned unchanged.</p>
 
 <p style="margin-left:6%; margin-top: 1em"><b>undo</b>()
 undoes the latest change to the password list or honey pot
@@ -161,13 +155,16 @@ object. Raises err_idiot.</p>
 <p style="margin-left:6%; margin-top: 1em"><b>redo</b>()
 redoes the latest undone change to the password list or
 honey pot list, by restoring from the newest auto-generated
-backup from <b>undo</b>(). <b>common_data</b>() is a class
-defining methods used by both <b>passwd</b>() and
+backup from <b>undo</b>(). Raises err_idiot.</p>
+
+
+<p style="margin-left:6%; margin-top: 1em"><b>common_data</b>()
+is a class defining methods used by both <b>passwd</b>() and
 <b>honeypot</b>().</p>
 
 <p style="margin-left:6%; margin-top: 1em"><b>passwd</b>()
 is a class for the password list. <b>honeypot</b>() is a
-class for the honey pot list. See <i>FILES</i>.</p>
+class for the honey-pot list. See <i>FILES</i>.</p>
 
 <p style="margin-left:6%; margin-top: 1em"><b>class
 common_data(): <br/>
@@ -186,9 +183,12 @@ removes the password/honeypot at <i>x</i>, which can be an
 integer or a stringed integer or the value of the
 password/honeypot, from the datastructure <i>self</i> and
 the file <i>xmlfile</i>. <i>element_name</i> and
-<i>attrib_name</i> tells it what elements and attributes it
-should loop through, remove and find a match for <i>x</i>
-in. Raises err_notfound.</p>
+<i>attrib_name</i> tells it what elements in the XML file
+and attributes it should loop through, remove and find a
+match for <i>x</i> in. Set <i>is_numstring</i> to True if
+<i>x</i> is a string containing digits. If you don&rsquo;t
+set it, then <i>x</i> will be treated as an index. Raises
+err_notfound.</p>
 
 
 <p style="margin-left:6%; margin-top: 1em"><b>writexml</b>()
@@ -242,13 +242,19 @@ integer or a stringed integer). Raises err_duplicate.</p>
 <p style="margin-left:6%; margin-top: 1em"><b>passwd.remove</b>()
 removes the password <i>x</i>. <i>x</i> can be either a
 string matching a password&rsquo;s name or an integer
-(index) or a stringed integer. Raises err_notfound.</p>
+(index) or a stringed integer. Set <i>is_numstring</i> to
+True if <i>x</i> is a string containing digits. If you
+don&rsquo;t set it, then <i>x</i> will be treated as an
+index. Raises err_notfound.</p>
 
 
 <p style="margin-left:6%; margin-top: 1em"><b>passwd.mkindex</b>()
 find <i>x</i> and return an index. <i>x</i> can be either a
 string matching a password&rsquo;s name or a stringed
-integer (index). Raises err_notfound.</p>
+integer (index). Set <i>is_numstring</i> to True if <i>x</i>
+is a string containing digits. If you don&rsquo;t set it,
+then <i>x</i> will be treated as an index. Raises
+err_notfound.</p>
 
 
 <p style="margin-left:6%; margin-top: 1em"><b>passwd.update</b>()
@@ -265,8 +271,7 @@ integer. Raises err_notfound, err_idiot and err_nometa.</p>
 <p style="margin-left:6%; margin-top: 1em"><b>class
 honeypot(common_data)</b> <br/>
 The honey pots are weak passwords supposed to only be used
-as traps. <b>honeypot</b>(<i>loads</i>, <i>its</i>,
-<i>data</i>, <i>from</i>, <i>the</i>, <i>XML</i>)
+as traps. <b>honeypot</b>() loads its data from the XML
 <i>~/.passwdman/honeypots</i>. <i>self[index]</i> is the
 value of the honeypot.</p>
 
@@ -279,7 +284,10 @@ err_duplicate.</p>
 <p style="margin-left:6%; margin-top: 1em"><b>honeypot.remove</b>()
 removes the honeypot <i>x</i>. <i>x</i> is either an index
 (integer) or a stringed integer or the value of the
-honeypot. Raises err_notfound.</p>
+honeypot. Set <i>is_numstring</i> to True if <i>x</i> is a
+string containing digits. If you don&rsquo;t set it, then
+<i>x</i> will be treated as an index. Raises
+err_notfound.</p>
 
 
 <p style="margin-left:6%; margin-top: 1em"><b>honeypot.pick</b>()
@@ -293,62 +301,62 @@ is true, it will log an error if <i>n</i> is too big. If
 <p style="margin-left:6%;">err_norandom is raised when
 neither random(4) or urandom(4) can be opened.</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>open_rng</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>get10</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>get64</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>getint</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd.update</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 
 <p style="margin-left:12%;"><b>passwd.update_meta</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>honeypot.pick</b>()</p>
 
 <p style="margin-left:6%; margin-top: 1em">err_nolength is
 raised when a function is called with an invalid length.</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>get64</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>get10</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>getint</b>()</p>
 
 <p style="margin-left:6%; margin-top: 1em">err_loaderr is
 raised if data cannot be loaded from file.</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>common_data</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>honeypot</b>()</p>
 
@@ -356,29 +364,29 @@ raised if data cannot be loaded from file.</p>
 raised if index is out of range or if it cannot find a
 match.</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 
 <p style="margin-left:12%;"><b>common_data.remove</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd.remove</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd.mkindex</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd.update</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 
 <p style="margin-left:12%;"><b>passwd.update_meta</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>honeypot.remove</b>()</p>
 
@@ -387,39 +395,43 @@ raised if it is attempted to add a password with the same
 name as another or if its is attempted to add a honeypot
 with the same value as another.</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd.add</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd.add_nometa</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>honeypot.add</b>()</p>
 
 <p style="margin-left:6%; margin-top: 1em">err_idiot is
 raised if the function was not used correctly.</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 
 <p style="margin-left:12%;"><b>passwd.update_meta</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>honeypot.pick</b>()</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>undo</b>()</p>
+
+<p style="margin-top: 1em"><b>&bull;</b></p>
+
+<p style="margin-left:12%;"><b>redo</b>()</p>
 
 <p style="margin-left:6%; margin-top: 1em">err_nometa is
 raised when meta-data is required, but the meta-data was
 nonexistent, corrupt or no good.</p>
 
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;"><b>passwd.update</b>()</p>
 
@@ -438,7 +450,11 @@ is the XML file containing the honeypots.</p>
 <p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/undoable/</i>
 is where the auto-generated backups live.</p>
 
-<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;02,
+
+<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/redoable/</i>
+is where the backups generated by <b>undo</b>() live.</p>
+
+<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;13,
 2013 BSD</p>
 <hr/>
 </body>

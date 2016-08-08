@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 copywrong = """Copyright (c) 2013, Oskar Skog
 All rights reserved.
@@ -230,7 +230,7 @@ def passwd_update_meta(x):              #Update with new meta-data.
     new = p[index]["value"]
     sow("#old:new\n")
     sow("passwd.update?'")
-    sow(old)    #old can be anything, even åäö.
+    sow(old)    #old can be anything.
     sow("':'{}'\n".format(new)) #new is 64 or 10.
     return
     
