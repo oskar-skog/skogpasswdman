@@ -129,8 +129,8 @@ def passwd_new_d(parent):
     name = Gtk.Entry()
     name.set_editable(True)
     
-    adj = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)       #for spinny_min
-    adj2 = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)      #for spinny_max
+    adj = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)       #For spinny_min.
+    adj2 = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)      #For spinny_max.
     spinny_min = Gtk.SpinButton()
     spinny_min.set_adjustment(adj)
     spinny_max = Gtk.SpinButton()
@@ -192,7 +192,7 @@ def passwd_new_d(parent):
 def passwd_updatemeta_d(parent):
     """parent has attribute parent which is the real parent window.
     Update password with new meta-data dialog."""
-    #copy-pasted from passwd_new_d and hand-hacked
+    #Copy-pasted from passwd_new_d and hand-hacked.
     #label      entry
     #label      spinny min
     #label      spinny max
@@ -212,13 +212,13 @@ def passwd_updatemeta_d(parent):
         "small letters, big letters, underscores and exclamation marks.")
     b10 = Gtk.RadioButton.new_with_label_from_widget(b64, "Digits only.")
     
-    a, b = parent.thelist[parent.index]       #remember a, b for a long time
+    a, b = parent.thelist[parent.index]       #Remember a, b for a long time.
     the_index = parent.passwords.mkindex(a.decode(encoding="utf-8"), True)
     
     adj = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["minlength"]),
-                            1, 1000000, 1, 16, 0)       #for spinny_min
+                            1, 1000000, 1, 16, 0)       #For spinny_min.
     adj2 = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["maxlength"]),
-                            1, 1000000, 1, 16, 0)       #for spinny_max
+                            1, 1000000, 1, 16, 0)       #For spinny_max.
     spinny_min = Gtk.SpinButton()
     spinny_min.set_adjustment(adj)
     spinny_max = Gtk.SpinButton()
@@ -357,7 +357,8 @@ def pick_many_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         #Copy xor show.
-        x = parent.honeypots.pick(spinny.get_value_as_int(), sep.get_text())
+        x = parent.honeypots.pick(spinny.get_value_as_int(), sep.get_text(
+                            ).decode(encoding="utf-8"))
         #x are the choices.
         dialog2 = Gtk.MessageDialog(parent.parent, 0,
                     Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
@@ -365,7 +366,7 @@ def pick_many_d(parent):
         dialog2.format_secondary_text("Chose 'No' to show the fake-passwords"
             " in a window.")
         response2 = dialog2.run()
-        dialog2.destroy()       #copy or show
+        dialog2.destroy()       #Copy xor show.
         if response2 == Gtk.ResponseType.YES:
             clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
             clipboard.set_text(x, len(x))
@@ -376,7 +377,7 @@ def pick_many_d(parent):
             dialog3.format_secondary_text(x)
             dialog3.run()
             dialog3.destroy()
-    dialog.destroy()    #do it here or spinny will die
+    dialog.destroy()
     
 class passwd_tab_c(Gtk.Box):
     """Used by main_window(). I am a Gtk.Box()."""
@@ -384,7 +385,7 @@ class passwd_tab_c(Gtk.Box):
         """arg is the main window."""
         self.parent = arg
         Gtk.Box.__init__(self, orientation = Gtk.Orientation.HORIZONTAL)
-        self.passwords = api.passwd()   #Needed by main_window.undo().
+        self.passwords = api.passwd()
         self.thelist = Gtk.ListStore(str, str)  #name, value
         tree = Gtk.TreeView(self.thelist)
         tree.set_property("enable-search", True)
@@ -438,7 +439,7 @@ class passwd_tab_c(Gtk.Box):
     def select_change(self, selection):
         forget, x = selection.get_selected()
         if x != None:
-            self.index = x
+            self.index = x      #Not an integer.
     def copy(self, button):
         if self.index == None:
             err(self, "Select first.")
@@ -534,10 +535,10 @@ class honeypot_tab_c(Gtk.Box):
         self.pack_end(box, False, False, 5)
         
     def select_change(self, selection):
-        #selection has changed, update index.
+        #[Ss]election has changed, update index.
         forget, x = selection.get_selected()
         if x != None:
-            self.index = x
+            self.index = x      #Not an integer.
     def pick_copy(self, button):
         #Pick and copy to clipboard.
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -645,48 +646,29 @@ class conf_tab_c(Gtk.Box):
         Gtk.main_quit()
         return          #What might happen now?
         
-class main_window(Gtk.Window):
+class about_tab_c(Gtk.Box):
     def __init__(self):
-        global restart
-        Gtk.Window.__init__(self, title="passwdmangui")
-        try:
-            conf = open(os.path.expanduser("~/.passwdman/gui.conf"), "r")
-            for l in conf:
-                if "show_passwd" in l and not "#" in l:
-                    if "true" in l:
-                        self.show_passwd = True
-                        break
-                    if "false" in l:
-                        self.show_passwd = False
-                        break
-            else:
-                self.show_passwd = False
-        except:
-            self.show_passwd = False
-        self.set_default_size(768, 512)
-        self.passwd_tab = passwd_tab_c(self)        #needed by undo(), redo()
-        self.honeypot_tab = honeypot_tab_c(self)    #needed by undo(), redo()
-        self.conf_tab = conf_tab_c(self)
-                            #The argument is their parent.
-        about_tab = Gtk.Box()
+        Gtk.Box.__init__(self)
         copyright_label = Gtk.Label(copywrong)
         info_label = Gtk.Label("""
 passwdman is a program for remembering and updating passwords. It
 also has support for honey pots (fake-passwords that activates
 traps).""")
-        scrolly_about = Gtk.ScrolledWindow(None, None)
         about_tab_scrolled = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         about_tab_scrolled.pack_start(info_label, False, False, 5)
         about_tab_scrolled.pack_start(copyright_label, False, False, 5)
+        
         scrollable_about = Gtk.Viewport()
         scrollable_about.add(about_tab_scrolled)
-        scrolly_about.add(scrollable_about)
-        about_tab.pack_start(scrolly_about, True, True, 5)
         
-        help_tab = Gtk.Box()
-        scrolly_help = Gtk.ScrolledWindow(None, None)
-        scrollable_help = Gtk.Viewport()
-        scrollable_help.add(Gtk.Label("""
+        scrolly_about = Gtk.ScrolledWindow(None, None)
+        scrolly_about.add(scrollable_about)
+        self.pack_start(scrolly_about, True, True, 5)
+
+class help_tab_c(Gtk.Box):
+    def __init__(self):
+        Gtk.Box.__init__(self)
+        help_label = Gtk.Label("""
 The "change meta-data & update"-button in the "Passwords"-tab:
     1.  If the password was created with the "Add existing"-button: use the
         "change meta-data & update"-button.
@@ -706,22 +688,46 @@ The fake-passwords/honey pots are intended to be used as traps to catch
 crackers. The "pick"-buttons picks a random fake-password, independent of what
 you have selected. You should add fake-passwords such as "password" and
 "drowssap".
-
-    """))
+    """)
+        scrollable_help = Gtk.Viewport()
+        scrollable_help.add(help_label)
+        scrolly_help = Gtk.ScrolledWindow(None, None)
         scrolly_help.add(scrollable_help)
-        help_tab.pack_start(scrolly_help, True, True, 5)
+        self.pack_start(scrolly_help, True, True, 5)
+
+class main_window(Gtk.Window):
+    def __init__(self):
+        global restart
+        Gtk.Window.__init__(self, title="passwdmangui")
+        try:
+            #To understand this: read "~/.passwdman/gui.conf".
+            conf = open(os.path.expanduser("~/.passwdman/gui.conf"), "r")
+            for l in conf:
+                if "show_passwd" in l and not "#" in l:
+                    if "true" in l:
+                        self.show_passwd = True
+                        break
+                    if "false" in l:
+                        self.show_passwd = False
+                        break
+            else:
+                self.show_passwd = False
+        except:
+            self.show_passwd = False
+        self.set_default_size(768, 512)
+        self.passwd_tab = passwd_tab_c(self)
+        self.honeypot_tab = honeypot_tab_c(self)
+        self.conf_tab = conf_tab_c(self)
+        about_tab = about_tab_c()
+        help_tab = help_tab_c()
+        
         tabs = Gtk.Notebook()
         tabs.append_page(self.passwd_tab, Gtk.Label("Passwords"))
         tabs.append_page(self.honeypot_tab, Gtk.Label("Fake-passwords"))
         tabs.append_page(help_tab, Gtk.Label("HELP"))
         tabs.append_page(about_tab, Gtk.Label("About"))
-        
         tabs.append_page(self.conf_tab, Gtk.Label("Settings"))
-        if restart:     #BUG
-            tabs.next_page()    #honeypots
-            tabs.next_page()    #help
-            tabs.next_page()    #about
-            tabs.next_page()    #settings
+        if restart:     #BUG: 4x tabs.next_page() doesn't work.
             restart = False
         
         button_undo = Gtk.Button("Undo")
@@ -746,11 +752,11 @@ you have selected. You should add fake-passwords such as "password" and
         self.add(box1)
         self.connect("delete-event", Gtk.main_quit)
         self.show_all()
-        
+
     def undo(self, button):
         try:
             api.undo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
-            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            #Update self.passwd_tab.thelist and self.honeypot_tab.thelist.
             self.passwd_tab.thelist.clear()
             self.honeypot_tab.thelist.clear()
             for x in self.passwd_tab.passwords:
@@ -758,13 +764,14 @@ you have selected. You should add fake-passwords such as "password" and
             for x in self.honeypot_tab.honeypots:
                 self.honeypot_tab.thelist.append([x])
         except:
-            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            #'self.passwd_tab' has attribute 'parent' which is 'self'.
             err(self.passwd_tab, "CANNOT UNDO!")
+
     def redo(self, button):
-        #copy-pasted from undo() and hand-hacked
+        #Copy-pasted from undo() and hand-hacked.
         try:
             api.redo(self.passwd_tab.passwords, self.honeypot_tab.honeypots)
-            #update self.passwd_tab.thelist and self.honeypot_tab.thelist
+            #Update self.passwd_tab.thelist and self.honeypot_tab.thelist.
             self.passwd_tab.thelist.clear()
             self.honeypot_tab.thelist.clear()
             for x in self.passwd_tab.passwords:
@@ -772,8 +779,9 @@ you have selected. You should add fake-passwords such as "password" and
             for x in self.honeypot_tab.honeypots:
                 self.honeypot_tab.thelist.append([x])
         except:
-            #'self.passwd_tab' has attribute 'parent' which is 'self'
+            #'self.passwd_tab' has attribute 'parent' which is 'self'.
             err(self.passwd_tab, "CANNOT REDO!")
+
     def make_backup(self, button):
         #Create a tarball of the files.
         dialog = Gtk.FileChooserDialog(

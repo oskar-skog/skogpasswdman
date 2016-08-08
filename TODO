@@ -14,3 +14,4 @@
 0.3     Set busy-cursor when getting random numbers. (GUI)
 0.3     passwd.add_nometa() shouldn't add meta-data to the file.
 0.3     In configure: --update without argument.
+*       Remove backups feature.
