@@ -1,3 +1,7 @@
+2013-12-07      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2.9
+    * configure.2 (maketarget__doc_auto), Makefile (*.html), *.html:
+        s/type="bullet"/type="disc"/            Validates.
 2013-11-23      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.2.8
     * passwdmanapi.py (passwd.__init__, honeypot.__init__): New variable:

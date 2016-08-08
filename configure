@@ -953,7 +953,7 @@ printf 'def maketarget__doc_auto():\n' >> configure.2
 printf '    \042\042\042maketarget__doc_auto()\n' >> configure.2
 printf '    It is for me. I make things in the current directory.\n' >> configure.2
 printf '    mdoc -> [doclifter] -> Docbook -> [sed + scripts + xmlto] ->\n' >> configure.2
-printf '        (xhtml, pdf, ps)\042\042\042\n' >> configure.2
+printf '        ([sed] -> xhtml, pdf, ps)\042\042\042\n' >> configure.2
 printf '    global makefile\n' >> configure.2
 printf '    f = open(\042xml.copyright\042, \042w\042)\n' >> configure.2
 printf '    f.write(\042\042\042\n' >> configure.2
@@ -1010,6 +1010,10 @@ printf '            makefile.write(\042{0}.{1} : {0}.xml\\n\\txmlto \042.format(
 printf '            if n == \042passwdmanapi\042:\n' >> configure.2
 printf '                makefile.write(\042--skip-validation \042)\n' >> configure.2
 printf '            makefile.write(\042{} {}.xml\\n\042.format(fc, n))\n' >> configure.2
+printf '            if fn == \042html\042:\n' >> configure.2
+printf '                makefile.write(\042\\tsed -e \047s/type=\\\042bullet\\\042/type=\\\042disc\\\042/\047\042)\n' >> configure.2
+printf '                makefile.write(\042 {0}.html > {0}.htmlout\\n\042.format(n))\n' >> configure.2
+printf '                makefile.write(\042\\tmv {0}.htmlout {0}.html\\n\042.format(n))\n' >> configure.2
 printf '\n' >> configure.2
 printf 'def maketarget_paperdoc():\n' >> configure.2
 printf '    \042\042\042maketarget_paperdoc() - Add the target paperdoc.made, which just\n' >> configure.2
@@ -1057,7 +1061,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.2.8\042\n' >> configure.2
+printf 'VERSION = \0420.2.9\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2

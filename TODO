@@ -7,7 +7,7 @@
             ?   Deutch
 *       in "configure.2": dirs() should figure out more directories.
 *       info
-0.3     Single change mode for the CLI. 2 undos undoes everything.
 *       Set busy-cursor when getting random numbers. (GUI)
 *       Remove {un,re}do-list feature.
 *       Rogue-like interface.
+*       Unicode support in configure.
