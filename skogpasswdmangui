@@ -6,7 +6,7 @@ import sys
 import tarfile
 
 copywrong = """
-Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
+Copyright (c) 2013-2015, Oskar Skog <oskar.skog.finland@gmail.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -387,6 +387,7 @@ def pick_many_d(parent):
     Pick many dialog, parent is an instance of honeypot_tab_c().
     It returns nothing
     """
+    assert False, "Function burns in HELL."
     dialog = Gtk.Dialog("Pick many", parent.parent, 0,
                         ("OK", Gtk.ResponseType.OK,
                          "Cancel", Gtk.ResponseType.CANCEL))
@@ -591,13 +592,13 @@ class honeypot_tab_c(Gtk.Box):
         # Create buttons.
         b_pick_c = Gtk.Button("Pick & copy")
         b_pick_s = Gtk.Button("Pick & show")
-        b_pick_b = Gtk.Button("Bad pick many")
+        # b_pick_b = Gtk.Button("Bad pick many")        # BURN IN HELL
         b_pick_g = Gtk.Button("Good pick many")
         b_add = Gtk.Button("Add")
         b_remove = Gtk.Button("Remove")
         b_pick_c.connect("clicked", self.pick_copy)
         b_pick_s.connect("clicked", self.pick_show)
-        b_pick_b.connect("clicked", self.pick_many)
+        # b_pick_b.connect("clicked", self.pick_many)   # BURN IN HELL
         b_pick_g.connect("clicked", self.pick_many_list)
         b_add.connect("clicked", self.add_hp)
         b_remove.connect("clicked", self.rm_hp)
@@ -605,7 +606,7 @@ class honeypot_tab_c(Gtk.Box):
         box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         box.pack_start(b_pick_c, False, False, 5)
         box.pack_start(b_pick_s, False, False, 5)
-        box.pack_start(b_pick_b, False, False, 5)
+        # box.pack_start(b_pick_b, False, False, 5)     # BURN IN HELL
         box.pack_start(b_pick_g, False, False, 5)
         box.pack_start(b_add, False, False, 5)
         box.pack_start(b_remove, False, False, 5)
@@ -637,6 +638,7 @@ class honeypot_tab_c(Gtk.Box):
         dialog.destroy()
     def pick_many(self, button):
         """pick_many(self, button)"""
+        assert False, "Function burns in HELL."
         pick_many_d(self)
     def add_hp(self, button):
         """add_hp(self, button)"""
@@ -939,6 +941,12 @@ class main_window(Gtk.Window):
             old_dir = os.getcwd()
             os.chdir(os.path.expanduser("~"))
             tarball_name = dialog.get_filename()
+            
+            # SHIT, this BUG was old.
+            assert "'" not in tarball_name
+            os.system("touch '{}'".format(tarball_name))
+            os.system("chmod 600 '{}'".format(tarball_name))
+            
             tarball = tarfile.open(tarball_name, "w:gz")
             tarball.add(".skogpasswdman")
             tarball.close()

@@ -964,11 +964,7 @@ def honeypot_tab(x):
     """honeypot_tab(x)
     x (integer) is the action to be performed on a honeypot.
     See also choice.__doc__"""
-    list_choice_to_vdictui(True, x, api.parse_text(r"""
-    id:                 1
-    opt:                ('progress-bar', )
-    post-ui-code:       'show_copy_single(h.pick(pb=pb))'
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    BURN_IN_HELL = r"""
     id:                 2
     opt:                ('progress-bar', )
     ui:                 '''
@@ -996,7 +992,13 @@ s = h.pick(result["num"], result["sep"], pb=pb)
 show_copy_single(s)
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    id:                 3
+"""
+    list_choice_to_vdictui(True, x, api.parse_text(r"""
+    id:                 1
+    opt:                ('progress-bar', )
+    post-ui-code:       'show_copy_single(h.pick(pb=pb))'
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    id:                 2
     opt:                ('progress-bar', )
     ui:                 '''
         type:           'text'
@@ -1016,7 +1018,7 @@ for s in result:
     show_copy_single(s)
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    id:                 4
+    id:                 3
     ui:                 '''
         type:           'text'
         value:          'What is the fake password?'
@@ -1029,7 +1031,7 @@ for s in result:
         %'''
     post-ui-code:       'h.add(result["line"])'
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    id:                 5
+    id:                 4
     opt:                ('choice', )
     post-ui-code:       'h.remove(selection)'
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1408,7 +1410,7 @@ are not encrypted, so that you don't need to remember an extra password.
                       "Create new",
                       "Remove"]
     honeypot_choices = ["Pick",
-                        "Bad pick many",
+                        #"Bad pick many",       # BURN IN HELL
                         "Good pick many",
                         "Add",
                         "Remove"]

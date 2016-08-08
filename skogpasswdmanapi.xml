@@ -3,7 +3,7 @@
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
 <refentry id='skogpasswdmanapi3'>
-<!-- Copyright (c) 2013, 2014, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
+<!-- Copyright (c) 2013&bsol;-2015, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
 <!-- Redistribution and use in source and binary forms, with or without
@@ -669,7 +669,12 @@ Raises
 
 <!-- ###     honeypot.pick (OLD)             ### -->
 <para>honeypot.pick()
-IS DEPRECATED AND WILL BE REMOVED 2015-01-01.
+IS DEPRECATED AND WILL BE REMOVED 2015-01-01.</para>
+
+<para>I forgot to remove the function and it was supposed to be replaced
+with a new version of it 2015-02-01.</para>
+
+<para>This function is not and will probably never be documented.
 honeypot.pick()
 picks
 <varname>n</varname>

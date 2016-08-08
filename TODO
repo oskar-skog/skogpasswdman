@@ -1,31 +1,3 @@
-?       Improvements in HELP and About.
-*       More debugging
-*       Fix broken Docbook XML
-*       gettext()
-            *   Svenska
-            *   Suomi
-            ?   Deutch
-*       in "configure.2": dirs() should figure out more directories.
-*       info
-*       ``shortcuts`` in passwdmanrli.
-0.5     Unicode support in configure.
-0.5     RLI: 40 column tty.
-*       Use argparse instead of getopt. argparse requires 2.7 or 3.x.
-*       Use tuples instead of dicts for the makefile-variables.
-
-Python 2.x drop schedule:
-
-configure       Drop 2.6        (2014, February-March)
-GUI & RLI       Drop 2.6        ()
-CLI             Drop 2.6        ()
-API             Drop 2.6        (2015)
-configure       Drop 2.7        -
-GUI & RLI       Drop 2.7        (When security updates ends!)
-CLI             Drop 2.7        -
-API             Drop 2.7        -
-
-
-
 honeypot.pick*:
 
 honeypot.pickf                  0.5
@@ -34,3 +6,6 @@ honeypot.pick() [1]             Feb 2015
 
 [1]     Convenience feature.  Use keyword arguments to choose between pickl
         and pickf.
+
+2015-07-06: I missed the 2015-01 and 2015-02. honeypot.pick() is now the
+2015-02 version.
