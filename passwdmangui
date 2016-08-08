@@ -45,8 +45,8 @@ def passwd_add_d(parent):
     """parent has attribute parent, which is the real parent window.
     Add password dialog."""
     dialog = Gtk.Dialog("Add existing password.", parent.parent, 0,
-                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
-                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+                        ("OK", Gtk.ResponseType.OK,
+                         "Cancel", Gtk.ResponseType.CANCEL))
     main_box = dialog.get_content_area()
     
     label_n = Gtk.Label("What is the password for:")
@@ -84,8 +84,8 @@ def hp_add_d(parent):
     """parent has attribute parent which is the real parent window.
     Add honeypot dialog."""
     dialog = Gtk.Dialog("Add honeypot.", parent.parent, 0,
-                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
-                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+                        ("OK", Gtk.ResponseType.OK,
+                         "Cancel", Gtk.ResponseType.CANCEL))
     main_box = dialog.get_content_area()
     
     label_v = Gtk.Label("What is the fake-password?")
@@ -118,8 +118,8 @@ def passwd_new_d(parent):
     #radio      label
     #radio      label
     dialog = Gtk.Dialog("New (auto-generated)", parent.parent, 0,
-                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
-                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+                        ("OK", Gtk.ResponseType.OK,
+                         "Cancel", Gtk.ResponseType.CANCEL))
     main_box = dialog.get_content_area()
     
     b64 = Gtk.RadioButton.new_with_label_from_widget(None, "Digits, "
@@ -204,8 +204,8 @@ def passwd_updatemeta_d(parent):
         return
     
     dialog = Gtk.Dialog("Update with new settings.", parent.parent, 0,
-                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
-                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+                        ("OK", Gtk.ResponseType.OK,
+                         "Cancel", Gtk.ResponseType.CANCEL))
     main_box = dialog.get_content_area()
     
     b64 = Gtk.RadioButton.new_with_label_from_widget(None, "Digits, "
@@ -324,8 +324,8 @@ def pick_many_d(parent):
     """Pick many dialog, parent is an instance of honeypot_tab_c().
     It returns nothing"""
     dialog = Gtk.Dialog("Pick many", parent.parent, 0,
-                        (Gtk.STOCK_OK, Gtk.ResponseType.OK,
-                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+                        ("OK", Gtk.ResponseType.OK,
+                         "Cancel", Gtk.ResponseType.CANCEL))
     main_box = dialog.get_content_area()
     
     label_help = Gtk.Label("Randomly pick fake-passwords.")
@@ -546,7 +546,7 @@ class honeypot_tab_c(Gtk.Box):
         clipboard.store()
     def pick_show(self, button):
         #Pick and show in a dialog.
-        x = self.honeypots.pick().encode(encoding="utf-8")      ####
+        x = self.honeypots.pick()
         dialog = Gtk.MessageDialog(self.parent, 0, Gtk.MessageType.OTHER,
                     Gtk.ButtonsType.CLOSE, "Picked:")
         dialog.format_secondary_text(x)
@@ -724,11 +724,11 @@ you have selected. You should add fake-passwords such as "password" and
             tabs.next_page()    #settings
             restart = False
         
-        button_undo = Gtk.Button("Undo", Gtk.STOCK_UNDO)
+        button_undo = Gtk.Button("Undo")
         button_undo.connect("clicked", self.undo)
-        button_redo = Gtk.Button("Redo", Gtk.STOCK_REDO)
+        button_redo = Gtk.Button("Redo")
         button_redo.connect("clicked", self.redo)
-        button_quit = Gtk.Button("Quit", Gtk.STOCK_QUIT)
+        button_quit = Gtk.Button("Quit")
         button_quit.connect("clicked", Gtk.main_quit)
         button_backup = Gtk.Button("Make backup")
         button_backup.connect("clicked", self.make_backup)
