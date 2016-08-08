@@ -1,16 +1,14 @@
 *       Signal handling
-*       Permanent backup (GUI)
+**      Permanent backup (GUI)
 *       More GUI-polishing
             *   Markup in HELP and About
             *   Scroll bars
-*       More debugging
+***     More debugging
 *       Fix broken Docbook XML
-*       Finish passwdmangui documentation
+***     Finish passwdmangui documentation
             *   Explain honey pots better
             *   Explain Undo/Redo better
 *       gettext()
             *   Svenska
             *   Suomi
-*       README
-*       INSTALL
 *       in "configure.2": dirs() should figure more directories.

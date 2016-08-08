@@ -1,8 +1,9 @@
+passwdman
 Copyright (c) 2013, Oskar Skog
 Read the file 'LICENSE' (2-clause BSD)
+
 About passwdman
 Installation
-Quick GUIde
 Technical
 
 1.      passwdman is a program for remembering and updating passwords. It
@@ -34,3 +35,14 @@ Technical
             To update the rest of configure: update twice.
         The "--halt" option for "configure":
             Stop "configure.2", so that it can be read.
+        
+        
+        
+        If you change configure.2:
+            ./configure --halt
+            ^C
+            ./configure.2 --update configure.2
+        (if you changed the update part:
+            ./configure.2 --update configure.2
+        again)
+        

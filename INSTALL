@@ -1,0 +1,35 @@
+Type at the shell:
+    ./configure
+    make
+    sudo make install
+The last command will ask for your password.
+
+Non-technical users can ignore the rest.
+
+Variables/options (for configure):
+    --prefix
+    --exec_prefix
+    --bindir
+    --datarootdir
+    --docdir
+    --infodir
+    --htmldir
+    --mandir
+    --man1dir
+    --man3dir
+    --man5dir
+    --man1ext
+    --man3ext
+    --man5ext
+    --libdir
+    --srcdir
+    --DESTDIR
+    --moduledir         Where to install Python modules
+    --nogui
+    --noguidoc
+    --nocli
+    --notechdoc         passwdmanfiles, passwdmanapi
+    --halt              See README
+    --update            See README
+    --help              list things that are not used.
+    --verbose
