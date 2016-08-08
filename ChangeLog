@@ -1,4 +1,7 @@
 2014-01-13      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.22
+    * passwdmanrli (show_copy_single): Bugfix:
+        s/tmp > line_length/len(tmp) > line_length/
 0.3.21
     * TODO: More things to do in 0.4.x.
     * passwdmanrli (roll_text): New keyword-argument: extra_input_handler.

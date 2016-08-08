@@ -614,7 +614,7 @@ def show_copy_single(s, head=None):
         # Enough for end-of-line markers, but not too unreadably long lines.
         while i < n:
             tmp = s[i:]
-            if tmp > line_length:
+            if len(tmp) > line_length:
                 L.append(tmp[:line_length])
             else:
                 L.append(tmp)
