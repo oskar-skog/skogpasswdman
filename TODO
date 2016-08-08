@@ -11,3 +11,5 @@
 *       menu
 *       Fix getmoduledir(). Pick newest 2.*.
 ?       What should unquote(x) return if x is a string of whitespace?
+*       Single change mode for the CLI. 2 undos undoes everything.
+*       Set busy-cursor when getting random numbers. (GUI)

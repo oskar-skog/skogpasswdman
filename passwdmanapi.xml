@@ -83,6 +83,7 @@ update_meta(self, index, m_type, m_minlength, m_maxlength)</para>
 add(self, value)<sbr/>
 remove(self, x, is_numstring=False)<sbr/>
 pick(self, n=1, sep=",", log_vs_raise=True)<sbr/>
+pickl(self, n, log_vs_raise=True)<sbr/>
 __repr__(self)</para>
 </refsect2>
 <sbr/>
@@ -411,6 +412,20 @@ If
 is false, it will raise
 <errorcode>err_idiot</errorcode>.</para>
 
+<!-- Copy&bsol;-pasted from just above. -->
+<para>honeypot.pickl()
+picks
+<varname>n</varname>
+random honeypots and returns a list of honeypots.
+If
+<varname>log_vs_raise</varname>
+is true, it will log an error if
+<varname>n</varname>
+is too big.
+If
+<varname>log_vs_raise</varname>
+is false, it will raise
+<errorcode>err_idiot</errorcode>.</para>
 </refsect2>
 </refsect1>
 
@@ -519,6 +534,9 @@ is raised if the function was not used correctly.</para>
 </listitem>
 <listitem>
 <para>honeypot.pick()</para>
+</listitem>
+<listitem>
+<para>honeypot.pickl()</para>
 </listitem>
 <listitem>
 <para>undo()</para>

@@ -651,6 +651,21 @@ class honeypot(common_data):
             output += y
             output += sep
         return output[:-(len(sep))] #Do not return the last separator.
+    def pickl(self, n, log_vs_raise=True):
+        """Pick randomly selected honey-pots in a list."""
+        #Copy-pasted from pick()
+        if n > len(self):
+            n = len(self)
+            if log_vs_raise:
+                logging.error("honeypot.pick:<n> is too big")
+            else:
+                raise err_idiot("")
+        balloons, outlist, output = [], [], ""
+        for x in self:                  #Create popable list.
+            balloons.append(x)
+        while len(outlist) < n:         #Pop random balloons.
+            outlist.append(balloons.pop(getint(0, len(balloons))))
+        return outlist
     def __repr__(self):
         return "passwdmanapi.honeypot()"
 

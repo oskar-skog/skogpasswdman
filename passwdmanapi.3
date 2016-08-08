@@ -66,6 +66,7 @@
 .Fd add(self, value)
 .Fd remove(self, x, is_numstring=False)
 .Fd pick(self, n=1, sep=",", log_vs_raise=True)
+.Fd pickl(self, n, log_vs_raise=True)
 .Fd __repr__(self)
 .Ss Exceptions
 .Fd class err_norandom(Exception)
@@ -372,6 +373,20 @@ If
 is false, it will raise
 .Er err_idiot .
 .Pp
+.\"Copy-pasted from just above.
+.Fn honeypot.pickl
+picks
+.Va n
+random honeypots and returns a list of honeypots.
+If
+.Va log_vs_raise
+is true, it will log an error if
+.Va n
+is too big.
+If
+.Va log_vs_raise
+is false, it will raise
+.Er err_idiot .
 .Sh Exceptions
 .Er err_norandom
 is raised when neither
@@ -454,6 +469,8 @@ is raised if the function was not used correctly.
 .Fn passwd.update_meta
 .It
 .Fn honeypot.pick
+.It
+.Fn honeypot.pickl
 .It
 .Fn undo
 .It
