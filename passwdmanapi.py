@@ -169,7 +169,7 @@ def u(x):
     """u(x) return a unicode/decoded string"""
     assert is_anystr(x)
     if not is_unicodestr(x):
-        return x.decode("utf-8")
+        return x.decode(code)
     else:
         return x
 
@@ -177,7 +177,7 @@ def b(x):
     """b(x) return a byte/encoded string"""
     assert is_anystr(x)
     if not is_bytestr(x):
-        return x.encode("utf-8")
+        return x.encode(code)
     else:
         return x
 
@@ -363,7 +363,7 @@ class common_data():
         self.data = []
         self.index = 0
         try:
-            parser = XML.XMLParser(encoding="utf-8")     #Unicode stuff here.
+            parser = XML.XMLParser(encoding=code)     #Unicode stuff here.
         except:
             parser = XML.XMLParser() #Above will fail with Python 2.6.
         self.xmltree = XML.parse(os.path.expanduser(xmlfile), parser)
@@ -888,6 +888,9 @@ ckmkfile("~/.passwdman/honeypots", """<?xml version='1.0' encoding='UTF-8'?>
 <root file="honeypots" magic="passwdman" version="0.1">
 </root>
 """)
+import locale
+locale.setlocale(locale.LC_ALL, '')
+code = locale.getpreferredencoding()
 
 if __name__ == "__main__":
     print ("I-D-10-T")

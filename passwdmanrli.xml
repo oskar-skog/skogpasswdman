@@ -56,8 +56,6 @@ up, left, down, right.</para>
 <para>Escape to quit.</para>
 </listitem>
 </itemizedlist>
-
-<para>Text-writing sucks.</para>
 </refsect1>
 
 <refsect1 id='the_change_metadata_and_update_button'><title>The change meta-data and update button</title>
@@ -114,11 +112,7 @@ and
 <refsect1 id='bugs'><title>BUGS</title>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>Very little testing.</para>
-</listitem>
-<listitem>
-<para>edit_line()
-sucks!</para>
+<para>Very little tested.</para>
 </listitem>
 </itemizedlist>
 </refsect1>

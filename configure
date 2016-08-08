@@ -1201,7 +1201,7 @@ printf 'installed_files = []    #Filled in by maketarget_install and used by\n' 
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'xfm_options = []\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.3.8\042\n' >> configure.2
+printf 'VERSION = \0420.3.9\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2

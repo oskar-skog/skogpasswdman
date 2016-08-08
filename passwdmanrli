@@ -99,43 +99,80 @@ def edit_num(y, num, min_num, max_num, step=1):
             return "back", num
 
 def edit_line(y, line):
-    #TODO:
-    #   Begin at first column.
-    #   Left and right (insert).
-    strline = ""
-    unicodeline = ""
-    assert api.is_anystr(line) or line == None
+    #Unicode string.
     if line == None:
-        line = ""
-    strline = api.b(line)
-    unicodeline = line
+        head_u = api.u("")
+    else:
+        head_u = api.u(line)
+    #Byte string.
+    ver, f, f, f, f = sys.version_info
+    if ver == 2:
+        head_b = ""
+        def mk_head_b():
+            return head_u.encode(code)
+
+    else:
+        head_b = []
+        def mk_head_b():
+            return list(head_u.encode(code))
+    
+    #Tail.
+    tail = api.u("")
+    half_len = int(math.floor(xsize / 2))
     while True:
-        for x in range(-1, -xsize, -1):
-            try:
-                wrap_addstr(y, xsize + x, unicodeline[x])
-            except IndexError:
-                pass
-            except:
-                raise
+        tty.hline(y, 0, ord(" "), xsize)
+        #Print line.
+        if len(head_u) < xsize - 1:
+            wrap_addstr(y, 0, head_u)
+            wrap_addstr(y, len(head_u), tail[:xsize - len(head_u)])
+            tty.move(y, len(head_u))
+        else:
+            wrap_addstr(y, 0, head_u[-half_len:])
+            wrap_addstr(y, half_len, tail[:half_len])
+            tty.move(y, half_len)
         tty.refresh()
+        #Input.
         ch = tty.getch()
-        if ch == 27:
-            return "back", unicodeline
-        if ch == curses.KEY_UP:
-            return "up", unicodeline
-        if ch in (curses.KEY_DOWN, ord("\t"), ord("\n")):
-            return "down", unicodeline
-        if ch == curses.KEY_BACKSPACE:
-            unicodeline = unicodeline[:-1]
-            strline = api.b(unicodeline)
-            continue
-        try:
-            strline += api.b(chr(ch))
-        except ValueError:
-            pass
-        except:
-            raise
-        unicodeline = strline.decode("utf-8", "ignore")
+        #Navigate in string.
+        if ch == curses.KEY_HOME:
+            tail = head_u + tail
+            head_u = api.u("")
+            head_b = mk_head_b()
+        elif ch == curses.KEY_END:
+            head_u = head_u + tail
+            tail = api.u("")
+            head_b = mk_head_b()
+        elif ch == curses.KEY_LEFT:
+            if len(head_u) > 0:
+                head_u, tail = head_u[:-1], head_u[-1] + tail
+                head_b = mk_head_b()
+        elif ch == curses.KEY_RIGHT:
+            if len(tail) > 0:
+                head_u, tail = head_u + tail[0], tail[1:]
+                head_b = mk_head_b()
+        #Backspace, delete.
+        elif ch == curses.KEY_BACKSPACE:
+            if len(head_u) > 0:
+                head_u = head_u[:-1]
+                head_b = mk_head_b()
+        elif ch == curses.KEY_DC:
+            if len(tail) > 0:
+                tail = tail[1:]
+        #Return.
+        elif ch in (curses.KEY_DOWN, ord("\t"), ord("\n")):
+            return "down", head_u + tail
+        elif ch == curses.KEY_UP:
+            return "up", head_u + tail
+        elif ch == 27:
+            return "back", head_u + tail
+        elif ch < 256:
+            #Loop until multibyte char is done.
+            if ver == 2:
+                head_b += chr(ch)
+                head_u = head_b.decode(code, "ignore")
+            else:
+                head_b.append(ch)
+                head_u = bytes(head_b).decode(code, "ignore")
 
 def after_update(old, new):
     tty.erase()
@@ -976,6 +1013,9 @@ if have_clipboard:
 if __name__ == "__main__":
     h = api.honeypot()
     p = api.passwd()
+    import locale
+    locale.setlocale(locale.LC_ALL, '')
+    code = locale.getpreferredencoding()
     if DEBUG:
         xsize, ysize = 80, 24
     else:
