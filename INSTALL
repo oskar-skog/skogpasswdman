@@ -3,10 +3,21 @@ Type at the shell:
     make
     sudo make install
 The last command will ask for your password.
+If "make" fails, try with:
+    "./configure --without-xfilemanager" instead of "./configure"
+If "sudo make install" fails try with:
+    ./configure
+    make
+    su root
+    make install
+    exit
+
 
 Non-technical users can ignore the rest.
 
 Variables/options (for configure):
+    --without-xfilemanager
+    --with-<name_of_favorite_filemanager>
     --prefix
     --exec_prefix
     --bindir
@@ -25,10 +36,10 @@ Variables/options (for configure):
     --srcdir
     --DESTDIR
     --moduledir         Where to install Python modules
-    --nogui
-    --noguidoc
-    --nocli
-    --notechdoc         passwdmanfiles, passwdmanapi
+    --disable-gui
+    --disable-guidoc
+    --disable-cli
+    --disable-techdoc         passwdmanfiles, passwdmanapi
     --halt              do nothing.
     --update            See 'configure.2'.
     --help              list things that are not used.

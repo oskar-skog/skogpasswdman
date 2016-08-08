@@ -556,6 +556,8 @@ printf '    global cli\n' >> configure.2
 printf '    global gui\n' >> configure.2
 printf '    global guidoc\n' >> configure.2
 printf '    global techdoc\n' >> configure.2
+printf '    global xfm\n' >> configure.2
+printf '    global xfm_options\n' >> configure.2
 printf '    long_opts = []\n' >> configure.2
 printf '    for x in dirs_def[1:]:      #Skip \047PKGNAME\047.\n' >> configure.2
 printf '        long_opts.append(x[\042name\042] + \042=\042)\n' >> configure.2
@@ -573,6 +575,7 @@ printf '    long_opts.append(\042version\042)\n' >> configure.2
 printf '    long_opts.append(\042build=\042)\n' >> configure.2
 printf '    long_opts.append(\042host=\042)\n' >> configure.2
 printf '    long_opts.append(\042target=\042)\n' >> configure.2
+printf '    long_opts.append(\042without-xfilemanager\042)\n' >> configure.2
 printf '    #Handle the options.\n' >> configure.2
 printf '    all_options = []\n' >> configure.2
 printf '    for x in sys.argv[1:]:\n' >> configure.2
@@ -580,9 +583,9 @@ printf '        if x[0] != \042-\042:\n' >> configure.2
 printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        if x[:7] == \042--with-\042:\n' >> configure.2
-printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
+printf '            xfm_options.append(x)\n' >> configure.2
 printf '            continue\n' >> configure.2
-printf '        if x[:10] == \042--without-\042:\n' >> configure.2
+printf '        if x[:10] == \042--without-\042 and x[10:] != \042xfilemanager\042:\n' >> configure.2
 printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        if x[:9] == \042--enable-\042:\n' >> configure.2
@@ -594,10 +597,10 @@ printf '                if x[10:] != \042cli\042:\n' >> configure.2
 printf '                    if x[10:] != \042guidoc\042:\n' >> configure.2
 printf '                        if x[10:] != \042techdoc\042:\n' >> configure.2
 printf '                            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
+verbose Line 400...
 printf '                            continue\n' >> configure.2
 printf '        all_options.append(x)\n' >> configure.2
 printf '    try:\n' >> configure.2
-verbose Line 400...
 printf '        opts, args = getopt.getopt(all_options, \042hvm:cgdtu:HV\042, long_opts)\n' >> configure.2
 printf '    except getopt.GetoptError as err:\n' >> configure.2
 printf '        sys.stderr.write(\042{}\\n\042.format(err))\n' >> configure.2
@@ -636,6 +639,9 @@ printf '            sys.exit(0)\n' >> configure.2
 printf '        elif o in (\042--version\042, \042-V\042):\n' >> configure.2
 printf '            print(\042passwdman configure version {}\042.format(VERSION))\n' >> configure.2
 printf '            sys.exit(0)\n' >> configure.2
+printf '        elif o == \042--without-xfilemanager\042:\n' >> configure.2
+printf '            xfm = False\n' >> configure.2
+printf '            continue\n' >> configure.2
 printf '        elif o in (\042--build\042, \042--host\042, \042--target\042):\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        else:       #Handle options for the variable names.\n' >> configure.2
@@ -692,13 +698,13 @@ printf '    \042\042\042dirs() - figure out the Makefile variables.\042\042\042\
 printf '    def tryset(x):      #Always check.\n' >> configure.2
 printf '        for y in dirs_set:\n' >> configure.2
 printf '            if y[\042name\042] == x:\n' >> configure.2
+verbose Line 500...
 printf '                return False\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            return True\n' >> configure.2
 printf '    def setvar(x, y):\n' >> configure.2
 printf '        global dirs_auto\n' >> configure.2
 printf '        dirs_auto.append({\042name\042: x, \042value\042: y})\n' >> configure.2
-verbose Line 500...
 printf '    global dirs_final\n' >> configure.2
 printf '    global dirs_auto\n' >> configure.2
 printf '    #Check some variables.\n' >> configure.2
@@ -793,13 +799,13 @@ printf '    global gui\n' >> configure.2
 printf '    global guidoc\n' >> configure.2
 printf '    global cli\n' >> configure.2
 printf '    global techdoc\n' >> configure.2
+verbose Line 600...
 printf '    global makefile\n' >> configure.2
 printf '    v(\042Writing the \047all.made\047 and \047all\047 targets...\042)\n' >> configure.2
 printf '    makefile.write(\042all.made : shebang \044(srcdir)passwdmanapi.py\042)\n' >> configure.2
 printf '    #Append more dependencies.\n' >> configure.2
 printf '    if techdoc:\n' >> configure.2
 printf '        makefile.write(\042 \044(srcdir)passwdmanapi.3 \044(srcdir)passwdmanfiles.5\042)\n' >> configure.2
-verbose Line 600...
 printf '    if cli:\n' >> configure.2
 printf '        makefile.write(\042 \044(srcdir)passwdmancli \044(srcdir)passwdmancli.1\042)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
@@ -811,7 +817,25 @@ printf '    if cli:\n' >> configure.2
 printf '        makefile.write(\042 \044(srcdir)passwdmancli\042)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
 printf '        makefile.write(\042 \044(srcdir)passwdmangui\042)\n' >> configure.2
-printf '    makefile.write(\042\\n\\ttouch all.made\\n\042)    #make all, made all, all.made\n' >> configure.2
+printf '    makefile.write(\042\\n\042)\n' >> configure.2
+printf '    if gui:\n' >> configure.2
+printf '        makefile.write(\042\\tsed -e s/__XFM__/\042)\n' >> configure.2
+printf '        if xfm:\n' >> configure.2
+printf '            makefile.write(\042True\042)\n' >> configure.2
+printf '        else:\n' >> configure.2
+printf '            makefile.write(\042False\042)\n' >> configure.2
+printf '        makefile.write(\042/ passwdmangui.out > passwdmangui.out.out\\n\042)\n' >> configure.2
+printf '    if xfm:\n' >> configure.2
+printf '        makefile.write(\042\\tgunzip -c \044(srcdir)xfilemanager-*.tar.gz | tar -x\\n\042)\n' >> configure.2
+printf '        makefile.write(\042\\tcd xfilemanager* && ./configure \042)\n' >> configure.2
+printf '        if verbose:\n' >> configure.2
+printf '            makefile.write(\042--verbose \042)\n' >> configure.2
+printf '        makefile.write(\042 \042.join(xfm_options))\n' >> configure.2
+printf '        for x in dirs_set:\n' >> configure.2
+printf '            if x[\042name\042] != \042srcdir\042:\n' >> configure.2
+printf '                makefile.write(\042 --{}={}\042.format(x[\042name\042], x[\042value\042]))\n' >> configure.2
+printf '        makefile.write(\042\\n\\tcd xfilemanager* && make\\n\042)\n' >> configure.2
+printf '    makefile.write(\042\\ttouch all.made\\n\042)    #make all, made all, all.made\n' >> configure.2
 printf '    makefile.write(\042all : all.made\\n\042)          #The all target.\n' >> configure.2
 printf '\n' >> configure.2
 printf 'def maketarget_install():\n' >> configure.2
@@ -842,7 +866,7 @@ printf '    #Append more dependencies.\n' >> configure.2
 printf '    if cli:\n' >> configure.2
 printf '        makefile.write(\042 passwdmancli.out\042)#./shebang adds a \047.out\047 suffix.\n' >> configure.2
 printf '    if gui:\n' >> configure.2
-printf '        makefile.write(\042 passwdmangui.out \044(srcdir)passwdman.desktop\042)\n' >> configure.2
+printf '        makefile.write(\042 passwdmangui.out.out \044(srcdir)passwdman.desktop\042)\n' >> configure.2
 printf '    makefile.write(\042\\n\042)\n' >> configure.2
 printf '    install_file(\042passwdmanapi.py\042, \042\044(moduledir)/passwdmanapi.py\042, False)\n' >> configure.2
 printf '    if techdoc:\n' >> configure.2
@@ -855,10 +879,12 @@ printf '        install_file(\042passwdmancli.out\042, \042\044(bindir)/passwdma
 printf '        install_file(\042passwdmancli.1\042, \042\044(man1dir)/passwdmancli\044(man1ext)\042,\n' >> configure.2
 printf '                False)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
-printf '        install_file(\042passwdmangui.out\042, \042\044(bindir)/passwdmangui\042, True)\n' >> configure.2
+printf '        install_file(\042passwdmangui.out.out\042, \042\044(bindir)/passwdmangui\042, True)\n' >> configure.2
 printf '    if guidoc:\n' >> configure.2
 printf '        install_file(\042passwdmangui.1\042, \042\044(man1dir)/passwdmangui\044(man1ext)\042,\n' >> configure.2
 printf '                False)\n' >> configure.2
+printf '    if xfm:\n' >> configure.2
+printf '        makefile.write(\042\\tcd xfilemanager* && make install\\n\042)\n' >> configure.2
 printf '    makefile.write(\042\\t\044(POST_INSTALL)\\n\042)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
 printf '        Vmaj = VERSION.split(\042.\042)[0]\n' >> configure.2
@@ -874,6 +900,7 @@ printf '    \042\042\042maketarget_uninstall() - Add the \047uninstall\047 targe
 printf '    global makefile\n' >> configure.2
 printf '    v(\042Writing the \047uninstall\047 target...\042)\n' >> configure.2
 printf '    makefile.write(\042uninstall :\\n\042)\n' >> configure.2
+verbose Line 700...
 printf '    for x in installed_files:\n' >> configure.2
 printf '        makefile.write(\042\\t-rm \044(DESTDIR){}\\n\042.format(x))\n' >> configure.2
 printf '\n' >> configure.2
@@ -900,7 +927,6 @@ printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanfiles.{0}
 printf '\n' >> configure.2
 printf 'def maketarget_clean():\n' >> configure.2
 printf '    \042\042\042maketarget_clean() - Add \047clean\047 and \047maintainer-clean\047.\042\042\042\n' >> configure.2
-verbose Line 700...
 printf '    v(\042Writing the \047clean\047 target...\042)\n' >> configure.2
 printf '    makefile.write(\042clean :\\n\\t-rm *.made *.out configure.2\\n\042)\n' >> configure.2
 printf '    makefile.write(\042\\t-rm *.1.xml *.3.xml *.5.xml\\n\042)\n' >> configure.2
@@ -933,6 +959,8 @@ printf '    for x in (\042README\042, \042LICENSE\042, \042INSTALL\042, \042NEWS
 printf '                \042CREDITS\042, \042configure\042, \042FAQ\042):\n' >> configure.2
 printf '        makefile.write(\042\\tcp \044(srcdir){} passwdman-{}\\n\042.format(x, VERSION))\n' >> configure.2
 printf '    makefile.write(\042\\tcp \044(srcdir)passwdman.desktop passwdman-{}\\n\042.format(\n' >> configure.2
+printf '                                                                    VERSION))\n' >> configure.2
+printf '    makefile.write(\042\\t-cp xfilemanager-*.tar.gz passwdman-{}\\n\042.format(\n' >> configure.2
 printf '                                                                    VERSION))\n' >> configure.2
 printf '    makefile.write(\042\\ttar -cf passwdman-{0}.tar passwdman-{0}\042\n' >> configure.2
 printf '                        \042 \\n\\tgzip passwdman-{0}.tar\\n\042.format(VERSION))\n' >> configure.2
@@ -973,6 +1001,7 @@ printf '\n' >> configure.2
 printf '<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS\n' >> configure.2
 printf 'IS\042 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
 printf 'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n' >> configure.2
+verbose Line 800...
 printf 'ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n' >> configure.2
 printf 'LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n' >> configure.2
 printf 'CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n' >> configure.2
@@ -1001,7 +1030,6 @@ printf '        if n == \042passwdmanfiles\042:\n' >> configure.2
 printf '            makefile.write(\042\\tcat passwdmanfiles.xml | \042)\n' >> configure.2
 printf '            makefile.write(\042./passwdmanfiles.xml.fix >\042)\n' >> configure.2
 printf '            makefile.write(\042passwdmanfiles.xml.out\\n\042)\n' >> configure.2
-verbose Line 800...
 printf '            makefile.write(\042\\tmv passwdmanfiles.xml.out passwdmanfiles.xml\\n\042)\n' >> configure.2
 printf '        #html, pdf, ps\n' >> configure.2
 printf '        for fn, fc in ((\042html\042, \042xhtml-nochunks\042), (\042ps\042, \042--with-fop ps\042),\n' >> configure.2
@@ -1051,7 +1079,7 @@ printf '        {\042name\042: \042libdir\042, \042value\042: \042\044(exec_pref
 printf '        {\042name\042: \042applications\042, \042value\042: \042\044(datarootdir)/applications\042},\n' >> configure.2
 printf '        {\042name\042: \042srcdir\042, \042value\042: \042\042},\n' >> configure.2
 printf '        {\042name\042: \042DESTDIR\042, \042value\042: \042\042}]\n' >> configure.2
-printf 'cli = gui = guidoc = techdoc = True     #These 4 booleans will be used when\n' >> configure.2
+printf 'cli = gui = guidoc = techdoc = xfm = True     #These 4 booleans will be used when\n' >> configure.2
 printf '                                        #generating Makefile.\n' >> configure.2
 printf 'verbose = False\n' >> configure.2
 printf 'moduledir = None        #Handle it later, it takes a long time to du /\n' >> configure.2
@@ -1060,8 +1088,9 @@ printf 'dirs_final = []         #The directory variables to use.\n' >> configure
 printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
+printf 'xfm_options = []\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.2.9\042\n' >> configure.2
+printf 'VERSION = \0420.3\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2
@@ -1073,6 +1102,7 @@ printf '    maketarget_install()\n' >> configure.2
 printf '    maketarget_uninstall()\n' >> configure.2
 printf '    maketarget__doc_(\042html\042)\n' >> configure.2
 printf '    maketarget__doc_(\042pdf\042)\n' >> configure.2
+verbose Line 900...
 printf '    maketarget__doc_(\042ps\042)\n' >> configure.2
 printf '    maketarget__doc_(\042dvi\042)\n' >> configure.2
 printf '    maketarget_clean()\n' >> configure.2

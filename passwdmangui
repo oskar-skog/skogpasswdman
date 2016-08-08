@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from gi.repository import Gtk, Gdk
 import passwdmanapi as api
-import os.path
+import os, os.path
 import tarfile
 
 copywrong = """Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
@@ -639,17 +639,24 @@ class conf_tab_c(Gtk.Box):
     """class conf_tab_c(Gtk.Box)
     Used by main_window()."""
     def __init__(self, arg=None):
+        global rm_unredo_button
         """__init__(self, arg=None)"""
         self.parent = arg
         Gtk.Box.__init__(self, orientation = Gtk.Orientation.VERTICAL)
         info_label = Gtk.Label("Changes are saved immediately.")
         main_grid = Gtk.Grid()
-        
         self.show_passwd_switch = Gtk.Switch()
         self.show_passwd_switch.connect("notify::active", self.update_conf)
         self.show_passwd_switch.set_active(self.parent.show_passwd)
         main_grid.attach(Gtk.Label("Show passwords:"), 0, 0, 1, 1)
         main_grid.attach(self.show_passwd_switch, 1, 0, 1, 1)
+        if rm_unredo_button:
+            rmundo = Gtk.Button("Edit history of done and redone things.")
+            rmredo = Gtk.Button("Edit history of undone things.")
+            rmundo.connect("clicked", self.rmundo_action)
+            rmredo.connect("clicked", self.rmredo_action)
+            main_grid.attach(rmundo, 0, 2, 2, 1)
+            main_grid.attach(rmredo, 0, 3, 2, 1)
         self.pack_start(info_label, False, False, 5)
         self.pack_start(main_grid, False, False, 5)
     def update_conf(self, switch, gparam):
@@ -677,6 +684,10 @@ class conf_tab_c(Gtk.Box):
         restart = True
         Gtk.main_quit()
         return          #What might happen now?
+    def rmundo_action(self, button):
+        os.system("xfilemanager ~/.passwdman/undoable")
+    def rmredo_action(self, button):
+        os.system("xfilemanager ~/.passwdman/redoable")
         
 class about_tab_c(Gtk.Box):
     """class about_tab_c(Gtk.Box)"""
@@ -788,12 +799,15 @@ class main_window(Gtk.Window):
         button_quit.connect("clicked", Gtk.main_quit)
         button_backup = Gtk.Button("Make backup")
         button_backup.connect("clicked", self.make_backup)
+        button_clear = Gtk.Button("Clear clipboard")
+        button_clear.connect("clicked", self.clear_clipboard)
         
         box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
         box2.pack_start(button_undo, False, False, 5)
         box2.pack_start(button_redo, False, False, 5)
         box2.pack_start(button_backup, False, False, 10)
         box2.pack_end(button_quit, False, False, 5)
+        box2.pack_end(button_clear, False, False, 10)
         
         box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         box1.pack_start(tabs, True, True, 5)
@@ -872,8 +886,14 @@ class main_window(Gtk.Window):
             dialog2.run()
             dialog2.destroy()
         dialog.destroy()
+    def clear_clipboard(self, button):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        x = "EMPTY"
+        clipboard.set_text(x, len(x))
+        clipboard.store()
 if __name__ == "__main__":
     restart = False
+    rm_unredo_button = __XFM__
     w = main_window()
     Gtk.main()
     try:

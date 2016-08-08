@@ -1,3 +1,12 @@
+0.3 is here.
+    *   HTML docs validates.
+    *   Edit history buttons.
+    *   Clear clipboard button.
+    *   in configure.2: getmoduledir() picks newest 2.*.
+    *   Single change mode for the CLI. 2 undos undoes everything.
+    *   passwd.add_nometa() doesn't add meta-data to the file.
+    *   In configure: --update works without argument.
+
 0.2 is here.
     *   All Docbook XML generates good HTML, but passwdmanapi.xml requires
         --skip-validation.
