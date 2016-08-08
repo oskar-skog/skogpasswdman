@@ -29,7 +29,7 @@ Variables/options (for configure):
     --noguidoc
     --nocli
     --notechdoc         passwdmanfiles, passwdmanapi
-    --halt              See README
-    --update            See README
+    --halt              do nothing.
+    --update            See 'configure.2'.
     --help              list things that are not used.
     --verbose

@@ -1,0 +1,10 @@
+0.2 is here.
+    *   All Docbook XML generates good HTML, but passwdmanapi.xml requires
+        --skip-validation.
+    *   More scrollbars.
+    *   A "Make backup"-button.
+    *   PDF and postscript documentation (papersize = A4).
+    *   Better looking data files.
+    *   Better makefile.
+    *   Useful CLI. You need to specify the -i, --interactive to enable undo,
+        redo and survive errors.

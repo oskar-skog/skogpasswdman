@@ -1,4 +1,5 @@
-2013-Nov-18
+2013-Nov-18     Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2     Wrote NEWS.
 0.1.22  All __doc__-strings contain a synopsis for their function or are freed
         from having it by their parent class/file.
 0.1.21  Improvements in passwdmanapi:
