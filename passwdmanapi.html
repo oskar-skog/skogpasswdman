@@ -254,6 +254,12 @@ must be a string and
 and
 <code class="varname">m_maxlength</code>
 can be either an integer or a stringed integer).
+add()
+allows
+<code class="varname">value</code>
+to be
+<code class="constant">None</code>
+which will make it randomize a value automatically.
 Raises
 <span class="errorcode">err_duplicate</span>.</p><p>passwd.remove()
 removes the password
@@ -372,7 +378,7 @@ is raised when neither
 <span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>
 or
 <span class="citerefentry"><span class="refentrytitle">urandom</span>(4)</span>
-can be opened.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>open_rng()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li></ul></div><p><span class="errorcode">err_nolength</span>
+can be opened.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>open_rng()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li><li class="listitem" style="list-style-type: disc"><p>randomize()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li></ul></div><p><span class="errorcode">err_nolength</span>
 is raised when a function is called with an invalid length.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>get64()</p></li><li class="listitem" style="list-style-type: disc"><p>get10()</p></li><li class="listitem" style="list-style-type: disc"><p>getint()</p></li></ul></div><p><span class="errorcode">err_loaderr</span>
 is raised if data cannot be loaded from file.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>common_data()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot()</p></li></ul></div><p><span class="errorcode">err_notfound</span>
 is raised if index is out of range or if it cannot find a match.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>common_data.remove()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.remove()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.mkindex()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.remove()</p></li></ul></div><p><span class="errorcode">err_duplicate</span>
@@ -380,7 +386,7 @@ is raised if it is attempted to add a password with the same name as another
 or if its is attempted to add a honeypot with the same value as another.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add_nometa()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.add()</p></li></ul></div><p><span class="errorcode">err_idiot</span>
 is raised if the function was not used correctly.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>passwd.update_meta()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pick()</p></li><li class="listitem" style="list-style-type: disc"><p>honeypot.pickl()</p></li><li class="listitem" style="list-style-type: disc"><p>undo()</p></li><li class="listitem" style="list-style-type: disc"><p>redo()</p></li></ul></div><p><span class="errorcode">err_nometa</span>
 is raised when meta-data is required, but the meta-data was nonexistent,
-corrupt or no good.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li></ul></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
+corrupt or no good.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>randomize()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.add()</p></li><li class="listitem" style="list-style-type: disc"><p>passwd.update()</p></li></ul></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
 is the XML file containing the passwords and their meta-data.</p><p><code class="filename">~/.passwdman/honeypots</code>
 is the XML file containing the honeypots.</p><p><code class="filename">~/.passwdman/undoable/</code>
 is where the auto-generated backups live.</p><p><code class="filename">~/.passwdman/redoable/</code>

@@ -508,12 +508,7 @@ def passwd_tab(x):
                 if ch == 27:
                     return
         busy()
-        if mode == "10":
-            value = api.get10(api.getint(minlen, maxlen + 1))
-        else:
-            assert mode == "64"
-            value = api.get64(api.getint(minlen, maxlen + 1))
-        p.add(name, value, mode, minlen, maxlen)
+        p.add(name, None, mode, minlen, maxlen)
     if x == 6:
         #Remove.
         p.remove(selection)

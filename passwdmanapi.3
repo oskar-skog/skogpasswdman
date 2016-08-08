@@ -354,6 +354,12 @@ must be a string and
 and
 .Va m_maxlength
 can be either an integer or a stringed integer).
+.Fn add
+allows
+.Va value
+to be
+.Dv None
+which will make it randomize a value automatically.
 Raises
 .Er err_duplicate .
 .Pp
@@ -504,6 +510,10 @@ can be opened.
 .It
 .Fn getint
 .It
+.Fn randomize
+.It
+.Fn passwd.add
+.It
 .Fn passwd.update
 .It
 .Fn passwd.update_meta
@@ -583,6 +593,10 @@ is raised if the function was not used correctly.
 is raised when meta-data is required, but the meta-data was nonexistent,
 corrupt or no good.
 .Bl -bullet
+.It
+.Fn randomize
+.It
+.Fn passwd.add
 .It
 .Fn passwd.update
 .El

@@ -391,6 +391,12 @@ must be a string and
 and
 <varname>m_maxlength</varname>
 can be either an integer or a stringed integer).
+add()
+allows
+<varname>value</varname>
+to be
+<constant>None</constant>
+which will make it randomize a value automatically.
 Raises
 <errorcode>err_duplicate</errorcode>.</para>
 
@@ -550,6 +556,12 @@ can be opened.</para>
 <para>getint()</para>
 </listitem>
 <listitem>
+<para>randomize()</para>
+</listitem>
+<listitem>
+<para>passwd.add()</para>
+</listitem>
+<listitem>
 <para>passwd.update()</para>
 </listitem>
 <listitem>
@@ -653,6 +665,12 @@ is raised if the function was not used correctly.</para>
 is raised when meta-data is required, but the meta-data was nonexistent,
 corrupt or no good.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
+<listitem>
+<para>randomize()</para>
+</listitem>
+<listitem>
+<para>passwd.add()</para>
+</listitem>
 <listitem>
 <para>passwd.update()</para>
 </listitem>

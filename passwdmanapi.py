@@ -29,41 +29,27 @@ __doc__ = """passwdmanapi - functions and classes used by passwdman
     """
 SYNOPSIS = """
     is_anystr(x) is_bytestr(x) is_int(x) is_num(x) is_unicodestr(x) u(x) b(x)
-    class passwdmanapi.passwd(common_data)      Loads and modifies the XML
-                                                '~/.passwdman/passwords'.
-    class passwdmanapi.honeypot(common_data)    Loads and modifies the XML
-                                                '~/.passwdman/honeypots'.
-    class passwdmanapi.common_data()        Class defining lots of stuff...
-                                    ...passwd() and honeypot() have in common.
-    def get10(length)                           Return base10 string. Digits.
-    def get64(length)                       Return base64 string. Big letters,
-                                            small letters, exclamation marks
-                                            and underscores.
-    def getint(a, b)                            a <= random integer < b.
-    def open_rng()                              Returns a file-descriptor to
-                                                /dev/random or '/dev/urandom'.
-    def unquote(x)                          Returns x without optional quotes.
-    def undo(passwdobj,honeypotobj)         Undoes the latest change. Requires
-                                            objects of both classes.
-    def redo(passwdobj,honeypotobj)             Look at undo.
+    class passwdmanapi.passwd(common_data)
+    class passwdmanapi.honeypot(common_data)
+    class passwdmanapi.common_data()
+    def get10(length) def get64(length) def getint(a, b)
+    def open_rng()
+    def unquote(x)
+    def randomize(method, minlength, maxlength)
+    def undo(passwdobj,honeypotobj) def redo(passwdobj,honeypotobj)
 """
 EXCEPTIONS = """
     They have their own __doc__-strings.
-    class err_norandom(Exception)               open_rng(), get*(),
-                                                passwd.update*(),
-                                                honeypot.pick*(),       $
-    class err_nolength(Exception)               get10(), get64(), getint()
-    class err_loaderr(Exception)          passwd(), honeypot(), common_data(),
-    class err_notfound(Exception)               *.remove(), passwd.update*()
-                                                passwd.mkindex()        $
-    class err_duplicate(Exception)          passwd.add() honeypot.add()
-                                                passwd.add_nometa()     $
-    class err_idiot(Exception)              {un,re}do(), passwd.update_meta(),
-                                                honeypot.pick*()        $
-    class err_nometa(Exception)                 passwd.update()
+    class err_norandom(Exception)
+    class err_nolength(Exception)
+    class err_loaderr(Exception)
+    class err_notfound(Exception)
+    class err_duplicate(Exception)
+    class err_idiot(Exception)
+    class err_nometa(Exception)
 """
 NOTES = """
-    What I call strings are really 'unicode'. Unicode is supported. (UTF-8)
+    What I call strings are really 'unicode' in Python 2.x.
     Unless written otherwise, <xmlfile> is a path. In get10() and get64(),
     <length> must be an integer, not a string.
     passwd.xmltree, honeypot.xmltree, common_data.xmltree are class
@@ -214,9 +200,9 @@ ERRORS
 def get64(length):
     """get64(length)
     Returns a random string containing A-Z a-z 0-9 underscore and
-    exclamation mark, with the length <length>.
+    exclamation mark, with the length `length`.
 ERRORS
-    err_nolength(Exception)             Invalid <length>.
+    err_nolength(Exception)             Invalid `length`.
     err_norandom                        open_rng()
     """
     # rng        The random number generator '/dev/random'.
@@ -250,7 +236,7 @@ ERRORS
 
 def get10(length):
     """get10(length)
-    Returns a random string containing 0-9, with the length <length>.
+    Returns a random string containing 0-9, with the length `length`.
     Raises the same exceptions as get64().
     """
     # rng        The random number generator '/dev/random'.
@@ -283,7 +269,8 @@ def get10(length):
     return u(passwd)
 
 def getint(a, b):
-    """getint(a, b) - Return random integer with value a from <a> to <b> - 1.
+    """getint(a, b)
+    Return random integer with value a from `a` to `b` - 1.
     """
     assert is_int(a) and is_int(b)
     if b < a:
@@ -580,7 +567,8 @@ class passwd(common_data):
                               "meta": meta_attrib})
     # Will not add __setitem__.
     def add(self, name, value, m_type, m_minlength, m_maxlength):
-        assert is_unicodestr(name) and is_unicodestr(value)
+        assert is_unicodestr(name)
+        assert is_unicodestr(value) or value is None
         assert is_anystr(m_type)
         """add(self, name, value, m_type, m_minlength, m_maxlength)
         Add the password for <name> with the value <value>.
@@ -602,6 +590,8 @@ class passwd(common_data):
             if x["name"] == name:
                 raise err_duplicate(
                     "passwd.add_nometa(name='{0}') #duplicate".format(value))
+        if value is None:
+            value = randomize(m_type, int(m_minlength), int(m_maxlength))
         self.data.append({"name": name, "value": value,
                       "meta": {"type": m_type, "minlength": m_minlength,
                                                "maxlength": m_maxlength}})

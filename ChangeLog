@@ -1,4 +1,7 @@
 2014-01-11      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.15
+    * passwdmanapi.py (passwd.add): Allows value to be None. That will make
+        it randomize a value automatically.
 0.3.14
     * passwdmanapi.py (undo, redo): Moved the actual code into _unredo().
     * passwdmanapi.py (passwd (update, update_meta)): Removed unnecessary

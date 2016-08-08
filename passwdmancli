@@ -307,18 +307,15 @@ def passwd_add(x):
         return
     elif "10" in add_type:
         try:            #Use digits only.
-            p.add(add_name, api.get10(api.getint(add_min, add_max + 1)), 
-                  "10", str(add_min), str(add_max))
+            p.add(add_name, None, "10", str(add_min), str(add_max))
         except api.err_duplicate:
             err("duplicate")
             return
         v("Added base10 password.")
         return
-    elif "64" in add_type:      #WARNING: Copy-pasted from 'elif "10"...'
-        #                        and hand-hacked '10'->'64'.
-        try:    #A-Z a-z '_' '!'
-            p.add(add_name, api.get64(api.getint(add_min, add_max + 1)), 
-                  "64", str(add_min), str(add_max))
+    elif "64" in add_type:
+        try:
+            p.add(add_name, None, "64", str(add_min), str(add_max))
         except api.err_duplicate:
             err("duplicate")
             return
