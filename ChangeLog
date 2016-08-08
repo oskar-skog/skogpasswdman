@@ -1,3 +1,9 @@
+2014-01-26      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.5
+    * passwdmanapi.py: parse_text() and friends.
+    * passwdmancli, passwdmanrli: Use parse_text().
+    * man-pages -> all other docs: Documented misleading word: honeypot.
+
 2014-01-21      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.4.4
     * passwdmancli: Wrote a parser() function to get rid of some ad-hoc code.

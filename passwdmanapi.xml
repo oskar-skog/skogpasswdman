@@ -618,6 +618,8 @@ and
 
 <refsect2 id='class_honeypotcommon_data2'><title>class honeypot(common_data)</title>
 <para>The honey pots are weak passwords supposed to only be used as traps.
+It was a poor choice of name, but it grew legs and glued its feet to the
+ground.
 honeypot()
 loads its data from the XML
 <filename>~/.passwdman/honeypots</filename>.

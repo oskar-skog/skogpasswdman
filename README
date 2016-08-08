@@ -3,7 +3,7 @@ Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
 Read the file 'LICENSE' (2-clause BSD)
 
 passwdman is a program for remembering and updating passwords. It also
-remembers honey-pots (fake-passwords to catch crackers).
+remembers fake-passwords to catch crackers.
 
 It stores the passwords and honey-pots in XML files, so they can be read with
 a normal text-editor (normal for unix), depending on the user.
@@ -11,7 +11,7 @@ a normal text-editor (normal for unix), depending on the user.
 It has infinite undo/redo by making backups of the files. It supports Unicode.
 
 The XML files are not encrypted, so that you don't need to remember an extra
-password.       If you want encryption you should encrypt the whole /home.
+password.
 
 It can remember old human-generated passwords, create new passwords (base10
 or a variant of base64) with randomized length, update passwords and obviously
@@ -30,4 +30,8 @@ an ed pattern and it will tell which command generated the output.
 
 BUGS:
     Sometimes the "Quit"-button must be clicked 3 times.
+    
     The --single-backup option in the CLI actually requires 2 undos.
+    
+    'honeypot' was a poor choice of name, but it grew legs and glued its feet
+    to the ground.   The fake-passwords.

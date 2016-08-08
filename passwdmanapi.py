@@ -494,6 +494,293 @@ class progress_bar():
             self.function,
             self.data)
 
+def parsetext_getvalue(s, *args):
+    '''
+    getvalue(self, s)
+    
+    What is `s`?
+    
+    Single quoted: string
+    Triple quoted: string
+    int, float, complex
+    True, False, None
+    variable defined in the dicts args
+    
+    
+    '''
+    # Remove leading whitespace.
+    # Numbers
+    # Variable
+    for i, c in enumerate(s):
+        if c not in ' \t':
+            break
+    s = s[i:]
+    # Strings.
+    for n, sq, dq in [(3, "'''", '"""'), (1, "'", '"')]:
+        if len(s) >= n * 2:
+            if s[:n] in (sq, dq) and s[:n] == s[-n:]:
+                return re.sub('\x01', "'", re.sub('\x02', '"', s[n:-n]))
+    # Numbers.
+    numlist = []
+    numtypes = ('int', 'float', 'complex')
+    for x in numtypes:
+        try:
+            v = eval('{0}("{1}")'.format(x, s))
+        except ValueError:
+            v = None
+        numlist.append(v)
+    # Choose the simplest.
+    b = numlist[-1]
+    for a in reversed(numlist[:-1]):
+        if a != b:
+            break
+        b = a
+    if b != None:
+        return b
+    # Variables
+    # None, True and False are added to the list of variables.
+    # It is only used internally, so eval() is not a big risk.
+    final = {}
+    for x in reversed(args):
+        for y in x:
+            try:
+                final[y]
+            except KeyError:
+                final[y] = x[y]
+    try:
+        return eval(s, final)
+    except:
+        raise SyntaxError('parsetext_getvalue: What is `{0}` ?'.format(s))
+
+def parsetext_untext(text):
+    '''
+    for indent, line in untext(self, text)
+    
+    `indent` is an integer.
+    `line` is a string.
+    
+    Escapes are translated.
+    
+    Triple quoted strings have all of their lines joined with
+    newlines into a single output-line.
+    
+    chr(1) is an escaped single quote.
+    chr(2) is an escaped double quote.
+    chr(3) is temporarily triple-single quote
+    chr(4) is temporarily triple-double quote
+    
+    Comments, blank lines and trailing whitespace are removed.
+    '''
+    badbad = [(1, 'SOH'), (2, 'STX'), (3, 'ETX'), (4, 'EOT')]
+    for x in text:
+        for y, s in badbad:
+            if x == y:
+                raise SyntaxError(
+                            'parsetext_untext: Choked on a {0}'.format(s))
+    # Backslash-newline.
+    skip = False
+    tmp_text = ''
+    for i, c in enumerate(text):
+        if skip:
+            skip = False
+            continue
+        if c == '\\':
+            skip = True
+            if text[i + 1] != '\n':
+                tmp_text += text[i:i + 2]
+        else:
+            tmp_text += c
+    # Triple quotes.
+    text = re.sub("'''", chr(3), re.sub('"""', chr(4), tmp_text))
+    tmp_text = ''
+    quote = ''
+    for c in text:
+        if c == quote:
+            # End-quote.
+            if quote == chr(3):
+                tmp_text += "'''"
+            else:
+                tmp_text += '"""'
+            quote = ''
+        elif c in (chr(3), chr(4)):
+            # Start quote.
+            if c == chr(3):
+                tmp_text += "'''"
+            else:
+                tmp_text += '"""'
+            quote = c
+        elif quote:
+            # Quoted.
+            if c == '\n':
+                tmp_text += '\\n'
+            else:
+                tmp_text += c
+        else:
+            tmp_text += c
+    # Lines and escapes.
+    raw_lines = tmp_text.split('\n')
+    escaped_lines = []
+    del text
+    del tmp_text
+    escapes = {
+        '\\': '\\',
+        'n': '\n',
+        "'": chr(1),
+        '"': chr(2),
+        't': '\t'
+    }
+    for line in raw_lines:
+        skip = False
+        tmp_line = ''
+        for i, c in enumerate(line):
+            if skip:
+                skip = False
+                continue
+            if c == '\\':
+                skip = True
+                try:
+                    tmp_line += escapes[line[i + 1]]
+                except KeyError:
+                    raise SyntaxError(
+                            "parsetext_untext: Unknown escape '{0}'".format(
+                                                        '\\' + line[i + 1]))
+            else:
+                tmp_line += c
+        escaped_lines.append(tmp_line)
+    # Comments.
+    uncommented_lines = []
+    quote = ''
+    for line in escaped_lines:
+        for i, c in enumerate(line):
+            if quote:
+                if c == quote:
+                    quote = ''
+                    continue
+            else:
+                if c in ('"', "'"):
+                    quote = c
+                    continue
+                if c == '#':
+                    uncommented_lines.append(line[:i])
+                    break
+        else:
+            uncommented_lines.append(line)
+    del escaped_lines
+    # Blanks.
+    nonblanks = []
+    for line in uncommented_lines:
+        for c in line:
+            if c not in '\t ':
+                nonblanks.append(line)
+                break
+    del uncommented_lines
+    # Remove trailing whitespace.
+    trailfree = []
+    for line in nonblanks:
+        stop = 0
+        for i, c in enumerate(line):
+            if c not in '\t ':
+                stop = i
+        trailfree.append(line[:stop + 1])
+    del nonblanks
+    # Calculate indentation.
+    final = []
+    for line in trailfree:
+        indent = 0
+        for i, c in enumerate(line):
+            if c == ' ':
+                indent += 1
+            elif c == '\t':
+                indent += 8 - indent%8
+            else:
+                break
+        final.append((indent, line[i:]))
+    return final
+
+def parsetext_list(text_list, *args):
+    ret = []
+    list_item = []
+    dict_item = {}
+    normal_indent = None
+    while True:
+        # Get line.
+        try:
+            indent, line = text_list.pop(0)
+        except IndexError:
+            return ret
+        if normal_indent is None:
+            normal_indent = indent
+        if indent != normal_indent:
+            text_list.insert(0, (indent, line))
+        if indent > normal_indent:
+            list_item.append(parsetext_list(text_list))
+            continue
+        if indent < normal_indent:
+            return ret
+        
+        # Next item in list.
+        if line[0] == '%':
+            if dict_item and list_item:
+                raise SyntaxError('dict and list hybrid not invented\n' +
+                    'You are not expected to understand this:' +
+                    ' len(ret), indent = {0}, {1}'.format(len(ret), indent))
+            if list_item:
+                ret.append(list_item)
+            else:
+                ret.append(dict_item)
+            list_item = []
+            dict_item = {}
+            continue
+        
+        # dict or list?
+        allowed = ''.join([
+                    ''.join([chr(x) for x in range(ord('0'), ord('9') + 1)]),
+                    ''.join([chr(x) for x in range(ord('A'), ord('Z') + 1)]),
+                    ''.join([chr(x) for x in range(ord('a'), ord('z') + 1)]),
+                    '-_'
+                ])
+        for c in line:
+            if c == ':':
+                # dict
+                break
+            if c not in allowed:
+                # list.
+                break
+        if c == ':':
+            key, value = line.split(':', 1)
+            if value:
+                dict_item[key] = parsetext_getvalue(value, *args)
+            else:
+                # value is a list.
+                try:
+                    a, b = text_list.pop(0)
+                except IndexError:
+                    raise SyntaxError(
+                                '{0}: Expected a list, got an ^D'.format(key))
+                if not a > indent:
+                    raise SyntaxError("{0}: The list isn't indented".format(
+                                                                        key))
+                text_list.insert(0, (a, b))
+                dict_item[key] = parsetext_list(text_list, *args)
+        else:
+            list_item.append(parsetext_getvalue(line, *args))
+
+def parse_text(inp, *args):
+    args = list(args)
+    args.append({
+        'True': True,
+        'False': False,
+        'None': None
+        })
+    args = tuple(args)
+    text_list = parsetext_untext(inp)
+    try:
+        return parsetext_list(text_list, *args)
+    except SyntaxError as e:
+        raise SyntaxError(
+            'From parse_text:\n{0}\nIndent:{1}\nLine:{2}'.format(
+                                                        e, *text_list[0]))
+
 class common_data():
     """class common_data():
     

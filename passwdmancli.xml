@@ -126,7 +126,11 @@ exclamation marks.</para>
 </varlistentry>
 </variablelist>
 
-<para>The honeypots are weak passwords intended to be used as traps.</para>
+<para>The
+"honeypots"
+are weak passwords intended to be used as traps.
+It was a poor choice of name, but it grew legs and glued its feet to the
+ground.</para>
 
 <para>WARNING: If a command accepts a
 <varname>name</varname>
