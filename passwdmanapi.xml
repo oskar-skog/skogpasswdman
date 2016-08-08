@@ -151,8 +151,7 @@ and
 <para>unquote();
 returns the string
 <varname>x</varname>
-without its surrounding quotes.
-BUGGY.</para>
+without its surrounding quotes.</para>
 
 <para>undo();
 undoes the latest change to the password list or honey pot list, by restoring
@@ -506,11 +505,6 @@ corrupt or no good.</para>
 <para>passwd.update();</para>
 </listitem>
 </itemizedlist>
-</refsect1>
-
-<refsect1 id='bugs'><title>BUGS</title>
-<para>unquote();
-forgets about everything behind the second quote.</para>
 </refsect1>
 
 <refsect1 id='files'><title>FILES</title>

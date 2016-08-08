@@ -16,11 +16,15 @@
        h1      { text-align: center }
 </style>
 <!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Sun Nov 10 23:04:03 2013 -->
-<!--
-<p style="margin-top: 1em"><b>&bull;</b></p>
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<!-- CreationDate: Tue Nov 12 17:39:20 2013 -->
+
+
+<!--hand-hacked 
+    <p style="margin-top: 1em"><b>&bull;</b></p>
+to
+    <p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
 -->
+<!--passwdman-->
 <!-- Copyright (c) 2013, Oskar Skog
 All rights reserved. -->
 
@@ -144,8 +148,8 @@ Raises err_norandom and err_nolength.</p>
 
 
 <p style="margin-left:6%; margin-top: 1em"><b>unquote</b>()
-returns the string <i>x</i> without its surrounding quotes.
-BUGGY.</p>
+returns the string <i>x</i> without its surrounding
+quotes.</p>
 
 <p style="margin-left:6%; margin-top: 1em"><b>undo</b>()
 undoes the latest change to the password list or honey pot
@@ -419,12 +423,8 @@ nonexistent, corrupt or no good.</p>
 
 <p style="margin-left:12%;"><b>passwd.update</b>()</p>
 
-<p style="margin-top: 1em"><b>BUGS</b></p>
-
-<p style="margin-left:6%;"><b>unquote</b>() forgets about
-everything behind the second quote.</p>
-
-<p style="margin-top: 1em"><b>FILES</b></p>
+<p style="margin-top: 1em"><b>BUGS <br/>
+FILES</b></p>
 
 <p style="margin-left:6%;"><i>~/.passwdman/passwords</i> is
 the XML file containing the passwords and their

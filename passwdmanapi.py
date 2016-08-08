@@ -214,9 +214,9 @@ def getint(a, b):
     rng.close()
     return number + a
 
-def unquote(x):
+def unquote_buggy(x):
     """remove quotes from string, if any
-    BUGGY"""
+    BUGGY, called by unquote()"""
     c, quote, output = "", "", ""
     for index in range(len(x)):
         c = x[index]
@@ -233,6 +233,26 @@ def unquote(x):
         else:
             output += c
     return x                    #not terminated
+
+def unquote(x):
+    """returns x without surrounding quotes"""
+    #check if quoted and ends with optional whitespace
+    quote = ""
+    for c in x:
+        if c in string.whitespace:              #whitespace
+            continue
+        elif quote == "" and c == "'":          #begin
+            quote = "'"
+        elif quote == "" and c == '"':          #begin
+            quote == '"'
+        elif c == quote:                        #end
+            quote = ""
+        elif quote in "\"'":                    #quoted text
+            continue
+        elif quote == "":                       #the string is not quoted
+            return x
+    else:
+        return unquote_buggy(x)
 class common_data():
     """self.data[]      password-records or honey pots
     self.index   used in for loops
