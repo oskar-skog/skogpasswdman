@@ -1,4 +1,7 @@
 2014-01-14      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.24
+    * passwdmanrli (show_copy_single): Wider end-of-line marker.
+    * passwdmanrli (passwd_tab, honeypot_tab): Code -> data.
 0.3.23
     * passwdmanrli: Use wrappers for the curses functions and center_text,
         let them have a 'DEBUG'-mode.

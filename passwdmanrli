@@ -597,146 +597,6 @@ def vdictui(arg):
         # Keep where in range.
         where %= wrap
 
-def passwd_tab(x):
-    """passwd_tab(x)
-    x (integer) is the action to be performed on a password.
-    See also choice.__doc__ and after_update.__doc__.
-    """
-    assert x >= 1 and x < 7
-    if x < 4 or x == 6:
-        selection = choice(False)
-        if isinstance(selection, bool):
-            assert selection == False
-            return      # Will never return True.
-    if x == 1:
-        # Show/copy password.
-        show_copy_single(p[selection]["value"])
-    if x == 2:
-        # Update.
-        pb = rli_progressbar()
-        old = p[selection]["value"]
-        p.update(selection, pb)
-        new = p[selection]["value"]
-        after_update(old, new)
-    if x == 3:
-        # Change meta-data and update.
-        if p[selection]["meta"]["type"] in ("10", "64"):
-            minlen = int(p[selection]["meta"]["minlength"])
-            maxlen = int(p[selection]["meta"]["maxlength"])
-        else:
-            assert p[selection]["meta"]["type"] == "human"
-            minlen = maxlen = 8
-        result = vdictui([
-            {
-                'type': 'text',
-                'value': 'Minimal required length'
-            }, {
-                'type': 'edit_num',
-                'name': 'min',
-                'value': minlen,
-                'min': 1
-            }, {}, {
-                'type': 'text',
-                'value': 'Maximal allowed length'
-            }, {
-                'type': 'edit_num',
-                'name': 'max',
-                'value': maxlen,
-                'min': 1
-            }, {}, {
-                'type': 'text',
-                'value': "Big & small letters, digits, '!', '_'"
-            }, {
-                'type': 'button',
-                'name': '64',
-                'value': 'OK'
-            }, {}, {
-                'type': 'text',
-                'value': 'Digits only'
-            }, {
-                'type': 'button',
-                'name': '10',
-                'value': 'OK'
-            }])
-        if result["button"] == "back":
-            return
-        pb = rli_progressbar()
-        old = p[selection]["value"]
-        #BUG TODO stop user from having minlength > maxlength.
-        p.update_meta(selection, result["button"],
-                                        result["min"], result["max"], pb)
-        new = p[selection]["value"]
-        after_update(old, new)
-    if x == 4:
-        result = vdictui([
-            {
-                'type': 'text',
-                'value': 'What is the password for?'
-            }, {
-                'type': 'edit_line',
-                'name': 'name'
-            }, {}, {
-                'type': 'text',
-                'value': 'What is the password?'
-            }, {
-                'type': 'edit_line',
-                'name': 'value'
-            }, {}, {
-                'type': 'button'
-            }])
-        if result["button"] == "back":
-            return
-        p.add_nometa(result["name"], result["value"])
-    if x == 5:
-        # Create new.
-        result = vdictui([
-            {
-                'type': 'text',
-                'value': 'What is the password for?'
-            }, {
-                'type': 'edit_line',
-                'name': 'name'
-            }, {}, {
-                'type': 'text',
-                'value': 'Minimal required length'
-            }, {
-                'type': 'edit_num',
-                'name': 'minlen',
-                'value': 8,
-                'min': 1
-            }, {}, {
-                'type': 'text',
-                'value': 'Maximal allowed length'
-            }, {
-                'type': 'edit_num',
-                'name': 'maxlen',
-                'value': 8,
-                'min': 1
-            }, {}, {
-                'type': 'text',
-                'value': "Big & small letters, digits, '!', '_'"
-            }, {
-                'type': 'button',
-                'name': '64',
-                'value': 'OK'
-            }, {}, {
-                'type': 'text',
-                'value': 'Digits only'
-            }, {
-                'type': 'button',
-                'name': '10',
-                'value': 'OK'
-            }])
-        if result == "back":
-            return
-        pb = rli_progressbar()
-        #BUG TODO stop user from having minlength > maxlength.
-        p.add(result["name"], None, result["button"], result["minlen"],
-                                                        result["maxlen"], pb)
-    if x == 6:
-        # Remove.
-        p.remove(selection)
-
 def show_copy_single(s, head=None):
     """show_copy_single(s)
     Show a string and let the user copy it to clipboard.
@@ -751,7 +611,7 @@ def show_copy_single(s, head=None):
     if '\n' not in s:
         # Wrap into lines.
         L, i, n = [], 0, len(s)
-        line_length = xsize - 2
+        line_length = xsize - 4
         if line_length > 50:
             line_length = 50
         # Enough for end-of-line markers, but not too unreadably long lines.
@@ -763,7 +623,7 @@ def show_copy_single(s, head=None):
                 L.append(tmp)
             i += line_length
         #L.append('')
-        s2 = '##\n'.join(L)
+        s2 = '####\n'.join(L)
         del L
         del tmp
     wrap_erase()
@@ -777,83 +637,319 @@ def show_copy_single(s, head=None):
         roll_text(0, ysize - 2, s2, extra_input_handler=local_ch_handler)
     # roll_text() calls wrap_refresh().
 
+def list_choice_to_vdictui(choice_arg, x, data):
+    """list_choice_to_vdictui(choice_arg, x, data)
+    
+    The code of `passwd_tab` and `honeypot_tab`.
+    `choice_arg` is the argument to give to `choice`.
+    `x` is the alias for the list_choice-button. See `hdictui`.
+    `data` is a list of dicts.
+    
+    
+    Keys in the dicts in data
+    =========================
+    
+        - 'id'          Required.  Do thing if the value of this is the
+                        same as `x`.
+        - 'opt'         Optional. Tuple of two strings or a string
+                        (recommended).
+                        Possible strings:
+                        -----------------
+                            
+                            - 'choice'          Call `choice` and set
+                                                the variable `selection`
+                                                to the return value.
+                            - 'progress-bar'    Progress-bar.  Create
+                                                the object `pb`.
+        - 'pre-ui-code'         Optional.  Code to be executed before
+                                vdictui().
+        - 'post-ui-code'        Optional.  Code to be executed after
+                                vdictui().
+        - 'ui'                  Optional.  String.  The argument to be
+                                given to `vdictui`.
+                                `list_choice_to_vdictui` uses `compile`
+                                and `str.format`.  Any variable created
+                                by 'pre-ui-code' can be used.
+                                Set this to normal data for `vdictui`,
+                                wrapped in triple-quotes.
+    """
+    for foobar in data:
+        if foobar['id'] == x:
+            # Choose?
+            try:
+                if 'choice' in foobar['opt']:
+                    selection = choice(choice_arg)
+                    if isinstance(selection, bool):
+                        assert selection == False
+                        return      # Will never return True.
+            except KeyError:
+                pass
+            
+            # Code to run before ui.
+            try:
+                exec compile(foobar['pre-ui-code'], '<pre-ui-code>', 'exec')
+            except KeyError:
+                pass
+            
+            #ui
+            try:
+                exec compile('result = vdictui({0})'.format(foobar['ui']),
+                                                            '<ui>', 'exec')
+                if result['button'] == 'back':
+                    return
+            except KeyError:
+                pass
+            
+            # Progress-bar?
+            try:
+                if 'progress-bar' in foobar['opt']:
+                    pb = rli_progressbar()
+            except KeyError:
+                pass
+            
+            # Code to run after ui.
+            try:
+                exec compile(foobar['post-ui-code'], '<post-ui-code>', 'exec')
+            except KeyError:
+                pass
+            
+            return
+    else:
+        raise False, "This is impossible!"
+
+def passwd_tab(x):
+    """passwd_tab(x)
+    x (integer) is the action to be performed on a password.
+    See also choice.__doc__ and after_update.__doc__.
+    """
+    
+    no_minlen_gt_maxlen = '''
+#BUG TODO stop user from having minlength > maxlength.
+'''
+
+    list_choice_to_vdictui(False, x, [
+        {
+            'id': 1,
+            'opt': ('choice'),
+            'post-ui-code': '''
+show_copy_single(p[selection]["value"])
+'''
+        },
+        {
+            'id': 2,
+            'opt': ('choice', 'progress-bar'),
+            'post-ui-code': '''
+old = p[selection]["value"]
+p.update(selection, pb)
+new = p[selection]["value"]
+after_update(old, new)
+'''
+        },
+        {
+            'id': 3,
+            'opt': ('choice', 'progress-bar'),
+            'pre-ui-code': '''
+if p[selection]["meta"]["type"] in ("10", "64"):
+    minlen = int(p[selection]["meta"]["minlength"])
+    maxlen = int(p[selection]["meta"]["maxlength"])
+else:
+    assert p[selection]["meta"]["type"] == "human"
+    minlen = maxlen = 8
+''',
+            'ui':       '''[{
+                                'type': 'text',
+                                'value': 'Minimal required length'
+                            }, {
+                                'type': 'edit_num',
+                                'name': 'min',
+                                'value': minlen,
+                                'min': 1
+                            }, {}, {
+                                'type': 'text',
+                                'value': 'Maximal allowed length'
+                            }, {
+                                'type': 'edit_num',
+                                'name': 'max',
+                                'value': maxlen,
+                                'min': 1
+                            }, {}, {
+                                'type': 'text',
+                              'value': "Big & small letters, digits, '!', '_'"
+                            }, {
+                                'type': 'button',
+                                'name': '64',
+                                'value': 'OK'
+                            }, {}, {
+                                'type': 'text',
+                                'value': 'Digits only'
+                            }, {
+                                'type': 'button',
+                                'name': '10',
+                                'value': 'OK'
+                            }]''',
+            'post-ui-code': '''
+old = p[selection]["value"]
+{0}
+p.update_meta(selection, result["button"], result["min"], result["max"], pb)
+new = p[selection]["value"]
+after_update(old, new)
+'''.format(no_minlen_gt_maxlen)
+        },
+        {
+            'id': 4,
+            'ui':       '''[{
+                                'type': 'text',
+                                'value': 'What is the password for?'
+                            }, {
+                                'type': 'edit_line',
+                                'name': 'name'
+                            }, {}, {
+                                'type': 'text',
+                                'value': 'What is the password?'
+                            }, {
+                                'type': 'edit_line',
+                                'name': 'value'
+                            }, {}, {
+                                'type': 'button'
+                            }]''',
+            'post-ui-code': '''
+p.add_nometa(result["name"], result["value"])
+'''
+        },
+        {
+            'id': 5,
+            'opt': ('progress-bar'),
+            'ui':       '''[{
+                                'type': 'text',
+                                'value': 'What is the password for?'
+                            }, {
+                                'type': 'edit_line',
+                                'name': 'name'
+                            }, {}, {
+                                'type': 'text',
+                                'value': 'Minimal required length'
+                            }, {
+                                'type': 'edit_num',
+                                'name': 'minlen',
+                                'value': 8,
+                                'min': 1
+                            }, {}, {
+                                'type': 'text',
+                                'value': 'Maximal allowed length'
+                            }, {
+                                'type': 'edit_num',
+                                'name': 'maxlen',
+                                'value': 8,
+                                'min': 1
+                            }, {}, {
+                                'type': 'text',
+                              'value': "Big & small letters, digits, '!', '_'"
+                            }, {
+                                'type': 'button',
+                                'name': '64',
+                                'value': 'OK'
+                            }, {}, {
+                                'type': 'text',
+                                'value': 'Digits only'
+                            }, {
+                                'type': 'button',
+                                'name': '10',
+                                'value': 'OK'
+                            }]''',
+            'post-ui-code': '''
+{0}
+p.add(result["name"], None, result["button"], result["minlen"],
+                                                        result["maxlen"], pb)
+'''.format(no_minlen_gt_maxlen)
+        },
+        {
+            'id': 6,
+            'opt': ('choice'),
+            'post-ui-code': '''
+p.remove(selection)
+'''
+    }])
+
 def honeypot_tab(x):
     """honeypot_tab(x)
     x (integer) is the action to be performed on a honeypot.
     See also choice.__doc__"""
-    assert x >= 1 and x < 6
-    if x == 1:
-        # Pick.
-        wrap_erase()
-        s = h.pick(pb=rli_progressbar())
-        show_copy_single(s)
-    if x == 2:
-        # Bad pick many.
-        result = vdictui([
-            {
-                'type': 'text',
-                'value': 'How many?'
-            }, {
-                'type': 'edit_num',
-                'name': 'num',
-                'min': 1,
-                'max': len(h)
-            }, {}, {
-                'type': 'text',
-                'value': 'Separate them with?'
-            }, {
-                'type': 'edit_line',
-                'name': 'sep',
-                'value': ','
-            }, {}, {
-                'type': 'button'
-            }])
-        if result["button"] == "back":
-            return
-        s = h.pick(result["num"], result["sep"], pb=rli_progressbar())
-        show_copy_single(s)
-    if x == 3:
-        # Good pick many.
-        ui_result = vdictui([
-            {
-                'type': 'text',
-                'value': 'How many?'
-            }, {
-                'type': 'edit_num',
-                'name': 'num',
-                'min': 1,
-                'max': len(h)
-            }, {}, {
-                'type': 'button'
-            }])
-        if ui_result["button"] == "back":
-            return
-        pb = rli_progressbar()
-        result = h.pickl(ui_result["num"], pb=pb)
-        for s in result:
-            show_copy_single(s)
-    if x == 4:
-        # Add.
-        result = vdictui([
-            {
-                'type': 'text',
-                'value': 'What is the fake password?'
-            }, {
-                'type': 'edit_line',
-                'name': 'line'
-            }, {}, {
-                'type': 'button'
-            }])
-        if result["button"] == "back":
-            return
-        h.add(result["line"])
-    if x == 5:
-        #Remove.
-        selection = choice(True)
-        if isinstance(selection, bool):
-            assert selection == False
-            return      #Will never return True.
-        h.remove(selection)
+    list_choice_to_vdictui(True, x, [
+        {
+            'id': 1,
+            'opt': 'progress-bar',
+            'post-ui-code': '''
+show_copy_single(h.pick(pb=pb))
+'''
+        },
+        {
+            'id': 2,
+            'opt': 'progress-bar',
+            'ui':       '''[{
+                                'type': 'text',
+                                'value': 'How many?'
+                            }, {
+                                'type': 'edit_num',
+                                'name': 'num',
+                                'min': 1,
+                                'max': len(h)
+                            }, {}, {
+                                'type': 'text',
+                                'value': 'Separate them with?'
+                            }, {
+                                'type': 'edit_line',
+                                'name': 'sep',
+                                'value': ','
+                            }, {}, {
+                                'type': 'button'
+                            }]''',
+            'post-ui-code': '''
+s = h.pick(result["num"], result["sep"], pb=pb)
+show_copy_single(s)
+'''
+        },
+        {
+            'id': 3,
+            'opt': 'progress-bar',
+            'ui':       '''[{
+                                'type': 'text',
+                                'value': 'How many?'
+                            }, {
+                                'type': 'edit_num',
+                                'name': 'num',
+                                'min': 1,
+                                'max': len(h)
+                            }, {}, {
+                                'type': 'button'
+                            }]''',
+            'post-ui-code': '''
+result = h.pickl(result["num"], pb=pb)
+for s in result:
+    show_copy_single(s)
+'''
+        },
+        {
+            'id': 4,
+            'ui':       '''[{
+                                'type': 'text',
+                                'value': 'What is the fake password?'
+                            }, {
+                                'type': 'edit_line',
+                                'name': 'line'
+                            }, {}, {
+                                'type': 'button'
+                            }]''',
+            'post-ui-code': '''
+h.add(result["line"])
+'''
+        },
+        {
+            'id': 5,
+            'opt': 'choice',
+            'post-ui-code': '''
+h.remove(selection)
+'''
+        }])
 
 def copy(x):
     """copy(s)
