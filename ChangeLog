@@ -1,4 +1,6 @@
 2013-Nov-16
+0.1.9   Fixed design-bug in the CLI. It will die on the first error, unless
+        you use the -i (--interactive) option.
 0.1.8   Scrollbars in HELP and About.
         Sets default size 768x512.
 0.1.7   Backup button in GUI.

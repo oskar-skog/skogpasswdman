@@ -32,6 +32,7 @@ import logging
 import time
 import os
 import os.path
+import getopt
 
 def se():
     """se() - syntax error
@@ -41,14 +42,28 @@ def se():
     sow('!')
     sow(theline)        #str.format() doesn't like Unicode.
     sow("\n")
+    if not interactive:
+        sys.exit(1)
+
+def err(x):
+    """err(x) - error messages
+    "!{}\n".format(x)
+    Program dies if not in interactive mode.
+    """
+    sow("!")
+    sow(x)
+    sow("\n")
+    if not interactive:
+        sys.exit(1)
 
 def sow(x):             #Do the Unicode-stuff here.
     """Write to stdout. It encodes the string as UTF-8."""
     sys.stdout.write(x.encode(encoding="utf-8"))         #It is used a lot.
 
 def siw():
-    """Read from stdin. It decodes the UTF-8 input."""
-    return sys.stdin.readline().decode(encoding="utf-8")
+    """Read from infile. It decodes the UTF-8 input."""
+    global infile
+    return infile.readline().decode(encoding="utf-8")
 
 def v(x):       #Verbose.
     """def v(x):
@@ -192,7 +207,7 @@ def passwd_update(x):
     try:                        #unquote gets rid of optional quotes.
         index = p.mkindex(api.unquote(x))  #mkindex greps it's argument...
     except:                             #...in the list and returns an index.
-        sow("!not found\n")
+        err("not found")
         return
     old = p[index]["value"]       #It must show the old password, because...
                               #...it is probably required to change password.
@@ -200,7 +215,7 @@ def passwd_update(x):
     try:
         p.update(index)              #Do lots of the work in the right place.
     except api.err_nometa:
-        sow("!no meta\n")               #It requires the meta-data.
+        err("no meta")               #It requires the meta-data.
         return
     new = p[index]["value"]
     sow("#old:new\n")
@@ -217,7 +232,7 @@ def passwd_update_meta(x):              #Update with new meta-data.
     try:
         index = p.mkindex(name)     #Where is it?
     except:
-        sow("!not found\n")
+        err("not found")
         return
     old = p[index]["value"]             #Remember old.
     v("This may take a while.")
@@ -225,7 +240,7 @@ def passwd_update_meta(x):              #Update with new meta-data.
         p.update_meta(index, fields[0], fields[1], fields[2]) #Put the work...
                                                     #...at the right place.
     except api.err_idiot:       #Incorrect usage.
-        sow("!stupid arguments\n")
+        err("stupid arguments")
         return
     new = p[index]["value"]
     sow("#old:new\n")
@@ -264,7 +279,7 @@ def passwd_add(x):
             p.add(add_name, api.get10(api.getint(add_min, add_max + 1)), 
                   "10", str(add_min), str(add_max))
         except api.err_duplicate:
-            sow("!duplicate\n")
+            err("duplicate")
             return
         v("Added base10 password.")
         return
@@ -274,7 +289,7 @@ def passwd_add(x):
             p.add(add_name, api.get64(api.getint(add_min, add_max + 1)), 
                   "64", str(add_min), str(add_max))
         except api.err_duplicate:
-            sow("!duplicate\n")
+            err("duplicate")
             return
         v("Added base64 password.")
         return
@@ -316,10 +331,7 @@ def passwd_cmds(x):  #Put all the passwd:* here.
             try:
                 p.add_nometa(name, s[:-1])    #Do the work at the right place.
             except api.err_duplicate:
-                sow("!duplicate\n")
-                return
-            except:
-                sow("!\n")
+                err("duplicate")
                 return
             v("Added human generated password.")
             return
@@ -330,7 +342,7 @@ def passwd_cmds(x):  #Put all the passwd:* here.
             try:
                 the_value = p[p.mkindex(api.unquote(b))]["value"]
             except:
-                sow("!not found \n")
+                err("not found")
                 return
             sow("passwd.get?'")
             sow(the_value)
@@ -352,13 +364,13 @@ def passwd_cmds(x):  #Put all the passwd:* here.
                                                        metadata["minlength"],
                                                       metadata["maxlength"]))
             except:
-                sow("!no meta\n")
+                err("no meta")
             return
         elif "remove" in a:
             try:
                 p.remove(api.unquote(b))
             except api.err_notfound:
-                sow("!not found\n")
+                err("not found")
                 return
             return
         else:
@@ -406,7 +418,7 @@ def honeypot_cmds(x):           #honeypot:*
             try:
                 h.add(name)
             except api.err_duplicate:
-                sow("!duplicate\n")
+                err("duplicate")
                 return
             return
         elif "pick" in a:       #pick takes either 0 or 2 arguments.
@@ -417,7 +429,7 @@ def honeypot_cmds(x):           #honeypot:*
             try:
                 n = int(args[0])
             except:
-                sow("!n must be an integer\n")
+                err("n must be an integer")
                 return
             sep = api.unquote(args[1])
             try:                       #3rd arg, make it raise instead of log.
@@ -425,14 +437,14 @@ def honeypot_cmds(x):           #honeypot:*
                 sow(h.pick(n, sep, False))
                 sow("'\n")
             except api.err_idiot:
-                sow("!n is too big\n")
+                err("n is too big")
                 return
             return
         elif "remove" in a:
             try:
                 h.remove(api.unquote(b))
             except api.err_notfound:
-                sow("!not found\n")
+                err("not found")
                 return
             return
         else:
@@ -468,19 +480,25 @@ def main():             #Finally.
             elif "help" in a:
                 show_help()
             elif "undo" in a:
-                try:
-                    api.undo(p, h)
-                except:
-                    sow("!cannot undo\n")
-                    continue
-                v("Undone something.")
+                if interactive:
+                    try:
+                        api.undo(p, h)
+                    except:
+                        err("cannot undo")
+                        continue
+                    v("Undone something.")
+                else:
+                    err("Not in interactive mode.")
             elif "redo" in a:
-                try:
-                    api.redo(p, h)
-                except:
-                    sow("!cannot redo")
-                    continue
-                v("Redone something.")
+                if interactive:
+                    try:
+                        api.redo(p, h)
+                    except:
+                        err("cannot redo")
+                        continue
+                    v("Redone something.")
+                else:
+                    err("Not in interactive mode.")
             elif "bells" in a or "whistles" in a:
                 bells_and_whistles()
                 continue
@@ -516,7 +534,17 @@ def main():             #Finally.
 p = api.passwd()
 h = api.honeypot()
 verbose = False
+interactive = False
 theline = ""
 logging.basicConfig(level=logging.CRITICAL)     #STFU
 if __name__ == "__main__":
+    o, a = getopt.getopt(sys.argv[1:], "i", ["interactive"])
+    if len(a) > 0:
+        infile = open(a[0], "r")
+    else:
+        #infile = os.dup(sys.stdin.fileno())
+        infile = sys.stdin
+    for x, y in o:
+        if x in ("-i", "--interactive"):
+            interactive = True
     main()

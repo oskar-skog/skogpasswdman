@@ -42,6 +42,8 @@ POSSIBILITY OF SUCH DAMAGE. -->
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
   <command>passwdmancli</command>    
+    <arg choice='plain'>--i </arg>
+    <arg choice='plain'>---interactive </arg>
     <arg choice='plain'><replaceable>infile</replaceable></arg>
 </cmdsynopsis>
 </refsynopsisdiv>
@@ -55,7 +57,17 @@ will read its commands from, if
 <replaceable>infile</replaceable>
 is omitted
 <command remap='Nm'> passwdmancli </command>
-will read from standard input.</para>
+will read from standard input.
+<option>-i</option>
+or
+<option>--interactive</option>
+must be specified if you want the commands
+<command remap='Ic'>undo</command>
+and
+<command remap='Ic'>redo</command>,
+or if you want
+<command remap='Nm'> passwdmancli </command>
+to stay alive after an error.</para>
 
 <para><command remap='Nm'> passwdmancli </command>
 reads its input as colon separated values.
