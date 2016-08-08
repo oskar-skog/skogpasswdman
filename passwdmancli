@@ -63,12 +63,12 @@ def err(x):
 
 def sow(x):             #Do the Unicode-stuff here.
     """sow(x) - Write to stdout. It encodes the string as UTF-8."""
-    sys.stdout.write(x.encode("utf-8"))         #It is used a lot.
+    sys.stdout.write(api.b2u3(x))         #It is used a lot.
 
 def siw():
     """siw() - Read from infile. It decodes the UTF-8 input."""
     global infile
-    return infile.readline().decode("utf-8")
+    return api.u(infile.readline())
 
 def v(x):       #Verbose.
     """def v(x):

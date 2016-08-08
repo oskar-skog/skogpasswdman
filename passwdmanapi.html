@@ -3,6 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANAPI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANAPI"><a id="passwdmanapi3"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmanapi  —  library used by passwdmancli and passwdmangui </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><pre class="synopsis">
 #!/usr/bin/python<br />
 import passwdmanapi<br />
+is_anystr(x)<br />
+is_bytestr(x)<br />
+is_int(x)<br />
+is_num(x)<br />
+is_unicodestr(x)<br />
+u(x)<br />
+b(x)<br />
+b2u3(x)<br />
 open_rng()<br />
 get64(length)<br />
 get10(length)<br />
@@ -41,7 +49,44 @@ class err_duplicate(Exception)<br />
 class err_idiot(Exception)<br />
 class err_nometa(Exception)</p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p>Unless otherwise noted,
 <code class="varname">xmlfile</code>
-is a path.</p><p>open_rng()
+is a path.</p><p>is_anystr()
+returns True if
+<code class="varname">x</code>
+is any kind of string, and False if
+<code class="varname">x</code>
+is not.</p><p>is_bytestr()
+returns True if
+<code class="varname">x</code>
+is an encoded string/bytes, and False if
+<code class="varname">x</code>
+is not.</p><p>is_int()
+returns True if
+<code class="varname">x</code>
+is an integer, and False if
+<code class="varname">x</code>
+is not.</p><p>is_num()
+returns True if
+<code class="varname">x</code>
+is an integer or a float, and False if
+<code class="varname">x</code>
+is not.</p><p>is_unicodestr()
+returns True if
+<code class="varname">x</code>
+is a decoded string/unicode, and False if
+<code class="varname">x</code>
+is not.</p><p>u()
+returns
+<code class="varname">x</code>
+as a unicode/decoded string.</p><p>b()
+returns
+<code class="varname">x</code>
+as a byte/encoded string.</p><p>b2u3()
+is the same as
+b()
+if the Python version is 2.x.</p><p>b2u3()
+is the same as
+u()
+if the Python version is 3.x.</p><p>open_rng()
 opens
 <span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>
 (or

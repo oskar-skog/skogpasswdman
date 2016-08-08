@@ -1,10 +1,16 @@
 2014-01-04      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.8
+    * passwdmanapi.py: Python3
+        is_anystr(x)
+        is_bytestr(x)
+        is_int(x)
+        is_num(x)
+        is_unicodestr(x)
+    * passwdmanrli, passwdmangui, passwdmancli: Python3
 0.3.7
     * passwdmanrli: Bugfix in 'change meta-data & update':
         p[selection]["meta"]["minlength"] and maxlength weren't turned into
         integers.
-
-2014-01-04      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.6
     * passwdmanrli: Rogue-like interface.
 

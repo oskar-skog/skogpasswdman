@@ -25,7 +25,7 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
 import passwdmanapi as api
-import curses, math, os, tarfile
+import curses, math, os, tarfile, sys
 
 def die():
     tty.keypad(0)
@@ -42,13 +42,17 @@ def wrap_addch(y, x, c):
         #Usually attempted by center_text().
         pass
 
+def wrap_addstr(y, x, s):
+    v, f, f, f, f = sys.version_info
+    tty.addstr(y, x, api.b2u3(s))
+
 def center_text(line, text):
-    start_pos = (xsize - len(text)) / 2
+    start_pos = math.floor((xsize - len(text)) / 2)
     for x in range(xsize):
         if x < start_pos or x >= start_pos + len(text):
             wrap_addch(line, x, ord(" "))
         else:
-            wrap_addch(line, x, ord(text[x - start_pos]))
+            wrap_addch(line, x, ord(text[int(x - start_pos)]))
 
 def busy():
     tty.erase()
@@ -100,15 +104,15 @@ def edit_line(y, line):
     #   Left and right (insert).
     strline = ""
     unicodeline = ""
-    assert isinstance(line, str) or isinstance(line, unicode) or line == None
+    assert api.is_anystr(line) or line == None
     if line == None:
         line = ""
-    strline = line.encode("utf-8")
+    strline = api.b(line)
     unicodeline = line
     while True:
         for x in range(-1, -xsize, -1):
             try:
-                tty.addstr(y, xsize + x, unicodeline[x].encode("utf-8"))
+                wrap_addstr(y, xsize + x, unicodeline[x])
             except IndexError:
                 pass
             except:
@@ -123,10 +127,10 @@ def edit_line(y, line):
             return "down", unicodeline
         if ch == curses.KEY_BACKSPACE:
             unicodeline = unicodeline[:-1]
-            strline = unicodeline.encode("utf-8")
+            strline = api.b(unicodeline)
             continue
         try:
-            strline += chr(ch)
+            strline += api.b(chr(ch))
         except ValueError:
             pass
         except:
@@ -145,7 +149,7 @@ def after_update(old, new):
             if x_pos >= xsize:
                 x_pos = 0
                 y_pos += 1
-            tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+            wrap_addstr(y_pos, x_pos, c)
             x_pos += 1
         if x_pos != 0:
             y_pos += 1
@@ -156,7 +160,7 @@ def after_update(old, new):
             if x_pos >= xsize:
                 x_pos = 0
                 y_pos += 1
-            tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+            wrap_addstr(y_pos, x_pos, c)
             x_pos += 1
         center_text(ysize - 1, "Press any other key to finish.")
         tty.refresh()
@@ -191,7 +195,7 @@ def passwd_tab(x):
                 if x_pos >= xsize:
                     x_pos = 0
                     y_pos += 1
-                tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+                wrap_addstr(y_pos, x_pos, c)
                 x_pos += 1
             center_text(ysize - 1, "Press any key.")
             tty.refresh()
@@ -439,7 +443,7 @@ def show_copy_single(s):
             if x_pos >= xsize:
                 x_pos = 0
                 y_pos += 1
-            tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+            wrap_addstr(y_pos, x_pos, c)
             x_pos += 1
         center_text(ysize - 2, "Press 1 to copy.")
         center_text(ysize - 1, "Press any other key to finish.")
@@ -469,7 +473,7 @@ def honeypot_tab(x):
                 if x_pos >= xsize:
                     x_pos = 0
                     y_pos += 1
-                tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+                wrap_addstr(y_pos, x_pos, c)
                 x_pos += 1
             center_text(ysize - 1, "Press any key.")
             tty.refresh()
@@ -603,10 +607,10 @@ def honeypot_tab(x):
 def copy(x):
     # "primary":
     xsel_proc = subprocess.Popen(['xsel', '-pi'], stdin=subprocess.PIPE)
-    xsel_proc.communicate(x.encode("utf-8"))
+    xsel_proc.communicate(api.b(x))
     # "clipboard":
     xsel_proc = subprocess.Popen(['xsel', '-bi'], stdin=subprocess.PIPE)
-    xsel_proc.communicate(x.encode("utf-8"))
+    xsel_proc.communicate(api.b(x))
 
 def set_tab(direction):
     global tabnum
@@ -728,7 +732,7 @@ def list_choice(ypos, yspace, thelist, ct = False):
                     wrap_addch(i + ypos + 4, 1, ord("*"))
                     wrap_addch(i + ypos + 4, xspace - 2, ord("*"))
                     if show_arrow:
-                        tty.addstr(i + ypos + 4, xspace, "<-Choose")
+                        wrap_addstr(i + ypos + 4, xspace, "<-Choose")
                 else:
                     if show_arrow:
                         tty.hline(i + ypos + 4, xspace, 32, xsize - xspace)
@@ -740,11 +744,8 @@ def list_choice(ypos, yspace, thelist, ct = False):
                             choice - choice % page)]):  #Which page * page.
                         wrap_addch(i + ypos + 4, x, ord(" "))
                     else:
-                        if DEBUG:
-                            print i + choice - choice % page
-                            print x - 2
-                        tty.addstr(i + ypos + 4, x, thelist[i +
-                            choice - choice % page][x - 2].encode("utf-8"))
+                        wrap_addstr(i + ypos + 4, x, thelist[int(i +
+                            choice - choice % page)][x - 2])
         #Print the 'rollability-indicators'.
         if choice - page < 0:
             tty.hline(ypos + 3, 0, ord("-"), xspace)
@@ -850,24 +851,24 @@ def main():
         if xsize >= 80:
             #Tabs.
             s = "Home left a h 4"
-            tty.addstr(0, 0, s)
-            tty.addstr(0, len(s), "::")
+            wrap_addstr(0, 0, s)
+            wrap_addstr(0, len(s), "::")
             x_pos = len(s) + 2
             for i in range(4):
                 if i == tabnum:
-                    tty.addstr(0, x_pos, tab_names[1][i])
+                    wrap_addstr(0, x_pos, tab_names[1][i])
                 else:
-                    tty.addstr(0, x_pos, tab_names[0][i])
+                    wrap_addstr(0, x_pos, tab_names[0][i])
                 x_pos += len(tab_names[0][i])
-                tty.addstr(0, x_pos, ":")
+                wrap_addstr(0, x_pos, ":")
                 x_pos += 1
-            tty.addstr(0, x_pos, ":6 l d right end")
+            wrap_addstr(0, x_pos, ":6 l d right end")
             #zxcv
             if have_clipboard:
-                tty.addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
+                wrap_addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
                     " Make backup : (v/,) Clear clipboard : (^C) quit")
             else:
-                tty.addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
+                wrap_addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
                     " Make backup : (^C) quit")
             #Lines.
             tty.hline(1, 0, ord("="), xsize)
@@ -987,10 +988,10 @@ if __name__ == "__main__":
         if xsize < 80:
             if xsize < 40 or ysize < 18:
                 curses.endwin()
-                print "Need at least 40x18 or 80x12 COLSxROWS"
+                print("Need at least 40x18 or 80x12 COLSxROWS")
         elif ysize < 12:
             curses.endwin()
-            print "Need at least 40x18 or 80x12 COLSxROWS"
+            print("Need at least 40x18 or 80x12 COLSxROWS")
     try:
         main()
     except KeyboardInterrupt:

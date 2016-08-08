@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-copywrong = """Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
+copywrong = """
+Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -27,7 +28,7 @@ __doc__ = """passwdmanapi - functions and classes used by passwdman
     This was a long __doc__ string. Read SYNOPSIS, EXCEPTIONS, NOTES and BUGS
     """
 SYNOPSIS = """
-    import passwdmanapi
+    is_anystr(x) is_bytestr(x) is_int(x) is_num(x) is_unicodestr(x) u(x) b(x)
     class passwdmanapi.passwd(common_data)      Loads and modifies the XML
                                                 '~/.passwdman/passwords'.
     class passwdmanapi.honeypot(common_data)    Loads and modifies the XML
@@ -92,6 +93,7 @@ import os.path
 import time
 import logging
 import string
+import sys
 
 class err_norandom(Exception):
     """class err_norandom(Exception)
@@ -124,6 +126,71 @@ class err_nometa(Exception):
     """class err_nometa(Exception) - Meta-data is required."""
     pass
 
+def is_int(x):
+    """is_int(x) = True, False (is x int or long)"""
+    if isinstance(x, int):
+        return True
+    v, f, f, f, f = sys.version_info
+    if v == 2:
+        return isinstance(x, long)
+    return False
+
+def is_num(x):
+    """is_num(x) = True, False (is x a number)"""
+    return is_int(x) or isinstance(x, float)
+    
+def is_bytestr(x):
+    """is_bytestr(x) = True, False (is x encoded/bytes)"""
+    v, f, f, f, f = sys.version_info
+    if v == 2:
+        return isinstance(x, str)
+    else:
+        return isinstance(x, bytes)
+
+def is_unicodestr(x):
+    """is_unicodestr(x) = True, False (is x decoded/unicode)"""
+    v, f, f, f, f = sys.version_info
+    if v == 2:
+        return isinstance(x, unicode)
+    else:
+        return isinstance(x, str)
+
+def is_anystr(x):
+    """is_anystr(x) = True, False (is x any kind of string)"""
+    if isinstance(x, str):
+        return True
+    v, f, f, f, f = sys.version_info
+    if v == 2:
+        return isinstance(x, unicode)
+    else:
+        return isinstance(x, bytes)
+
+def u(x):
+    """u(x) return a unicode/decoded string"""
+    assert is_anystr(x)
+    if not is_unicodestr(x):
+        return x.decode("utf-8")
+    else:
+        return x
+
+def b(x):
+    """b(x) return a byte/encoded string"""
+    assert is_anystr(x)
+    if not is_bytestr(x):
+        return x.encode("utf-8")
+    else:
+        return x
+
+def b2u3(x):
+    """b2u3(x)
+    b(x) if Python 2.x
+    u(x) if Python 3.x"""
+    v, f, f, f, f = sys.version_info
+    if v == 2:
+        return b(x)
+    else:
+        return u(x)
+    
 def open_rng():
     """open_rng() - Open random(4) or urandom(4), returns an open file.
 ERRORS
@@ -149,7 +216,7 @@ ERRORS
     #passwd     The password to be returned.
     #number     Integer used as a buffer/pipe between rng and passwd.
     #bits       The amount of bits left in 'number'.
-    if not isinstance(length, int):   #Check type.
+    if not is_int(length):   #Check type.
         raise err_idiot('get64 called with non-integer length.')
     logging.info("get64: length={0}".format(length))
     if length < 1:
@@ -181,7 +248,7 @@ def get10(length):
     #passwd     The password to be returned.
     #number     Integer used as a buffer/pipe between rng and passwd.
     #bits       The amount of bits left in 'number'.
-    if not isinstance(length, int):   #Check type.
+    if not is_int(length):   #Check type.
         raise err_nolength('get10 called with non-integer length.')
     logging.info("get10: length={0}".format(length))
     if length < 1:
@@ -209,6 +276,7 @@ def get10(length):
 def getint(a, b):
     """getint(a, b) - Return random integer with value a from <a> to <b> - 1.
     """
+    assert is_int(a) and is_int(b)
     if b < a:
         raise err_nolength("b < a")
     rng = open_rng()
@@ -232,6 +300,7 @@ def getint(a, b):
 
 def unquote(x):
     """unquote(x) - Returns x without surrounding quotes."""
+    assert is_anystr(x)
     the_output, the_input = "", []
     for c in x:
         the_input.append(c)     #I want to pop balloons.
@@ -265,8 +334,7 @@ def unquote(x):
             return x            #Bad tail.
 
 class common_data():
-    """Use the source Luke.
-  class common_data():
+    """class common_data():
     self.data[]      Password-records or honey pots.
     self.index   Used in for loops.
     self.xmltree
@@ -291,6 +359,7 @@ class common_data():
         creates variables they both have. It loads them from the
         path xmlfile -> self.xmltree -> self.xmlroot."""
         #    ~/.passwdman/passwords or ~/.passwdman/honeypots
+        assert is_anystr(xmlfile)
         self.data = []
         self.index = 0
         try:
@@ -356,7 +425,7 @@ class common_data():
                 x = int(x)  #Is it a stringed integer?
             except:
                 pass
-        if isinstance(x, int):
+        if is_int(x):
             y = 0
             for z in self.xmlroot.findall(element_name):
                 #Loop through the XML.
@@ -368,7 +437,7 @@ class common_data():
                 else:
                     y += 1   #Try next.
             raise err_notfound("Not found.")
-        elif isinstance(x, unicode): #Use unicode instead of str.
+        elif is_unicodestr(x): #Use unicode instead of str.
             y = 0
             for z in self.xmlroot.findall(element_name):
                 #Loop through the XML
@@ -384,6 +453,7 @@ class common_data():
             raise err_notfound("not integer and not string")
     def writexml(self, xmlfile):
         """writexml(self, xmlfile) - Write the XML tree to disk."""
+        assert is_anystr(xmlfile)
         self.xmlroot.text = "\n  "      #Make it look better.
         self.xmlroot.tail = "\n"
         if self.make_backups:
@@ -407,8 +477,7 @@ class common_data():
         return "<passwdmanapi.common_data object with id {0}>".format(
                                                                 id(self))
 class passwd(common_data):
-    """Use the source Luke.
-    self.data                        List.
+    """self.data                        List.
     self.data[*]["value"]               The password.
     self.data[*]["name"]       What is the password for (info for the user).
     self.data[*]["meta"][*]    Information useful when updating the password.
@@ -485,9 +554,9 @@ class passwd(common_data):
         m_minlength is the minimum length required for the password.
         m_maxlength is the maximum length allowed for the password.
         Raises err_duplicate if the password (<name>) already exist."""
-        if isinstance(m_minlength, int):
+        if is_int(m_minlength):
             m_minlength = str(m_minlength)
-        if isinstance(m_maxlength, int):
+        if is_int(m_maxlength):
             m_maxlength = str(m_maxlength)
         for x in self.data: #check for duplicates
             if x["name"] == name:
@@ -511,6 +580,7 @@ class passwd(common_data):
         """add_nometa(self, name, value)
         Add password with only name and value.
         Raises err_duplicate if the password (<name>) already exist."""
+        assert is_anystr(name) and is_anystr(value)
         for x in self.data: #check for duplicates
             if x["name"] == name:
                 raise err_duplicate(
@@ -553,6 +623,7 @@ class passwd(common_data):
     def update(self, index):
         """update(self, index)
         Update the password at index, use its meta-data to know how."""
+        assert is_int(index)
         if index >= len(self) or index < 0:
             raise err_notfound("Index out of range.")
         method = self[index]["meta"]["type"]
@@ -627,9 +698,9 @@ class passwd(common_data):
         return
     def __repr__(self):
         return "<passwdmanapi.passwd object with id {0}>".format(id(self))
+
 class honeypot(common_data):
-    """Use the source Luke.
-    self.data[]      List of honey pots.
+    """self.data[]      List of honey pots.
     add(value)
     remove(x)
     pick(self, n=1, sep=",", log_vs_raise=True)
@@ -638,7 +709,8 @@ class honeypot(common_data):
             True
                 Log an error if <n> is too high.
             False
-                Raise err_idiot if <n> is too high."""
+                Raise err_idiot if <n> is too high.
+    pickl(n, log_vs_raise=True) returns a list of n honeypots"""
     def __init__(self, backups=True):
         """__init__(self, backups=True)
         Load ~/.passwdman/honeypots -> self.xmltree 
@@ -668,6 +740,7 @@ class honeypot(common_data):
     def pick(self, n=1, sep=",", log_vs_raise=True):
         """pick(self, n=1, sep=",", log_vs_raise=True)
         Pick randomly selected honey-pots."""
+        assert is_int(n)
         if n > len(self):
             n = len(self)
             if log_vs_raise:
@@ -687,6 +760,7 @@ class honeypot(common_data):
         """pickl(self, n, log_vs_raise=True)
         Pick randomly selected honey-pots in a list."""
         #Copy-pasted from pick()
+        assert is_int(n)
         if n > len(self):
             n = len(self)
             if log_vs_raise:

@@ -814,41 +814,53 @@ printf '                break\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            dirs_final.append(x)\n' >> configure.2
 printf '\n' >> configure.2
+printf '\n' >> configure.2
 printf 'def getmoduledir():\n' >> configure.2
 printf '    \042\042\042getmoduledir() - Figure out where to install python modules.\042\042\042\n' >> configure.2
-printf '    global moduledir\n' >> configure.2
-printf '    list_of_2x = []\n' >> configure.2
-printf '    if moduledir is None:   #It can be set by the user.\n' >> configure.2
-printf '        v(\042Figuring out the \047moduledir\047 variable...\042)\n' >> configure.2
+printf '    def getmoduledir_x(pyver):\n' >> configure.2
+printf '        list_of_xx = []\n' >> configure.2
 printf '        path = unvar(\042libdir\042, dirs_final)\n' >> configure.2
 printf '        dirlist = os.listdir(path)\n' >> configure.2
 printf '        for x in dirlist:\n' >> configure.2
-printf '            if \042python2\042 in x:       #Is it the python modules directory.\n' >> configure.2
+printf '            if pyver in x:       #Is it the python modules directory.\n' >> configure.2
 printf '                try:\n' >> configure.2
 printf '                    dirlist2 = os.listdir(os.path.join(path, x))\n' >> configure.2
 printf '                    for y in dirlist2:\n' >> configure.2
 printf '                        if y in (\042dist-packages\042, \042site-packages\042):\n' >> configure.2
 printf '                            #The right subdirectory.\n' >> configure.2
-printf '                            list_of_2x.append(os.path.join(path, x, y))\n' >> configure.2
+printf '                            list_of_xx.append(os.path.join(path, x, y))\n' >> configure.2
 printf '                            break\n' >> configure.2
 printf '                except:\n' >> configure.2
 printf '                    pass            #Names for some non-directories...\n' >> configure.2
 printf '                                    #...contains \042python\042.\n' >> configure.2
 printf '        else:\n' >> configure.2
-printf '            if len(list_of_2x) > 0:\n' >> configure.2
+printf '            if len(list_of_xx) == 1:\n' >> configure.2
+printf '                return list_of_xx[0]\n' >> configure.2
+printf '            if len(list_of_xx) > 0: #\n' >> configure.2
 printf '                ver = -1\n' >> configure.2
-printf '                for python2x in list_of_2x:\n' >> configure.2
+printf '                for pythonxx in list_of_xx:\n' >> configure.2
 printf '                    try:\n' >> configure.2
-printf '                        tmp_name = python2x.split(\042/\042)[-2]\n' >> configure.2
+printf '                        tmp_name = pythonxx.split(\042/\042)[-2]\n' >> configure.2
 printf '                        tmp_ver = int(tmp_name.split(\042.\042)[-1])\n' >> configure.2
 printf '                        if tmp_ver > ver:\n' >> configure.2
 printf '                            ver = tmp_ver\n' >> configure.2
-printf '                            moduledir = python2x\n' >> configure.2
+printf '                            return pythonxx\n' >> configure.2
 printf '                    except:\n' >> configure.2
 printf '                        pass    #Garbage.\n' >> configure.2
 printf '            else:\n' >> configure.2
-printf '                sys.stderr.write(\042ERROR: set --moduledir manually.\\n\042)\n' >> configure.2
-printf '                sys.exit(1)\n' >> configure.2
+printf '                return None\n' >> configure.2
+printf '    global moduledir\n' >> configure.2
+printf '    global moduledir3\n' >> configure.2
+printf '    if moduledir is None:   #It can be set by the user.\n' >> configure.2
+printf '        v(\042Figuring out the \047moduledir\047 variable...\042)\n' >> configure.2
+printf '        moduledir = getmoduledir_x(\042python2\042)\n' >> configure.2
+printf '        moduledir3 = getmoduledir_x(\042python3\042)\n' >> configure.2
+printf '        if moduledir == None and moduledir3 == None:\n' >> configure.2
+printf '            sys.stderr.write(\042Set --moduledir manually.\\n\042)\n' >> configure.2
+printf '            sys.exit(1)\n' >> configure.2
+printf '        if moduledir == None:\n' >> configure.2
+printf '            moduledir = moduledir3\n' >> configure.2
+printf '            moduledir3 = None\n' >> configure.2
 printf '\n' >> configure.2
 printf 'def makemakefile():\n' >> configure.2
 printf '    \042\042\042makemakefile() - Open Makefile and set the variables.\042\042\042\n' >> configure.2
@@ -866,6 +878,8 @@ printf '    makefile.write(\042SHELL = /bin/sh\\n\042)\n' >> configure.2
 printf '    for x in dirs_final:\n' >> configure.2
 printf '        makefile.write(\042{0} = {1}\\n\042.format(x[\042name\042], x[\042value\042]))\n' >> configure.2
 printf '    makefile.write(\042moduledir = {0}\\n\042.format(moduledir))\n' >> configure.2
+printf '    if moduledir3 != None:\n' >> configure.2
+printf '        makefile.write(\042moduledir3 = {0}\\n\042.format(moduledir3))\n' >> configure.2
 printf '    \n' >> configure.2
 printf 'def maketarget_all():\n' >> configure.2
 printf '    \042\042\042maketarget_all() - Add the default \047all\047 target.\042\042\042\n' >> configure.2
@@ -894,6 +908,7 @@ printf '    if rli:\n' >> configure.2
 printf '        makefile.write(\042 \044(srcdir)passwdmanrli\042)\n' >> configure.2
 printf '    makefile.write(\042\\n\042)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
+verbose Line 700...
 printf '        makefile.write(\042\\tsed -e s/__XFM__/\042)\n' >> configure.2
 printf '        if xfm:\n' >> configure.2
 printf '            makefile.write(\042True\042)\n' >> configure.2
@@ -908,7 +923,6 @@ printf '        else:\n' >> configure.2
 printf '            makefile.write(\042False\042)\n' >> configure.2
 printf '        makefile.write(\042/ passwdmanrli.out > passwdmanrli.out.out\\n\042)\n' >> configure.2
 printf '    if xfm:\n' >> configure.2
-verbose Line 700...
 printf '        makefile.write(\042\\tgunzip -c \044(srcdir)xfilemanager-*.tar.gz >\042)\n' >> configure.2
 printf '        makefile.write(\042 xfilemanager.tar\\n\042)\n' >> configure.2
 printf '        makefile.write(\042\\ttar -xf xfilemanager.tar\\n\042)\n' >> configure.2
@@ -954,6 +968,9 @@ printf '    if rli:\n' >> configure.2
 printf '        makefile.write(\042 passwdmanrli.out.out\042)\n' >> configure.2
 printf '    makefile.write(\042\\n\042)\n' >> configure.2
 printf '    install_file(\042passwdmanapi.py\042, \042\044(moduledir)/passwdmanapi.py\042, False)\n' >> configure.2
+printf '    if moduledir3 != None:\n' >> configure.2
+printf '        install_file(\042passwdmanapi.py\042, \042\044(moduledir3)/passwdmanapi.py\042,\n' >> configure.2
+printf '            False)\n' >> configure.2
 printf '    if techdoc:\n' >> configure.2
 printf '        install_file(\042passwdmanapi.3\042, \042\044(man3dir)/passwdmanapi\044(man3ext)\042,\n' >> configure.2
 printf '                False)\n' >> configure.2
@@ -992,6 +1009,7 @@ printf '    v(\042Writing the \047uninstall\047 target...\042)\n' >> configure.2
 printf '    makefile.write(\042uninstall :\\n\042)\n' >> configure.2
 printf '    for x in installed_files:\n' >> configure.2
 printf '        makefile.write(\042\\t-rm \044(DESTDIR){0}\\n\042.format(x))\n' >> configure.2
+verbose Line 800...
 printf '\n' >> configure.2
 printf 'def maketarget__doc_(x):\n' >> configure.2
 printf '    \042\042\042maketarget__doc_(x) - Add the \047install-{x}\047 target.\042\042\042\n' >> configure.2
@@ -1009,7 +1027,6 @@ printf '        makefile.write(\042\\t-cp \044(srcdir)passwdmanapi.{0}\042.forma
 printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanapi.{0}\\n\042.format(x))\n' >> configure.2
 printf '        makefile.write(\042\\t-cp \044(srcdir)passwdmanfiles.{0}\042.format(x))\n' >> configure.2
 printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanfiles.{0}\\n\042.format(x))\n' >> configure.2
-verbose Line 800...
 printf '    if rlidoc:\n' >> configure.2
 printf '        makefile.write(\042\\t-cp \044(srcdir)passwdmanrli.{0}\042.format(x))\n' >> configure.2
 printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanrli.{0}\\n\042.format(x))\n' >> configure.2
@@ -1093,6 +1110,7 @@ printf '\n' >> configure.2
 printf '<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS\n' >> configure.2
 printf 'IS\042 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
 printf 'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n' >> configure.2
+verbose Line 900...
 printf 'ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n' >> configure.2
 printf 'LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n' >> configure.2
 printf 'CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n' >> configure.2
@@ -1110,7 +1128,6 @@ printf '        #Docbook\n' >> configure.2
 printf '        makefile.write(\042{0}.xml : {0}.{1}\\n\042.format(n , str(s)))\n' >> configure.2
 printf '        makefile.write(\042\\tdoclifter {0}.{1}\\n\042.format(n, str(s)))\n' >> configure.2
 printf '        #NOTE to self: doclifter-2.13\n' >> configure.2
-verbose Line 900...
 printf '        #They all need some help.\n' >> configure.2
 printf '        makefile.write(\042\\tsed -f fix.docbook {0}.{1}.xml > {0}.xml\\n\042.format(\n' >> configure.2
 printf '                                                                n, str(s)))\n' >> configure.2
@@ -1176,6 +1193,7 @@ printf 'cli = gui = guidoc = techdoc = xfm = rli = rlidoc = rli_clipboard = True
 printf '#These booleans will be used when generating Makefile.\n' >> configure.2
 printf 'verbose = False\n' >> configure.2
 printf 'moduledir = None        #Handle it later, it takes a long time to du /\n' >> configure.2
+printf 'moduledir3 = None\n' >> configure.2
 printf 'dirs_set = []           #Manually set directories.\n' >> configure.2
 printf 'dirs_final = []         #The directory variables to use.\n' >> configure.2
 printf 'dirs_auto = []\n' >> configure.2
@@ -1183,7 +1201,7 @@ printf 'installed_files = []    #Filled in by maketarget_install and used by\n' 
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'xfm_options = []\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.3.7\042\n' >> configure.2
+printf 'VERSION = \0420.3.8\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2
@@ -1193,6 +1211,7 @@ printf '    makemakefile()      #Open Makefile and set the variables.\n' >> conf
 printf '    maketarget_all()\n' >> configure.2
 printf '    maketarget_install()\n' >> configure.2
 printf '    maketarget_uninstall()\n' >> configure.2
+verbose Line 1000...
 printf '    maketarget__doc_(\042html\042)\n' >> configure.2
 printf '    maketarget__doc_(\042pdf\042)\n' >> configure.2
 printf '    maketarget__doc_(\042ps\042)\n' >> configure.2

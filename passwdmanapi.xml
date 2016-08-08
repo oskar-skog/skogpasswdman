@@ -3,7 +3,7 @@
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
 <refentry id='passwdmanapi3'>
-<!-- Copyright (c) 2013, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
+<!-- Copyright (c) 2013, 2014, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
 <!-- Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,14 @@ POSSIBILITY OF SUCH DAMAGE. -->
 <synopsis>
 #!/usr/bin/python<sbr/>
 import passwdmanapi<sbr/>
+is_anystr(x)<sbr/>
+is_bytestr(x)<sbr/>
+is_int(x)<sbr/>
+is_num(x)<sbr/>
+is_unicodestr(x)<sbr/>
+u(x)<sbr/>
+b(x)<sbr/>
+b2u3(x)<sbr/>
 open_rng()<sbr/>
 get64(length)<sbr/>
 get10(length)<sbr/>
@@ -102,6 +110,61 @@ class err_nometa(Exception)</para>
 <para>Unless otherwise noted,
 <varname>xmlfile</varname>
 is a path.</para>
+
+<para>is_anystr()
+returns True if
+<varname>x</varname>
+is any kind of string, and False if
+<varname>x</varname>
+is not.</para>
+
+<para>is_bytestr()
+returns True if
+<varname>x</varname>
+is an encoded string/bytes, and False if
+<varname>x</varname>
+is not.</para>
+
+<para>is_int()
+returns True if
+<varname>x</varname>
+is an integer, and False if
+<varname>x</varname>
+is not.</para>
+
+<para>is_num()
+returns True if
+<varname>x</varname>
+is an integer or a float, and False if
+<varname>x</varname>
+is not.</para>
+
+<para>is_unicodestr()
+returns True if
+<varname>x</varname>
+is a decoded string/unicode, and False if
+<varname>x</varname>
+is not.</para>
+
+<para>u()
+returns
+<varname>x</varname>
+as a unicode/decoded string.</para>
+
+<para>b()
+returns
+<varname>x</varname>
+as a byte/encoded string.</para>
+
+<para>b2u3()
+is the same as
+b()
+if the Python version is 2.x.</para>
+
+<para>b2u3()
+is the same as
+u()
+if the Python version is 3.x.</para>
 
 <para>open_rng()
 opens

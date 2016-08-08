@@ -74,8 +74,8 @@ def passwd_add_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         try:
-            parent.passwords.add_nometa(name.get_text().decode(
-                encoding="utf-8"), value.get_text().decode(encoding="utf-8"))
+            parent.passwords.add_nometa(api.u(name.get_text()),
+                api.u(value.get_text()))
             parent.thelist.append([name.get_text(), value.get_text()])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
@@ -106,7 +106,7 @@ def hp_add_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         try:
-            parent.honeypots.add(value.get_text().decode(encoding="utf-8"))
+            parent.honeypots.add(api.u(value.get_text()))
             parent.thelist.append([value.get_text()])
         except api.err_duplicate:
             err(parent, "Already exists.")
@@ -172,7 +172,7 @@ def passwd_new_d(parent):
         passwd_type = b64.get_active()  #True if "64"
         passwd_min = spinny_min.get_value_as_int()
         passwd_max = spinny_max.get_value_as_int()
-        passwd_name = name.get_text().decode(encoding="utf-8")
+        passwd_name = api.u(name.get_text())
         if passwd_min > passwd_max or passwd_min < 1 or passwd_max < 1:
             err(parent, "Stupid min and max lengths.")
             dialog.destroy()
@@ -218,7 +218,7 @@ def passwd_updatemeta_d(parent):
     b10 = Gtk.RadioButton.new_with_label_from_widget(b64, "Digits only.")
     
     a, b = parent.thelist[parent.index]       #Remember a, b for a long time.
-    the_index = parent.passwords.mkindex(a.decode(encoding="utf-8"), True)
+    the_index = parent.passwords.mkindex(api.u(a), True)
     
     adj = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["minlength"]),
                             1, 1000000, 1, 16, 0)       #For spinny_min.
@@ -369,8 +369,8 @@ def pick_many_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         #Copy xor show.
-        x = parent.honeypots.pick(spinny.get_value_as_int(), sep.get_text(
-                            ).decode(encoding="utf-8"))
+        x = parent.honeypots.pick(spinny.get_value_as_int(), api.u(
+                            sep.get_text()))
         #x are the choices.
         dialog2 = Gtk.MessageDialog(parent.parent, 0,
                     Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
@@ -487,7 +487,7 @@ class passwd_tab_c(Gtk.Box):
             err(self, "Select first.")
             return
         a, b = self.thelist[self.index] #b is the old password.
-        the_index = self.passwords.mkindex(a.decode(encoding="utf-8"), True)
+        the_index = self.passwords.mkindex(api.u(a), True)
         try:
             self.passwords.update(the_index)
             self.thelist[self.index] = a, self.passwords[the_index]["value"]
@@ -503,7 +503,7 @@ class passwd_tab_c(Gtk.Box):
     def rm(self, button):
         """rm(self, button)"""
         a, b = self.thelist[self.index]
-        self.passwords.remove(str(a).decode(encoding="utf-8"), True)
+        self.passwords.remove(api.u(str(a)), True)
         self.thelist.remove(self.index)
 
 class honeypot_tab_c(Gtk.Box):
@@ -586,8 +586,7 @@ class honeypot_tab_c(Gtk.Box):
         hp_add_d(self)
     def rm_hp(self, button):
         """rm_hp(self, button)"""
-        self.honeypots.remove(self.thelist[self.index][0].decode(
-                                                encoding="utf-8"), True)
+        self.honeypots.remove(api.u(self.thelist[self.index][0]), True)
         self.thelist.remove(self.index)
     def pick_many_list(self, button):
         """pick_many_list(self, button)"""
