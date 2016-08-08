@@ -33,6 +33,7 @@
 .Fd #!/usr/bin/python
 .Fd import passwdmanapi
 .Pp
+.Fd code
 .Fd is_anystr(x)
 .Fd is_bytestr(x)
 .Fd is_int(x)
@@ -113,6 +114,14 @@ is either
 or a
 .Dv progress_bar
 object.
+.Pp
+.\"     ###     code                            ###
+.Va code
+is the encoding
+.Nm
+will use to encode and decode.
+It is set on import, but can be changed.
+.Pp
 .\"     ###     is_anystr                       ###
 .Fn is_anystr
 returns True if

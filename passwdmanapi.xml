@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE. -->
 <synopsis>
 #!/usr/bin/python<sbr/>
 import passwdmanapi<sbr/>
-is_anystr(x)<sbr/>
+code is_anystr(x)<sbr/>
 is_bytestr(x)<sbr/>
 is_int(x)<sbr/>
 is_num(x)<sbr/>
@@ -132,9 +132,17 @@ is either
 <constant>None</constant>
 or a
 <constant>progress_bar</constant>
-object.
+object.</para>
+
+<!-- ###     code                            ### -->
+<para><varname>code</varname>
+is the encoding
+<command remap='Nm'> passwdmanapi </command>
+will use to encode and decode.
+It is set on import, but can be changed.</para>
+
 <!-- ###     is_anystr                       ### -->
-is_anystr()
+<para>is_anystr()
 returns True if
 <varname>x</varname>
 is any kind of string, and False if

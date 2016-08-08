@@ -34,6 +34,8 @@
 .Op Fl -interactive
 .Op Fl B
 .Op Fl -single-backup
+.Op Fl U
+.Op Fl -utf-8
 .Op Ar infile
 .Sh DESCRIPTION
 .Ar infile
@@ -60,6 +62,14 @@ If you specify the option
 or
 .Fl -single-backup ,
 every change that has been done, will be removed by TWO undos.
+.Pp
+You can force
+.Nm
+to use
+.Qq utf-8
+as encoding by specifying the option
+.Fl -utf-8 .
+WARNING: It hasn't been tested with Python 3.x in a non-UTF-8 environment.
 .Pp
 .Nm
 reads its input as colon separated values.

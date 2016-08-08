@@ -32,7 +32,7 @@ import sys
 import logging
 import time
 import os
-import os.path
+import locale
 import getopt
 import shutil
 import unicodedata
@@ -126,8 +126,8 @@ def show_help():
 #undo           Undo last change to passwd or honeypot, there is also 'redo'.
 #help           Obvious.        pb:on           ``progress-bars`'
 #exit           Obvious.        pb:off          Off by default.
-#bugs           Bugs.
-#whistles       Bells and whistles.
+#bugs           Bugs.                   esc:on          Use this!!
+#whistles       Bells and whistles.     esc:off         Default
 """
     sow(show_help.__doc__)
 
@@ -436,7 +436,7 @@ def passwd_update_meta(x):
                 type:   'str'
                 name:   'name'
                 %
-    code:       '''
+    code:       R'''
 # To make it more readable: {0} and {1} will be formated to {0} and {1}.
 try:
     index = p.mkindex(args['name'])
@@ -444,7 +444,7 @@ try:
     p.update_meta(index, '{2}', args['minlen'], args['maxlen'], pb=mk_pb())
     pb_nl()
     new = p[index]['value']
-    sow(api.u("#old:new\\\\npasswd.update?'{0}':'{1}'\\\\n").format(
+    sow(api.u("#old:new\npasswd.update?'{0}':'{1}'\n").format(
                                             api.u(escape(old)), api.u(new)))
 except api.err_nolength:
     err('CEM-01:LIM')
@@ -505,11 +505,11 @@ def passwd_cmds(x):
     command:    'list'
     args:       blank
     # TODO: Implement raw-strings.
-    code:       '''
-sow("#\\\\t\\\\tindex:\\\\tname\\\\n")
+    code:       R'''
+sow("#\t\tindex:\tname\n")
 for i, L in enumerate(p):
-    sow(api.u("passwd.list?\\\\t{0}:\\\\t'{1}'\\\\n").format(i, L['name']))
-sow("#DONE\\\\n#READY\\\\n")
+    sow(api.u("passwd.list?\t{0}:\t'{1}'\n").format(i, L['name']))
+sow("#DONE\n#READY\n")
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'help'
@@ -521,12 +521,12 @@ sow("#DONE\\\\n#READY\\\\n")
                 type:   'str'
                 name:   'name'
                 %
-    code:       '''
+    code:       R'''
 s = siw()
 try:
     int(args['name'])
-    sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\\\\n")
-    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\\\\n")
+    sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
+    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
 except:
     pass
 try:
@@ -548,10 +548,10 @@ except api.err_duplicate:
                 type:   'str'
                 name:   'name'
                 %
-    code:       '''
+    code:       R'''
 try:
     the_value = p[p.mkindex(args['name'])]["value"]
-    sow(api.u("passwd.get?'{0}'\\\\n").format(api.u(escape(the_value))))
+    sow(api.u("passwd.get?'{0}'\n").format(api.u(escape(the_value))))
 except api.err_notfound:
     err("not found")
 '''
@@ -561,7 +561,7 @@ except api.err_notfound:
                 type:   'str'
                 name:   'name'
                 %
-    code:       '''
+    code:       R'''
 try:
     v("This may take a while.")
     index = p.mkindex(args['name'])
@@ -569,7 +569,7 @@ try:
     p.update(index, pb=mk_pb())
     pb_nl()
     new = p[index]["value"]
-    sow("#old:new\\\\npasswd.update?'{0}':'{1}'\\\\n".format(old, new))
+    sow("#old:new\npasswd.update?'{0}':'{1}'\n".format(old, new))
 except api.err_nometa:
     err("no meta")
 except api.err_notfound:
@@ -588,11 +588,11 @@ except api.err_notfound:
                 type:   'str'
                 name:   'name'
                 %
-    code:       '''
+    code:       R'''
 try:                #Get meta-data for a password.
     metadata = p[p.mkindex(args['name'])]["meta"]
-    sow("#\\\\t\\\\ttype:\\\\tminlength:\\\\tmaxlength\\\\n")      #safe
-    sow("passwd.meta?\\\\t'{0}':\\\\t'{1}':\\\\t\\\\t'{2}'\\\\n".format(
+    sow("#\t\ttype:\tminlength:\tmaxlength\n")      #safe
+    sow("passwd.meta?\t'{0}':\t'{1}':\t\t'{2}'\n".format(
                                                 metadata["type"],
                                                 metadata["minlength"],
                                                  metadata["maxlength"]))
@@ -622,12 +622,11 @@ def honeypot_cmds(x):
     data = r"""
     command:    'list'
     args:       blank
-    code:       '''
-sow("#\\\\t\\\\tindex:\\\\tname\\\\n")
+    code:       R'''
+sow("#\t\tindex:\tname\n")
 for index, value in enumerate(h):
-   sow(api.u("honeypot.list?\\\\t{0}:\\\\t'{1}'\\\\n").format(index,
-                                                            escape(value)))
-sow("#DONE\\\\n#READY\\\\n")
+   sow(api.u("honeypot.list?\t{0}:\t'{1}'\n").format(index, escape(value)))
+sow("#DONE\n#READY\n")
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'help'
@@ -636,11 +635,11 @@ sow("#DONE\\\\n#READY\\\\n")
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'pick'
     args:       blank
-    code:       '''
+    code:       R'''
 v("This may take a while.")
 s = escape(h.pick(pb=mk_pb()))
 pb_nl()
-sow(api.u("honeypot.pick?'{0}'\\\\n").format(s))
+sow(api.u("honeypot.pick?'{0}'\n").format(s))
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'add'
@@ -648,11 +647,11 @@ sow(api.u("honeypot.pick?'{0}'\\\\n").format(s))
                 type:   'str'
                 name:   'value'
                 %
-    code:       '''
+    code:       R'''
 try:
     int(args['value'])          # Check if it will be treated as an integer.
-    sow("#WARNING: ITS VALUE WILL BE BELIEVED TO BE AN INDEX!\\\\n")
-    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\\\\n")
+    sow("#WARNING: ITS VALUE WILL BE BELIEVED TO BE AN INDEX!\n")
+    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
 except ValueError:
     pass
 try:
@@ -666,7 +665,7 @@ except api.err_duplicate:
                 type:   'int'
                 name:   'n'
                 %
-    code:       '''
+    code:       R'''
 try:
     the_list = h.pickl(args['n'], False, pb=mk_pb())
 except api.err_idiot:
@@ -675,7 +674,7 @@ pb_nl()
 tmp_list = []
 for x in the_list:
     tmp_list.append(escape(x))
-sow(api.u("honeypot.pickl?'{0}'\\\\n#DONE\\n").format(
+sow(api.u("honeypot.pickl?'{0}'\n#DONE\n").format(
                                             api.u("', '").join(tmp_list)))
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -687,14 +686,14 @@ sow(api.u("honeypot.pickl?'{0}'\\\\n#DONE\\n").format(
                 type:   'str'
                 name:   'sep'
                 %
-    code:       '''
+    code:       R'''
 try:
     #3rd arg, make it raise instead of log.
     tmp_str = h.pick(args['n'], args['sep'], False, pb=mk_pb())
 except api.err_idiot:
     err("n is too big")
 pb_nl()
-sow(api.u("honeypot.pick?'{0}'\\\\n").format(api.u(escape(tmp_str))))
+sow(api.u("honeypot.pick?'{0}'\n").format(api.u(escape(tmp_str))))
 '''
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     command:    'remove'
@@ -857,12 +856,13 @@ verbose = False
 progress_bars = False
 escapes = False
 interactive = False
+strictly_utf8 = False
 theline = ""
 logging.basicConfig(level=logging.CRITICAL)     #STFU
 if __name__ == "__main__":
     try:
-        o, a = getopt.getopt(sys.argv[1:], "iB", ["interactive",
-            "single-backup"])
+        o, a = getopt.getopt(sys.argv[1:], "iBU", ["interactive",
+            "single-backup", "utf-8"])
     except getopt.GetoptError as err:
         sys.stderr.write("{0}\n".format(err))
         sys.exit(1)
@@ -885,6 +885,32 @@ if __name__ == "__main__":
                 "honeypots" + '-' + time.ctime()))
             p = api.passwd(False)
             h = api.honeypot(False)
+        if x in ("-U", "--utf-8"):
+            # This behavior is needed by the redesigned GUI.
+            
+            # Fix I/O for python3.
+            # Hope that some of them works.
+            try_with = [
+                'C.UTF-8',
+                'en_US.UTF-8',
+                'en.UTF-8',
+                'POSIX.UTF-8',
+                'UTF-8',
+                '.UTF-8',
+                '*.UTF-8',
+                ]
+            if locale.getpreferredencoding() != 'UTF-8':
+                if sys.version_info[0] == 3:
+                    for loc in try_with:
+                        try:
+                            locale.setlocale(locale.LC_ALL, loc)
+                            break
+                        except locale.Error:
+                            pass
+                    else:
+                        raise locale.Error('I REQUIRE UTF-8')
+            # The API uses whatever the terminal wants.
+            api.code = 'utf-8'
     try:
         main()
     except KeyboardInterrupt: #^C

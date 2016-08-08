@@ -617,6 +617,7 @@ def parsetext_untext(text):
     text = re.sub("'''", chr(3), re.sub('"""', chr(4), tmp_text))
     tmp_text = ''
     quote = ''
+    raw = False
     for c in text:
         if c == quote:
             # End-quote.
@@ -625,6 +626,8 @@ def parsetext_untext(text):
             else:
                 tmp_text += '"""'
             quote = ''
+            # Setting `raw` to `False` will make it drop the 'r'.
+            raw = 0
         elif c in (chr(3), chr(4)):
             # Start quote.
             if c == chr(3):
@@ -637,9 +640,29 @@ def parsetext_untext(text):
             if c == '\n':
                 tmp_text += '\\n'
             else:
-                tmp_text += c
+                if raw == 1 and c == '\\':
+                    tmp_text += '\\\\'
+                elif raw == 2 and c == '\\':
+                    tmp_text += '\\\\\\\\'
+                else:
+                    tmp_text += c
         else:
-            tmp_text += c
+            if raw == 1:
+                # Last character was a 'r' that didn't start a r'''*'''.
+                tmp_text += 'r'
+                raw = 0
+            if raw == 2:
+                tmp_text += 'R'
+                raw = 0
+            # raw and super-raw.
+            if c == 'r':
+                # If the following character is \x03
+                # or \x04: start a r'''*'''.
+                raw = 1
+            elif c == 'R':
+                raw = 2
+            else:
+                tmp_text += c
     # Lines and escapes.
     raw_lines = tmp_text.split('\n')
     escaped_lines = []

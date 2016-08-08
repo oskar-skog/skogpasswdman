@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANAPI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANAPI"><a id="passwdmanapi3"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmanapi  —  library used by passwdmancli and passwdmangui  </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><pre class="synopsis">
 #!/usr/bin/python<br />
 import passwdmanapi<br />
-is_anystr(x)<br />
+code is_anystr(x)<br />
 is_bytestr(x)<br />
 is_int(x)<br />
 is_num(x)<br />
@@ -61,9 +61,11 @@ is either
 <code class="constant">None</code>
 or a
 <code class="constant">progress_bar</code>
-object.
-
-is_anystr()
+object.</p><p><code class="varname">code</code>
+is the encoding
+<span class="command"><strong> passwdmanapi </strong></span>
+will use to encode and decode.
+It is set on import, but can be changed.</p><p>is_anystr()
 returns True if
 <code class="varname">x</code>
 is any kind of string, and False if

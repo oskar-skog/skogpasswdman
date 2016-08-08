@@ -46,6 +46,8 @@ POSSIBILITY OF SUCH DAMAGE. -->
     <arg choice='plain'>---interactive </arg>
     <arg choice='plain'>--B </arg>
     <arg choice='plain'>---single-backup </arg>
+    <arg choice='plain'>--U </arg>
+    <arg choice='plain'>---utf-8 </arg>
     <arg choice='plain'><replaceable>infile</replaceable></arg>
 </cmdsynopsis>
 </refsynopsisdiv>
@@ -76,6 +78,14 @@ to stay alive after an error.</para>
 or
 <option>--single-backup</option>,
 every change that has been done, will be removed by TWO undos.</para>
+
+<para>You can force
+<command remap='Nm'> passwdmancli </command>
+to use
+"utf-8"
+as encoding by specifying the option
+<option>--utf-8</option>.
+WARNING: It hasn't been tested with Python 3.x in a non-UTF-8 environment.</para>
 
 <para><command remap='Nm'> passwdmancli </command>
 reads its input as colon separated values.
