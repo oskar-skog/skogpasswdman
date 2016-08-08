@@ -28,6 +28,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
 
 def err(parent, msg):
+    """expected to be called from passwd_tab_c() or honeypot_tab_c().
+    If called from main_window(), use 'self.passwd_tab' as parent.
+    Show the message 'err' in a dialog.
+    """
     dialog = Gtk.MessageDialog(parent.parent, 0,
                     Gtk.MessageType.ERROR, Gtk.ButtonsType.CLOSE,
                     "ERROR")
@@ -36,7 +40,8 @@ def err(parent, msg):
     dialog.destroy()
 
 def passwd_add_d(parent):
-    #lots of this is reused in hp_add_d()
+    """parent has attribute parent, which is the real parent window.
+    Add password dialog."""
     dialog = Gtk.Dialog("Add existing password.", parent.parent, 0,
                         (Gtk.STOCK_OK, Gtk.ResponseType.OK,
                          Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
@@ -67,10 +72,7 @@ def passwd_add_d(parent):
     if response == Gtk.ResponseType.OK:
         try:
             parent.passwords.add_nometa(name.get_text(), value.get_text())
-            try:
-                parent.thelist.append([name.get_text(), value.get_text()])
-            except:
-                raise
+            parent.thelist.append([name.get_text(), value.get_text()])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
         except:
@@ -79,8 +81,8 @@ def passwd_add_d(parent):
     dialog.destroy()
  
 def hp_add_d(parent):
-    #lots of this is reused in hp_add_d()
-    #copy-pasted and hand-hacked
+    """parent has attribute parent which is the real parent window.
+    Add honeypot dialog."""
     dialog = Gtk.Dialog("Add honeypot.", parent.parent, 0,
                         (Gtk.STOCK_OK, Gtk.ResponseType.OK,
                          Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
@@ -100,12 +102,18 @@ def hp_add_d(parent):
     
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
-        parent.honeypots.add(value.get_text())
-        #add to parent.thelist
-        parent.thelist.append([value.get_text()])
+        try:
+            parent.honeypots.add(value.get_text())
+            parent.thelist.append([value.get_text()])
+        except api.err_duplicate:
+            err(parent, "Already exists.")
+        except:
+            err(parent, "Unknown error in hp_add_d()")
     dialog.destroy()
     
 def passwd_new_d(parent):
+    """parent has attribute parent which is the real parent window.
+    Auto-generate new password dialog."""
     #label      entry
     #label      spinny min
     #label      spinny max
@@ -123,8 +131,8 @@ def passwd_new_d(parent):
     name = Gtk.Entry()
     name.set_editable(True)
     
-    adj = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)
-    adj2 = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)
+    adj = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)       #for spinny_min
+    adj2 = Gtk.Adjustment(8, 1, 1000000, 1, 16, 0)      #for spinny_max
     spinny_min = Gtk.SpinButton()
     spinny_min.set_adjustment(adj)
     spinny_max = Gtk.SpinButton()
@@ -144,9 +152,9 @@ def passwd_new_d(parent):
     radio_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
     
     name_box.pack_start(label_name, False, False, 0)
-    name_box.pack_start(name, True, True, 0)
-    radio_box.pack_start(b10, False, False, 0)
-    radio_box.pack_end(b64, False, False, 0)
+    name_box.pack_start(name, True, True, 0)    #Gtk.Entry()
+    radio_box.pack_start(b10, False, False, 0)  #radio button
+    radio_box.pack_end(b64, False, False, 0)    #radio button
     
     top_box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
     top_box.pack_start(name_box, False, False, 0)
@@ -157,7 +165,7 @@ def passwd_new_d(parent):
     
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
-        passwd_type = b64.get_active()
+        passwd_type = b64.get_active()  #True if "64"
         passwd_min = spinny_min.get_value_as_int()
         passwd_max = spinny_max.get_value_as_int()
         passwd_name = name.get_text()
@@ -165,7 +173,7 @@ def passwd_new_d(parent):
             err(parent, "Stupid min and max lengths.")
             dialog.destroy()
             return
-        thelength = api.getint(passwd_min, passwd_max + 1)
+        thelength = api.getint(passwd_min, passwd_max + 1)      #randomize
         if passwd_type:
             passwd_type = "64"
             passwd_value = api.get64(thelength)
@@ -175,10 +183,7 @@ def passwd_new_d(parent):
         try:
             parent.passwords.add(passwd_name, passwd_value, passwd_type,
                                  passwd_min, passwd_max)
-            try:
-                parent.thelist.append([passwd_name, passwd_value])
-            except:
-                raise
+            parent.thelist.append([passwd_name, passwd_value])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
         except:
@@ -187,6 +192,8 @@ def passwd_new_d(parent):
     dialog.destroy()
 
 def passwd_updatemeta_d(parent):
+    """parent has attribute parent which is the real parent window.
+    Update password with new meta-data dialog."""
     #copy-pasted from passwd_new_d and hand-hacked
     #label      entry
     #label      spinny min
@@ -211,9 +218,9 @@ def passwd_updatemeta_d(parent):
     the_index = parent.passwords.mkindex(a)
     
     adj = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["minlength"]),
-                            1, 1000000, 1, 16, 0)
+                            1, 1000000, 1, 16, 0)       #for spinny_min
     adj2 = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["maxlength"]),
-                            1, 1000000, 1, 16, 0)
+                            1, 1000000, 1, 16, 0)       #for spinny_max
     spinny_min = Gtk.SpinButton()
     spinny_min.set_adjustment(adj)
     spinny_max = Gtk.SpinButton()
@@ -265,12 +272,16 @@ def passwd_updatemeta_d(parent):
     dialog.destroy()
 
 def passwd_updated_d(parent, old, new):
+    """parent has attribute parent which is the real parent window.
+    Show old and new passwords. This is a wrapper for passwd_updated_c."""
     dialog = passwd_updated_c(parent, old, new)
     dialog.run()
     dialog.destroy()
 
 class passwd_updated_c(Gtk.Dialog):
     def __init__(self, parent, old, new):
+        """parent has attribute parent which is the real parent window.
+        There is a wrapper: passwd_updated_d(parent, old, new)."""
         Gtk.Dialog.__init__(self, "Password has been updated.", parent.parent,
                             0, ("Close", Gtk.ResponseType.CLOSE))
         main_box = self.get_content_area()
@@ -279,7 +290,7 @@ class passwd_updated_c(Gtk.Dialog):
         self.v_new = new
         old_v = Gtk.Entry()
         old_v.set_text(old)
-        old_v.set_editable(False)
+        old_v.set_editable(False)       #show the passwords in Gtk.Entry()s
         new_v = Gtk.Entry()
         new_v.set_text(new)
         new_v.set_editable(False)
@@ -341,7 +352,7 @@ def pick_many_d(parent):
     
     main_box.add(top_box)
     dialog.show_all()
-    response = dialog.run()     #It is an OK/CANCEL
+    response = dialog.run()
     if response == Gtk.ResponseType.OK:
         #copy or show
         x = parent.honeypots.pick(spinny.get_value_as_int(), sep.get_text())
@@ -366,11 +377,13 @@ def pick_many_d(parent):
     dialog.destroy()    #do it here or spinny will die
     
 class passwd_tab_c(Gtk.Box):
+    """Used by main_window(). I am a Gtk.Box()."""
     def __init__(self, arg=None):
+        """arg is the main window."""
         self.parent = arg
         Gtk.Box.__init__(self, orientation = Gtk.Orientation.HORIZONTAL)
         self.passwords = api.passwd()   #needed by main_window.undo()
-        self.thelist = Gtk.ListStore(str, str)
+        self.thelist = Gtk.ListStore(str, str)  #name, value
         tree = Gtk.TreeView(self.thelist)
         for x in self.passwords:
             self.thelist.append([x["name"], x["value"]])
@@ -418,7 +431,7 @@ class passwd_tab_c(Gtk.Box):
             self.index = x
     def copy(self, button):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        a, b = self.thelist[self.index]
+        a, b = self.thelist[self.index] #name, value
         clipboard.set_text(b, len(b))
         clipboard.store()
     def update_meta(self, button):
@@ -427,7 +440,7 @@ class passwd_tab_c(Gtk.Box):
         if self.index == None:
             err(self, "Select first.")
             return
-        a, b = self.thelist[self.index]
+        a, b = self.thelist[self.index] #b is the old password
         the_index = self.passwords.mkindex(a)
         self.passwords.update(the_index)
         self.thelist[self.index] = a, self.passwords[the_index]["value"]
@@ -442,7 +455,9 @@ class passwd_tab_c(Gtk.Box):
         self.thelist.remove(self.index)
 
 class honeypot_tab_c(Gtk.Box):
+    """Used by main_window(). I'm a Gtk.Box()."""
     def __init__(self, arg=None):
+        """arg is the main window."""
         self.parent = arg
         #set the parent argument for dialogs
         Gtk.Box.__init__(self, orientation = Gtk.Orientation.HORIZONTAL)
@@ -514,8 +529,9 @@ class honeypot_tab_c(Gtk.Box):
 class main_window(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="passwdmangui")
-        self.passwd_tab = passwd_tab_c(self)        #needed by undo()
-        self.honeypot_tab = honeypot_tab_c(self)    #needed by undo()
+        self.passwd_tab = passwd_tab_c(self)        #needed by undo(), redo()
+        self.honeypot_tab = honeypot_tab_c(self)    #needed by undo(), redo()
+                            #the argument is their parent
         
         tabs = Gtk.Notebook()
         tabs.append_page(self.passwd_tab, Gtk.Label("Passwords"))
