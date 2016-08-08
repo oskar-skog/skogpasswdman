@@ -425,13 +425,17 @@ def main():             #Finally.
     while True:
         v("READY")  #Show this message after every command, if verbose.
                     #It should be moved to line 666.
-        theline = siw()[:-1]
+        temporary_variable = siw()
+        if len(temporary_variable) < 1: #Not even an empty line.
+            quit()
+        theline = temporary_variable[:-1]       #Get rid of newline.
         if len(theline) < 1:
             continue
         if theline[0] == "#":           #Comment.
             continue
         if theline[0] == "|":           #Pipe through.
             sow(theline[1:])
+            sow("\n")
             continue
         twofields = theline.split(':', 1)
         a = twofields[0]
