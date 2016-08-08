@@ -31,6 +31,8 @@ import os
 import tarfile
 import sys
 import locale
+import unicodedata
+import traceback
 
 __doc__ = """
 
@@ -1474,4 +1476,23 @@ if __name__ == "__main__":
             curses.echo()
             curses.nocbreak()
             curses.endwin()
-        raise
+        print("AAARGH!   I'M DYING A PAINFUL DEATH!   AAARGH!")
+        try:
+            raise
+        except UnicodeEncodeError as x:
+            try:
+                bad = unicodedata.name(x.object[x.start:x.end])
+            except ValueError:
+                bad = 'CHARACTER THAT DOES NOT EXIST'
+            print('I broke my fingers attempting to write a {0}'.format(bad))
+            print('Use a better encoding.')
+            traceback.print_exc()
+            sys.exit(1)
+        except UnicodeDecodeError as x:
+            print('I broke my eyes attempting to read a {0}'.format(
+                                        x.object[x.start:x.end].__repr__()))
+            print('Use a better encoding.')
+            traceback.print_exc()
+            sys.exit(1)
+        except:
+            raise

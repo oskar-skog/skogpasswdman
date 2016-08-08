@@ -357,6 +357,9 @@ argument:</para>
 <listitem>
 <para>honeypot.pickl()</para>
 </listitem>
+<listitem>
+<para>honeypot.pickf()</para>
+</listitem>
 </itemizedlist>
 
 <para>no_pb()

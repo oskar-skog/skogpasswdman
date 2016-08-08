@@ -1,4 +1,9 @@
 2014-01-19      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.2
+    * passwdmanapi.3: Added honeypot.pickf() to the list of functions that
+        takes a 'pb' argument.
+    * passwdmanrli, passwdmancli: UnicodeEncodeError and UnicodeDecodeError.
+    * passwdmancli: KeyboardInterrupt.
 0.4.1
     * passwdmanapi.py: honeypot.pickf()
         _OLD_PICK_      sed'ed to a bool

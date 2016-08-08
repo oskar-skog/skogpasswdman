@@ -35,6 +35,8 @@ import os
 import os.path
 import getopt
 import shutil
+import unicodedata
+import traceback
 
 __doc__ = """The functions show_help(), passwd_help(), honeypot_help(),
 bells_and_whistles() and bugs() takes no arguments and prints their
@@ -622,4 +624,28 @@ if __name__ == "__main__":
                 "honeypots" + '-' + time.ctime()))
             p = api.passwd(False)
             h = api.honeypot(False)
-    main()
+    try:
+        main()
+    except KeyboardInterrupt: #^C
+        quit()
+    except:
+        print("\n!!#AAARGH!   I'M DYING A PAINFUL DEATH!   AAARGH!")
+        try:
+            raise
+        except UnicodeEncodeError as x:
+            try:
+                bad = unicodedata.name(x.object[x.start:x.end])
+            except ValueError:
+                bad = 'CHARACTER THAT DOES NOT EXIST'
+            print('I broke my fingers attempting to write a {0}'.format(bad))
+            print('Use a better encoding.')
+            traceback.print_exc()
+            sys.exit(1)
+        except UnicodeDecodeError as x:
+            print('I broke my eyes attempting to read a {0}'.format(
+                                        x.object[x.start:x.end].__repr__()))
+            print('Use a better encoding.')
+            traceback.print_exc()
+            sys.exit(1)
+        except:
+            raise
