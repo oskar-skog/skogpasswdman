@@ -1404,7 +1404,7 @@ installed_files = []    # Filled in by maketarget_install and used by
                         # maketarget_uninstall.
 xfm_options = []
 makefile = None
-VERSION = "0.4.15"
+VERSION = "0.4.16"
 LINES = 1158
 if __name__ == "__main__":
     main()              # Handle options.

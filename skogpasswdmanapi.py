@@ -1540,6 +1540,7 @@ def _unredo(passwdobj, honeypotobj, undo_unodable, undo_redoable):
     '~/.skogpasswdman/passwords' or '~/.skogpasswdman/honeypots'.
     
     """
+    time.sleep(1)   # Prevent overwriting historyfiles.
     if not isinstance(passwdobj, passwd):
         raise err_idiot("Read the fucking __doc__ string")
     if not isinstance(honeypotobj, honeypot):
@@ -1557,14 +1558,14 @@ def _unredo(passwdobj, honeypotobj, undo_unodable, undo_redoable):
     if "passwords" in filename:
         os.rename(ope("~/.skogpasswdman/passwords"),
             os.path.join(ope(undo_redoable),
-                "passwords" + '-' + time.ctime())) # Copy to redoable.
+                "passwords" + '-' + str(time.time()))) # Copy to redoable.
         passwdobj.__del__()
         os.rename(filename, ope("~/.skogpasswdman/passwords"))
         passwdobj.__init__() # Reload the data structure.
     elif "honeypots" in filename:
         os.rename(ope("~/.skogpasswdman/honeypots"),
             os.path.join(ope(undo_redoable),
-                "honeypots" + '-' + time.ctime())) # Copy to redoable.
+                "honeypots" + '-' + str(time.time()))) # Copy to redoable.
         honeypotobj.__del__()
         os.rename(filename, ope("~/.skogpasswdman/honeypots"))
         honeypotobj.__init__() # Reload the data structure.
