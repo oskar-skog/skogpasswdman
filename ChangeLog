@@ -1,3 +1,7 @@
+2014-01-18      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.29
+    * configure.2 (update): Use here-docs instead of printf and echo.
+
 2014-01-17      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.28
     * passwdmanrli: BUGFIX: Use the exec-statement as a

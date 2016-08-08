@@ -57,20 +57,6 @@ if [ $pyck -eq 0 ]; then
     echo Python is required.
     exit 1
 fi
-#Create dirsinstall.
-verbose Creating dirsinstall...
-echo '#!/bin/sh' > dirsinstall
-echo '#This script will make sure that' >> dirsinstall
-echo '#all the specified directories exist.' >> dirsinstall
-echo 'while [ $# -gt 0 ]; do' >> dirsinstall
-echo '    if [ -d $1 ]; then' >> dirsinstall
-echo '        shift' >> dirsinstall
-echo '        continue' >> dirsinstall
-echo '    fi' >> dirsinstall
-echo '    mkdir $1' >> dirsinstall
-echo '    shift' >> dirsinstall
-echo 'done' >> dirsinstall
-chmod +x dirsinstall
 #Where is python?
 for test_dir in `echo $PATH | tr : " "`; do
     for test_file in `ls $test_dir | grep ^python`; do
@@ -80,121 +66,150 @@ for test_dir in `echo $PATH | tr : " "`; do
         fi
     done
 done
+#Create dirsinstall.
+verbose Creating dirsinstall...
+cat > dirsinstall << __EOF__
+#!/bin/sh
+#This script will make sure that
+#all the specified directories exist.
+while [ \$# -gt 0 ]; do
+    if [ -d \$1 ]; then
+        shift
+        continue
+    fi
+    mkdir \$1
+    shift
+done
+__EOF__
+chmod +x dirsinstall
 #Create passwdmanapi.xml.fix.
 verbose Creating passwdmanapi.xml.fix...
 echo "#!${python_exec}" > passwdmanapi.xml.fix
-echo 'import sys' >> passwdmanapi.xml.fix
-echo '#Fix broken Docbook XML in passwdmanapi.xml.' >> passwdmanapi.xml.fix
-echo '' >> passwdmanapi.xml.fix
-echo 'chunks = []' >> passwdmanapi.xml.fix
-echo '' >> passwdmanapi.xml.fix
-echo 'while True:' >> passwdmanapi.xml.fix
-echo '    l = sys.stdin.readline()' >> passwdmanapi.xml.fix
-echo '    if len(l) < 1:' >> passwdmanapi.xml.fix
-echo '        quit()' >> passwdmanapi.xml.fix
-echo '    if "<refsynopsisdiv" in l:' >> passwdmanapi.xml.fix
-echo '        sys.stdout.write(l)' >> passwdmanapi.xml.fix
-echo '        #Inside the bad place.' >> passwdmanapi.xml.fix
-echo '        while True:' >> passwdmanapi.xml.fix
-echo '            l = sys.stdin.readline()' >> passwdmanapi.xml.fix
-echo '            if "<command>" in l:' >> passwdmanapi.xml.fix
-printf '                sys.stdout.write("<synopsis>' >> passwdmanapi.xml.fix
-echo '\\n#!/usr/bin/python<sbr/>\\n")' >> passwdmanapi.xml.fix
-echo '                continue' >> passwdmanapi.xml.fix
-printf '            ' >> passwdmanapi.xml.fix
-echo 'if "import" in l or "passwdmanapi" in l:' >> passwdmanapi.xml.fix
-echo '                continue' >> passwdmanapi.xml.fix
-echo '            if "<sbr/>" in l:' >> passwdmanapi.xml.fix
-printf '                sys.stdout.write("import' >> passwdmanapi.xml.fix
-echo ' passwdmanapi<sbr/>\\n")' >> passwdmanapi.xml.fix
-echo '                continue' >> passwdmanapi.xml.fix
-echo '            if l == "</refsynopsisdiv>\\n":' >> passwdmanapi.xml.fix
-printf '                ' >> passwdmanapi.xml.fix
-echo 'break           #Do not end synopsis here.' >> passwdmanapi.xml.fix
-echo '            try:' >> passwdmanapi.xml.fix
-echo '                chunks.append(l[37:-21])' >> passwdmanapi.xml.fix
-echo '            except:' >> passwdmanapi.xml.fix
-echo '                pass    #</synopsis>' >> passwdmanapi.xml.fix
-echo '        #Write out the chunks.' >> passwdmanapi.xml.fix
-echo '        for x in chunks:' >> passwdmanapi.xml.fix
-echo '            sys.stdout.write(x)' >> passwdmanapi.xml.fix
-echo '            try:' >> passwdmanapi.xml.fix
-echo '                if x[-1] == ")":' >> passwdmanapi.xml.fix
-printf '                    ' >> passwdmanapi.xml.fix
-echo 'sys.stdout.write("<sbr/>\\n")' >> passwdmanapi.xml.fix
-echo '                else:' >> passwdmanapi.xml.fix
-echo '                    sys.stdout.write(" ")' >> passwdmanapi.xml.fix
-echo '            except:' >> passwdmanapi.xml.fix
-echo '                pass' >> passwdmanapi.xml.fix
-echo '        sys.stdout.write("</synopsis>")' >> passwdmanapi.xml.fix
-echo '        while True:' >> passwdmanapi.xml.fix
-echo '            l = sys.stdin.readline()' >> passwdmanapi.xml.fix
-echo '            if l == "</refsect1>\\n":' >> passwdmanapi.xml.fix
-printf '                ' >> passwdmanapi.xml.fix
-echo 'sys.stdout.write("</refsynopsisdiv>\\n")' >> passwdmanapi.xml.fix
-echo '                #End synopsis here.' >> passwdmanapi.xml.fix
-echo '                break' >> passwdmanapi.xml.fix
-echo '            if "<para>" in l or not "<" in l:' >> passwdmanapi.xml.fix
-printf '                ' >> passwdmanapi.xml.fix
-echo 'sys.stdout.write(l[:-1] + "<sbr/>\\n")' >> passwdmanapi.xml.fix
-echo '            else:' >> passwdmanapi.xml.fix
-echo '                sys.stdout.write(l)' >> passwdmanapi.xml.fix
-echo '    else:' >> passwdmanapi.xml.fix
-echo '        sys.stdout.write(l)' >> passwdmanapi.xml.fix
+cat >> passwdmanapi.xml.fix << __EOF__
+#!/usr/bin/python
+import sys
+#Fix broken Docbook XML in passwdmanapi.xml.
+
+chunks = []
+
+while True:
+    l = sys.stdin.readline()
+    if len(l) < 1:
+        quit()
+    if "<refsynopsisdiv" in l:
+        sys.stdout.write(l)
+        #Inside the bad place.
+        while True:
+            l = sys.stdin.readline()
+            if "<command>" in l:
+                sys.stdout.write("<synopsis>
+#!/usr/bin/python<sbr/>
+")
+                continue
+            if "import" in l or "passwdmanapi" in l:
+                continue
+            if "<sbr/>" in l:
+                sys.stdout.write("import passwdmanapi<sbr/>
+")
+                continue
+            if l == "</refsynopsisdiv>
+":
+                break           #Do not end synopsis here.
+            try:
+                chunks.append(l[37:-21])
+            except:
+                pass    #</synopsis>
+        #Write out the chunks.
+        for x in chunks:
+            sys.stdout.write(x)
+            try:
+                if x[-1] == ")":
+                    sys.stdout.write("<sbr/>
+")
+                else:
+                    sys.stdout.write(" ")
+            except:
+                pass
+        sys.stdout.write("</synopsis>")
+        while True:
+            l = sys.stdin.readline()
+            if l == "</refsect1>
+":
+                sys.stdout.write("</refsynopsisdiv>
+")
+                #End synopsis here.
+                break
+            if "<para>" in l or not "<" in l:
+                sys.stdout.write(l[:-1] + "<sbr/>
+")
+            else:
+                sys.stdout.write(l)
+    else:
+        sys.stdout.write(l)
+__EOF__
 chmod +x passwdmanapi.xml.fix
 #create passwdmanfiles.xml.fix
 verbose Creating passwdmanfiles.xml.fix
 echo "#!${python_exec}" > passwdmanfiles.xml.fix
-echo 'import sys' >> passwdmanfiles.xml.fix
-echo 'while True:' >> passwdmanfiles.xml.fix
-echo '    l = sys.stdin.readline()' >> passwdmanfiles.xml.fix
-echo '    if len(l) < 1:' >> passwdmanfiles.xml.fix
-echo '        quit()' >> passwdmanfiles.xml.fix
-echo '    if "<refname>" in l:' >> passwdmanfiles.xml.fix
-printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
-echo '"<refname>~/.passwdman/passwords, ")' >> passwdmanfiles.xml.fix
-printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
-echo '"~/.passwdman/honeypots, ")' >> passwdmanfiles.xml.fix
-printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
-echo '"~/.passwdman/undoable/, ")' >> passwdmanfiles.xml.fix
-printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
-echo '"~/.passwdman/redoable/, ")' >> passwdmanfiles.xml.fix
-printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
-echo '"~/.passwdman/gui.conf</refname>\\n")' >> passwdmanfiles.xml.fix
-echo '    else:' >> passwdmanfiles.xml.fix
-echo '        sys.stdout.write(l)' >> passwdmanfiles.xml.fix
+cat >> passwdmanfiles.xml.fix << __EOF__
+#!/usr/bin/python
+import sys
+while True:
+    l = sys.stdin.readline()
+    if len(l) < 1:
+        quit()
+    if "<refname>" in l:
+        sys.stdout.write("<refname>~/.passwdman/passwords, ")
+        sys.stdout.write("~/.passwdman/honeypots, ")
+        sys.stdout.write("~/.passwdman/undoable/, ")
+        sys.stdout.write("~/.passwdman/redoable/, ")
+        sys.stdout.write("~/.passwdman/gui.conf</refname>
+")
+    else:
+        sys.stdout.write(l)
+__EOF__
 chmod +x passwdmanfiles.xml.fix
 #create shebang script
 verbose Creating shebang...
-echo '#!/bin/sh' > shebang
-echo 'for test_dir in `echo $PATH | tr : " "`; do' >> shebang
-echo '    for test_file in `ls $test_dir | grep ^python`; do' >> shebang
-echo '        if [ -x $test_dir/$testfile ] ; then' >> shebang
-echo '            python_exec=$test_dir/$test_file' >> shebang
-echo '            break 2' >> shebang
-echo '        fi' >> shebang
-echo '    done' >> shebang
-echo 'done' >> shebang
-echo 'while [ $# -gt 0 ]; do' >> shebang
-echo '    echo "#!$python_exec" > `basename $1`.out' >> shebang
-echo '    cat $1 >> $1.out' >> shebang
-echo '    shift' >> shebang
-echo 'done' >> shebang
+cat > shebang << __EOF__
+#!/bin/sh
+for test_dir in \`echo \$PATH | tr : " "\`; do
+    for test_file in \`ls \$test_dir | grep ^python\`; do
+        if [ -x \$test_dir/\$testfile ] ; then
+            python_exec=\$test_dir/\$test_file
+            break 2
+        fi
+    done
+done
+while [ \$# -gt 0 ]; do
+    echo "#!\$python_exec" > \`basename \$1\`.out
+    cat \$1 >> \$1.out
+    shift
+done
+__EOF__
 chmod +x shebang
 #Create fix.docbook.
 verbose Creating fix.docbook...
-printf "s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com " > fix.docbook
-echo "role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/" >> fix.docbook
-echo "s/();/()/" >> fix.docbook
-echo "s/(.);/()./" >> fix.docbook
-echo "s/Pa ~/~/" >> fix.docbook
+#printf "s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com " > fix.docbook
+#echo "role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/" >> fix.docbook
+#echo "s/();/()/" >> fix.docbook
+#echo "s/(.);/()./" >> fix.docbook
+#echo "s/Pa ~/~/" >> fix.docbook
+cat > fix.docbook << __EOF__
+s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/
+s/();/()/
+s/(.);/()./
+s/Pa ~/~/
+__EOF__
 #create cdfxm
 verbose Creating cdxfm...
-echo "#!/bin/sh" > cdxfm
-echo 'old_wd=`pwd`' >> cdxfm
-echo 'cd xfilemanager-*/' >> cdxfm
-echo '$*' >> cdxfm
-echo 'cd $old_wd' >> cdxfm
+cat > cdxfm << __EOF__
+#!/bin/sh
+old_wd=\`pwd\`
+cd xfilemanager-*/
+\$*
+cd \$old_wd
+__EOF__
 chmod +x cdxfm
 #create configure.2             python-script
 if [ -z $python_exec ]; then
@@ -203,1117 +218,1143 @@ else
     echo "#!${python_exec}" > configure.2
 fi
 verbose Creating configure.2...
-printf '#!/usr/bin/python\n' >> configure.2
-printf '\n' >> configure.2
-printf 'copywrong = \042\042\042\n' >> configure.2
-printf 'Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>\n' >> configure.2
-printf 'All rights reserved.\n' >> configure.2
-printf '\n' >> configure.2
-printf 'Redistribution and use in source and binary forms, with or without\n' >> configure.2
-printf 'modification, are permitted provided that the following conditions are met:\n' >> configure.2
-printf '\n' >> configure.2
-printf '1.  Redistributions of source code must retain the above copyright notice,\n' >> configure.2
-printf '    this list of conditions and the following disclaimer.\n' >> configure.2
-printf '\n' >> configure.2
-printf '2.  Redistributions in binary form must reproduce the above copyright notice,\n' >> configure.2
-printf '    this list of conditions and the following disclaimer in the documentation\n' >> configure.2
-printf '    and/or other materials provided with the distribution.\n' >> configure.2
-printf '\n' >> configure.2
-printf 'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS IS\042\n' >> configure.2
-printf 'AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
-printf 'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n' >> configure.2
-printf 'ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n' >> configure.2
-printf 'LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n' >> configure.2
-printf 'CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n' >> configure.2
-printf 'SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS\n' >> configure.2
-printf 'INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\n' >> configure.2
-printf 'CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n' >> configure.2
-printf 'ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n' >> configure.2
-printf 'POSSIBILITY OF SUCH DAMAGE.\042\042\042\n' >> configure.2
-printf '\n' >> configure.2
-printf '__doc__ = \042\042\042Second stage of configure.\n' >> configure.2
-printf 'This file is human generated, but generated from `configure`, which is\n' >> configure.2
-printf 'auto\055generated by this file.\n' >> configure.2
-printf '\n' >> configure.2
-printf 'See also `usage.__doc__`.\n' >> configure.2
-printf '\n' >> configure.2
-printf '``cli = gui = guidoc = techdoc = xfm = rli = rlidoc = rli_clipboard = True``\n' >> configure.2
-printf '\n' >> configure.2
-printf 'Where to install `passwdmanapi.py`.\n' >> configure.2
-printf '\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\n' >> configure.2
-printf 'ex. `moduledir` = `/usr/lib/python2.7/dist\055packages`\n' >> configure.2
-printf 'ex. `moduledir3` = `/usr/lib/python3.2/dist\055packages`\n' >> configure.2
-printf '\n' >> configure.2
-printf 'Makefile variables\n' >> configure.2
-printf '\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\n' >> configure.2
-printf '`dirs_def`    All the long options and the defaults for variables in\n' >> configure.2
-printf '              Makefile.  The first ones `name` **must** be\n' >> configure.2
-printf '              ``PKGNAME``!\n' >> configure.2
-printf '`dirs_set`    Manually set directories.\n' >> configure.2
-printf '`dirs_final`  The directory variables to use.\n' >> configure.2
-printf '`dirs_auto`   `dirs` will figure out some variables.\n' >> configure.2
-printf 'They are lists of dictionaries of `name` and `value`.\n' >> configure.2
-printf '\n' >> configure.2
-printf 'Misc. variables\n' >> configure.2
-printf '\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\n' >> configure.2
-printf '`installed_files`       Filled in by `maketarget_install` and used by\n' >> configure.2
-printf '                        `maketarget_uninstall`.  List of strings; all\n' >> configure.2
-printf '                        the installed files.\n' >> configure.2
-printf '`xfm_options`           List of all the ``\055\055with\055`` options.  They are\n' >> configure.2
-printf '                        sent to ``xfilemanager``s ``configure`` The\n' >> configure.2
-printf '                        ``\055\055with\055`` is preserved.\n' >> configure.2
-printf '`makefile`              A file object opened by `makemakefile`.\n' >> configure.2
-printf '`verbose`               bool\n' >> configure.2
-printf '`VERSION`               str\n' >> configure.2
-printf '`LINES`                 Used by `update` to make ``configure`` show\n' >> configure.2
-printf '                        progress.\n' >> configure.2
-printf '\n' >> configure.2
-printf 'Other files generated by ``configure``\n' >> configure.2
-printf '\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\055\n' >> configure.2
-printf '``shebang``                     Compiler\055like interface. Adds a\n' >> configure.2
-printf '                                ``.out``\055suffix to it\047s arguments.\n' >> configure.2
-printf '                                Finds the python interpreter and will\n' >> configure.2
-printf '                                set the shebang line to the right path.\n' >> configure.2
-printf '``cdxfm``                       cd into ``xfilemanager\055*`` and do\n' >> configure.2
-printf '                                ``\044*``.\n' >> configure.2
-printf '``dirsinstall``                 Force the directories ``\044@`` to exist.\n' >> configure.2
-printf '``passwdmanapi.xml.fix``        Filter; repair broken Docbook. (Doesn\047t\n' >> configure.2
-printf '                                validate)\n' >> configure.2
-printf '``passwdmanfiles.xml.fix``      Filter; repair broken Docbook. (Validates)\n' >> configure.2
-printf '``fix.docbook``                 To be fed into sed.\n' >> configure.2
-printf '\n' >> configure.2
-printf '\042\042\042\n' >> configure.2
-printf '\n' >> configure.2
-printf 'import getopt\n' >> configure.2
-printf 'import sys\n' >> configure.2
-printf 'import os\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def v(x):\n' >> configure.2
-printf '    \042\042\042v(x) \055 Print message x if in verbose mode.\042\042\042\n' >> configure.2
-printf '    if verbose:\n' >> configure.2
-printf '        print(x)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def usage():\n' >> configure.2
-printf '    \042\042\042Options:\n' >> configure.2
-printf '  Long options; only for variables in Makefile:\n' >> configure.2
-printf '    \055\055prefix    \055\055exec_prefix   \055\055bindir        \055\055datarootdir   \055\055datadir\n' >> configure.2
-printf '    \055\055docdir    \055\055infodir       \055\055htmldir       \055\055dvidir        \055\055pdfdir\n' >> configure.2
-printf '    \055\055psdir     \055\055localedir     \055\055mandir\n' >> configure.2
-printf '    \055\055man1dir           \055\055man3dir       \055\055man5dir\n' >> configure.2
-printf '    \055\055man1ext           \055\055man3ext       \055\055man5ext\n' >> configure.2
-printf '    \055\055applications      /usr/share/applications         Full of \047*.desktop\047.\n' >> configure.2
-verbose Line 100/1101...
-printf '  Long and short pairs:\n' >> configure.2
-printf '    \055\055moduledir \055m      Where to install the API\n' >> configure.2
-printf '                                    ex. /usr/lib/python2/dist\055packages\n' >> configure.2
-printf '    \055\055help      \055h      All of this.\n' >> configure.2
-printf '    \055\055verbose   \055v\n' >> configure.2
-printf '    \055\055disable\055cli     \055c    No command line interface\n' >> configure.2
-printf '    \055\055disable\055gui     \055g\n' >> configure.2
-printf '    \055\055disable\055guidoc  \055d    No documentation for the graphical user interface\n' >> configure.2
-printf '    \055\055disable\055techdoc \055t    No technical documentation (API and file formats)\n' >> configure.2
-printf '    \055\055disable\055rli     \055r    No rogue\055like interface.\n' >> configure.2
-printf '    \055\055disable\055rlidoc  \055R\n' >> configure.2
-printf '  And finally:\n' >> configure.2
-printf '    \055\055halt              No\055op mode. Only generate `configure.2`.\n' >> configure.2
-printf '    \055\055update\n' >> configure.2
-printf '    \055\055update\055from       #\n' >> configure.2
-printf '    \042\042\042\n' >> configure.2
-printf '    print(usage.__doc__)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def unvar(thevar, thelist):\n' >> configure.2
-printf '    \042\042\042unvar(thevar, thelist)\n' >> configure.2
-printf '    Return the value of the Makefile variable `thevar`.  `thelist` is a\n' >> configure.2
-printf '    list of all the Makefile variables.  Its elements are dictionaries\n' >> configure.2
-printf '    of `name` and `value`.\n' >> configure.2
-printf '    \n' >> configure.2
-printf '    Exmaple\n' >> configure.2
-printf '    \055\055\055\055\055\055\055\n' >> configure.2
-printf '    \n' >> configure.2
-printf '    >>> dirs_final\n' >> configure.2
-printf '    [{\047name\047: \047bindir\047, \047value\047: \047\044(prefix)/bin\047}, {\047name\047: \047prefix\047,\n' >> configure.2
-printf '    \047value\047: \047/usr\047}]\n' >> configure.2
-printf '    >>> unvar(\047\044(bindir)\047, dirs_final)\n' >> configure.2
-printf '    \042\042\042\n' >> configure.2
-printf '    chunks, out = [], \042\042\n' >> configure.2
-printf '    for x in thelist: # Get the value and store it in var.\n' >> configure.2
-printf '        if x[\042name\042] == thevar:\n' >> configure.2
-printf '            var = x[\042value\042]\n' >> configure.2
-printf '            break\n' >> configure.2
-printf '    else:\n' >> configure.2
-printf '        raise ValueError\n' >> configure.2
-printf '    \n' >> configure.2
-printf '    while True:\n' >> configure.2
-printf '        x = var.split(\042\044\042, 1)   # Maybe a variable.\n' >> configure.2
-printf '        chunks.append(x[0])     # The non\055variable part.\n' >> configure.2
-printf '        if len(x) < 2:\n' >> configure.2
-printf '            break               # Next line would raise an exception.\n' >> configure.2
-printf '        if x[1][0] == \042(\042:      # Is it a variable?\n' >> configure.2
-printf '            y = x[1][1:].split(\042)\042, 1)  # Break at the closing parenthesis.\n' >> configure.2
-printf '            if len(y) < 2:\n' >> configure.2
-printf '                chunks.append(\042\044(\042 + y) # Oops, no closing parenthesis.\n' >> configure.2
-printf '                break\n' >> configure.2
-printf '            var = y[1]\n' >> configure.2
-printf '            chunks.append(unvar(y[0], thelist)) # Recursive (the variable).\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            var = \042\044\042 + x[1]    # No, just a normal dollar sign.\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '    return \047\047.join(chunks)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def update(x):\n' >> configure.2
-printf '    \042\042\042update(x)\n' >> configure.2
-printf '    Regenerate configure from `x`, which should be `configure.2`.\n' >> configure.2
-printf '    \042\042\042\n' >> configure.2
-printf '    # Load the python script x, that will be the new me.\n' >> configure.2
-printf '    # Store it in configure.\n' >> configure.2
-printf '    configure = open(\042configure\042, \042w\042)\n' >> configure.2
-printf '    configure.write(\042\042\042#!/bin/sh\n' >> configure.2
-printf '#NOTE This file is auto\055generated by the python\055script \042configure.2\042, which\n' >> configure.2
-printf '#is auto\055generated by this file.\n' >> configure.2
-printf '#Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>\n' >> configure.2
-printf '#All rights reserved.\n' >> configure.2
-printf '#\n' >> configure.2
-printf '#Redistribution and use in source and binary forms, with or without\n' >> configure.2
-printf '#modification, are permitted provided that the following conditions are met:\n' >> configure.2
-printf '#\n' >> configure.2
-printf '#1.  Redistributions of source code must retain the above copyright notice,\n' >> configure.2
-printf '#    this list of conditions and the following disclaimer.\n' >> configure.2
-printf '#\n' >> configure.2
-printf '#2.  Redistributions in binary form must reproduce the above copyright notice,\n' >> configure.2
-printf '#    this list of conditions and the following disclaimer in the documentation\n' >> configure.2
-printf '#    and/or other materials provided with the distribution.\n' >> configure.2
-printf '#\n' >> configure.2
-printf '#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS IS\042\n' >> configure.2
-printf '#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
-printf '#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n' >> configure.2
-printf '#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n' >> configure.2
-printf '#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n' >> configure.2
-printf '#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n' >> configure.2
-printf '#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS\n' >> configure.2
-printf '#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\n' >> configure.2
-printf '#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n' >> configure.2
-printf '#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n' >> configure.2
-printf '#POSSIBILITY OF SUCH DAMAGE.\n' >> configure.2
-printf 'verbose_mode=0\n' >> configure.2
-printf 'for x in \044*; do\n' >> configure.2
-printf '    if [ \044x = \042\055\055verbose\042 ]; then\n' >> configure.2
-printf '        verbose_mode=1\n' >> configure.2
-printf '        break\n' >> configure.2
-printf '    fi\n' >> configure.2
-printf '    if [ \044x = \042\055v\042 ]; then\n' >> configure.2
-printf '        verbose_mode=1\n' >> configure.2
-verbose Line 200/1101...
-printf '        break\n' >> configure.2
-printf '    fi\n' >> configure.2
-printf 'done\n' >> configure.2
-printf 'verbose()\n' >> configure.2
-printf '{\n' >> configure.2
-printf '    if [ \044verbose_mode \055gt 0 ]; then\n' >> configure.2
-printf '        echo \044*\n' >> configure.2
-printf '    fi\n' >> configure.2
-printf '}\n' >> configure.2
-printf '#Important checks.\n' >> configure.2
-printf 'verbose Checking for python...\n' >> configure.2
-printf 'pyck=0          #No python.\n' >> configure.2
-printf 'for test_dir in `echo \044PATH | tr : \047 \047`; do\n' >> configure.2
-printf '    for x in `ls \044test_dir | grep ^python`; do\n' >> configure.2
-printf '        if [ \055x \044test_dir/\044x ]; then\n' >> configure.2
-printf '            pyck=1   #python\n' >> configure.2
-printf '            break 2\n' >> configure.2
-printf '        fi\n' >> configure.2
-printf '    done\n' >> configure.2
-printf 'done\n' >> configure.2
-printf 'if [ \044pyck \055eq 0 ]; then\n' >> configure.2
-printf '    echo Python is required.\n' >> configure.2
-printf '    exit 1\n' >> configure.2
-printf 'fi\n' >> configure.2
-printf '#Create dirsinstall.\n' >> configure.2
-printf 'verbose Creating dirsinstall...\n' >> configure.2
-printf 'echo \047#!/bin/sh\047 > dirsinstall\n' >> configure.2
-printf 'echo \047#This script will make sure that\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047#all the specified directories exist.\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047while [ \044# \055gt 0 ]; do\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047    if [ \055d \0441 ]; then\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047        shift\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047        continue\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047    fi\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047    mkdir \0441\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047    shift\047 >> dirsinstall\n' >> configure.2
-printf 'echo \047done\047 >> dirsinstall\n' >> configure.2
-printf 'chmod +x dirsinstall\n' >> configure.2
-printf '#Where is python?\n' >> configure.2
-printf 'for test_dir in `echo \044PATH | tr : \042 \042`; do\n' >> configure.2
-printf '    for test_file in `ls \044test_dir | grep ^python`; do\n' >> configure.2
-printf '        if [ \055x \044test_dir/\044testfile ] ; then\n' >> configure.2
-printf '            python_exec=\044test_dir/\044test_file\n' >> configure.2
-printf '            break 2\n' >> configure.2
-printf '        fi\n' >> configure.2
-printf '    done\n' >> configure.2
-printf 'done\n' >> configure.2
-printf '#Create passwdmanapi.xml.fix.\n' >> configure.2
-printf 'verbose Creating passwdmanapi.xml.fix...\n' >> configure.2
-printf 'echo \042#!\044{python_exec}\042 > passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047import sys\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047#Fix broken Docbook XML in passwdmanapi.xml.\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047chunks = []\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047while True:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047    l = sys.stdin.readline()\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047    if len(l) < 1:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        quit()\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047    if \042<refsynopsisdiv\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(l)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        #Inside the bad place.\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        while True:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            l = sys.stdin.readline()\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            if \042<command>\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'printf \047                sys.stdout.write(\042<synopsis>\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047\\\\\\\\n#!/usr/bin/python<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                continue\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'printf \047            \047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047if \042import\042 in l or \042passwdmanapi\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                continue\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            if \042<sbr/>\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'printf \047                sys.stdout.write(\042import\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047 passwdmanapi<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                continue\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            if l == \042</refsynopsisdiv>\\\\\\\\n\042:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'printf \047                \047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047break           #Do not end synopsis here.\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            try:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                chunks.append(l[37:\05521])\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            except:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                pass    #</synopsis>\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        #Write out the chunks.\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        for x in chunks:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            sys.stdout.write(x)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            try:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                if x[\0551] == \042)\042:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'printf \047                    \047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047sys.stdout.write(\042<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                else:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                    sys.stdout.write(\042 \042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            except:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                pass\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(\042</synopsis>\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        while True:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            l = sys.stdin.readline()\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            if l == \042</refsect1>\\\\\\\\n\042:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'printf \047                \047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047sys.stdout.write(\042</refsynopsisdiv>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                #End synopsis here.\047 >> passwdmanapi.xml.fix\n' >> configure.2
-verbose Line 300/1101...
-printf 'echo \047                break\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            if \042<para>\042 in l or not \042<\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'printf \047                \047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047sys.stdout.write(l[:\0551] + \042<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            else:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                sys.stdout.write(l)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047    else:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(l)\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'chmod +x passwdmanapi.xml.fix\n' >> configure.2
-printf '#create passwdmanfiles.xml.fix\n' >> configure.2
-printf 'verbose Creating passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \042#!\044{python_exec}\042 > passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047import sys\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047while True:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047    l = sys.stdin.readline()\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047    if len(l) < 1:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047        quit()\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047    if \042<refname>\042 in l:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047\042<refname>~/.passwdman/passwords, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047\042~/.passwdman/honeypots, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047\042~/.passwdman/undoable/, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047\042~/.passwdman/redoable/, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047\042~/.passwdman/gui.conf</refname>\\\\\\\\n\042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047    else:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(l)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'chmod +x passwdmanfiles.xml.fix\n' >> configure.2
-printf '#create shebang script\n' >> configure.2
-printf 'verbose Creating shebang...\n' >> configure.2
-printf 'echo \047#!/bin/sh\047 > shebang\n' >> configure.2
-printf 'echo \047for test_dir in `echo \044PATH | tr : \042 \042`; do\047 >> shebang\n' >> configure.2
-printf 'echo \047    for test_file in `ls \044test_dir | grep ^python`; do\047 >> shebang\n' >> configure.2
-printf 'echo \047        if [ \055x \044test_dir/\044testfile ] ; then\047 >> shebang\n' >> configure.2
-printf 'echo \047            python_exec=\044test_dir/\044test_file\047 >> shebang\n' >> configure.2
-printf 'echo \047            break 2\047 >> shebang\n' >> configure.2
-printf 'echo \047        fi\047 >> shebang\n' >> configure.2
-printf 'echo \047    done\047 >> shebang\n' >> configure.2
-printf 'echo \047done\047 >> shebang\n' >> configure.2
-printf 'echo \047while [ \044# \055gt 0 ]; do\047 >> shebang\n' >> configure.2
-printf 'echo \047    echo \042#!\044python_exec\042 > `basename \0441`.out\047 >> shebang\n' >> configure.2
-printf 'echo \047    cat \0441 >> \0441.out\047 >> shebang\n' >> configure.2
-printf 'echo \047    shift\047 >> shebang\n' >> configure.2
-printf 'echo \047done\047 >> shebang\n' >> configure.2
-printf 'chmod +x shebang\n' >> configure.2
-printf '#Create fix.docbook.\n' >> configure.2
-printf 'verbose Creating fix.docbook...\n' >> configure.2
-printf 'printf \042s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com \042 > fix.docbook\n' >> configure.2
-printf 'echo \042role=\047author\047/Oskar Skog (oskar.skog.finland@gmail.com)/\042 >> fix.docbook\n' >> configure.2
-printf 'echo \042s/();/()/\042 >> fix.docbook\n' >> configure.2
-printf 'echo \042s/(.);/()./\042 >> fix.docbook\n' >> configure.2
-printf 'echo \042s/Pa ~/~/\042 >> fix.docbook\n' >> configure.2
-printf '#create cdfxm\n' >> configure.2
-printf 'verbose Creating cdxfm...\n' >> configure.2
-printf 'echo \042#!/bin/sh\042 > cdxfm\n' >> configure.2
-printf 'echo \047old_wd=`pwd`\047 >> cdxfm\n' >> configure.2
-printf 'echo \047cd xfilemanager\055*/\047 >> cdxfm\n' >> configure.2
-printf 'echo \047\044*\047 >> cdxfm\n' >> configure.2
-printf 'echo \047cd \044old_wd\047 >> cdxfm\n' >> configure.2
-printf 'chmod +x cdxfm\n' >> configure.2
-printf '#create configure.2             python\055script\n' >> configure.2
-printf 'if [ \055z \044python_exec ]; then\n' >> configure.2
-printf '    echo \042#!/usr/bin/false\042 > configure.2\n' >> configure.2
-printf 'else\n' >> configure.2
-printf '    echo \042#!\044{python_exec}\042 > configure.2\n' >> configure.2
-printf 'fi\n' >> configure.2
-printf 'verbose Creating configure.2...\n' >> configure.2
-printf '\042\042\042)    # We\047re still in the function update().\n' >> configure.2
-printf '    # Auto\055generate configure.2.\n' >> configure.2
-printf '    me = open(x, \042r\042)\n' >> configure.2
-printf '    linecounter = 0\n' >> configure.2
-printf '    for l in me:\n' >> configure.2
-printf '        linecounter += 1\n' >> configure.2
-printf '        # printf it.\n' >> configure.2
-printf '        l2, i = \042\042, 0\n' >> configure.2
-printf '        while i < len(l[:\0551]):\n' >> configure.2
-printf '            if l[i] == \042\044\042:\n' >> configure.2
-printf '                l2 += \042\\\\044\042\n' >> configure.2
-printf '            elif l[i] == \042\047\042:\n' >> configure.2
-printf '                l2 += \042\\\\047\042\n' >> configure.2
-printf '            elif l[i] == \047\042\047:\n' >> configure.2
-printf '                l2 += \042\\\\042\042\n' >> configure.2
-printf '            elif l[i] == \042\\\\\042:\n' >> configure.2
-printf '                l2 += \042\\\\\\\\\042\n' >> configure.2
-printf '            elif l[i] == \042%%\042:\n' >> configure.2
-printf '                l2 += \042%%%%\042\n' >> configure.2
-printf '            elif l[i] == \042\055\042:\n' >> configure.2
-printf '                l2 += \042\\\\055\042\n' >> configure.2
-printf '            else:\n' >> configure.2
-printf '                l2 += l[i]\n' >> configure.2
-printf '            i += 1\n' >> configure.2
-printf '        if (linecounter %% 100) == 0:\n' >> configure.2
-printf '            configure.write(\042verbose Line {0}/{1}...\\n\042.format(linecounter,\n' >> configure.2
-printf '                                                                    LINES))\n' >> configure.2
-printf '        configure.write(\042printf \047{0}\\\\n\047 >> configure.2\\n\042.format(l2))\n' >> configure.2
-printf '    configure.write(\042\042\042chmod +x configure.2\n' >> configure.2
-printf 'verbose exec configure.2\n' >> configure.2
-verbose Line 400/1101...
-printf 'exec ./configure.2 \044*\n' >> configure.2
-printf '\042\042\042)\n' >> configure.2
-printf '    configure.close()\n' >> configure.2
-printf '    return\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def main():\n' >> configure.2
-printf '    \042\042\042main() \055 Handle command line options.\042\042\042\n' >> configure.2
-printf '    global dirs_set\n' >> configure.2
-printf '    global moduledir\n' >> configure.2
-printf '    global verbose\n' >> configure.2
-printf '    global cli\n' >> configure.2
-printf '    global gui\n' >> configure.2
-printf '    global guidoc\n' >> configure.2
-printf '    global techdoc\n' >> configure.2
-printf '    global rli\n' >> configure.2
-printf '    global rlidoc\n' >> configure.2
-printf '    global xfm\n' >> configure.2
-printf '    global xfm_options\n' >> configure.2
-printf '    long_opts = []\n' >> configure.2
-printf '    for x in dirs_def[1:]:      # Skip \047PKGNAME\047.\n' >> configure.2
-printf '        long_opts.append(x[\042name\042] + \042=\042)\n' >> configure.2
-printf '        # Long options for all the variables.\n' >> configure.2
-printf '    long_opts.append(\042help\042)\n' >> configure.2
-printf '    long_opts.append(\042verbose\042)\n' >> configure.2
-printf '    long_opts.append(\042moduledir=\042)\n' >> configure.2
-printf '    long_opts.append(\042moduledir3=\042)\n' >> configure.2
-printf '    long_opts.append(\042disable\055cli\042)\n' >> configure.2
-printf '    long_opts.append(\042disable\055gui\042)\n' >> configure.2
-printf '    long_opts.append(\042disable\055guidoc\042)\n' >> configure.2
-printf '    long_opts.append(\042disable\055techdoc\042)\n' >> configure.2
-printf '    long_opts.append(\042disable\055rli\042)\n' >> configure.2
-printf '    long_opts.append(\042disable\055rlidoc\042)\n' >> configure.2
-printf '    long_opts.append(\042halt\042)\n' >> configure.2
-printf '    long_opts.append(\042update\042)\n' >> configure.2
-printf '    long_opts.append(\042update\055from=\042)\n' >> configure.2
-printf '    long_opts.append(\042version\042)\n' >> configure.2
-printf '    long_opts.append(\042build=\042)\n' >> configure.2
-printf '    long_opts.append(\042host=\042)\n' >> configure.2
-printf '    long_opts.append(\042target=\042)\n' >> configure.2
-printf '    long_opts.append(\042without\055xfilemanager\042)\n' >> configure.2
-printf '    # Handle the options.\n' >> configure.2
-printf '    all_options = []\n' >> configure.2
-printf '    for x in sys.argv[1:]:\n' >> configure.2
-printf '        if x[:7] == \042\055\055with\055\042:\n' >> configure.2
-printf '            xfm_options.append(x)\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        if x[:10] == \042\055\055without\055\042 and x[10:] != \042xfilemanager\042:\n' >> configure.2
-printf '            sys.stdout.write(\042Ignoring \047{0}\047.\\n\042.format(x))\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        if x[:9] == \042\055\055enable\055\042:\n' >> configure.2
-printf '            sys.stdout.write(\042Ignoring \047{0}\047.\\n\042.format(x))\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        if x[:10] == \042\055\055disable\055\042:\n' >> configure.2
-printf '            if x[10:] != \042gui\042:\n' >> configure.2
-printf '                if x[10:] != \042cli\042:\n' >> configure.2
-printf '                    if x[10:] != \042guidoc\042:\n' >> configure.2
-printf '                        if x[10:] != \042techdoc\042:\n' >> configure.2
-printf '                            sys.stdout.write(\042Ignoring \047{0}\047.\\n\042.format(x))\n' >> configure.2
-printf '                            continue\n' >> configure.2
-printf '        all_options.append(x)\n' >> configure.2
-printf '    try:\n' >> configure.2
-printf '        opts, args = getopt.getopt(all_options, \042hvm:M:cgdrRtu:HV\042, long_opts)\n' >> configure.2
-printf '    except getopt.GetoptError as err:\n' >> configure.2
-printf '        sys.stderr.write(\042{0}\\n\042.format(err))\n' >> configure.2
-printf '        usage()\n' >> configure.2
-printf '        sys.exit(1)\n' >> configure.2
-printf '    del args\n' >> configure.2
-printf '    for o, a in opts:\n' >> configure.2
-printf '        if o in (\042\055\055help\042, \042\055h\042):\n' >> configure.2
-printf '            usage()\n' >> configure.2
-printf '            sys.exit(0)\n' >> configure.2
-printf '        elif o in (\042\055\055verbose\042, \042\055v\042):\n' >> configure.2
-printf '            verbose = True\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055moduledir\042, \042\055m\042):# ex. /usr/lib/python2.7/dist\055packages\n' >> configure.2
-printf '            moduledir = a                 # Where passwdmanapi.py should live.\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055moduledir3\042, \042\055M\042):\n' >> configure.2
-printf '            moduledir3 = a\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055disable\055cli\042, \042\055c\042):\n' >> configure.2
-printf '            cli = False\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055disable\055gui\042, \042\055g\042):\n' >> configure.2
-printf '            gui = False\n' >> configure.2
-printf '            guidoc = False\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055disable\055guidoc\042, \042\055d\042):\n' >> configure.2
-printf '            guidoc = False\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055disable\055techdoc\042, \042\055t\042):\n' >> configure.2
-printf '            techdoc = False\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055disable\055rli\042, \042\055r\042):\n' >> configure.2
-printf '            rli = False\n' >> configure.2
-printf '            rlidoc = False\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055disable\055rlidoc\042, \042\055R\042):\n' >> configure.2
-printf '            rlidoc = False\n' >> configure.2
-printf '        elif o in (\042\055\055halt\042, \042\055H\042):\n' >> configure.2
-verbose Line 500/1101...
-printf '            quit()      # Should be renamed no\055op.\n' >> configure.2
-printf '        elif o in (\042\055\055update\042, \042\055u\042, \042\055\055update\055from\042):\n' >> configure.2
-printf '            if len(a) > 0:      # The short option requires an argument.\n' >> configure.2
-printf '                update(a)\n' >> configure.2
-printf '            else:\n' >> configure.2
-printf '                update(sys.argv[0])\n' >> configure.2
-printf '            sys.exit(0)\n' >> configure.2
-printf '        elif o in (\042\055\055version\042, \042\055V\042):\n' >> configure.2
-printf '            print(\042passwdman configure version {0}\042.format(VERSION))\n' >> configure.2
-printf '            sys.exit(0)\n' >> configure.2
-printf '        elif o == \042\055\055without\055xfilemanager\042:\n' >> configure.2
-printf '            xfm = False\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        elif o in (\042\055\055build\042, \042\055\055host\042, \042\055\055target\042):\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        else:       # Handle options for the variable names.\n' >> configure.2
-printf '            for c in dirs_def:      # Look for a match.\n' >> configure.2
-printf '                if (\042\055\055\042 + c[\042name\042]) == o:\n' >> configure.2
-printf '                    # No duplicates.\n' >> configure.2
-printf '                    i = 0       # index\n' >> configure.2
-printf '                    for x in dirs_set:\n' >> configure.2
-printf '                        if x[\042name\042] == c[\042name\042]:\n' >> configure.2
-printf '                            dirs_set.pop(i)\n' >> configure.2
-printf '                            break\n' >> configure.2
-printf '                        else:\n' >> configure.2
-printf '                            i += 1\n' >> configure.2
-printf '                    if len(a) > 0:  # Empty argument resets.\n' >> configure.2
-printf '                        dirs_set.append({\042name\042: c[\042name\042], \042value\042: a})\n' >> configure.2
-printf '                    break\n' >> configure.2
-printf '            else:\n' >> configure.2
-printf '                assert False, \042unhandled option\042\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def moduledep():\n' >> configure.2
-printf '    \042\042\042moduledep()\n' >> configure.2
-printf '    \n' >> configure.2
-printf '    Check that the dependencies, for the parts of passwdman the user\n' >> configure.2
-printf '    wants to be installed, exists.\n' >> configure.2
-printf '    \042\042\042\n' >> configure.2
-printf '    global gui\n' >> configure.2
-printf '    global guidoc\n' >> configure.2
-printf '    global rli_clipboard\n' >> configure.2
-printf '    v(\042Checking dependencies...\042)\n' >> configure.2
-printf '    if gui:\n' >> configure.2
-printf '        v(\042Module \047gi.repository.Gtk\047...\042)\n' >> configure.2
-printf '        try:\n' >> configure.2
-printf '            from gi.repository import Gtk\n' >> configure.2
-printf '        except:\n' >> configure.2
-printf '            sys.stderr.write(\n' >> configure.2
-printf '                \042ERROR: Cannot import \047Gtk\047 from \047gi.repository\047.\\n\042)\n' >> configure.2
-printf '            sys.stderr.write(\n' >> configure.2
-printf '                \042ERROR: Cannot install graphical user\055interface.\\n\042)\n' >> configure.2
-printf '            print(\042Press control\055C to stop installation.\042)\n' >> configure.2
-printf '            gui = False\n' >> configure.2
-printf '            guidoc = False\n' >> configure.2
-printf '    if rli:\n' >> configure.2
-printf '        v(\042Program \047xsel\047...\042)\n' >> configure.2
-printf '        for loopdir in os.getenv(\042PATH\042).split(\042:\042):\n' >> configure.2
-printf '            for loopfile in os.listdir(loopdir):\n' >> configure.2
-printf '                if loopfile == \042xsel\042:\n' >> configure.2
-printf '                    break\n' >> configure.2
-printf '            else:       #Not found here.\n' >> configure.2
-printf '                continue\n' >> configure.2
-printf '            break #again.\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            sys.stderr.write(\n' >> configure.2
-printf '                \042ERROR: Cannot find \047xsel\047.\\n\042)\n' >> configure.2
-printf '            sys.stderr.write(\n' >> configure.2
-printf '                \042ERROR: the rogue\055like interface cannot use the clipboard.\\n\042)\n' >> configure.2
-printf '            print(\042Press control\055C to stop installation.\042)\n' >> configure.2
-printf '            rli_clipboard = False\n' >> configure.2
-printf '    fatal = False\n' >> configure.2
-printf '    v(\042Module \047xml.etree.ElementTree\047...\042)\n' >> configure.2
-printf '    try:\n' >> configure.2
-printf '        import xml.etree.ElementTree\n' >> configure.2
-printf '    except:\n' >> configure.2
-printf '        sys.stderr.write(\042ERROR: Cannot import \047xml.etree.ElementTree\047,\042)\n' >> configure.2
-printf '        sys.stderr.write(\042 which is required.\\n\042)\n' >> configure.2
-printf '        fatal = True\n' >> configure.2
-printf '    v(\042Module \047logging\047...\042)\n' >> configure.2
-printf '    try:\n' >> configure.2
-printf '        import logging\n' >> configure.2
-printf '    except:\n' >> configure.2
-printf '        sys.stderr.write(\042ERROR: Cannot import \047logging\047,\042)\n' >> configure.2
-printf '        sys.stderr.write(\042 which is required.\\n\042)\n' >> configure.2
-printf '        fatal = True\n' >> configure.2
-printf '    \n' >> configure.2
-printf '    if fatal:\n' >> configure.2
-printf '        sys.stderr.write(\042PANIC: Cannot install.\\n\042)\n' >> configure.2
-printf '        sys.exit(1)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def dirs():\n' >> configure.2
-printf '    \042\042\042dirs() \055 Figure out the Makefile variables.\042\042\042\n' >> configure.2
-printf '    def tryset(x):      # Always check.\n' >> configure.2
-printf '        \042\042\042tryset(x) \055 Return True if x is not manually set.\042\042\042\n' >> configure.2
-printf '        for y in dirs_set:\n' >> configure.2
-printf '            if y[\042name\042] == x:\n' >> configure.2
-printf '                return False\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            return True\n' >> configure.2
-printf '    def setvar(x, y):\n' >> configure.2
-verbose Line 600/1101...
-printf '        \042\042\042setvar(x, y)\n' >> configure.2
-printf '        \n' >> configure.2
-printf '        Append name x and value y to the list of autogenerated\n' >> configure.2
-printf '        variable\055values. (dirs_auto)\n' >> configure.2
-printf '        \042\042\042\n' >> configure.2
-printf '        global dirs_auto\n' >> configure.2
-printf '        dirs_auto.append({\042name\042: x, \042value\042: y})\n' >> configure.2
-printf '    def mk_dirs_final():\n' >> configure.2
-printf '        \042\042\042mk_dirs_final() \055 Make dirs_final.\042\042\042\n' >> configure.2
-printf '        global dirs_final\n' >> configure.2
-printf '        dirs_final = []\n' >> configure.2
-printf '        dirs_final.extend(dirs_set)\n' >> configure.2
-printf '        dirs_final.extend(dirs_auto)\n' >> configure.2
-printf '        for x in dirs_def:\n' >> configure.2
-printf '            for y in dirs_final:\n' >> configure.2
-printf '                if x[\042name\042] == y[\042name\042]:\n' >> configure.2
-printf '                    break\n' >> configure.2
-printf '            else:\n' >> configure.2
-printf '                dirs_final.append(x)\n' >> configure.2
-printf '    \n' >> configure.2
-printf '    global dirs_auto\n' >> configure.2
-printf '    # Check some variables.\n' >> configure.2
-printf '    if tryset(\042prefix\042):\n' >> configure.2
-printf '        try:\n' >> configure.2
-printf '            setvar(\042prefix\042, sys.prefix)\n' >> configure.2
-printf '        except:\n' >> configure.2
-printf '            pass\n' >> configure.2
-printf '    if tryset(\042exec_prefix\042):\n' >> configure.2
-printf '        try:\n' >> configure.2
-printf '            setvar(\042exec_prefix\042, sys.exec_prefix)\n' >> configure.2
-printf '        except:\n' >> configure.2
-printf '            pass\n' >> configure.2
-printf '    if tryset(\042mandir\042):\n' >> configure.2
-printf '        os.system(\042manpath > manpath.out\042)\n' >> configure.2
-printf '        f = open(\042manpath.out\042, \042r\042)\n' >> configure.2
-printf '        l = f.readline()[:\0551]\n' >> configure.2
-printf '        f.close()\n' >> configure.2
-printf '        var, var2 = l.split(\042:\042), []\n' >> configure.2
-printf '        # var is now list of directories in which\n' >> configure.2
-printf '        # man\055pages can be installed to.\n' >> configure.2
-printf '        mk_dirs_final()\n' >> configure.2
-printf '        good_choice = unvar(\042datarootdir\042, dirs_final)\n' >> configure.2
-printf '        for x in var:\n' >> configure.2
-printf '            try:\n' >> configure.2
-printf '                if x[:len(good_choice)] == good_choice and \042man\042 in x:\n' >> configure.2
-printf '                    var2.append(x)      # x is in the right datarootdir\n' >> configure.2
-printf '                                        # and contains \042man\042.\n' >> configure.2
-printf '            except:\n' >> configure.2
-printf '                pass\n' >> configure.2
-printf '        if len(var2) == 0:\n' >> configure.2
-printf '            # The user has probably specified some weird value for prefix.\n' >> configure.2
-printf '            var2 = var\n' >> configure.2
-printf '        \n' >> configure.2
-printf '        # Pick the shortest in var2.\n' >> configure.2
-printf '        while len(var2) > 1:\n' >> configure.2
-printf '            # Pop the longest name.\n' >> configure.2
-printf '            l = i = 0\n' >> configure.2
-printf '            for x in var2:\n' >> configure.2
-printf '                if len(x) > l:\n' >> configure.2
-printf '                    l = len(x)\n' >> configure.2
-printf '                i += 1\n' >> configure.2
-printf '            var2.pop(i \055 1)\n' >> configure.2
-printf '        setvar(\042mandir\042, var2[0])\n' >> configure.2
-printf '        \n' >> configure.2
-printf '    #TODO: More.\n' >> configure.2
-printf '    mk_dirs_final()\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def getmoduledir():\n' >> configure.2
-printf '    \042\042\042getmoduledir() \055 Figure out where to install python modules.\042\042\042\n' >> configure.2
-printf '    def getmoduledir_x(pyver):\n' >> configure.2
-printf '        list_of_xx = []\n' >> configure.2
-printf '        path = unvar(\042libdir\042, dirs_final)\n' >> configure.2
-printf '        dirlist = os.listdir(path)\n' >> configure.2
-printf '        for x in dirlist:\n' >> configure.2
-printf '            if pyver in x:       # pyver is either \042python2\042 or \042python3\042.\n' >> configure.2
-printf '                try:\n' >> configure.2
-printf '                    dirlist2 = os.listdir(os.path.join(path, x))\n' >> configure.2
-printf '                    for y in dirlist2:\n' >> configure.2
-printf '                        # \044(libdir)/*{python2,python3}*/{dist,site}\055packages\n' >> configure.2
-printf '                        if y in (\042dist\055packages\042, \042site\055packages\042):\n' >> configure.2
-printf '                            list_of_xx.append(os.path.join(path, x, y))\n' >> configure.2
-printf '                            break\n' >> configure.2
-printf '                except:\n' >> configure.2
-printf '                    pass            # Names for some non\055directories...\n' >> configure.2
-printf '                                    # ...contain \042python2\042 or \042python3\042.\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            if len(list_of_xx) == 1:\n' >> configure.2
-printf '                # On some systems there is only one python3 directory\n' >> configure.2
-printf '                # which unfortunately doesn\047t have a minor version.\n' >> configure.2
-printf '                return list_of_xx[0]\n' >> configure.2
-printf '            if len(list_of_xx) > 1:\n' >> configure.2
-printf '                # Look for the newest minor.\n' >> configure.2
-printf '                ver = \0551\n' >> configure.2
-printf '                right_version = None\n' >> configure.2
-printf '                for pythonxx in list_of_xx:\n' >> configure.2
-printf '                    try:\n' >> configure.2
-printf '                        tmp_name = pythonxx.split(\042/\042)[\0552]\n' >> configure.2
-printf '                        tmp_ver = int(tmp_name.split(\042.\042)[\0551])\n' >> configure.2
-printf '                        if tmp_ver > ver:\n' >> configure.2
-printf '                            ver = tmp_ver\n' >> configure.2
-verbose Line 700/1101...
-printf '                            right_version = pythonxx\n' >> configure.2
-printf '                    except:\n' >> configure.2
-printf '                        pass    #Garbage.\n' >> configure.2
-printf '                else:\n' >> configure.2
-printf '                    return right_version\n' >> configure.2
-printf '            else:\n' >> configure.2
-printf '                return None\n' >> configure.2
-printf '    global moduledir\n' >> configure.2
-printf '    global moduledir3\n' >> configure.2
-printf '    if moduledir is None:\n' >> configure.2
-printf '        v(\042Figuring out the \047moduledir\047 variable...\042)\n' >> configure.2
-printf '        moduledir = getmoduledir_x(\042python2\042)\n' >> configure.2
-printf '    if moduledir3 is None:\n' >> configure.2
-printf '        v(\042Figuring out the \047moduledir3\047 variable...\042)\n' >> configure.2
-printf '        moduledir3 = getmoduledir_x(\042python3\042)\n' >> configure.2
-printf '    if moduledir is None and moduledir3 is None:\n' >> configure.2
-printf '        sys.stderr.write(\042Set \055\055moduledir manually.\\n\042)\n' >> configure.2
-printf '        sys.exit(1)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def makemakefile():\n' >> configure.2
-printf '    \042\042\042makemakefile() \055 Open Makefile and set the variables.\042\042\042\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    v(\042Writing the Makefile...\042)\n' >> configure.2
-printf '    try:\n' >> configure.2
-printf '        makefile = open(\042Makefile\042, \042w\042)\n' >> configure.2
-printf '    except:\n' >> configure.2
-printf '        sys.stderr.write(\042ERROR: cannot open \047Makefile\047.\\n\042)\n' >> configure.2
-printf '        sys.exit(1)\n' >> configure.2
-printf '    makefile.write(\042#This file is auto\055generated by configure.2.\\n\042)\n' >> configure.2
-printf '    v(\042Setting the variables...\042)\n' >> configure.2
-printf '    makefile.write(\042SHELL = /bin/sh\\n\042)\n' >> configure.2
-printf '    for x in dirs_final:\n' >> configure.2
-printf '        makefile.write(\042{0} = {1}\\n\042.format(x[\042name\042], x[\042value\042]))\n' >> configure.2
-printf '    if moduledir is not None:\n' >> configure.2
-printf '        makefile.write(\042moduledir = {0}\\n\042.format(moduledir))\n' >> configure.2
-printf '    if moduledir3 is not None:\n' >> configure.2
-printf '        makefile.write(\042moduledir3 = {0}\\n\042.format(moduledir3))\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget_all():\n' >> configure.2
-printf '    \042\042\042maketarget_all() \055 Add the default \047all\047 target.\042\042\042\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    v(\042Writing the \047all.made\047 and \047all\047 targets...\042)\n' >> configure.2
-printf '    makefile.write(\042all.made : shebang \044(srcdir)passwdmanapi.py\042)\n' >> configure.2
-printf '    # Append more dependencies.\n' >> configure.2
-printf '    if techdoc:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmanapi.3 \044(srcdir)passwdmanfiles.5\042)\n' >> configure.2
-printf '    if cli:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmancli \044(srcdir)passwdmancli.1\042)\n' >> configure.2
-printf '    if gui:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmangui\042)\n' >> configure.2
-printf '    if guidoc:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmangui.1\042)\n' >> configure.2
-printf '    if rli:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmanrli\042)\n' >> configure.2
-printf '    if rlidoc:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmanrli.1\042)\n' >> configure.2
-printf '    makefile.write(\042\\n\\t./shebang\042)\n' >> configure.2
-printf '    if cli:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmancli\042)\n' >> configure.2
-printf '    if gui:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmangui\042)\n' >> configure.2
-printf '    if rli:\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdmanrli\042)\n' >> configure.2
-printf '    makefile.write(\042\\n\042)\n' >> configure.2
-printf '    if gui:\n' >> configure.2
-printf '        makefile.write(\042\\tsed \055e s/__XFM__/\042)\n' >> configure.2
-printf '        if xfm:\n' >> configure.2
-printf '            makefile.write(\042True\042)\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            makefile.write(\042False\042)\n' >> configure.2
-printf '        makefile.write(\042/ passwdmangui.out > passwdmangui.out.out\\n\042)\n' >> configure.2
-printf '    if rli:\n' >> configure.2
-printf '        makefile.write(\042\\tsed \055e s/__HAVE_CLIPBOARD__/\042)\n' >> configure.2
-printf '        if rli_clipboard:\n' >> configure.2
-printf '            makefile.write(\042True\042)\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            makefile.write(\042False\042)\n' >> configure.2
-printf '        makefile.write(\042/ passwdmanrli.out > passwdmanrli.out.out\\n\042)\n' >> configure.2
-printf '    if xfm:\n' >> configure.2
-printf '        makefile.write(\042\\tgunzip \055c \044(srcdir)xfilemanager\055*.tar.gz >\042)\n' >> configure.2
-printf '        makefile.write(\042 xfilemanager.tar\\n\042)\n' >> configure.2
-printf '        makefile.write(\042\\ttar \055xf xfilemanager.tar\\n\042)\n' >> configure.2
-printf '        makefile.write(\042\\t./cdxfm ./configure \042)\n' >> configure.2
-printf '        if verbose:\n' >> configure.2
-printf '            makefile.write(\042\055\055verbose \042)\n' >> configure.2
-printf '        makefile.write(\042 \042.join(xfm_options))\n' >> configure.2
-printf '        for x in dirs_set:\n' >> configure.2
-printf '            if x[\042name\042] != \042srcdir\042:\n' >> configure.2
-printf '                makefile.write(\042 \055\055{0}={1}\042.format(x[\042name\042], x[\042value\042]))\n' >> configure.2
-printf '        makefile.write(\042\\n\\t./cdxfm make\\n\042)\n' >> configure.2
-printf '    makefile.write(\042\\ttouch all.made\\n\042)    # make all, made all, all.made\n' >> configure.2
-printf '    makefile.write(\042all : all.made\\n\042)          # The all target.\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget_install():\n' >> configure.2
-printf '    \042\042\042maketarget_install() \055 Add the \047install\047 target.\042\042\042\n' >> configure.2
-printf '    def install_file(src, dst, x):\n' >> configure.2
-printf '        \042\042\042install_file(src, dst, x)\n' >> configure.2
-printf '        \n' >> configure.2
-printf '        Write to `makefile` that `src` must be copied to `dst` and that\n' >> configure.2
-printf '        `dst` must  be chowned to root.\n' >> configure.2
-verbose Line 800/1101...
-printf '        \n' >> configure.2
-printf '        if `x`: `dst` must be chmoded 755\n' >> configure.2
-printf '        else: `dst` must be chmoded 644\n' >> configure.2
-printf '        \n' >> configure.2
-printf '        It adds ``\044(srcdir)`` and ``\044(DESTDIR)`` to `src` and `dst`.\n' >> configure.2
-printf '        It appends `dst` to `installed_files`.\n' >> configure.2
-printf '        \n' >> configure.2
-printf '        `installed_files` will be used later in `maketarget_uninstall`.\n' >> configure.2
-printf '        \042\042\042\n' >> configure.2
-printf '        global installed_files\n' >> configure.2
-printf '        if src[\0552:] in (\042.1\042, \042.3\042, \042.5\042):      #man\055pages\n' >> configure.2
-printf '            makefile.write(\042\\t\055cp \044(srcdir){0} \044(DESTDIR){1}\\n\042.format(src,\n' >> configure.2
-printf '                                                                        dst))\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            makefile.write(\042\\tcp \044(srcdir){0} \044(DESTDIR){1}\\n\042.format(src,\n' >> configure.2
-printf '                                                                        dst))\n' >> configure.2
-printf '        makefile.write(\042\\tchown root \044(DESTDIR){0}\\n\042.format(dst))\n' >> configure.2
-printf '        if x:\n' >> configure.2
-printf '            makefile.write(\042\\tchmod 755 \044(DESTDIR){0}\\n\042.format(dst))\n' >> configure.2
-printf '        else:\n' >> configure.2
-printf '            if src[\0552:] in (\042.1\042, \042.3\042, \042.5\042):      #man\055pages\n' >> configure.2
-printf '                makefile.write(\042\\t\055chmod 644 \044(DESTDIR){0}\\n\042.format(dst))\n' >> configure.2
-printf '            else:\n' >> configure.2
-printf '                makefile.write(\042\\tchmod 644 \044(DESTDIR){0}\\n\042.format(dst))\n' >> configure.2
-printf '        installed_files.append(dst)\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    v(\042Writing the \047install\047 target...\042)\n' >> configure.2
-printf '    makefile.write(\042install : all.made installdirs\042)\n' >> configure.2
-printf '    # Append more dependencies.\n' >> configure.2
-printf '    if cli:\n' >> configure.2
-printf '        makefile.write(\042 passwdmancli.out\042) # ./shebang adds a \047.out\047 suffix.\n' >> configure.2
-printf '    if gui:\n' >> configure.2
-printf '        makefile.write(\042 passwdmangui.out.out \044(srcdir)passwdman.desktop\042)\n' >> configure.2
-printf '    if rli:\n' >> configure.2
-printf '        makefile.write(\042 passwdmanrli.out.out\042)\n' >> configure.2
-printf '    makefile.write(\042\\n\042)\n' >> configure.2
-printf '    if moduledir is not None:\n' >> configure.2
-printf '        install_file(\042passwdmanapi.py\042, \042\044(moduledir)/passwdmanapi.py\042,\n' >> configure.2
-printf '            False)\n' >> configure.2
-printf '    if moduledir3 is not None:\n' >> configure.2
-printf '        install_file(\042passwdmanapi.py\042, \042\044(moduledir3)/passwdmanapi.py\042,\n' >> configure.2
-printf '            False)\n' >> configure.2
-printf '    if techdoc:\n' >> configure.2
-printf '        install_file(\042passwdmanapi.3\042, \042\044(man3dir)/passwdmanapi\044(man3ext)\042,\n' >> configure.2
-printf '                False)\n' >> configure.2
-printf '        install_file(\042passwdmanfiles.5\042,\042\044(man5dir)/passwdmanfiles\044(man5ext)\042,\n' >> configure.2
-printf '                False)\n' >> configure.2
-printf '    if cli:\n' >> configure.2
-printf '        install_file(\042passwdmancli.out\042, \042\044(bindir)/passwdmancli\042, True)\n' >> configure.2
-printf '        install_file(\042passwdmancli.1\042, \042\044(man1dir)/passwdmancli\044(man1ext)\042,\n' >> configure.2
-printf '                False)\n' >> configure.2
-printf '    if gui:\n' >> configure.2
-printf '        install_file(\042passwdmangui.out.out\042, \042\044(bindir)/passwdmangui\042, True)\n' >> configure.2
-printf '    if guidoc:\n' >> configure.2
-printf '        install_file(\042passwdmangui.1\042, \042\044(man1dir)/passwdmangui\044(man1ext)\042,\n' >> configure.2
-printf '                False)\n' >> configure.2
-printf '    if rli:\n' >> configure.2
-printf '        install_file(\042passwdmanrli.out.out\042, \042\044(bindir)/passwdmanrli\042, True)\n' >> configure.2
-printf '    if rlidoc:\n' >> configure.2
-printf '        install_file(\042passwdmanrli.1\042, \042\044(man1dir)/passwdmanrli\044(man1ext)\042,\n' >> configure.2
-printf '                False)\n' >> configure.2
-printf '    if xfm:\n' >> configure.2
-printf '        makefile.write(\042\\t./cdxfm make install\\n\042)\n' >> configure.2
-printf '    makefile.write(\042\\t\044(POST_INSTALL)\\n\042)\n' >> configure.2
-printf '    if gui:\n' >> configure.2
-printf '        Vmaj = VERSION.split(\042.\042)[0]\n' >> configure.2
-printf '        Vmin = VERSION.split(\042.\042)[1]\n' >> configure.2
-printf '        makefile.write(\042\\tsed \055e \047s/_VERSION_/{0}.{1}/\047 \042.format(Vmaj, Vmin))\n' >> configure.2
-printf '        makefile.write(\042\044(srcdir)passwdman.desktop > \042)\n' >> configure.2
-printf '        makefile.write(\042\044(DESTDIR)\044(applications)/passwdman.desktop\\n\042)\n' >> configure.2
-printf '        makefile.write(\042\\t\055update\055menus\\n\042)\n' >> configure.2
-printf '    makefile.write(\042\\t\055mandb\\n\042)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget_uninstall():\n' >> configure.2
-printf '    \042\042\042maketarget_uninstall() \055 Add the \047uninstall\047 target.\n' >> configure.2
-printf '    It uses `installed_files` to know what to uninstall.\n' >> configure.2
-printf '    \042\042\042\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    v(\042Writing the \047uninstall\047 target...\042)\n' >> configure.2
-printf '    makefile.write(\042uninstall :\\n\042)\n' >> configure.2
-printf '    for x in installed_files:\n' >> configure.2
-printf '        makefile.write(\042\\t\055rm \044(DESTDIR){0}\\n\042.format(x))\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget__doc_(x):\n' >> configure.2
-printf '    \042\042\042maketarget__doc_(x) \055 Add the \047install\055{x}\047 target.\n' >> configure.2
-printf '    The target is not required to succeed.\n' >> configure.2
-printf '    \042\042\042\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    v(\042Writing the \047install\055{0}\047 and \047{0}\047 targets...\042.format(x))\n' >> configure.2
-printf '    makefile.write(\042install\055{0} : {0}\\n{0} :\\n\042.format(x))\n' >> configure.2
-printf '    if guidoc:\n' >> configure.2
-printf '        makefile.write(\042\\t\055cp \044(srcdir)passwdmangui.{0}\042.format(x))\n' >> configure.2
-printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmangui.{0}\\n\042.format(x))\n' >> configure.2
-printf '    if cli:\n' >> configure.2
-printf '        makefile.write(\042\\t\055cp \044(srcdir)passwdmancli.{0}\042.format(x))\n' >> configure.2
-printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmancli.{0}\\n\042.format(x))\n' >> configure.2
-printf '    if techdoc:\n' >> configure.2
-printf '        makefile.write(\042\\t\055cp \044(srcdir)passwdmanapi.{0}\042.format(x))\n' >> configure.2
-printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanapi.{0}\\n\042.format(x))\n' >> configure.2
-printf '        makefile.write(\042\\t\055cp \044(srcdir)passwdmanfiles.{0}\042.format(x))\n' >> configure.2
-verbose Line 900/1101...
-printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanfiles.{0}\\n\042.format(x))\n' >> configure.2
-printf '    if rlidoc:\n' >> configure.2
-printf '        makefile.write(\042\\t\055cp \044(srcdir)passwdmanrli.{0}\042.format(x))\n' >> configure.2
-printf '        makefile.write(\042 \044(DESTDIR)\044({0}dir)/passwdmanrli.{0}\\n\042.format(x))\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget_clean():\n' >> configure.2
-printf '    \042\042\042maketarget_clean() \055 Add \047clean\047 and \047maintainer\055clean\047.\042\042\042\n' >> configure.2
-printf '    v(\042Writing the \047clean\047 target...\042)\n' >> configure.2
-printf '    makefile.write(\042clean :\\n\\t\055rm *.made *.out configure.2\\n\042)\n' >> configure.2
-printf '    makefile.write(\042\\t\055rm *.1.xml *.3.xml *.5.xml\\n\042)\n' >> configure.2
-printf '    makefile.write(\042\\t\055rm xfilemanager.tar\\n\\t\055rm \055r xfilemanager\055*/\\n\042)\n' >> configure.2
-printf '    makefile.write(\042maintainer\055clean :\\n\\t\055rm *~\\n\042)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget_dist():\n' >> configure.2
-printf '    \042\042\042maketarget_dist() \055 Add the dist target.\042\042\042\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    v(\042Writing the \047dist\047 target...\042)\n' >> configure.2
-printf '    # Ignore cli, gui, guidoc, and techdoc.\n' >> configure.2
-printf '    makefile.write(\042dist : paperdoc.made\042)\n' >> configure.2
-printf '    for x in (\042api.py\042, \042api.xml\042, \042cli\042, \042cli.xml\042, \042gui\042, \042gui.xml\042,\n' >> configure.2
-printf '        \042files.xml\042, \042cli.html\042, \042gui.html\042, \042api.html\042, \042files.html\042, \042rli\042,\n' >> configure.2
-printf '        \042rli.xml\042, \042rli.html\042, \042cli.1\042, \042api.3\042, \042files.5\042, \042gui.1\042, \042rli.1\042):\n' >> configure.2
-printf '        makefile.write(\042 \044(srcdir)passwdman{0}\042.format(x))\n' >> configure.2
-printf '    makefile.write(\042\\n\\t\055rm \055r passwdman\055{0}\\n\\tmkdir passwdman\055{0}\\n\042.format(\n' >> configure.2
-printf '                                                                    VERSION))\n' >> configure.2
-printf '    for x in (\042api.py\042, \042api.3\042, \042cli\042, \042cli.1\042, \042gui\042, \042gui.1\042, \042files.5\042,\n' >> configure.2
-printf '        \042rli\042, \042rli.1\042):\n' >> configure.2
-printf '        makefile.write(\042\\tcp \044(srcdir)passwdman{0} passwdman\055{1}\\n\042.format(x,\n' >> configure.2
-printf '                                                                VERSION))\n' >> configure.2
-printf '    for f in (\042html\042, \042ps\042, \042dvi\042, \042pdf\042):\n' >> configure.2
-printf '        for n in (\042api\042, \042gui\042, \042cli\042, \042files\042, \042rli\042):\n' >> configure.2
-printf '            makefile.write(\n' >> configure.2
-printf '                \042\\t\055cp \044(srcdir)passwdman{0}.{1} passwdman\055{2}\\n\042.format(n, f,\n' >> configure.2
-printf '                                                                VERSION))\n' >> configure.2
-printf '    for x in (\042cli\042, \042api\042, \042gui\042, \042files\042, \042rli\042):\n' >> configure.2
-printf '        makefile.write(\042\\tcp \044(srcdir)passwdman{0}.xml passwdman\055{1}\\n\042.format(\n' >> configure.2
-printf '                                                                x, VERSION))\n' >> configure.2
-printf '    for x in (\042README\042, \042LICENSE\042, \042INSTALL\042, \042NEWS\042, \042TODO\042, \042ChangeLog\042,\n' >> configure.2
-printf '                \042CREDITS\042, \042configure\042, \042FAQ\042):\n' >> configure.2
-printf '        makefile.write(\042\\tcp \044(srcdir){0} passwdman\055{1}\\n\042.format(x, VERSION))\n' >> configure.2
-printf '    makefile.write(\042\\tcp \044(srcdir)passwdman.desktop passwdman\055{0}\\n\042.format(\n' >> configure.2
-printf '                                                                    VERSION))\n' >> configure.2
-printf '    makefile.write(\042\\t\055cp xfilemanager\055*.tar.gz passwdman\055{0}\\n\042.format(\n' >> configure.2
-printf '                                                                    VERSION))\n' >> configure.2
-printf '    makefile.write(\042\\ttar \055cf passwdman\055{0}.tar passwdman\055{0}\042\n' >> configure.2
-printf '                        \042 \\n\\tgzip passwdman\055{0}.tar\\n\042.format(VERSION))\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget_installdirs():\n' >> configure.2
-printf '    \042\042\042maketarget_installdirs() \055 Add the \047installdirs\047 target.\042\042\042\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    makefile.write(\042installdirs : dirsinstall\\n\\t./dirsinstall\042)\n' >> configure.2
-printf '    for x in dirs_final:\n' >> configure.2
-printf '        if \042man\042 in x[\042name\042] and \042ext\042 in x[\042name\042]:\n' >> configure.2
-printf '            # \047.1\047, \047.3\047, \047.5\047\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        if x[\042name\042] in (\042srcdir\042, \042DESTDIR\042, \042PKGNAME\042):\n' >> configure.2
-printf '            continue\n' >> configure.2
-printf '        makefile.write(\042 \044(DESTDIR)\044({0})\042.format(x[\042name\042]))\n' >> configure.2
-printf '    makefile.write(\042\\n\042)\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget__doc_auto():\n' >> configure.2
-printf '    \042\042\042maketarget__doc_auto()\n' >> configure.2
-printf '    It is for me. I make things in the current directory.\n' >> configure.2
-printf '    mdoc \055> [doclifter] \055> Docbook \055> [sed + scripts + xmlto] \055>\n' >> configure.2
-printf '        ([sed] \055> xhtml, pdf, ps)\n' >> configure.2
-printf '    \042\042\042\n' >> configure.2
-printf '    global makefile\n' >> configure.2
-printf '    f = open(\042xml.copyright\042, \042w\042)\n' >> configure.2
-printf '    f.write(\042\042\042\n' >> configure.2
-printf '<!\055\055 Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>\n' >> configure.2
-printf 'All rights reserved. \055\055>\n' >> configure.2
-printf '\n' >> configure.2
-printf '<!\055\055 Redistribution and use in source and binary forms, with or without\n' >> configure.2
-printf 'modification, are permitted provided that the following conditions are met:\055\055>\n' >> configure.2
-printf '\n' >> configure.2
-printf '<!\055\055 1.  Redistributions of source code must retain the above copyright notice,\n' >> configure.2
-printf 'this list of conditions and the following disclaimer. \055\055>\n' >> configure.2
-printf '\n' >> configure.2
-printf '<!\055\055 2.  Redistributions in binary form must reproduce the above copyright\n' >> configure.2
-printf 'notice, this list of conditions and the following disclaimer in the\n' >> configure.2
-printf 'documentation and/or other materials provided with the distribution. \055\055>\n' >> configure.2
-printf '\n' >> configure.2
-printf '<!\055\055 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS\n' >> configure.2
-printf 'IS\042 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
-printf 'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n' >> configure.2
-printf 'ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n' >> configure.2
-printf 'LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n' >> configure.2
-printf 'CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n' >> configure.2
-printf 'SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS\n' >> configure.2
-printf 'INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\n' >> configure.2
-printf 'CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n' >> configure.2
-printf 'ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n' >> configure.2
-printf 'POSSIBILITY OF SUCH DAMAGE. \055\055>\n' >> configure.2
-printf '\042\042\042)\n' >> configure.2
-printf '    f.close()\n' >> configure.2
-printf '    for n, s in ((\042passwdmangui\042, 1), (\042passwdmanfiles\042, 5),\n' >> configure.2
-printf '                 (\042passwdmancli\042, 1), (\042passwdmanapi\042, 3),\n' >> configure.2
-printf '                 (\042passwdmanrli\042, 1)):\n' >> configure.2
-printf '        # Docbook\n' >> configure.2
-printf '        makefile.write(\042{0}.xml : {0}.{1}\\n\042.format(n , str(s)))\n' >> configure.2
-verbose Line 1000/1101...
-printf '        makefile.write(\042\\tdoclifter {0}.{1}\\n\042.format(n, str(s)))\n' >> configure.2
-printf '        # NOTE to self: doclifter\0552.13\n' >> configure.2
-printf '        # They all need some help.\n' >> configure.2
-printf '        makefile.write(\042\\tsed \055f fix.docbook {0}.{1}.xml > {0}.xml\\n\042.format(\n' >> configure.2
-printf '                                                                n, str(s)))\n' >> configure.2
-printf '        if n == \042passwdmanapi\042:                 # It needs lots of help,\n' >> configure.2
-printf '                                            # it still doesn\047t validate.\n' >> configure.2
-printf '            makefile.write(\042\\tcat passwdmanapi.xml | ./passwdmanapi.xml.fix \042)\n' >> configure.2
-printf '            makefile.write(\042> passwdmanapi.xml.out\\n\042)\n' >> configure.2
-printf '            makefile.write(\042\\tmv passwdmanapi.xml.out passwdmanapi.xml\\n\042)\n' >> configure.2
-printf '        if n == \042passwdmanfiles\042:\n' >> configure.2
-printf '            makefile.write(\042\\tcat passwdmanfiles.xml | \042)\n' >> configure.2
-printf '            makefile.write(\042./passwdmanfiles.xml.fix >\042)\n' >> configure.2
-printf '            makefile.write(\042passwdmanfiles.xml.out\\n\042)\n' >> configure.2
-printf '            makefile.write(\042\\tmv passwdmanfiles.xml.out passwdmanfiles.xml\\n\042)\n' >> configure.2
-printf '        # html, pdf, ps\n' >> configure.2
-printf '        for fn, fc in ((\042html\042, \042xhtml\055nochunks\042), (\042ps\042, \042\055\055with\055fop ps\042),\n' >> configure.2
-printf '                       (\042pdf\042, \042\055\055with\055fop pdf\042)):\n' >> configure.2
-printf '            makefile.write(\042{0}.{1} : {0}.xml\\n\\txmlto \042.format(n, fn))\n' >> configure.2
-printf '            if n == \042passwdmanapi\042:\n' >> configure.2
-printf '                makefile.write(\042\055\055skip\055validation \042)\n' >> configure.2
-printf '            makefile.write(\042{0} {1}.xml\\n\042.format(fc, n))\n' >> configure.2
-printf '            if fn == \042html\042:\n' >> configure.2
-printf '                makefile.write(\042\\tsed \055e \047s/type=\\\042bullet\\\042/type=\\\042disc\\\042/\047\042)\n' >> configure.2
-printf '                makefile.write(\042 {0}.html > {0}.htmlout\\n\042.format(n))\n' >> configure.2
-printf '                makefile.write(\042\\tmv {0}.htmlout {0}.html\\n\042.format(n))\n' >> configure.2
-printf '\n' >> configure.2
-printf 'def maketarget_paperdoc():\n' >> configure.2
-printf '    \042\042\042maketarget_paperdoc() \055 Add the target paperdoc.made, which just\n' >> configure.2
-printf '    depends on lots of files.\042\042\042\n' >> configure.2
-printf '    makefile.write(\042paperdoc.made :\042)\n' >> configure.2
-printf '    for x in (\042passwdmanfiles\042, \042passwdmancli\042, \042passwdmanapi\042,\n' >> configure.2
-printf '                \042passwdmangui\042, \042passwdmanrli\042):\n' >> configure.2
-printf '        for y in (\042ps\042, \042pdf\042):\n' >> configure.2
-printf '            makefile.write(\042 {0}.{1}\042.format(x, y))\n' >> configure.2
-printf '    makefile.write(\042\\n\\ttouch paperdoc.made\\n\042)\n' >> configure.2
-printf '\n' >> configure.2
-printf '# All the long options and the defaults for variables in Makefile.\n' >> configure.2
-printf '\n' >> configure.2
-printf 'dirs_def= [ {\042name\042: \042PKGNAME\042, \042value\042: \042passwdman\042},\n' >> configure.2
-printf '        {\042name\042: \042prefix\042, \042value\042: \042/usr/local\042},\n' >> configure.2
-printf '        {\042name\042: \042exec_prefix\042, \042value\042: \042\044(prefix)\042},\n' >> configure.2
-printf '        {\042name\042: \042bindir\042, \042value\042: \042\044(exec_prefix)/bin\042},\n' >> configure.2
-printf '        {\042name\042: \042datarootdir\042, \042value\042: \042\044(prefix)/share\042},\n' >> configure.2
-printf '        {\042name\042: \042datadir\042, \042value\042: \042\044(datarootdir)\042},\n' >> configure.2
-printf '        {\042name\042: \042docdir\042, \042value\042: \042\044(datarootdir)/doc/\044(PKGNAME)\042},\n' >> configure.2
-printf '        {\042name\042: \042infodir\042, \042value\042: \042\044(datarootdir)/info\042},\n' >> configure.2
-printf '        {\042name\042: \042htmldir\042, \042value\042: \042\044(docdir)\042},\n' >> configure.2
-printf '        {\042name\042: \042dvidir\042, \042value\042: \042\044(docdir)\042},\n' >> configure.2
-printf '        {\042name\042: \042pdfdir\042, \042value\042: \042\044(docdir)\042},\n' >> configure.2
-printf '        {\042name\042: \042psdir\042, \042value\042: \042\044(docdir)\042},\n' >> configure.2
-printf '        {\042name\042: \042localedir\042, \042value\042: \042\044(datarootdir)/locale\042},\n' >> configure.2
-printf '        {\042name\042: \042mandir\042, \042value\042: \042\044(datarootdir)/man\042},\n' >> configure.2
-printf '        {\042name\042: \042man1dir\042, \042value\042: \042\044(mandir)/man1\042},\n' >> configure.2
-printf '        {\042name\042: \042man3dir\042, \042value\042: \042\044(mandir)/man3\042},\n' >> configure.2
-printf '        {\042name\042: \042man5dir\042, \042value\042: \042\044(mandir)/man5\042},\n' >> configure.2
-printf '        {\042name\042: \042man1ext\042, \042value\042: \042.1\042},\n' >> configure.2
-printf '        {\042name\042: \042man3ext\042, \042value\042: \042.3\042},\n' >> configure.2
-printf '        {\042name\042: \042man5ext\042, \042value\042: \042.5\042},\n' >> configure.2
-printf '        {\042name\042: \042libdir\042, \042value\042: \042\044(exec_prefix)/lib\042},\n' >> configure.2
-printf '        {\042name\042: \042applications\042, \042value\042: \042\044(datarootdir)/applications\042},\n' >> configure.2
-printf '        {\042name\042: \042srcdir\042, \042value\042: \042\042},\n' >> configure.2
-printf '        {\042name\042: \042DESTDIR\042, \042value\042: \042\042}]\n' >> configure.2
-printf '# These booleans will be used when generating Makefile.\n' >> configure.2
-printf 'cli = gui = guidoc = techdoc = xfm = rli = rlidoc = rli_clipboard = True\n' >> configure.2
-printf 'verbose = False\n' >> configure.2
-printf '# Where to install passwdmanapi.py.\n' >> configure.2
-printf '# ex. moduledir = \047/usr/lib/python2.7/dist\055packages\047\n' >> configure.2
-printf '# ex. moduledir3 = \047/usr/lib/python3.2/dist\055packages\047\n' >> configure.2
-printf 'moduledir = None\n' >> configure.2
-printf 'moduledir3 = None\n' >> configure.2
-printf 'dirs_set = []           # Manually set directories.\n' >> configure.2
-printf 'dirs_final = []         # The directory variables to use.\n' >> configure.2
-printf 'dirs_auto = []          # dirs() will figure them out.\n' >> configure.2
-printf 'installed_files = []    # Filled in by maketarget_install and used by\n' >> configure.2
-printf '                        # maketarget_uninstall.\n' >> configure.2
-printf 'xfm_options = []\n' >> configure.2
-printf 'makefile = None\n' >> configure.2
-printf 'VERSION = \0420.3.28\042\n' >> configure.2
-printf 'LINES = 1101\n' >> configure.2
-printf 'if __name__ == \042__main__\042:\n' >> configure.2
-printf '    main()              # Handle options.\n' >> configure.2
-printf '    moduledep()         # Check dependencies\n' >> configure.2
-printf '    dirs()              # Figure out some directories.\n' >> configure.2
-printf '    getmoduledir()      # Figure out where to put passwdmanapi.py.\n' >> configure.2
-printf '    makemakefile()      # Open Makefile and set the variables.\n' >> configure.2
-printf '    maketarget_all()\n' >> configure.2
-printf '    maketarget_install()\n' >> configure.2
-printf '    maketarget_uninstall()\n' >> configure.2
-printf '    maketarget__doc_(\042html\042)\n' >> configure.2
-printf '    maketarget__doc_(\042pdf\042)\n' >> configure.2
-printf '    maketarget__doc_(\042ps\042)\n' >> configure.2
-printf '    maketarget__doc_(\042dvi\042)\n' >> configure.2
-printf '    maketarget_clean()\n' >> configure.2
-printf '    maketarget_dist()\n' >> configure.2
-printf '    maketarget_installdirs()\n' >> configure.2
-printf '    maketarget__doc_auto()\n' >> configure.2
-printf '    maketarget_paperdoc()       # PDF/PS paperdoc.made\n' >> configure.2
-printf '    makefile.close()\n' >> configure.2
-printf '    # Must end with empty line!\n' >> configure.2
-verbose Line 1100/1101...
-printf '    \n' >> configure.2
+cat >> configure.2 << __configure_EOF__
+#!/usr/bin/python
+#!/usr/bin/python
+
+copywrong = """
+Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1.  Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+
+2.  Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE."""
+
+__doc__ = """Second stage of configure.
+This file is human generated, but generated from \1configure\1, which is
+auto-generated by this file.
+
+See also \1usage.__doc__\1.
+
+\1\1cli = gui = guidoc = techdoc = xfm = rli = rlidoc = rli_clipboard = True\1\1
+
+Where to install \1passwdmanapi.py\1.
+-----------------------------------
+ex. \1moduledir\1 = \1/usr/lib/python2.7/dist-packages\1
+ex. \1moduledir3\1 = \1/usr/lib/python3.2/dist-packages\1
+
+Makefile variables
+------------------
+\1dirs_def\1    All the long options and the defaults for variables in
+              Makefile.  The first ones \1name\1 **must** be
+              \1\1PKGNAME\1\1!
+\1dirs_set\1    Manually set directories.
+\1dirs_final\1  The directory variables to use.
+\1dirs_auto\1   \1dirs\1 will figure out some variables.
+They are lists of dictionaries of \1name\1 and \1value\1.
+
+Misc. variables
+---------------
+\1installed_files\1       Filled in by \1maketarget_install\1 and used by
+                        \1maketarget_uninstall\1.  List of strings; all
+                        the installed files.
+\1xfm_options\1           List of all the \1\1--with-\1\1 options.  They are
+                        sent to \1\1xfilemanager\1\1s \1\1configure\1\1 The
+                        \1\1--with-\1\1 is preserved.
+\1makefile\1              A file object opened by \1makemakefile\1.
+\1verbose\1               bool
+\1VERSION\1               str
+\1LINES\1                 Used by \1update\1 to make \1\1configure\1\1 show
+                        progress.
+
+Other files generated by \1\1configure\1\1
+--------------------------------------
+\1\1shebang\1\1                     Compiler-like interface. Adds a
+                                \1\1.out\1\1-suffix to it's arguments.
+                                Finds the python interpreter and will
+                                set the shebang line to the right path.
+\1\1cdxfm\1\1                       cd into \1\1xfilemanager-*\1\1 and do
+                                \1\1\1*\1\1.
+\1\1dirsinstall\1\1                 Force the directories \1\1\1@\1\1 to exist.
+\1\1passwdmanapi.xml.fix\1\1        Filter; repair broken Docbook. (Doesn't
+                                validate)
+\1\1passwdmanfiles.xml.fix\1\1      Filter; repair broken Docbook. (Validates)
+\1\1fix.docbook\1\1                 To be fed into sed.
+
+"""
+
+import getopt
+import sys
+import os
+import re
+
+def v(x):
+    """v(x) - Print message x if in verbose mode."""
+    if verbose:
+        print(x)
+
+def usage():
+    """Options:
+  Long options; only for variables in Makefile:
+    --prefix    --exec_prefix   --bindir        --datarootdir   --datadir
+    --docdir    --infodir       --htmldir       --dvidir        --pdfdir
+    --psdir     --localedir     --mandir
+    --man1dir           --man3dir       --man5dir
+    --man1ext           --man3ext       --man5ext
+__configure_EOF__
+verbose Line 100/1103...
+cat >> configure.2 << __configure_EOF__
+    --applications      /usr/share/applications         Full of '*.desktop'.
+  Long and short pairs:
+    --moduledir -m      Where to install the API
+                                    ex. /usr/lib/python2.7/dist-packages
+    --moduledir3 -m     Where to install the API
+                                    ex. /usr/lib/python3.2/dist-packages
+    --help      -h      All of this.
+    --verbose   -v
+    --disable-cli     -c    No command line interface
+    --disable-gui     -g
+    --disable-guidoc  -d    No documentation for the graphical user interface
+    --disable-techdoc -t    No technical documentation (API and file formats)
+    --disable-rli     -r    No rogue-like interface.
+    --disable-rlidoc  -R
+  And finally:
+    --halt              No-op mode. Only generate \1configure.2\1.
+    --update
+    --update-from       #
+    """
+    print(usage.__doc__)
+
+def unvar(thevar, thelist):
+    """unvar(thevar, thelist)
+    Return the value of the Makefile variable \1thevar\1.  \1thelist\1 is a
+    list of all the Makefile variables.  Its elements are dictionaries
+    of \1name\1 and \1value\1.
+    
+    Exmaple
+    -------
+    
+    >>> dirs_final
+    [{'name': 'bindir', 'value': '\1(prefix)/bin'}, {'name': 'prefix',
+    'value': '/usr'}]
+    >>> unvar('\1(bindir)', dirs_final)
+    """
+    chunks, out = [], ""
+    for x in thelist: # Get the value and store it in var.
+        if x["name"] == thevar:
+            var = x["value"]
+            break
+    else:
+        raise ValueError
+    
+    while True:
+        x = var.split("\1", 1)   # Maybe a variable.
+        chunks.append(x[0])     # The non-variable part.
+        if len(x) < 2:
+            break               # Next line would raise an exception.
+        if x[1][0] == "(":      # Is it a variable?
+            y = x[1][1:].split(")", 1)  # Break at the closing parenthesis.
+            if len(y) < 2:
+                chunks.append("\1(" + y) # Oops, no closing parenthesis.
+                break
+            var = y[1]
+            chunks.append(unvar(y[0], thelist)) # Recursive (the variable).
+            continue
+        else:
+            var = "\1" + x[1]    # No, just a normal dollar sign.
+            continue
+    return ''.join(chunks)
+
+def update(x):
+    """update(x)
+    Regenerate configure from \1x\1, which should be \1configure.2\1.
+    """
+    # Load the python script x, that will be the new me.
+    # Store it in configure.
+    configure = open("configure", "w")
+    configure.write("""#!/bin/sh
+#NOTE This file is auto-generated by the python-script "configure.2", which
+#is auto-generated by this file.
+#Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#
+#1.  Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+#
+#2.  Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+verbose_mode=0
+for x in \1*; do
+    if [ \1x = "--verbose" ]; then
+        verbose_mode=1
+        break
+__configure_EOF__
+verbose Line 200/1103...
+cat >> configure.2 << __configure_EOF__
+    fi
+    if [ \1x = "-v" ]; then
+        verbose_mode=1
+        break
+    fi
+done
+verbose()
+{
+    if [ \1verbose_mode -gt 0 ]; then
+        echo \1*
+    fi
+}
+#Important checks.
+verbose Checking for python...
+pyck=0          #No python.
+for test_dir in \1echo \1PATH | tr : ' '\1; do
+    for x in \1ls \1test_dir | grep ^python\1; do
+        if [ -x \1test_dir/\1x ]; then
+            pyck=1   #python
+            break 2
+        fi
+    done
+done
+if [ \1pyck -eq 0 ]; then
+    echo Python is required.
+    exit 1
+fi
+#Where is python?
+for test_dir in \1echo \1PATH | tr : " "\1; do
+    for test_file in \1ls \1test_dir | grep ^python\1; do
+        if [ -x \1test_dir/\1testfile ] ; then
+            python_exec=\1test_dir/\1test_file
+            break 2
+        fi
+    done
+done
+#Create dirsinstall.
+verbose Creating dirsinstall...
+cat > dirsinstall << __EOF__
+#!/bin/sh
+#This script will make sure that
+#all the specified directories exist.
+while [ \\1# -gt 0 ]; do
+    if [ -d \\11 ]; then
+        shift
+        continue
+    fi
+    mkdir \\11
+    shift
+done
+__EOF__
+chmod +x dirsinstall
+#Create passwdmanapi.xml.fix.
+verbose Creating passwdmanapi.xml.fix...
+echo "#!\1{python_exec}" > passwdmanapi.xml.fix
+cat >> passwdmanapi.xml.fix << __EOF__
+#!/usr/bin/python
+import sys
+#Fix broken Docbook XML in passwdmanapi.xml.
+
+chunks = []
+
+while True:
+    l = sys.stdin.readline()
+    if len(l) < 1:
+        quit()
+    if "<refsynopsisdiv" in l:
+        sys.stdout.write(l)
+        #Inside the bad place.
+        while True:
+            l = sys.stdin.readline()
+            if "<command>" in l:
+                sys.stdout.write("<synopsis>\n#!/usr/bin/python<sbr/>\n")
+                continue
+            if "import" in l or "passwdmanapi" in l:
+                continue
+            if "<sbr/>" in l:
+                sys.stdout.write("import passwdmanapi<sbr/>\n")
+                continue
+            if l == "</refsynopsisdiv>\n":
+                break           #Do not end synopsis here.
+            try:
+                chunks.append(l[37:-21])
+            except:
+                pass    #</synopsis>
+        #Write out the chunks.
+        for x in chunks:
+            sys.stdout.write(x)
+            try:
+                if x[-1] == ")":
+                    sys.stdout.write("<sbr/>\n")
+                else:
+                    sys.stdout.write(" ")
+            except:
+                pass
+        sys.stdout.write("</synopsis>")
+        while True:
+            l = sys.stdin.readline()
+            if l == "</refsect1>\n":
+                sys.stdout.write("</refsynopsisdiv>\n")
+__configure_EOF__
+verbose Line 300/1103...
+cat >> configure.2 << __configure_EOF__
+                #End synopsis here.
+                break
+            if "<para>" in l or not "<" in l:
+                sys.stdout.write(l[:-1] + "<sbr/>\n")
+            else:
+                sys.stdout.write(l)
+    else:
+        sys.stdout.write(l)
+__EOF__
+chmod +x passwdmanapi.xml.fix
+#create passwdmanfiles.xml.fix
+verbose Creating passwdmanfiles.xml.fix
+echo "#!\1{python_exec}" > passwdmanfiles.xml.fix
+cat >> passwdmanfiles.xml.fix << __EOF__
+#!/usr/bin/python
+import sys
+while True:
+    l = sys.stdin.readline()
+    if len(l) < 1:
+        quit()
+    if "<refname>" in l:
+        sys.stdout.write("<refname>~/.passwdman/passwords, ")
+        sys.stdout.write("~/.passwdman/honeypots, ")
+        sys.stdout.write("~/.passwdman/undoable/, ")
+        sys.stdout.write("~/.passwdman/redoable/, ")
+        sys.stdout.write("~/.passwdman/gui.conf</refname>\n")
+    else:
+        sys.stdout.write(l)
+__EOF__
+chmod +x passwdmanfiles.xml.fix
+#create shebang script
+verbose Creating shebang...
+cat > shebang << __EOF__
+#!/bin/sh
+for test_dir in \\1echo \\1PATH | tr : " "\\1; do
+    for test_file in \\1ls \\1test_dir | grep ^python\\1; do
+        if [ -x \\1test_dir/\\1testfile ] ; then
+            python_exec=\\1test_dir/\\1test_file
+            break 2
+        fi
+    done
+done
+while [ \\1# -gt 0 ]; do
+    echo "#!\\1python_exec" > \\1basename \\11\\1.out
+    cat \\11 >> \\11.out
+    shift
+done
+__EOF__
+chmod +x shebang
+#Create fix.docbook.
+verbose Creating fix.docbook...
+#printf "s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com " > fix.docbook
+#echo "role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/" >> fix.docbook
+#echo "s/();/()/" >> fix.docbook
+#echo "s/(.);/()./" >> fix.docbook
+#echo "s/Pa ~/~/" >> fix.docbook
+cat > fix.docbook << __EOF__
+s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/
+s/();/()/
+s/(.);/()./
+s/Pa ~/~/
+__EOF__
+#create cdfxm
+verbose Creating cdxfm...
+cat > cdxfm << __EOF__
+#!/bin/sh
+old_wd=\\1pwd\\1
+cd xfilemanager-*/
+\\1*
+cd \\1old_wd
+__EOF__
+chmod +x cdxfm
+#create configure.2             python-script
+if [ -z \1python_exec ]; then
+    echo "#!/usr/bin/false" > configure.2
+else
+    echo "#!\1{python_exec}" > configure.2
+fi
+verbose Creating configure.2...
+""")    # We're still in the function update().
+    # Auto-generate configure.2.
+    me = open(x, 'r')
+    # The value of ender **MUST NOT** be written anywhere in this file!
+    ender = "__configure" + "_EOF__"
+    configure.write('cat >> configure.2 << {0}\n'.format(ender))
+    linecounter = 0
+    for line in me:
+        linecounter += 1
+        if ender in line:
+            sys.stderr.write("\1ender\1 in \1line\1!\n")
+            sys.exit(1)
+        # Escape some characters from being interpreted by the shell.
+        configure.write(re.sub('([\1\1])', r'\\1', line))
+        if linecounter%100 == 0:
+            configure.write('''{0}
+verbose Line {1}/{2}...
+cat >> configure.2 << {0}
+'''.format(ender, linecounter, LINES))
+    configure.write("""{0}
+chmod +x configure.2
+__configure_EOF__
+verbose Line 400/1103...
+cat >> configure.2 << __configure_EOF__
+verbose exec configure.2
+exec ./configure.2 \1*
+""".format(ender))
+    configure.close()
+    return
+
+def main():
+    """main() - Handle command line options."""
+    global dirs_set
+    global moduledir
+    global verbose
+    global cli
+    global gui
+    global guidoc
+    global techdoc
+    global rli
+    global rlidoc
+    global xfm
+    global xfm_options
+    long_opts = []
+    for x in dirs_def[1:]:      # Skip 'PKGNAME'.
+        long_opts.append(x["name"] + "=")
+        # Long options for all the variables.
+    long_opts.append("help")
+    long_opts.append("verbose")
+    long_opts.append("moduledir=")
+    long_opts.append("moduledir3=")
+    long_opts.append("disable-cli")
+    long_opts.append("disable-gui")
+    long_opts.append("disable-guidoc")
+    long_opts.append("disable-techdoc")
+    long_opts.append("disable-rli")
+    long_opts.append("disable-rlidoc")
+    long_opts.append("halt")
+    long_opts.append("update")
+    long_opts.append("update-from=")
+    long_opts.append("version")
+    long_opts.append("build=")
+    long_opts.append("host=")
+    long_opts.append("target=")
+    long_opts.append("without-xfilemanager")
+    # Handle the options.
+    all_options = []
+    for x in sys.argv[1:]:
+        if x[:7] == "--with-":
+            xfm_options.append(x)
+            continue
+        if x[:10] == "--without-" and x[10:] != "xfilemanager":
+            sys.stdout.write("Ignoring '{0}'.\n".format(x))
+            continue
+        if x[:9] == "--enable-":
+            sys.stdout.write("Ignoring '{0}'.\n".format(x))
+            continue
+        if x[:10] == "--disable-":
+            if x[10:] != "gui":
+                if x[10:] != "cli":
+                    if x[10:] != "guidoc":
+                        if x[10:] != "techdoc":
+                            sys.stdout.write("Ignoring '{0}'.\n".format(x))
+                            continue
+        all_options.append(x)
+    try:
+        opts, args = getopt.getopt(all_options, "hvm:M:cgdrRtu:HV", long_opts)
+    except getopt.GetoptError as err:
+        sys.stderr.write("{0}\n".format(err))
+        usage()
+        sys.exit(1)
+    del args
+    for o, a in opts:
+        if o in ("--help", "-h"):
+            usage()
+            sys.exit(0)
+        elif o in ("--verbose", "-v"):
+            verbose = True
+            continue
+        elif o in ("--moduledir", "-m"):# ex. /usr/lib/python2.7/dist-packages
+            moduledir = a                 # Where passwdmanapi.py should live.
+            continue
+        elif o in ("--moduledir3", "-M"):
+            moduledir3 = a
+            continue
+        elif o in ("--disable-cli", "-c"):
+            cli = False
+            continue
+        elif o in ("--disable-gui", "-g"):
+            gui = False
+            guidoc = False
+            continue
+        elif o in ("--disable-guidoc", "-d"):
+            guidoc = False
+            continue
+        elif o in ("--disable-techdoc", "-t"):
+            techdoc = False
+            continue
+        elif o in ("--disable-rli", "-r"):
+            rli = False
+            rlidoc = False
+            continue
+        elif o in ("--disable-rlidoc", "-R"):
+            rlidoc = False
+__configure_EOF__
+verbose Line 500/1103...
+cat >> configure.2 << __configure_EOF__
+        elif o in ("--halt", "-H"):
+            quit()      # Should be renamed no-op.
+        elif o in ("--update", "-u", "--update-from"):
+            if len(a) > 0:      # The short option requires an argument.
+                update(a)
+            else:
+                update(sys.argv[0])
+            sys.exit(0)
+        elif o in ("--version", "-V"):
+            print("passwdman configure version {0}".format(VERSION))
+            sys.exit(0)
+        elif o == "--without-xfilemanager":
+            xfm = False
+            continue
+        elif o in ("--build", "--host", "--target"):
+            continue
+        else:       # Handle options for the variable names.
+            for c in dirs_def:      # Look for a match.
+                if ("--" + c["name"]) == o:
+                    # No duplicates.
+                    i = 0       # index
+                    for x in dirs_set:
+                        if x["name"] == c["name"]:
+                            dirs_set.pop(i)
+                            break
+                        else:
+                            i += 1
+                    if len(a) > 0:  # Empty argument resets.
+                        dirs_set.append({"name": c["name"], "value": a})
+                    break
+            else:
+                assert False, "unhandled option"
+
+def moduledep():
+    """moduledep()
+    
+    Check that the dependencies, for the parts of passwdman the user
+    wants to be installed, exists.
+    """
+    global gui
+    global guidoc
+    global rli_clipboard
+    v("Checking dependencies...")
+    if gui:
+        v("Module 'gi.repository.Gtk'...")
+        try:
+            from gi.repository import Gtk
+        except:
+            sys.stderr.write(
+                "ERROR: Cannot import 'Gtk' from 'gi.repository'.\n")
+            sys.stderr.write(
+                "ERROR: Cannot install graphical user-interface.\n")
+            print("Press control-C to stop installation.")
+            gui = False
+            guidoc = False
+    if rli:
+        v("Program 'xsel'...")
+        for loopdir in os.getenv("PATH").split(":"):
+            for loopfile in os.listdir(loopdir):
+                if loopfile == "xsel":
+                    break
+            else:       #Not found here.
+                continue
+            break #again.
+        else:
+            sys.stderr.write(
+                "ERROR: Cannot find 'xsel'.\n")
+            sys.stderr.write(
+                "ERROR: the rogue-like interface cannot use the clipboard.\n")
+            print("Press control-C to stop installation.")
+            rli_clipboard = False
+    fatal = False
+    v("Module 'xml.etree.ElementTree'...")
+    try:
+        import xml.etree.ElementTree
+    except:
+        sys.stderr.write("ERROR: Cannot import 'xml.etree.ElementTree',")
+        sys.stderr.write(" which is required.\n")
+        fatal = True
+    v("Module 'logging'...")
+    try:
+        import logging
+    except:
+        sys.stderr.write("ERROR: Cannot import 'logging',")
+        sys.stderr.write(" which is required.\n")
+        fatal = True
+    
+    if fatal:
+        sys.stderr.write("PANIC: Cannot install.\n")
+        sys.exit(1)
+
+def dirs():
+    """dirs() - Figure out the Makefile variables."""
+    def tryset(x):      # Always check.
+        """tryset(x) - Return True if x is not manually set."""
+        for y in dirs_set:
+            if y["name"] == x:
+                return False
+        else:
+            return True
+__configure_EOF__
+verbose Line 600/1103...
+cat >> configure.2 << __configure_EOF__
+    def setvar(x, y):
+        """setvar(x, y)
+        
+        Append name x and value y to the list of autogenerated
+        variable-values. (dirs_auto)
+        """
+        global dirs_auto
+        dirs_auto.append({"name": x, "value": y})
+    def mk_dirs_final():
+        """mk_dirs_final() - Make dirs_final."""
+        global dirs_final
+        dirs_final = []
+        dirs_final.extend(dirs_set)
+        dirs_final.extend(dirs_auto)
+        for x in dirs_def:
+            for y in dirs_final:
+                if x["name"] == y["name"]:
+                    break
+            else:
+                dirs_final.append(x)
+    
+    global dirs_auto
+    # Check some variables.
+    if tryset("prefix"):
+        try:
+            setvar("prefix", sys.prefix)
+        except:
+            pass
+    if tryset("exec_prefix"):
+        try:
+            setvar("exec_prefix", sys.exec_prefix)
+        except:
+            pass
+    if tryset("mandir"):
+        os.system("manpath > manpath.out")
+        f = open("manpath.out", "r")
+        l = f.readline()[:-1]
+        f.close()
+        var, var2 = l.split(":"), []
+        # var is now list of directories in which
+        # man-pages can be installed to.
+        mk_dirs_final()
+        good_choice = unvar("datarootdir", dirs_final)
+        for x in var:
+            try:
+                if x[:len(good_choice)] == good_choice and "man" in x:
+                    var2.append(x)      # x is in the right datarootdir
+                                        # and contains "man".
+            except:
+                pass
+        if len(var2) == 0:
+            # The user has probably specified some weird value for prefix.
+            var2 = var
+        
+        # Pick the shortest in var2.
+        while len(var2) > 1:
+            # Pop the longest name.
+            l = i = 0
+            for x in var2:
+                if len(x) > l:
+                    l = len(x)
+                i += 1
+            var2.pop(i - 1)
+        setvar("mandir", var2[0])
+        
+    #TODO: More.
+    mk_dirs_final()
+
+def getmoduledir():
+    """getmoduledir() - Figure out where to install python modules."""
+    def getmoduledir_x(pyver):
+        list_of_xx = []
+        path = unvar("libdir", dirs_final)
+        dirlist = os.listdir(path)
+        for x in dirlist:
+            if pyver in x:       # pyver is either "python2" or "python3".
+                try:
+                    dirlist2 = os.listdir(os.path.join(path, x))
+                    for y in dirlist2:
+                        # \1(libdir)/*{python2,python3}*/{dist,site}-packages
+                        if y in ("dist-packages", "site-packages"):
+                            list_of_xx.append(os.path.join(path, x, y))
+                            break
+                except:
+                    pass            # Names for some non-directories...
+                                    # ...contain "python2" or "python3".
+        else:
+            if len(list_of_xx) == 1:
+                # On some systems there is only one python3 directory
+                # which unfortunately doesn't have a minor version.
+                return list_of_xx[0]
+            if len(list_of_xx) > 1:
+                # Look for the newest minor.
+                ver = -1
+                right_version = None
+                for pythonxx in list_of_xx:
+                    try:
+                        tmp_name = pythonxx.split("/")[-2]
+                        tmp_ver = int(tmp_name.split(".")[-1])
+                        if tmp_ver > ver:
+__configure_EOF__
+verbose Line 700/1103...
+cat >> configure.2 << __configure_EOF__
+                            ver = tmp_ver
+                            right_version = pythonxx
+                    except:
+                        pass    #Garbage.
+                else:
+                    return right_version
+            else:
+                return None
+    global moduledir
+    global moduledir3
+    if moduledir is None:
+        v("Figuring out the 'moduledir' variable...")
+        moduledir = getmoduledir_x("python2")
+    if moduledir3 is None:
+        v("Figuring out the 'moduledir3' variable...")
+        moduledir3 = getmoduledir_x("python3")
+    if moduledir is None and moduledir3 is None:
+        sys.stderr.write("Set --moduledir manually.\n")
+        sys.exit(1)
+
+def makemakefile():
+    """makemakefile() - Open Makefile and set the variables."""
+    global makefile
+    v("Writing the Makefile...")
+    try:
+        makefile = open("Makefile", "w")
+    except:
+        sys.stderr.write("ERROR: cannot open 'Makefile'.\n")
+        sys.exit(1)
+    makefile.write("#This file is auto-generated by configure.2.\n")
+    v("Setting the variables...")
+    makefile.write("SHELL = /bin/sh\n")
+    for x in dirs_final:
+        makefile.write("{0} = {1}\n".format(x["name"], x["value"]))
+    if moduledir is not None:
+        makefile.write("moduledir = {0}\n".format(moduledir))
+    if moduledir3 is not None:
+        makefile.write("moduledir3 = {0}\n".format(moduledir3))
+
+def maketarget_all():
+    """maketarget_all() - Add the default 'all' target."""
+    global makefile
+    v("Writing the 'all.made' and 'all' targets...")
+    makefile.write("all.made : shebang \1(srcdir)passwdmanapi.py")
+    # Append more dependencies.
+    if techdoc:
+        makefile.write(" \1(srcdir)passwdmanapi.3 \1(srcdir)passwdmanfiles.5")
+    if cli:
+        makefile.write(" \1(srcdir)passwdmancli \1(srcdir)passwdmancli.1")
+    if gui:
+        makefile.write(" \1(srcdir)passwdmangui")
+    if guidoc:
+        makefile.write(" \1(srcdir)passwdmangui.1")
+    if rli:
+        makefile.write(" \1(srcdir)passwdmanrli")
+    if rlidoc:
+        makefile.write(" \1(srcdir)passwdmanrli.1")
+    makefile.write("\n\t./shebang")
+    if cli:
+        makefile.write(" \1(srcdir)passwdmancli")
+    if gui:
+        makefile.write(" \1(srcdir)passwdmangui")
+    if rli:
+        makefile.write(" \1(srcdir)passwdmanrli")
+    makefile.write("\n")
+    if gui:
+        makefile.write("\tsed -e s/__XFM__/")
+        if xfm:
+            makefile.write("True")
+        else:
+            makefile.write("False")
+        makefile.write("/ passwdmangui.out > passwdmangui.out.out\n")
+    if rli:
+        makefile.write("\tsed -e s/__HAVE_CLIPBOARD__/")
+        if rli_clipboard:
+            makefile.write("True")
+        else:
+            makefile.write("False")
+        makefile.write("/ passwdmanrli.out > passwdmanrli.out.out\n")
+    if xfm:
+        makefile.write("\tgunzip -c \1(srcdir)xfilemanager-*.tar.gz >")
+        makefile.write(" xfilemanager.tar\n")
+        makefile.write("\ttar -xf xfilemanager.tar\n")
+        makefile.write("\t./cdxfm ./configure ")
+        if verbose:
+            makefile.write("--verbose ")
+        makefile.write(" ".join(xfm_options))
+        for x in dirs_set:
+            if x["name"] != "srcdir":
+                makefile.write(" --{0}={1}".format(x["name"], x["value"]))
+        makefile.write("\n\t./cdxfm make\n")
+    makefile.write("\ttouch all.made\n")    # make all, made all, all.made
+    makefile.write("all : all.made\n")          # The all target.
+
+def maketarget_install():
+    """maketarget_install() - Add the 'install' target."""
+    def install_file(src, dst, x):
+        """install_file(src, dst, x)
+        
+        Write to \1makefile\1 that \1src\1 must be copied to \1dst\1 and that
+__configure_EOF__
+verbose Line 800/1103...
+cat >> configure.2 << __configure_EOF__
+        \1dst\1 must  be chowned to root.
+        
+        if \1x\1: \1dst\1 must be chmoded 755
+        else: \1dst\1 must be chmoded 644
+        
+        It adds \1\1\1(srcdir)\1\1 and \1\1\1(DESTDIR)\1\1 to \1src\1 and \1dst\1.
+        It appends \1dst\1 to \1installed_files\1.
+        
+        \1installed_files\1 will be used later in \1maketarget_uninstall\1.
+        """
+        global installed_files
+        if src[-2:] in (".1", ".3", ".5"):      #man-pages
+            makefile.write("\t-cp \1(srcdir){0} \1(DESTDIR){1}\n".format(src,
+                                                                        dst))
+        else:
+            makefile.write("\tcp \1(srcdir){0} \1(DESTDIR){1}\n".format(src,
+                                                                        dst))
+        makefile.write("\tchown root \1(DESTDIR){0}\n".format(dst))
+        if x:
+            makefile.write("\tchmod 755 \1(DESTDIR){0}\n".format(dst))
+        else:
+            if src[-2:] in (".1", ".3", ".5"):      #man-pages
+                makefile.write("\t-chmod 644 \1(DESTDIR){0}\n".format(dst))
+            else:
+                makefile.write("\tchmod 644 \1(DESTDIR){0}\n".format(dst))
+        installed_files.append(dst)
+    global makefile
+    v("Writing the 'install' target...")
+    makefile.write("install : all.made installdirs")
+    # Append more dependencies.
+    if cli:
+        makefile.write(" passwdmancli.out") # ./shebang adds a '.out' suffix.
+    if gui:
+        makefile.write(" passwdmangui.out.out \1(srcdir)passwdman.desktop")
+    if rli:
+        makefile.write(" passwdmanrli.out.out")
+    makefile.write("\n")
+    if moduledir is not None:
+        install_file("passwdmanapi.py", "\1(moduledir)/passwdmanapi.py",
+            False)
+    if moduledir3 is not None:
+        install_file("passwdmanapi.py", "\1(moduledir3)/passwdmanapi.py",
+            False)
+    if techdoc:
+        install_file("passwdmanapi.3", "\1(man3dir)/passwdmanapi\1(man3ext)",
+                False)
+        install_file("passwdmanfiles.5","\1(man5dir)/passwdmanfiles\1(man5ext)",
+                False)
+    if cli:
+        install_file("passwdmancli.out", "\1(bindir)/passwdmancli", True)
+        install_file("passwdmancli.1", "\1(man1dir)/passwdmancli\1(man1ext)",
+                False)
+    if gui:
+        install_file("passwdmangui.out.out", "\1(bindir)/passwdmangui", True)
+    if guidoc:
+        install_file("passwdmangui.1", "\1(man1dir)/passwdmangui\1(man1ext)",
+                False)
+    if rli:
+        install_file("passwdmanrli.out.out", "\1(bindir)/passwdmanrli", True)
+    if rlidoc:
+        install_file("passwdmanrli.1", "\1(man1dir)/passwdmanrli\1(man1ext)",
+                False)
+    if xfm:
+        makefile.write("\t./cdxfm make install\n")
+    makefile.write("\t\1(POST_INSTALL)\n")
+    if gui:
+        Vmaj = VERSION.split(".")[0]
+        Vmin = VERSION.split(".")[1]
+        makefile.write("\tsed -e 's/_VERSION_/{0}.{1}/' ".format(Vmaj, Vmin))
+        makefile.write("\1(srcdir)passwdman.desktop > ")
+        makefile.write("\1(DESTDIR)\1(applications)/passwdman.desktop\n")
+        makefile.write("\t-update-menus\n")
+    makefile.write("\t-mandb\n")
+
+def maketarget_uninstall():
+    """maketarget_uninstall() - Add the 'uninstall' target.
+    It uses \1installed_files\1 to know what to uninstall.
+    """
+    global makefile
+    v("Writing the 'uninstall' target...")
+    makefile.write("uninstall :\n")
+    for x in installed_files:
+        makefile.write("\t-rm \1(DESTDIR){0}\n".format(x))
+
+def maketarget__doc_(x):
+    """maketarget__doc_(x) - Add the 'install-{x}' target.
+    The target is not required to succeed.
+    """
+    global makefile
+    v("Writing the 'install-{0}' and '{0}' targets...".format(x))
+    makefile.write("install-{0} : {0}\n{0} :\n".format(x))
+    if guidoc:
+        makefile.write("\t-cp \1(srcdir)passwdmangui.{0}".format(x))
+        makefile.write(" \1(DESTDIR)\1({0}dir)/passwdmangui.{0}\n".format(x))
+    if cli:
+        makefile.write("\t-cp \1(srcdir)passwdmancli.{0}".format(x))
+        makefile.write(" \1(DESTDIR)\1({0}dir)/passwdmancli.{0}\n".format(x))
+    if techdoc:
+        makefile.write("\t-cp \1(srcdir)passwdmanapi.{0}".format(x))
+        makefile.write(" \1(DESTDIR)\1({0}dir)/passwdmanapi.{0}\n".format(x))
+__configure_EOF__
+verbose Line 900/1103...
+cat >> configure.2 << __configure_EOF__
+        makefile.write("\t-cp \1(srcdir)passwdmanfiles.{0}".format(x))
+        makefile.write(" \1(DESTDIR)\1({0}dir)/passwdmanfiles.{0}\n".format(x))
+    if rlidoc:
+        makefile.write("\t-cp \1(srcdir)passwdmanrli.{0}".format(x))
+        makefile.write(" \1(DESTDIR)\1({0}dir)/passwdmanrli.{0}\n".format(x))
+
+def maketarget_clean():
+    """maketarget_clean() - Add 'clean' and 'maintainer-clean'."""
+    v("Writing the 'clean' target...")
+    makefile.write("clean :\n\t-rm *.made *.out configure.2\n")
+    makefile.write("\t-rm *.1.xml *.3.xml *.5.xml\n")
+    makefile.write("\t-rm xfilemanager.tar\n\t-rm -r xfilemanager-*/\n")
+    makefile.write("maintainer-clean :\n\t-rm *~\n")
+
+def maketarget_dist():
+    """maketarget_dist() - Add the dist target."""
+    global makefile
+    v("Writing the 'dist' target...")
+    # Ignore cli, gui, guidoc, and techdoc.
+    makefile.write("dist : paperdoc.made")
+    for x in ("api.py", "api.xml", "cli", "cli.xml", "gui", "gui.xml",
+        "files.xml", "cli.html", "gui.html", "api.html", "files.html", "rli",
+        "rli.xml", "rli.html", "cli.1", "api.3", "files.5", "gui.1", "rli.1"):
+        makefile.write(" \1(srcdir)passwdman{0}".format(x))
+    makefile.write("\n\t-rm -r passwdman-{0}\n\tmkdir passwdman-{0}\n".format(
+                                                                    VERSION))
+    for x in ("api.py", "api.3", "cli", "cli.1", "gui", "gui.1", "files.5",
+        "rli", "rli.1"):
+        makefile.write("\tcp \1(srcdir)passwdman{0} passwdman-{1}\n".format(x,
+                                                                VERSION))
+    for f in ("html", "ps", "dvi", "pdf"):
+        for n in ("api", "gui", "cli", "files", "rli"):
+            makefile.write(
+                "\t-cp \1(srcdir)passwdman{0}.{1} passwdman-{2}\n".format(n, f,
+                                                                VERSION))
+    for x in ("cli", "api", "gui", "files", "rli"):
+        makefile.write("\tcp \1(srcdir)passwdman{0}.xml passwdman-{1}\n".format(
+                                                                x, VERSION))
+    for x in ("README", "LICENSE", "INSTALL", "NEWS", "TODO", "ChangeLog",
+                "CREDITS", "configure", "FAQ"):
+        makefile.write("\tcp \1(srcdir){0} passwdman-{1}\n".format(x, VERSION))
+    makefile.write("\tcp \1(srcdir)passwdman.desktop passwdman-{0}\n".format(
+                                                                    VERSION))
+    makefile.write("\t-cp xfilemanager-*.tar.gz passwdman-{0}\n".format(
+                                                                    VERSION))
+    makefile.write("\ttar -cf passwdman-{0}.tar passwdman-{0}"
+                        " \n\tgzip passwdman-{0}.tar\n".format(VERSION))
+
+def maketarget_installdirs():
+    """maketarget_installdirs() - Add the 'installdirs' target."""
+    global makefile
+    makefile.write("installdirs : dirsinstall\n\t./dirsinstall")
+    for x in dirs_final:
+        if "man" in x["name"] and "ext" in x["name"]:
+            # '.1', '.3', '.5'
+            continue
+        if x["name"] in ("srcdir", "DESTDIR", "PKGNAME"):
+            continue
+        makefile.write(" \1(DESTDIR)\1({0})".format(x["name"]))
+    makefile.write("\n")
+
+def maketarget__doc_auto():
+    """maketarget__doc_auto()
+    It is for me. I make things in the current directory.
+    mdoc -> [doclifter] -> Docbook -> [sed + scripts + xmlto] ->
+        ([sed] -> xhtml, pdf, ps)
+    """
+    global makefile
+    f = open("xml.copyright", "w")
+    f.write("""
+<!-- Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
+All rights reserved. -->
+
+<!-- Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:-->
+
+<!-- 1.  Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer. -->
+
+<!-- 2.  Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution. -->
+
+<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE. -->
+""")
+    f.close()
+    for n, s in (("passwdmangui", 1), ("passwdmanfiles", 5),
+                 ("passwdmancli", 1), ("passwdmanapi", 3),
+                 ("passwdmanrli", 1)):
+        # Docbook
+__configure_EOF__
+verbose Line 1000/1103...
+cat >> configure.2 << __configure_EOF__
+        makefile.write("{0}.xml : {0}.{1}\n".format(n , str(s)))
+        makefile.write("\tdoclifter {0}.{1}\n".format(n, str(s)))
+        # NOTE to self: doclifter-2.13
+        # They all need some help.
+        makefile.write("\tsed -f fix.docbook {0}.{1}.xml > {0}.xml\n".format(
+                                                                n, str(s)))
+        if n == "passwdmanapi":                 # It needs lots of help,
+                                            # it still doesn't validate.
+            makefile.write("\tcat passwdmanapi.xml | ./passwdmanapi.xml.fix ")
+            makefile.write("> passwdmanapi.xml.out\n")
+            makefile.write("\tmv passwdmanapi.xml.out passwdmanapi.xml\n")
+        if n == "passwdmanfiles":
+            makefile.write("\tcat passwdmanfiles.xml | ")
+            makefile.write("./passwdmanfiles.xml.fix >")
+            makefile.write("passwdmanfiles.xml.out\n")
+            makefile.write("\tmv passwdmanfiles.xml.out passwdmanfiles.xml\n")
+        # html, pdf, ps
+        for fn, fc in (("html", "xhtml-nochunks"), ("ps", "--with-fop ps"),
+                       ("pdf", "--with-fop pdf")):
+            makefile.write("{0}.{1} : {0}.xml\n\txmlto ".format(n, fn))
+            if n == "passwdmanapi":
+                makefile.write("--skip-validation ")
+            makefile.write("{0} {1}.xml\n".format(fc, n))
+            if fn == "html":
+                makefile.write("\tsed -e 's/type=\"bullet\"/type=\"disc\"/'")
+                makefile.write(" {0}.html > {0}.htmlout\n".format(n))
+                makefile.write("\tmv {0}.htmlout {0}.html\n".format(n))
+
+def maketarget_paperdoc():
+    """maketarget_paperdoc() - Add the target paperdoc.made, which just
+    depends on lots of files."""
+    makefile.write("paperdoc.made :")
+    for x in ("passwdmanfiles", "passwdmancli", "passwdmanapi",
+                "passwdmangui", "passwdmanrli"):
+        for y in ("ps", "pdf"):
+            makefile.write(" {0}.{1}".format(x, y))
+    makefile.write("\n\ttouch paperdoc.made\n")
+
+# All the long options and the defaults for variables in Makefile.
+
+dirs_def= [ {"name": "PKGNAME", "value": "passwdman"},
+        {"name": "prefix", "value": "/usr/local"},
+        {"name": "exec_prefix", "value": "\1(prefix)"},
+        {"name": "bindir", "value": "\1(exec_prefix)/bin"},
+        {"name": "datarootdir", "value": "\1(prefix)/share"},
+        {"name": "datadir", "value": "\1(datarootdir)"},
+        {"name": "docdir", "value": "\1(datarootdir)/doc/\1(PKGNAME)"},
+        {"name": "infodir", "value": "\1(datarootdir)/info"},
+        {"name": "htmldir", "value": "\1(docdir)"},
+        {"name": "dvidir", "value": "\1(docdir)"},
+        {"name": "pdfdir", "value": "\1(docdir)"},
+        {"name": "psdir", "value": "\1(docdir)"},
+        {"name": "localedir", "value": "\1(datarootdir)/locale"},
+        {"name": "mandir", "value": "\1(datarootdir)/man"},
+        {"name": "man1dir", "value": "\1(mandir)/man1"},
+        {"name": "man3dir", "value": "\1(mandir)/man3"},
+        {"name": "man5dir", "value": "\1(mandir)/man5"},
+        {"name": "man1ext", "value": ".1"},
+        {"name": "man3ext", "value": ".3"},
+        {"name": "man5ext", "value": ".5"},
+        {"name": "libdir", "value": "\1(exec_prefix)/lib"},
+        {"name": "applications", "value": "\1(datarootdir)/applications"},
+        {"name": "srcdir", "value": ""},
+        {"name": "DESTDIR", "value": ""}]
+# These booleans will be used when generating Makefile.
+cli = gui = guidoc = techdoc = xfm = rli = rlidoc = rli_clipboard = True
+verbose = False
+# Where to install passwdmanapi.py.
+# ex. moduledir = '/usr/lib/python2.7/dist-packages'
+# ex. moduledir3 = '/usr/lib/python3.2/dist-packages'
+moduledir = None
+moduledir3 = None
+dirs_set = []           # Manually set directories.
+dirs_final = []         # The directory variables to use.
+dirs_auto = []          # dirs() will figure them out.
+installed_files = []    # Filled in by maketarget_install and used by
+                        # maketarget_uninstall.
+xfm_options = []
+makefile = None
+VERSION = "0.3.29"
+LINES = 1103
+if __name__ == "__main__":
+    main()              # Handle options.
+    moduledep()         # Check dependencies
+    dirs()              # Figure out some directories.
+    getmoduledir()      # Figure out where to put passwdmanapi.py.
+    makemakefile()      # Open Makefile and set the variables.
+    maketarget_all()
+    maketarget_install()
+    maketarget_uninstall()
+    maketarget__doc_("html")
+    maketarget__doc_("pdf")
+    maketarget__doc_("ps")
+    maketarget__doc_("dvi")
+    maketarget_clean()
+    maketarget_dist()
+    maketarget_installdirs()
+    maketarget__doc_auto()
+    maketarget_paperdoc()       # PDF/PS paperdoc.made
+    makefile.close()
+__configure_EOF__
+verbose Line 1100/1103...
+cat >> configure.2 << __configure_EOF__
+    # Must end with empty line!
+    
+__configure_EOF__
 chmod +x configure.2
 verbose exec configure.2
 exec ./configure.2 $*
