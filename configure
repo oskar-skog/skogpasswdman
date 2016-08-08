@@ -73,6 +73,7 @@ echo '    echo "#!$python_exec" > $1.out' >> shebang
 echo '    cat $1 >> $1.out' >> shebang
 echo '    shift' >> shebang
 echo 'done' >> shebang
+chmod +x shebang
 #create configure.2             python-script
 if [ -z $python_exec ]; then
     echo "#!/usr/bin/false" > configure.2
@@ -253,6 +254,7 @@ printf 'echo \047    echo \042#!\044python_exec\042 > \0441.out\047 >> shebang\n
 printf 'echo \047    cat \0441 >> \0441.out\047 >> shebang\n' >> configure.2
 printf 'echo \047    shift\047 >> shebang\n' >> configure.2
 printf 'echo \047done\047 >> shebang\n' >> configure.2
+printf 'chmod +x shebang\n' >> configure.2
 printf '#create configure.2             python-script\n' >> configure.2
 printf 'if [ -z \044python_exec ]; then\n' >> configure.2
 printf '    echo \042#!/usr/bin/false\042 > configure.2\n' >> configure.2
@@ -706,7 +708,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall\n' >> configure.2
 printf 'makefile = None         #make it global\n' >> configure.2
-printf 'VERSION = \0420.0.15\042\n' >> configure.2
+printf 'VERSION = \0420.0.16\042\n' >> configure.2
 printf 'MAIL = \042\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()\n' >> configure.2
