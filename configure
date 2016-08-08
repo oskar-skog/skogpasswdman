@@ -734,6 +734,46 @@ printf '        try:\n' >> configure.2
 printf '            setvar(\042exec_prefix\042, sys.exec_prefix)\n' >> configure.2
 printf '        except:\n' >> configure.2
 printf '            pass\n' >> configure.2
+printf '    if tryset(\042mandir\042):\n' >> configure.2
+printf '        try:\n' >> configure.2
+printf '            os.system(\042manpath > manpath.out\042)\n' >> configure.2
+printf '            f = open(\042manpath.out\042, \042r\042)\n' >> configure.2
+printf '            l = f.readline()[:-1]\n' >> configure.2
+printf '            f.close()\n' >> configure.2
+printf '            var, var2 = l.split(\042:\042), []\n' >> configure.2
+printf '            if tryset(\042prefix\042):\n' >> configure.2
+printf '                try:\n' >> configure.2
+printf '                    good_choice = sys.prefix\n' >> configure.2
+printf '                except:\n' >> configure.2
+printf '                    for x in dirs_def:\n' >> configure.2
+printf '                        if x[\042name\042] == \042prefix\042:\n' >> configure.2
+printf '                            good_choice = x[\042value\042]\n' >> configure.2
+printf '            else:\n' >> configure.2
+printf '                for x in dirs_set:\n' >> configure.2
+printf '                    if x[\042name\042] == \042prefix\042:\n' >> configure.2
+printf '                        good_choice = x[\042value\042]\n' >> configure.2
+printf '            for x in var:\n' >> configure.2
+printf '                try:\n' >> configure.2
+printf '                    if x[:len(good_choice)] == good_choice and \042man\042 in x:\n' >> configure.2
+printf '                        var2.append(x)      #x has the right prefix and\n' >> configure.2
+printf '                                            #contains \042man\042.\n' >> configure.2
+printf '                except:\n' >> configure.2
+printf '                    pass\n' >> configure.2
+printf '            if len(var2) == 0:  #That\047s weird!\n' >> configure.2
+printf '                var2 = var\n' >> configure.2
+printf '            #Pick the shortest in var2.\n' >> configure.2
+printf '            while len(var2) > 1:\n' >> configure.2
+printf '                #pop the longest name.\n' >> configure.2
+printf '                l = i = 0\n' >> configure.2
+printf '                for x in var2:\n' >> configure.2
+printf '                    if len(x) > l:\n' >> configure.2
+printf '                        l = len(x)\n' >> configure.2
+printf '                    i += 1\n' >> configure.2
+printf '                var2.pop(i - 1)\n' >> configure.2
+printf '            setvar(\042mandir\042, var2[0])\n' >> configure.2
+printf '        except:\n' >> configure.2
+printf '            pass\n' >> configure.2
+printf '        \n' >> configure.2
 printf '    #TODO: More.\n' >> configure.2
 printf '    dirs_final.extend(dirs_set)\n' >> configure.2
 printf '    dirs_final.extend(dirs_auto)\n' >> configure.2
@@ -743,7 +783,6 @@ printf '            if x[\042name\042] == y[\042name\042]:\n' >> configure.2
 printf '                break\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            dirs_final.append(x)\n' >> configure.2
-printf '    \n' >> configure.2
 printf '\n' >> configure.2
 printf 'def getmoduledir():\n' >> configure.2
 printf '    \042\042\042getmoduledir() - Figure out where to install python modules.\042\042\042\n' >> configure.2
@@ -768,6 +807,7 @@ printf '                                    #...contains \042python\042.\n' >> c
 printf '        else:\n' >> configure.2
 printf '            if len(list_of_2x) > 0:\n' >> configure.2
 printf '                ver = -1\n' >> configure.2
+verbose Line 600...
 printf '                for python2x in list_of_2x:\n' >> configure.2
 printf '                    try:\n' >> configure.2
 printf '                        tmp_name = python2x.split(\042/\042)[-2]\n' >> configure.2
@@ -807,7 +847,6 @@ printf '    v(\042Setting the variables...\042)\n' >> configure.2
 printf '    makefile.write(\042SHELL = /bin/sh\\n\042)\n' >> configure.2
 printf '    for x in dirs_final:\n' >> configure.2
 printf '        makefile.write(\042{} = {}\\n\042.format(x[\042name\042], x[\042value\042]))\n' >> configure.2
-verbose Line 600...
 printf '    makefile.write(\042moduledir = {}\\n\042.format(moduledir))\n' >> configure.2
 printf '    \n' >> configure.2
 printf 'def maketarget_all():\n' >> configure.2
@@ -869,6 +908,7 @@ printf '        if x:\n' >> configure.2
 printf '            makefile.write(\042\\tchmod 755 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            if src[-2:] in (\042.1\042, \042.3\042, \042.5\042):      #man-pages\n' >> configure.2
+verbose Line 700...
 printf '                makefile.write(\042\\t-chmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '            else:\n' >> configure.2
 printf '                makefile.write(\042\\tchmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
@@ -908,7 +948,6 @@ printf '    if gui:\n' >> configure.2
 printf '        Vmaj = VERSION.split(\042.\042)[0]\n' >> configure.2
 printf '        Vmin = VERSION.split(\042.\042)[1]\n' >> configure.2
 printf '        makefile.write(\042\\tsed -e \047s/_VERSION_/{}.{}/\047 \042.format(Vmaj, Vmin))\n' >> configure.2
-verbose Line 700...
 printf '        makefile.write(\042\044(srcdir)passwdman.desktop > \042)\n' >> configure.2
 printf '        makefile.write(\042\044(DESTDIR)\044(applications)/passwdman.desktop\\n\042)\n' >> configure.2
 printf '        makefile.write(\042\\t-update-menus\\n\042)\n' >> configure.2
@@ -970,6 +1009,7 @@ printf '    for f in (\042html\042, \042ps\042, \042div\042, \042pdf\042):\n' >>
 printf '        for n in (\042api\042, \042gui\042, \042cli\042, \042files\042):\n' >> configure.2
 printf '            makefile.write(\n' >> configure.2
 printf '                \042\\t-cp \044(srcdir)passwdman{}.{} passwdman-{}\\n\042.format(n, f,\n' >> configure.2
+verbose Line 800...
 printf '                                                                VERSION))\n' >> configure.2
 printf '    for x in (\042cli\042, \042api\042, \042gui\042, \042files\042):\n' >> configure.2
 printf '        makefile.write(\042\\tcp \044(srcdir)passwdman{}.xml passwdman-{}\\n\042.format(x,\n' >> configure.2
@@ -1009,7 +1049,6 @@ printf 'All rights reserved. -->\n' >> configure.2
 printf '\n' >> configure.2
 printf '<!-- Redistribution and use in source and binary forms, with or without\n' >> configure.2
 printf 'modification, are permitted provided that the following conditions are met:-->\n' >> configure.2
-verbose Line 800...
 printf '\n' >> configure.2
 printf '<!-- 1.  Redistributions of source code must retain the above copyright notice,\n' >> configure.2
 printf 'this list of conditions and the following disclaimer. -->\n' >> configure.2
@@ -1071,6 +1110,7 @@ printf '                \042passwdmangui\042):\n' >> configure.2
 printf '        for y in (\042ps\042, \042pdf\042):\n' >> configure.2
 printf '            makefile.write(\042 {}.{}\042.format(x, y))\n' >> configure.2
 printf '    makefile.write(\042\\n\\ttouch paperdoc.made\\n\042)\n' >> configure.2
+verbose Line 900...
 printf '        \n' >> configure.2
 printf '\n' >> configure.2
 printf '#All the long options and the defaults for variables in Makefile.\n' >> configure.2
@@ -1109,8 +1149,7 @@ printf 'installed_files = []    #Filled in by maketarget_install and used by\n' 
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'xfm_options = []\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.3.1\042\n' >> configure.2
-verbose Line 900...
+printf 'VERSION = \0420.3.2\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2
