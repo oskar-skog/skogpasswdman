@@ -460,17 +460,6 @@ def vdictui(arg):
                             of them will be set to 'OK'.
    
     """
-    def set_default_i(data):
-        L = []
-        for x, y in data:
-            L.append('''
-try:
-    forget = i['{0}']
-except:
-    i['{0}'] = {1}
-'''.format(x, y))
-        return compile(''.join(L), "<set_default_i>", "exec")
-
     ret_arg = {}
     where = wrap = 0
     # Initialize:
@@ -669,6 +658,16 @@ def list_choice_to_vdictui(choice_arg, x, data):
                                 by 'pre-ui-code' can be used.
                                 Set this to normal data for `vdictui`,
                                 wrapped in triple-quotes.
+    
+    Non-global variables available for pre-ui-code and post-ui-code
+    ---------------------------------------------------------------
+    
+        - selection             If 'choice' in 'opt'-key. Index for
+                                `p` or `h`.  Return value of choice().
+        - pb                    'post-ui-code' only. If 'progress-bar'
+                                in 'opt'-key.
+        - result                'post-ui-code' only. If 'ui'-key.
+                                Return value of vdictui().
     """
     for foobar in data:
         if foobar['id'] == x:
@@ -684,14 +683,13 @@ def list_choice_to_vdictui(choice_arg, x, data):
             
             # Code to run before ui.
             try:
-                exec compile(foobar['pre-ui-code'], '<pre-ui-code>', 'exec')
+                exec(compile(foobar['pre-ui-code'], '<string>', 'exec'))
             except KeyError:
                 pass
             
             #ui
             try:
-                exec compile('result = vdictui({0})'.format(foobar['ui']),
-                                                            '<ui>', 'exec')
+                result = eval('vdictui({0})'.format(foobar['ui']))
                 if result['button'] == 'back':
                     return
             except KeyError:
@@ -706,13 +704,13 @@ def list_choice_to_vdictui(choice_arg, x, data):
             
             # Code to run after ui.
             try:
-                exec compile(foobar['post-ui-code'], '<post-ui-code>', 'exec')
+                exec(compile(foobar['post-ui-code'], '<string>', 'exec'))
             except KeyError:
                 pass
             
             return
     else:
-        raise False, "This is impossible!"
+        assert False, "This is impossible!"
 
 def passwd_tab(x):
     """passwd_tab(x)
@@ -1052,46 +1050,6 @@ def zxcv_handler(x):
         tarball.close()
         os.chdir(old_dir)
 
-def common_ch_up_down(var, page):
-    return compile('''
-if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
-    {0} -= 1
-if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
-    {0} += 1
-if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
-    {0} -= {1}
-if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
-    {0} += {1}
-'''.format(var, page), "<common_ch_up_down>", "exec")
-
-def common_ct_handler():
-    """Return a code object to be `exec`d.
-    
-    Variables
-    ---------
-    ch  wrap_getch()
-    ct  bool; Allow change tab?
-    
-    Created variables
-    -----------------
-    ret bool; Should function return?
-    """
-    return compile('''
-ret = False
-if ct:  # Change tab?
-    ret = True
-    if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
-        set_tab("<")
-    elif ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
-        set_tab(">")
-    elif ch in (ord("A"), ord("H"), curses.KEY_HOME):
-        set_tab("first")
-    elif ch in (ord("D"), ord("L"), curses.KEY_END):
-        set_tab("last")
-    else:
-        ret = False
-''', "<common_ct_handler>", "exec")
-
 def list_choice(ypos, yspace, thelist, ct=False):
     """list_choice(ypos, yspace, thelist, ct=False)
     thelist is a list of strings (buttons).
@@ -1125,8 +1083,6 @@ def list_choice(ypos, yspace, thelist, ct=False):
     # The currently selected button.
     choice = 0
     size = len(thelist)
-    updown_handler = common_ch_up_down("choice", "page")
-    ct_handler = common_ct_handler()
     while True:
         # Draw.
         for i in range(page):
@@ -1176,7 +1132,14 @@ def list_choice(ypos, yspace, thelist, ct=False):
         ch = wrap_getch()
         if ch == 27:
             return False
-        exec updown_handler
+        if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
+            choice -= 1
+        if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
+            choice += 1
+        if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
+            choice -= page
+        if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
+            choice += page
         # Don't let choice be out of range
         if choice >= len(thelist):
             choice = len(thelist) - 1
@@ -1186,7 +1149,19 @@ def list_choice(ypos, yspace, thelist, ct=False):
         if ch in (ord("\t"), ord(" "), ord("\n")):
             return choice
         zxcv_handler(ch)
-        exec ct_handler
+        ret = False
+        if ct:  # Change tab?
+            ret = True
+            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
+                set_tab("<")
+            elif ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
+                set_tab(">")
+            elif ch in (ord("A"), ord("H"), curses.KEY_HOME):
+                set_tab("first")
+            elif ch in (ord("D"), ord("L"), curses.KEY_END):
+                set_tab("last")
+            else:
+                ret = False
         if ret:
             return True
 
@@ -1206,8 +1181,6 @@ def roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None):
     linepos = 0
     center_text(ypos, "Page-up up w k 8")
     center_text(ypos + yspace - 1, "Page-down down s j 2")
-    updown_handler = common_ch_up_down("linepos", "page")
-    ct_handler = common_ct_handler()
     while True:
         #Print.
         for i in range(page):
@@ -1227,14 +1200,33 @@ def roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None):
             wrap_hline(ypos + yspace - 2, 0, ord("v"), xsize)
         wrap_refresh()
         ch = wrap_getch()
-        exec ct_handler
+        ret = False
+        if ct:  # Change tab?
+            ret = True
+            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
+                set_tab("<")
+            elif ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
+                set_tab(">")
+            elif ch in (ord("A"), ord("H"), curses.KEY_HOME):
+                set_tab("first")
+            elif ch in (ord("D"), ord("L"), curses.KEY_END):
+                set_tab("last")
+            else:
+                ret = False
         if ret:
             return True
         if ch in (27, ord('\n'), ord(' ')):
             return False
         # Roll.
         oldpos = linepos
-        exec updown_handler
+        if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
+            linepos -= 1
+        if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
+            linepos += 1
+        if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
+            linepos -= page
+        if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
+            linepos += page
         if extra_input_handler is not None:
             extra_input_handler(ch)
         if linepos < 0 or linepos >= len(thelines):

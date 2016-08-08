@@ -1,3 +1,19 @@
+2014-01-17      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.28
+    * passwdmanrli: BUGFIX: Use the exec-statement as a
+        function so that it will work on Python 3.
+        Python 3 probably stopped working in 0.3.24.
+    * passwdmanrli: Yet another Python 3 bugfix: Typo went unnoticed with
+        Python 2:
+            raise False, "This is impossible!"
+            assert False, "This is impossible!"
+    * passwdmanrli (common_ct_handler): YAP3B: Removed the damn function.
+    * passwdmanrli (common_ch_up_down): YAP3B: Removed the damn function.
+    * passwdmanrli (vdictui): Documented some restrictions caused by the
+        bugfixes.
+    * passwdmanapi.py: Removed all exec statements.
+    * passwdmanrli: Removed vdictui.set_default_i.
+
 2014-01-16      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.27
     * passwdmanapi.py (getint): Bugfix: s/b < a/b <= a/

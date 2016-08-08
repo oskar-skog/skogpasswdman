@@ -86,11 +86,6 @@ passwdmanapi - functions and classes used by passwdman
         
     The `pb`-keyword argument, seen in lots of functions, expects a
     `progress_bar`-object.
-    
-    _auto_pb = compile('''
-if pb is None:
-    pb = no_pb()
-''', '<string>', 'exec')
 
 """
 
@@ -205,11 +200,6 @@ def b2u3(x):
 
 ope = os.path.expanduser
 
-_auto_pb = compile('''
-if pb is None:
-    pb = no_pb()
-''', '<string>', 'exec')
-
 def no_pb_f(percent, data):
     """no_pb_f(percent, data)
     The actual function used by a progress bar created by `no_pb`.
@@ -254,7 +244,8 @@ ERRORS
     logging.info("get64: length={0}".format(length))
     if length < 1:
         raise err_nolength('get64 called with length < 1.')
-    exec _auto_pb
+    if pb is None:
+        pb = no_pb()
     letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" +
             "ghijklmnopqrstuvwxyz0123456789!_")
     passwd, bits, number = '', 0, 0
@@ -291,7 +282,8 @@ def get10(length, pb=None):
     logging.info("get10: length={0}".format(length))
     if length < 1:
         raise err_nolength('get10 called with length < 1.')
-    exec _auto_pb
+    if pb is None:
+        pb = no_pb()
     passwd, bits, number = '', 0, 0
     rng = open_rng()
     while len(passwd) < length:    # Main loop.
@@ -322,7 +314,8 @@ def getint(a, b, pb=None):
     assert is_int(a) and is_int(b)
     if b <= a:
         raise err_nolength("b <= a")
-    exec _auto_pb
+    if pb is None:
+        pb = no_pb()
     rng = open_rng()
     reqbits = bits = number = smallnum = 0
     while (1 << reqbits) < (b - a):
@@ -770,7 +763,8 @@ class passwd(common_data):
         assert is_anystr(m_minlength) and is_anystr(m_maxlength)
         forget = int(m_minlength)   # Raise an exception if not a number.
         forget = int(m_maxlength)   # Raise an exception if not a number.
-        exec _auto_pb
+        if pb is None:
+            pb = no_pb()
         
         for x in self.data: # Check for duplicates.
             if x["name"] == name:
@@ -882,7 +876,8 @@ class passwd(common_data):
                                 # might need to create one.
                               # Use update_meta() to force specific meta-data.
                   "Don't know how to update a human-generated password.")
-        exec _auto_pb
+        if pb is None:
+            pb = no_pb()
         new = self[index]["value"] = randomize(method, minlength, maxlength,
                                                     pb.minibar(0.0, 90.0))
         # Write the new password to the passwd file.
@@ -908,7 +903,8 @@ class passwd(common_data):
             maxlength = int(m_maxlength)
         except:
             raise err_idiot("INTEGERS")
-        exec _auto_pb
+        if pb is None:
+            pb = no_pb()
         new = self[index]["value"] = randomize(m_type, minlength, maxlength,
                                                     pb.minibar(0.0, 90.0))
         self[index]["meta"]["type"] = m_type
@@ -1011,7 +1007,8 @@ class honeypot(common_data):
         If `log_vs_raise` is False it will raise `err_idiot`.
         """
         assert is_int(n)
-        exec _auto_pb
+        if pb is None:
+            pb = no_pb()
         if n > len(self):
             n = len(self)
             if log_vs_raise:
