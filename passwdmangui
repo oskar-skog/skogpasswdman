@@ -614,8 +614,13 @@ class main_window(Gtk.Window):
         self.honeypot_tab = honeypot_tab_c(self)    #needed by undo(), redo()
         self.conf_tab = conf_tab_c(self)
                             #The argument is their parent.
-        about_tab = Gtk.Box()
+        about_tab = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         copyright_label = Gtk.Label(copywrong)
+        info_label = Gtk.Label("""
+passwdman is a program for remembering and updating passwords. It
+also has support for honey pots (fake-passwords that activates
+traps).""")
+        about_tab.pack_start(info_label, False, False, 0)
         about_tab.pack_start(copyright_label, False, False, 0)
         
         help_tab = Gtk.Box()
