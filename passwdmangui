@@ -72,7 +72,8 @@ def passwd_add_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         try:
-            parent.passwords.add_nometa(name.get_text(), value.get_text())
+            parent.passwords.add_nometa(name.get_text().decode(
+                encoding="utf-8"), value.get_text().decode(encoding="utf-8"))
             parent.thelist.append([name.get_text(), value.get_text()])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
@@ -102,7 +103,7 @@ def hp_add_d(parent):
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
         try:
-            parent.honeypots.add(value.get_text())
+            parent.honeypots.add(value.get_text().decode(encoding="utf-8"))
             parent.thelist.append([value.get_text()])
         except api.err_duplicate:
             err(parent, "Already exists.")
@@ -165,7 +166,7 @@ def passwd_new_d(parent):
         passwd_type = b64.get_active()  #True if "64"
         passwd_min = spinny_min.get_value_as_int()
         passwd_max = spinny_max.get_value_as_int()
-        passwd_name = name.get_text()
+        passwd_name = name.get_text().decode(encoding="utf-8")
         if passwd_min > passwd_max or passwd_min < 1 or passwd_max < 1:
             err(parent, "Stupid min and max lengths.")
             dialog.destroy()
@@ -210,7 +211,7 @@ def passwd_updatemeta_d(parent):
     b10 = Gtk.RadioButton.new_with_label_from_widget(b64, "Digits only.")
     
     a, b = parent.thelist[parent.index]       #remember a, b for a long time
-    the_index = parent.passwords.mkindex(a, True)
+    the_index = parent.passwords.mkindex(a.decode(encoding="utf-8"), True)
     
     adj = Gtk.Adjustment(int(parent.passwords[the_index]["meta"]["minlength"]),
                             1, 1000000, 1, 16, 0)       #for spinny_min
@@ -458,7 +459,7 @@ class passwd_tab_c(Gtk.Box):
             err(self, "Select first.")
             return
         a, b = self.thelist[self.index] #b is the old password
-        the_index = self.passwords.mkindex(a, True)
+        the_index = self.passwords.mkindex(a.decode(encoding="utf-8"), True)
         try:
             self.passwords.update(the_index)
             self.thelist[self.index] = a, self.passwords[the_index]["value"]
@@ -471,7 +472,7 @@ class passwd_tab_c(Gtk.Box):
         passwd_new_d(self)
     def rm(self, button):
         a, b = self.thelist[self.index]
-        self.passwords.remove(str(a), True)
+        self.passwords.remove(str(a).decode(encoding="utf-8"), True)
         self.thelist.remove(self.index)
 
 class honeypot_tab_c(Gtk.Box):
@@ -543,7 +544,8 @@ class honeypot_tab_c(Gtk.Box):
     def add_hp(self, button):
         hp_add_d(self)
     def rm_hp(self, button):
-        self.honeypots.remove(self.thelist[self.index][0], True)
+        self.honeypots.remove(self.thelist[self.index][0].decode(
+                                                encoding="utf-8"), True)
         self.thelist.remove(self.index)
         
 class conf_tab_c(Gtk.Box):
