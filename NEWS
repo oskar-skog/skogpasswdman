@@ -1,3 +1,12 @@
+0.4 is here.
+    *   Easier to read code. Lots of code -> data.
+    *   Rogue-like interface. RLI
+    *   Progress bars (rogue-like interface).
+    *   Works with Python 2 and 3.
+    *   Works on FreeBSD.
+    *   The RLI and the CLI uses the locale's encoding. 
+    *   passwd.add can randomize the password itself.
+
 0.3 is here.
     *   HTML docs validates.
     *   Edit history buttons.

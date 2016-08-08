@@ -1,4 +1,14 @@
 2014-01-18      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.0
+    * passwdmanrli: Handle I-D-10-T (minlength > maxlength) errors
+        crashlessly.
+    * passwdmanrli: New functions:
+        common_updown_handler()         exec-free
+        common_ct_handler()             exec-free
+    * configure.2 (update): Added the backslash to the re.
+    * passwdmanrli (edit_num): Allow writing digits directly.
+    * passwdmanrli (list_choice_to_vdictui): Added ``variable = {}`` to store
+        variables in between the exec's.
 0.3.29
     * configure.2 (update): Use here-docs instead of printf and echo.
 
@@ -42,6 +52,7 @@
 0.3.24
     * passwdmanrli (show_copy_single): Wider end-of-line marker.
     * passwdmanrli (passwd_tab, honeypot_tab): Code -> data.
+        list_choice_to_vdictui().
 0.3.23
     * passwdmanrli: Use wrappers for the curses functions and center_text,
         let them have a 'DEBUG'-mode.
@@ -236,6 +247,7 @@
     * passwdman.desktop: Put passwdman in category 'Utility'.
     * configure.2 (main): --update without argument will make it update from
         it self.
+        2014-01-18: --update didn't accept an argument. ``Fixed`` in 0.3.13.
     * configure.2 (maketarget_install), Makefile (install): I think I know how
         to use $(POST_INSTALL).
 

@@ -64,42 +64,14 @@ if DEBUG:
     debug_curses_cursor == None, None:
         Unknown. Only wrap_move() can set the cursor to a known value.
 
-function-tree
-<module>
-    main
-        hdictui
-            passwd_tab
-                list_choice
-                vdictui
-                p.*
-                after_update
-                    show_copy_single
-                show_copy_single
-            honeypot_tab
-                list_choice
-                vdictui
-                h.*
-                show_copy_single
-
-medium-level
-hdictui
-    roll_text
-        set_tab
-        zxcv_handler
-    list_choice
-        set_tab
-        zxcv_handler
-
-vdictui
-    edit_line
-    edit_num
-
-low-level
-center_text
-wrap_addch
-wrap_addstr
-
 """
+
+class retry_error(Exception):
+    '''class retry_error(Exception)
+    Understood by list_choice_to_vdictui().
+    Run the user-interface code again.
+    '''
+    pass
 
 def die():
     """die() - exit curses mode and quit.
@@ -264,6 +236,78 @@ def rli_progress(percent, data):
         pass
     wrap_refresh()
 
+def pebkac(complaint):
+    """pebkac(complaint)
+    Complain about I-D-10-T errors.
+    """
+    wrap_erase()
+    center_text(0, "ERROR")
+    center_text(2, "Problem exist between keyboard and chair.")
+    
+    pos = 4
+    for line in complaint.split('\n'):
+        center_text(pos, line)
+        pos += 1
+    
+    center_text(ysize - 1, "Press any key to retry, go crazy or crash.")
+    wrap_refresh()
+    wrap_getch()
+
+def common_ct_handler(ch):
+    '''common_ct_handler(ch)
+    
+    Returns True if the user changed tab.
+    
+    `ch`        Character; wrap_getch().
+    `ct`        Change tab.
+    
+    >>> if common_ct_handler(ch) and ct:
+    ...     # The user changed tab.
+    ...     pass
+    ... 
+    >>> 
+    '''
+    ret = True
+    if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
+        set_tab("<")
+    elif ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
+        set_tab(">")
+    elif ch in (ord("A"), ord("H"), curses.KEY_HOME):
+        set_tab("first")
+    elif ch in (ord("D"), ord("L"), curses.KEY_END):
+        set_tab("last")
+    else:
+        ret = False
+    return ret
+
+def common_updown_handler(ch, page):
+    '''common_updown_handler(ch, page)
+    
+    Returns an integer for how many <whatever> down the user wants to
+    go.
+    
+    `ch`        Character; wrap_getch().
+    `page`      Page-size
+    
+    Returns
+    -------
+    
+        0       Don't move.
+        +1      Down.
+        -1      Up.
+        +page   Page down.
+        -page   Page up.
+    '''
+    if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
+        return -1
+    if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
+        return 1
+    if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
+        return -page
+    if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
+        return page
+    return 0
+
 def edit_num(y, num, min_num, max_num, step=1):
     """direction, num = edit_num(y, num, min_num, max_num, step=1)
     num is the starting number/number.
@@ -276,16 +320,18 @@ def edit_num(y, num, min_num, max_num, step=1):
     if min_num is not None and max_num is not None:
         assert max_num >= min_num
     while True:
-        #Keep num within limits.
+        # Keep num within limits.
         if min_num is not None:
             if num < min_num:
                 num = min_num
         if max_num is not None:
             if num > max_num:
                 num = max_num
-        #Print.
+        # Print.
         wrap_hline(y, 0, ord(" "), xsize)
-        center_text(y, "left - a h home<" + str(num) + ">right + d l end")
+        center_text(y, "(/) Flip sign.  left - a h home<" +
+                                                str(num) +
+                       ">right + d l end.  (Del) zero.")
         wrap_refresh()
         ch = wrap_getch()
         if ch in (curses.KEY_LEFT, ord("-"), ord("a"), ord("h")):
@@ -294,7 +340,7 @@ def edit_num(y, num, min_num, max_num, step=1):
         if ch in (curses.KEY_RIGHT, ord("+"), ord("d"), ord("l")):
             num += step
             continue
-        #Increase/decrease 5 * step if there is no limit in that direction.
+        # Increase/decrease 5 * step if there is no limit in that direction.
         if ch in (curses.KEY_HOME, ord("A"), ord("H")):
             if min_num is not None:
                 num = min_num
@@ -307,7 +353,21 @@ def edit_num(y, num, min_num, max_num, step=1):
             else:
                 num += step * 5
             continue
-        #Return.
+        # Quick editing.
+        for i in range(48, 58):
+            if ch == i:
+                num = int(str(num) + chr(ch))
+                break
+        if ch == curses.KEY_BACKSPACE:
+            try:
+                num = int(str(num)[:-1])
+            except ValueError:
+                pass
+        if ch == ord('/'):
+            num = -num
+        if ch == curses.KEY_DC:
+            num = 0
+        # Return.
         if ch in (ord(" "), ord("\t"), ord("\n"), curses.KEY_DOWN):
             return "down", num
         if ch == curses.KEY_UP:
@@ -662,6 +722,7 @@ def list_choice_to_vdictui(choice_arg, x, data):
     Non-global variables available for pre-ui-code and post-ui-code
     ---------------------------------------------------------------
     
+        - variables             Empty dict. Always available.
         - selection             If 'choice' in 'opt'-key. Index for
                                 `p` or `h`.  Return value of choice().
         - pb                    'post-ui-code' only. If 'progress-bar'
@@ -681,34 +742,41 @@ def list_choice_to_vdictui(choice_arg, x, data):
             except KeyError:
                 pass
             
+            variables = {}
+            
             # Code to run before ui.
             try:
                 exec(compile(foobar['pre-ui-code'], '<string>', 'exec'))
             except KeyError:
                 pass
             
-            #ui
-            try:
-                result = eval('vdictui({0})'.format(foobar['ui']))
-                if result['button'] == 'back':
-                    return
-            except KeyError:
-                pass
-            
-            # Progress-bar?
-            try:
-                if 'progress-bar' in foobar['opt']:
-                    pb = rli_progressbar()
-            except KeyError:
-                pass
-            
-            # Code to run after ui.
-            try:
-                exec(compile(foobar['post-ui-code'], '<string>', 'exec'))
-            except KeyError:
-                pass
-            
-            return
+            while True:
+                
+                #ui
+                try:
+                    result = eval('vdictui({0})'.format(foobar['ui']))
+                    if result['button'] == 'back':
+                        return
+                except KeyError:
+                    pass
+                
+                # Progress-bar?
+                try:
+                    if 'progress-bar' in foobar['opt']:
+                        pb = rli_progressbar()
+                except KeyError:
+                    pass
+                
+                # Code to run after ui.
+                try:
+                    exec(compile(foobar['post-ui-code'], '<string>', 'exec'))
+                except KeyError:
+                    pass
+                except retry_error:
+                    continue
+                
+                # Done!
+                return
     else:
         assert False, "This is impossible!"
 
@@ -719,7 +787,10 @@ def passwd_tab(x):
     """
     
     no_minlen_gt_maxlen = '''
-#BUG TODO stop user from having minlength > maxlength.
+if result['min'] > result['max']:
+    pebkac("""Is {0} really greater than {1}?
+Look carefully next time.""".format(result['max'], result['min']))
+    raise retry_error
 '''
 
     list_choice_to_vdictui(False, x, [
@@ -745,11 +816,11 @@ after_update(old, new)
             'opt': ('choice', 'progress-bar'),
             'pre-ui-code': '''
 if p[selection]["meta"]["type"] in ("10", "64"):
-    minlen = int(p[selection]["meta"]["minlength"])
-    maxlen = int(p[selection]["meta"]["maxlength"])
+    variables['minlen'] = int(p[selection]["meta"]["minlength"])
+    variables['maxlen'] = int(p[selection]["meta"]["maxlength"])
 else:
     assert p[selection]["meta"]["type"] == "human"
-    minlen = maxlen = 8
+    variables['minlen'] = variables['maxlen'] = 8
 ''',
             'ui':       '''[{
                                 'type': 'text',
@@ -757,7 +828,7 @@ else:
                             }, {
                                 'type': 'edit_num',
                                 'name': 'min',
-                                'value': minlen,
+                                'value': variables['minlen'],
                                 'min': 1
                             }, {}, {
                                 'type': 'text',
@@ -765,7 +836,7 @@ else:
                             }, {
                                 'type': 'edit_num',
                                 'name': 'max',
-                                'value': maxlen,
+                                'value': variables['maxlen'],
                                 'min': 1
                             }, {}, {
                                 'type': 'text',
@@ -825,7 +896,7 @@ p.add_nometa(result["name"], result["value"])
                                 'value': 'Minimal required length'
                             }, {
                                 'type': 'edit_num',
-                                'name': 'minlen',
+                                'name': 'min',
                                 'value': 8,
                                 'min': 1
                             }, {}, {
@@ -833,7 +904,7 @@ p.add_nometa(result["name"], result["value"])
                                 'value': 'Maximal allowed length'
                             }, {
                                 'type': 'edit_num',
-                                'name': 'maxlen',
+                                'name': 'max',
                                 'value': 8,
                                 'min': 1
                             }, {}, {
@@ -853,8 +924,8 @@ p.add_nometa(result["name"], result["value"])
                             }]''',
             'post-ui-code': '''
 {0}
-p.add(result["name"], None, result["button"], result["minlen"],
-                                                        result["maxlen"], pb)
+p.add(result["name"], None, result["button"], result["min"],
+                                                        result["max"], pb)
 '''.format(no_minlen_gt_maxlen)
         },
         {
@@ -1132,37 +1203,17 @@ def list_choice(ypos, yspace, thelist, ct=False):
         ch = wrap_getch()
         if ch == 27:
             return False
-        if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
-            choice -= 1
-        if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
-            choice += 1
-        if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
-            choice -= page
-        if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
-            choice += page
+        choice += common_updown_handler(ch, page)
         # Don't let choice be out of range
-        if choice >= len(thelist):
-            choice = len(thelist) - 1
         if choice < 0:
             choice = 0
+        if choice >= len(thelist):
+            choice = len(thelist) - 1
         # Choose.
         if ch in (ord("\t"), ord(" "), ord("\n")):
             return choice
         zxcv_handler(ch)
-        ret = False
-        if ct:  # Change tab?
-            ret = True
-            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
-                set_tab("<")
-            elif ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
-                set_tab(">")
-            elif ch in (ord("A"), ord("H"), curses.KEY_HOME):
-                set_tab("first")
-            elif ch in (ord("D"), ord("L"), curses.KEY_END):
-                set_tab("last")
-            else:
-                ret = False
-        if ret:
+        if common_ct_handler(ch) and ct:
             return True
 
 def roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None):
@@ -1200,33 +1251,13 @@ def roll_text(ypos, yspace, thetext, ct=False, extra_input_handler=None):
             wrap_hline(ypos + yspace - 2, 0, ord("v"), xsize)
         wrap_refresh()
         ch = wrap_getch()
-        ret = False
-        if ct:  # Change tab?
-            ret = True
-            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
-                set_tab("<")
-            elif ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
-                set_tab(">")
-            elif ch in (ord("A"), ord("H"), curses.KEY_HOME):
-                set_tab("first")
-            elif ch in (ord("D"), ord("L"), curses.KEY_END):
-                set_tab("last")
-            else:
-                ret = False
-        if ret:
+        if common_ct_handler(ch) and ct:
             return True
         if ch in (27, ord('\n'), ord(' ')):
             return False
         # Roll.
         oldpos = linepos
-        if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
-            linepos -= 1
-        if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
-            linepos += 1
-        if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
-            linepos -= page
-        if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
-            linepos += page
+        linepos += common_updown_handler(ch, page)
         if extra_input_handler is not None:
             extra_input_handler(ch)
         if linepos < 0 or linepos >= len(thelines):

@@ -29,7 +29,7 @@
 
 Python 2.x drop schedule:
 
-configure       Drop 2.6        (February-March)
+configure       Drop 2.6        (2014, February-March)
 GUI & RLI       Drop 2.6        ()
 CLI             Drop 2.6        ()
 API             Drop 2.6        (2015)
