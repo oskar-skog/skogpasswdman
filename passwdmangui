@@ -76,8 +76,6 @@ def passwd_add_d(parent):
             parent.thelist.append([name.get_text(), value.get_text()])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
-        except:
-            err(parent, "In 'passwd_add_d()': unknown error.")
         
     dialog.destroy()
  
@@ -108,8 +106,6 @@ def hp_add_d(parent):
             parent.thelist.append([value.get_text()])
         except api.err_duplicate:
             err(parent, "Already exists.")
-        except:
-            err(parent, "Unknown error in hp_add_d()")
     dialog.destroy()
     
 def passwd_new_d(parent):
@@ -187,8 +183,6 @@ def passwd_new_d(parent):
             parent.thelist.append([passwd_name, passwd_value])
         except api.err_duplicate:
             err(parent, "Another password has the same name.")
-        except:
-            err(parent, "In 'passwd_new_d()': unknown error.")
         
     dialog.destroy()
 
@@ -455,6 +449,9 @@ class passwd_tab_c(Gtk.Box):
         dialog.run()
         dialog.destroy()
     def update_meta(self, button):
+        if self.index == None:
+            err(self, "Select first.")
+            return
         passwd_updatemeta_d(self)
     def update(self, button):
         if self.index == None:
@@ -462,9 +459,12 @@ class passwd_tab_c(Gtk.Box):
             return
         a, b = self.thelist[self.index] #b is the old password
         the_index = self.passwords.mkindex(a, True)
-        self.passwords.update(the_index)
-        self.thelist[self.index] = a, self.passwords[the_index]["value"]
-        passwd_updated_d(self, b, self.passwords[the_index]["value"])
+        try:
+            self.passwords.update(the_index)
+            self.thelist[self.index] = a, self.passwords[the_index]["value"]
+            passwd_updated_d(self, b, self.passwords[the_index]["value"])
+        except api.err_nometa:
+            self.update_meta(button)    #just call the right one
     def add(self, button):
         passwd_add_d(self)
     def new(self, button):

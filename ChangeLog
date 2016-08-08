@@ -1,4 +1,5 @@
-0.0.16  configure bug fixes
+0.0.17  Bug fixes CLI, GUI
+0.0.16  configure bug fix
 0.0.15  passwdmangui documentation
 0.0.14  INSTALL, minor changes in README
 0.0.13  auto-generate Docbook and HTML from the Makefile

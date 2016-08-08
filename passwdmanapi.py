@@ -281,7 +281,8 @@ class common_data():
         #    ~/.passwdman/passwords or ~/.passwdman/honeypots
         self.data = []
         self.index = 0
-        self.xmltree = XML.parse(os.path.expanduser(xmlfile)) #~/.passwdman/*
+        parser = XML.XMLParser(encoding="utf-8")
+        self.xmltree = XML.parse(os.path.expanduser(xmlfile), parser)
         self.xmlroot = self.xmltree.getroot()
         #sanity checking
         #root tag
@@ -464,8 +465,8 @@ class passwd(common_data):
                                                "maxlength": m_maxlength}})
         passwd_element = XML.SubElement(self.xmlroot, "passwd")
         meta_element = XML.SubElement(passwd_element, "meta")   #add new tags
-        passwd_element.set("name", name.decode(encoding="utf-8")) #attributes
-        passwd_element.set("value", value.decode(encoding="utf-8"))
+        passwd_element.set("name", name) #attributes
+        passwd_element.set("value", value)
         meta_element.set("type", m_type)
         meta_element.set("minlength", m_minlength)
         meta_element.set("maxlength", m_maxlength) #attributes
@@ -603,7 +604,7 @@ class honeypot(common_data):
                         "honeypot.add(value='{}') #duplicate".format(value))
         self.data.append(value)
         honeypot_element = XML.SubElement(self.xmlroot, "honeypot")
-        honeypot_element.set("value", value.decode(encoding="utf-8"))
+        honeypot_element.set("value", value)
         common_data.writexml(self, "~/.passwdman/honeypots")
     def remove(self, x, is_numstring=False):
         """remove an existing honey pot
