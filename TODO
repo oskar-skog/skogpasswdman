@@ -10,3 +10,4 @@
 *       Set busy-cursor when getting random numbers. (GUI)
 *       Unicode support in configure.
 *       RLI: 40 column tty, long passwords and honeypots.
+*       Use argparse instead of getopt. argparse requires 2.7 or 3.x.

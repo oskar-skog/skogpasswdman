@@ -1,3 +1,17 @@
+2014-01-10      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.13
+    * configure.2: Improved style, new option: --update-from=
+        Bugfix: Removed 3 lines of useless code that silently removes
+            arguments that doesn't begin with '-'.
+        Print usage if invalid option.
+        More verbose messages in moduledep.
+    * configure.2 (dirs (mandir)): Set good_choice to $(datarootdir) instead
+        of $(prefix).
+    * configure.2 (update): Change '-' to '\055'.
+    * configure.2 (main, usage): New option: --moduledir3=
+    * configure.2 (getmoduledir.getmoduledir_x): Bugfix: Find the newest minor
+        /before/ returning!
+
 2014-01-08      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.12
     * README: Minor changes.
