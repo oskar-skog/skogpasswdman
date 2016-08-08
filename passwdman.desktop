@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type = Application
+Version = _VERSION_
+Name = passwdman
+Exec = passwdmangui

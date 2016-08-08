@@ -1,3 +1,17 @@
+2013-11-20      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.2.3
+    * ./: Added 'passwdman.desktop'.
+    * TODO: Gave up trying to get passwdmangui to show the busy-cursor.
+    * TODO: s/Remove backups feature/Remove {un,re}do-list feature/
+    * Makefile: Sets SHELL. New variable from 'configure.2': 'applications'.
+    * Makefile (install): Runs 'mandb' and 'update-menus' in the end, will try
+        figure out $(postinstall) tomorrow.
+    * Makefile (dist): passwdman.desktop
+    * configure.2 (maketarget_install, dirs_def): Look at the 0.2.3 changes in
+        Makefile.
+    * configure.2 (makemakefile): Dependency checking moved to moduledep().
+    * passwdman.desktop: Created.
+
 2013-11-19     Oskar Skog      <oskar.skog.finland@gmail.com>
 0.2.2
     * ChangeLog: Changed to a more correct style.
