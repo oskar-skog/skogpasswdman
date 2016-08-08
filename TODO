@@ -1,7 +1,6 @@
 *       Signal handling
 *       Permanent backup (GUI)
 *       More GUI-polishing
-            *   Move Undo and Redo
             *   Markup in HELP and About
             *   Scroll bars
 *       More debugging
