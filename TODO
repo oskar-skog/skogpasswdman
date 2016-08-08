@@ -9,7 +9,6 @@
 *       info
 *       menu
 0.3     Fix getmoduledir(). Pick newest 2.*.
-?       What should unquote(x) return if x is a string of whitespace?
 0.3     Single change mode for the CLI. 2 undos undoes everything.
 0.3     Set busy-cursor when getting random numbers. (GUI)
 0.3     passwd.add_nometa() shouldn't add meta-data to the file.

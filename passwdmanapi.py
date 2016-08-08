@@ -47,6 +47,7 @@ SYNOPSIS = """
     def redo(passwdobj,honeypotobj)             Look at undo.
 """
 EXCEPTIONS = """
+    They have their own __doc__-strings.
     class err_norandom(Exception)               open_rng()
     class err_nolength(Exception)               get10() get64()
     class err_loaderr(Exception)            passwd() honeypot() common_data()
@@ -122,7 +123,7 @@ def open_rng():
     """Open random(4) or urandom(4), returns an open file.
 ERRORS
     err_norandom(Exception)             Cannot open random(4) or urandom."""
-    #open /dev/urandom if /dev/random cannot be opened
+    #Open /dev/urandom if /dev/random cannot be opened.
     try:
         f = open('/dev/random', 'rb')
     except:
@@ -143,29 +144,26 @@ ERRORS
     #passwd     The password to be returned.
     #number     Integer used as a buffer/pipe between rng and passwd.
     #bits       The amount of bits left in 'number'.
-    if not isinstance(length, int):   #check type
+    if not isinstance(length, int):   #Check type.
         raise err_idiot('get64 called with non-integer length.')
-    logging.info("get64:length={}".format(length))
+    logging.info("get64: length={}".format(length))
     if length < 1:
         raise err_nolength('get64 called with length < 1.')
     letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"
-            "ghijklmnopqrstuvwxyz0123456789!_") #Break line.
+            "ghijklmnopqrstuvwxyz0123456789!_")
     passwd, bits, number = '', 0, 0
-    try:
-        rng = open_rng()
-    except:
-        raise
+    rng = open_rng()
     while len(passwd) < length: #Main loop.
         if bits < 6:
-            logging.info("get64:Need more random bits.")
-            number |= ord(rng.read(1)) << bits #prepend the bits in number
-                                                #with a random byte
+            logging.info("get64: Need more random bits.")
+            number |= ord(rng.read(1)) << bits #Prepend the bits in number
+                                                #with a random byte.
             bits += 8
-        passwd += letters[number % 64]#use 6 bits to pick a letter and append
+        passwd += letters[number % 64]#Use 6 bits to pick a letter and append.
         number >>= 6
         bits -= 6
         
-        logging.info("get64:Added char {}/{}.".format(len(passwd), length))
+        logging.info("get64: Added char {}/{}.".format(len(passwd), length))
     rng.close()
     del letters, bits, number, rng
     return passwd
@@ -178,27 +176,24 @@ def get10(length):
     #passwd     The password to be returned.
     #number     Integer used as a buffer/pipe between rng and passwd.
     #bits       The amount of bits left in 'number'.
-    if not isinstance(length, int):   #check type
+    if not isinstance(length, int):   #Check type.
         raise err_nolength('get10 called with non-integer length.')
-    logging.info("get10:length={}".format(length))
+    logging.info("get10: length={}".format(length))
     if length < 1:
         raise err_nolength('get10 called with length < 1.')
     passwd, bits, number = '', 0, 0
-    try:
-        rng = open_rng()
-    except:
-        raise
+    rng = open_rng()
     while len(passwd) < length:    #Main loop.
         if bits < 4:
-            logging.info("get10:Need more random bits.")
+            logging.info("get10: Need more random bits.")
             number |= ord(rng.read(1)) << bits  #Prepend the bits in number
             bits += 8                           #with a random byte.
         if (number % 16) < 10:                  #I don't want 0...5 to be
                                                 #more popular than 6...9.
             passwd += chr(number % 16 + 48) #digits ASCII
-            logging.info("get10:Added char {}/{}.".format(len(passwd),length))
+            logging.info("get10: Added char {}/{}.".format(len(passwd),length))
         else:
-            logging.info("get10:Bad nibble.")
+            logging.info("get10: Bad nibble.")
         number >>= 4 #Next nibble.
         bits -= 4
     rng.close()
@@ -209,23 +204,20 @@ def getint(a, b):
     """Return random integer with value a from <a> to <b> - 1."""
     if b < a:
         raise err_nolength("b < a")
-    try:
-        rng = open_rng()
-    except:
-        raise
+    rng = open_rng()
     reqbits = bits = number = smallnum = 0
     while (1 << reqbits) < (b - a):
         reqbits += 1            #How many bits are required?
     number = b - a + 1          #Force loop.
     while number >= (b - a):    #Get a number in range.
-        logging.info("getint: getting number")
+        logging.info("getint: Getting number...")
         bits = number = 0
         while bits < reqbits:   #Need more.
-            if (reqbits - bits) < 8:
+            if (reqbits - bits) < 8:    #Prepend a few bits.
                 smallnum = ord(rng.read(1))             #Get byte.
                 smallnum %= 1 << (reqbits - bits)       #Remove overflow bits.
                 number |= smallnum << bits              #Prepend.
-            else:               #Prepend a whole byte.
+            else:                       #Prepend a whole byte.
                 number |= ord(rng.read(1)) << bits
             bits += 8
     rng.close()
@@ -235,13 +227,13 @@ def unquote(x):
     """Returns x without surrounding quotes."""
     the_output, the_input = "", []
     for c in x:
-        the_input.append(c)
+        the_input.append(c)     #I want to pop balloons.
     
     while True:         #Skip all the whitespace.
         try:
             c = the_input.pop(0)
-        except:         #I'm not sure.
-            return x    #Should I return a string of whitespace, or not?
+        except:
+            return x
         if not c in string.whitespace:
             if c in "'\"":      #First quote.
                 quote = c
@@ -266,7 +258,8 @@ def unquote(x):
             return x            #Bad tail.
 
 class common_data():
-    """self.data[]      Password-records or honey pots.
+    """Use the source Luke.
+    self.data[]      Password-records or honey pots.
     self.index   Used in for loops.
     self.xmltree
     self.xmlroot
@@ -342,6 +335,7 @@ class common_data():
         It looks for a match in self.xmltree in the attribute <attrib_name>
         in the tags <element_name>.
         is_numstring == True: x is a string of digits, not an integer.
+        Set is_numstring to True if x is NOT an index!
         """
         #x is an integer used as an index xor a string used to loop until
         #a match.
@@ -386,12 +380,14 @@ class common_data():
                                                 xml_declaration=True)
         #Unicode-stuff here.
     def __del__(self):
+        """Used by undo() and redo(). Make sure the object is 0xdeadbeef."""
         del self.data
         del self.index
         del self.xmlroot
         del self.xmltree
 class passwd(common_data):
-    """self.data                        List.
+    """Use the source Luke.
+    self.data                        List.
     self.data[*]["value"]               The password.
     self.data[*]["name"]       What is the password for (info for the user).
     self.data[*]["meta"][*]    Information useful when updating the password.
@@ -453,7 +449,7 @@ class passwd(common_data):
             else:    #The meta tag is optional.
                 meta_attrib = {"minlength": 0, "maxlength": 0,
                                "type": "human"} #That is the magic dictionary.
-            #got the meta attributes
+            #Got the meta attributes.
             self.data.append({"name": passwd_element.attrib["name"],
                               "value": passwd_element.attrib["value"],
                               "meta": meta_attrib})
@@ -480,31 +476,29 @@ class passwd(common_data):
         passwd_element = XML.SubElement(self.xmlroot, "passwd")
         passwd_element.text = "\n    "  #Make them look better.
         passwd_element.tail = "\n  "
-        meta_element = XML.SubElement(passwd_element, "meta")   #add new tags
+        meta_element = XML.SubElement(passwd_element, "meta")   #Add new tags.
         meta_element.tail = "\n  "
-        passwd_element.set("name", name) #attributes
+        passwd_element.set("name", name) #Attributes.
         passwd_element.set("value", value)
         meta_element.set("type", m_type)
         meta_element.set("minlength", m_minlength)
-        meta_element.set("maxlength", m_maxlength) #attributes
+        meta_element.set("maxlength", m_maxlength) #Attributes.
         common_data.writexml(self, "~/.passwdman/passwords")
     def add_nometa(self, name, value):
         """Add password with only name and value.
         Raises err_duplicate if the password (<name>) already exist."""
         self.add(name, value, "human", "0", "0")
-                                  #the magic used if there is no meta element
+                                  #The magic used if there is no meta element.
+        #MAYBE-TODO: Don't add a meta-tag.
     def remove(self, x, is_numstring=False):
-        #wrapper around common_data.remove
+        #Wrapper around common_data.remove.
         """Remove the password <x>.
         x is an integer used as an index for self.data xor a string (stringed
         integer).
         x is the purpose/name of a password, not the value.
         Set is_numstring to True if x is NOT an index!"""
-        try:
-            common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
-                               "name", is_numstring)
-        except:
-            raise
+        common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
+                           "name", is_numstring)
     def __repr__(self):
         return "passwdmanapi.passwd()"
     def mkindex(self, x, is_numstring=False):
@@ -524,9 +518,9 @@ class passwd(common_data):
             raise err_notfound("")
         return index
     def update(self, index):
-        """update the password at index, use its meta-data to know how"""
+        """Update the password at index, use its meta-data to know how."""
         if index >= len(self) or index < 0:
-            raise err_notfound("index out of range")
+            raise err_notfound("Index out of range.")
         method = self[index]["meta"]["type"]
         if method == "human":   #It would probably work with get64, but
             raise err_nometa(   #it will need a check for a meta-element and
@@ -537,7 +531,7 @@ class passwd(common_data):
             minlength = int(self[index]["meta"]["minlength"])
             maxlength = int(self[index]["meta"]["maxlength"])
         except:
-            raise err_nometa("weird 'minlength' or 'maxlength'")
+            raise err_nometa("Weird 'minlength' or 'maxlength'.")
         length = getint(minlength, maxlength + 1) #Even the length should be
                                                     #randomized.
         if method == "10":
@@ -597,7 +591,8 @@ class passwd(common_data):
         common_data.writexml(self, "~/.passwdman/passwords")
         return
 class honeypot(common_data):
-    """self.data[]      List of honey pots.
+    """Use the source Luke.
+    self.data[]      List of honey pots.
     add(value)
     remove(x)
     pick(self, n=1, sep=",", log_vs_raise=True)
@@ -629,17 +624,14 @@ class honeypot(common_data):
         """Remove an existing honey pot.
         x is an integer used as index for self.data xor a string.
         Set is_numstring to True if x is NOT an index!"""
-        try:
-            common_data.remove(self, x, "~/.passwdman/honeypots", "honeypot",
-                               "value", is_numstring)
-        except:
-            raise
+        common_data.remove(self, x, "~/.passwdman/honeypots", "honeypot",
+                           "value", is_numstring)
     def pick(self, n=1, sep=",", log_vs_raise=True):
         """Pick randomly selected honey-pots."""
         if n > len(self):
             n = len(self)
             if log_vs_raise:
-                logging.error("honeypot.pick:<n> is too big")
+                logging.error("honeypot.pick: <n> is too big.")
             else:
                 raise err_idiot("")
         balloons, outlist, output = [], [], ""
@@ -676,38 +668,40 @@ def undo(passwdobj=None, honeypotobj=None):
     Moves the newest file from '~/.passwdman/undoable/*' to
     '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
     It's arguments are the passwd and honeypot OBJECTS."""
-    if isinstance(passwdobj, passwd) and isinstance(honeypotobj, honeypot):
-        filename, birth = "", 0
-        for x in os.listdir(os.path.expanduser("~/.passwdman/undoable")):
-            y = os.stat(os.path.join(
-                os.path.expanduser("~/.passwdman/undoable"), x))
-            if y.st_ctime > birth:      #Newer file.
-                del filename
-                filename = os.path.join(
-                    os.path.expanduser("~/.passwdman/undoable"), x)
-                #Update filename to the newer file.
-                birth = y.st_ctime      #Increase birth.
-        del birth
-        #filename is now the name of the file.
-        if "passwords" in filename:
-            os.rename(os.path.expanduser("~/.passwdman/passwords"),
-                os.path.join(os.path.expanduser("~/.passwdman/redoable"),
-                    "passwords" + '-' + time.ctime())) #Copy to redoable.
-            passwdobj.__del__()
-            os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
-            passwdobj.__init__() #Reload the data structure.
-        elif "honeypots" in filename:
-            os.rename(os.path.expanduser("~/.passwdman/honeypots"),
-                os.path.join(os.path.expanduser("~/.passwdman/redoable"),
-                    "honeypots" + '-' + time.ctime())) #Copy to redoable.
-            honeypotobj.__del__()
-            os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
-            honeypotobj.__init__() #Reload the data structure.
-        else:
-            logging.error("function undo in module passwdmanapi:"   #Continue.
-                          "confused by the file '{}'".format(filename))
-    else:
+    if not isinstance(passwdobj, passwd):
         raise err_idiot("Read the fucking __doc__ string")
+    if not isinstance(honeypotobj, honeypot):
+        raise err_idiot("Read the fucking __doc__ string")
+    filename, birth = "", 0
+    for x in os.listdir(os.path.expanduser("~/.passwdman/undoable")):
+        y = os.stat(os.path.join(
+            os.path.expanduser("~/.passwdman/undoable"), x))
+        if y.st_ctime > birth:      #Newer file.
+            del filename
+            filename = os.path.join(
+                os.path.expanduser("~/.passwdman/undoable"), x)
+            #Update filename to the newer file.
+            birth = y.st_ctime      #Increase birth.
+    del birth
+    #Filename is now the name of the file.
+    if "passwords" in filename:
+        os.rename(os.path.expanduser("~/.passwdman/passwords"),
+            os.path.join(os.path.expanduser("~/.passwdman/redoable"),
+                "passwords" + '-' + time.ctime())) #Copy to redoable.
+        passwdobj.__del__()
+        os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
+        passwdobj.__init__() #Reload the data structure.
+    elif "honeypots" in filename:
+        os.rename(os.path.expanduser("~/.passwdman/honeypots"),
+            os.path.join(os.path.expanduser("~/.passwdman/redoable"),
+                "honeypots" + '-' + time.ctime())) #Copy to redoable.
+        honeypotobj.__del__()
+        os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
+        honeypotobj.__init__() #Reload the data structure.
+    else:
+        logging.error("function undo in module passwdmanapi:"   #Continue.
+                      "confused by the file '{}'".format(filename))
+
 
 def redo(passwdobj=None, honeypotobj=None):
     #Copy-pasted from undo() and hand-hacked.
@@ -717,44 +711,45 @@ def redo(passwdobj=None, honeypotobj=None):
     Moves the newest file from '~/.passwdman/redoable/*' to
     '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
     It's arguments are the passwd and honeypot OBJECTS."""
-    if isinstance(passwdobj, passwd) and isinstance(honeypotobj, honeypot):
-        filename, birth = "", 0
-        for x in os.listdir(os.path.expanduser("~/.passwdman/redoable")):
-            y = os.stat(os.path.join(
-                os.path.expanduser("~/.passwdman/redoable"), x))
-            if y.st_ctime > birth:      #Newer file.
-                del filename
-                filename = os.path.join(
-                    os.path.expanduser("~/.passwdman/redoable"), x)
-                #Update filename to the newer file.
-                birth = y.st_ctime      #Increase birth.
-        del birth
-        #filename is now the name of the file.
-        if "passwords" in filename:
-            os.rename(os.path.expanduser("~/.passwdman/passwords"),
-                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
-                    "passwords" + '-' + time.ctime())) #Copy to undoable.
-            passwdobj.__del__()
-            os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
-            passwdobj.__init__() #Reload the data structure.
-        elif "honeypots" in filename:
-            os.rename(os.path.expanduser("~/.passwdman/honeypots"),
-                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
-                    "honeypots" + '-' + time.ctime())) #Copy to undoable.
-            honeypotobj.__del__()
-            os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
-            honeypotobj.__init__() #Reload the data structure.
-        else:
-            logging.error("function undo in module passwdmanapi:"   #Continue.
-                          "confused by the file '{}'".format(filename))
-    else:
+    if not isinstance(passwdobj, passwd):
         raise err_idiot("Read the fucking __doc__ string")
-    
+    if not isinstance(honeypotobj, honeypot):
+        raise err_idiot("Read the fucking __doc__ string")
+    filename, birth = "", 0
+    for x in os.listdir(os.path.expanduser("~/.passwdman/redoable")):
+        y = os.stat(os.path.join(
+            os.path.expanduser("~/.passwdman/redoable"), x))
+        if y.st_ctime > birth:      #Newer file.
+            del filename
+            filename = os.path.join(
+                os.path.expanduser("~/.passwdman/redoable"), x)
+            #Update filename to the newer file.
+            birth = y.st_ctime      #Increase birth.
+    del birth
+    #Filename is now the name of the file.
+    if "passwords" in filename:
+        os.rename(os.path.expanduser("~/.passwdman/passwords"),
+            os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+                "passwords" + '-' + time.ctime())) #Copy to undoable.
+        passwdobj.__del__()
+        os.rename(filename, os.path.expanduser("~/.passwdman/passwords"))
+        passwdobj.__init__() #Reload the data structure.
+    elif "honeypots" in filename:
+        os.rename(os.path.expanduser("~/.passwdman/honeypots"),
+            os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+                "honeypots" + '-' + time.ctime())) #Copy to undoable.
+        honeypotobj.__del__()
+        os.rename(filename, os.path.expanduser("~/.passwdman/honeypots"))
+        honeypotobj.__init__() #Reload the data structure.
+    else:
+        logging.error("function undo in module passwdmanapi:"   #Continue.
+                      "confused by the file '{}'".format(filename))
+
 #Run this when imported.
 def ckmkdir(x):
     try:
         os.stat(os.path.expanduser(x))
-    except:
+    except:     #stat will fail if the file doesn't exist.
         os.mkdir(os.path.expanduser(x), 0o700)
 def ckmkfile(x, y):
     try:
@@ -763,6 +758,7 @@ def ckmkfile(x, y):
         f = open(os.path.expanduser(x), "w")
         f.write(y)
         f.close()
+#Make sure all the needed files exist.
 ckmkdir("~/.passwdman")
 ckmkdir("~/.passwdman/undoable")
 ckmkdir("~/.passwdman/redoable")
