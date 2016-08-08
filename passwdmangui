@@ -55,6 +55,7 @@ def passwd_add_d(parent):
     value = Gtk.Entry()
     name.set_editable(True)
     value.set_editable(True)
+    value.set_visibility(parent.parent.show_passwd)
     
     thegrid = Gtk.Grid()
     thegrid.set_property("row-spacing", 5)

@@ -1,15 +1,15 @@
 **      Permanent backup (GUI)
 *       More GUI-polishing
             *   Markup in HELP and About.
-            *   show_passwd should affect "Add existing".
 ***     More debugging
 *       Fix broken Docbook XML
 
 *       gettext()
             *   Svenska
             *   Suomi
+            *   Deutch
 *       in "configure.2": dirs() should figure out more directories.
 *       Better XML.
 *       A pick() that returns a list.
-*       can_undo() and can_redo()
+*       can_undo() and can_redo().
 
