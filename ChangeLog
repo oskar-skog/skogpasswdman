@@ -1,3 +1,8 @@
+2013-Nov-17
+0.1.16  Code improvements in configure.2.
+        No 90-byte shell-script for the CLI.
+        The 'install'-target depends on 'installdirs'.
+
 2013-Nov-16
 0.1.15  Broke long lines in configure.2.
 0.1.14  Removed deprecated stock items from passwdmangui.
