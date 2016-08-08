@@ -617,7 +617,7 @@ printf '    for x in (\042cli\042, \042api\042, \042gui\042, \042files\042):\n' 
 printf '        makefile.write(\042\\tcp \044(srcdir)passwdman{}.xml passwdman-{}\\n\042.format(x,\n' >> configure.2
 printf '                                                                VERSION))\n' >> configure.2
 printf '    for x in (\042README\042, \042LICENSE\042, \042INSTALL\042, \042NEWS\042, \042TODO\042, \042ChangeLog\042,\n' >> configure.2
-printf '                \042CREDITS\042, \042configure\042):\n' >> configure.2
+printf '                \042CREDITS\042, \042configure\042, \042FAQ\042):\n' >> configure.2
 printf '        makefile.write(\042\\tcp \044(srcdir){} passwdman-{}\\n\042.format(x, VERSION))\n' >> configure.2
 printf '    makefile.write(\042\\ttar -cf passwdman-{0}.tar passwdman-{0}\042\n' >> configure.2
 printf '                        \042 \\n\\tgzip passwdman-{0}.tar\\n\042.format(VERSION))\n' >> configure.2
@@ -708,7 +708,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall\n' >> configure.2
 printf 'makefile = None         #make it global\n' >> configure.2
-printf 'VERSION = \0420.0.28\042\n' >> configure.2
+printf 'VERSION = \0420.0.29\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()\n' >> configure.2
 printf '    dirs()\n' >> configure.2
@@ -727,7 +727,7 @@ printf '    maketarget_installdirs()\n' >> configure.2
 printf '    maketarget__doc_auto()\n' >> configure.2
 printf '    makefile.close()\n' >> configure.2
 printf '    #must end with empty line!\n' >> configure.2
-printf '   \n' >> configure.2
+printf '    \n' >> configure.2
 chmod +x configure.2
 echo "Beginning stage 2..."
 exec ./configure.2 $*

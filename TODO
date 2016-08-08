@@ -2,6 +2,7 @@
 *       More GUI-polishing
             *   Markup in HELP and About
             **  Scroll bars
+            *   show_passwd should affect "Add existing".
 ***     More debugging
 *       Fix broken Docbook XML
 
@@ -11,3 +12,5 @@
 *       in "configure.2": dirs() should figure out more directories.
 *       Better XML.
 *       A pick() that returns a list.
+*       can_undo() and can_redo()
+
