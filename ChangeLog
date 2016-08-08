@@ -1,4 +1,9 @@
+2013-Nov-15     Oskar Skog      <oskar.skog.finland@gmail.com>
+0.1.1   Added AUTHOR section.
+2013-Nov-15     Oskar Skog      <oskar.skog.finland@gmail.com>
 0.1     Created gmail account. <oskar.skog.finland@gmail.com>
+
+2013-Nov-14
 0.0.31  Adding existing passwords obeys main_window.show_passwd.
 0.0.30  Scrollbars.
 0.0.29  Empty FAQ.
@@ -8,6 +13,8 @@
 0.0.26  BUGFIXES (CLI):
             Complain if integer as name.
             Bad output (passwd:get on error) fixed.
+
+2013-Nov-13
 0.0.25  passwdmancli pipe-through bug discovered and fixed.
         passwdmancli die on EOF bug discovered and fixed.
 0.0.24  5 pixel padding and Gtk.Grid()s instead of Gtk.Table()s.
@@ -16,6 +23,8 @@
 0.0.21  Some code improvements.
 0.0.20  Unicode GUI/API fixed.
 0.0.19  Unicode CLI/API fixed.
+
+2013-Nov-12
 0.0.18  Unicode fixing beginning...
 0.0.17  Bug fixes in CLI and GUI.
 0.0.16  configure bug fix.
@@ -29,12 +38,16 @@
             Fixed the string of digits problem in passwd.mkindex().
 0.0.9   Moved them back!
 0.0.8   Moved undo/redo buttons.
+
+2013-Nov-11
 0.0.7   Fixed bug in remove() in passwdmanapi.
         Still incomplete improvements in passwdmangui.
         Made TODO even longer.
 0.0.6   Incomplete improvements in passwdmangui.
 0.0.5   Minor code improvements in passwdmancli.
 0.0.4   Minor code improvements in passwdmangui.
+
+2013-Nov-10
 0.0.3   Redo and data-file creation.
         passwdmancli bugfix.
 0.0.2   License (2-clause BSD).

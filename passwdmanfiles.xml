@@ -3,7 +3,7 @@
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
 <refentry id='passwdmanfiles5'>
-<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
+<!-- Copyright (c) 2013, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
 <!-- Redistribution and use in source and binary forms, with or without
@@ -95,11 +95,11 @@ undo();
 function looks for the newest file and doesn't care about the filename.
 If
 "passwords"
-in the filename, the file is a backup of 
+is in the filename, the file is a backup of 
 <filename>~/.passwdman/passwords</filename>.
 If
 "honeypots"
-in the filename, the file is a backups of
+is in the filename, the file is a backups of
 <filename>~/.passwdman/honeypots</filename>.
 It copies the current state to
 <filename>~/.passwdman/redoable</filename>
@@ -134,6 +134,13 @@ and
 
 <refsect1 id='bugs'><title>BUGS</title>
 <para>The documentation.</para>
+</refsect1>
+
+<refsect1 id='author'><title>AUTHOR</title>
+<para>Written by
+phrase Oskar Skog Aq oskar.skog.finland@gmail.com role='author'.</para>
+
+<para>Please, send patches, questions, bug reports and wish-lists.</para>
 </refsect1>
 </refentry>
 

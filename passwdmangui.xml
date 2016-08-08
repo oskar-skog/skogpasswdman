@@ -3,7 +3,7 @@
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
 <refentry id='passwdmangui1'>
-<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
+<!-- Copyright (c) 2013, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
 <!-- Redistribution and use in source and binary forms, with or without
@@ -89,6 +89,13 @@ You should add fake-passwords such as
 "password"
 and
 "drowssap".</para>
+</refsect1>
+
+<refsect1 id='author'><title>AUTHOR</title>
+<para>Written by
+phrase Oskar Skog Aq oskar.skog.finland@gmail.com role='author'.</para>
+
+<para>Please, send patches, questions, bug reports and wish-lists.</para>
 </refsect1>
 </refentry>
 
