@@ -1,3 +1,8 @@
+2014-01-02      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.5
+    * ChangeLog: Added the last letter to 'the', somewhere.
+    * passwdmanapi.3: Fixed some typos.
+
 2013-12-16      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.4
     * passwdmangui (conf_tab): Run xfilemanager in background.
@@ -154,7 +159,7 @@
         = honeypot.pickl().
 0.1.10
     * configure.2 (maketarget_clean), Makefile (clean, maintainer-clean):
-        Rewrote the 'clean'-target. Added th 'maintainer-clean'-target.
+        Rewrote the 'clean'-target. Added the 'maintainer-clean'-target.
     * configure.2 (maketarget_install), Makefile (install): succeeds even if
         it cannot install man-pages.
     * ChangeLog [PRE-VERSION-0.2.2]: Fixed ChangeLog-bug at 0.0.13:

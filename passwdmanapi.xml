@@ -253,13 +253,13 @@ is the type of the password, which is one of:</para>
 <varlistentry>
 <term>10</term>
 <listitem>
-<para>The password may only use digits.</para>
+<para>The password uses digits.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
 <term>64</term>
 <listitem>
-<para>The password can use big letters, small letters, digits, underscores and
+<para>The password uses big letters, small letters, digits, underscores and
 exclamation marks.</para>
 </listitem>
 </varlistentry>

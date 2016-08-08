@@ -8,7 +8,4 @@
 *       in "configure.2": dirs() should figure out more directories.
 *       info
 *       Set busy-cursor when getting random numbers. (GUI)
-*       Remove {un,re}do-list feature.
-*       Rogue-like interface.
 *       Unicode support in configure.
-*       Install man-pages to the right place (FreeBSD).
