@@ -63,12 +63,12 @@ def err(x):
 
 def sow(x):             #Do the Unicode-stuff here.
     """sow(x) - Write to stdout. It encodes the string as UTF-8."""
-    sys.stdout.write(x.encode(encoding="utf-8"))         #It is used a lot.
+    sys.stdout.write(x.encode("utf-8"))         #It is used a lot.
 
 def siw():
     """siw() - Read from infile. It decodes the UTF-8 input."""
     global infile
-    return infile.readline().decode(encoding="utf-8")
+    return infile.readline().decode("utf-8")
 
 def v(x):       #Verbose.
     """def v(x):
@@ -228,7 +228,7 @@ def passwd_update(x):
     new = p[index]["value"]
     sow("#old:new\n")
     #old and new doesn't contain any Unicode.
-    sow("passwd.update?'{}':'{}'\n".format(old, new)) #Always 64 or 10.
+    sow("passwd.update?'{0}':'{1}'\n".format(old, new)) #Always 64 or 10.
     return
     
 def passwd_update_meta(x):
@@ -256,7 +256,7 @@ def passwd_update_meta(x):
     sow("#old:new\n")
     sow("passwd.update?'")
     sow(old)    #old can be anything.
-    sow("':'{}'\n".format(new)) #new is 64 or 10.
+    sow("':'{0}'\n".format(new)) #new is 64 or 10.
     return
     
 def passwd_add(x):
@@ -319,7 +319,7 @@ def passwd_cmds(x):
             index = 0
             sow("#\t\tindex:\tname\n")   #Human readable message.
             for l in p:
-                sow("passwd.list?\t{}:\t'".format(index))
+                sow("passwd.list?\t{0}:\t'".format(index))
                 sow(l["name"])
                 sow("'\n")
                 index += 1
@@ -373,7 +373,7 @@ def passwd_cmds(x):
             try:                #Get meta-data for a password.
                 metadata = p[p.mkindex(api.unquote(b))]["meta"]
                 sow("#\t\ttype:\tminlength:\tmaxlength\n")      #safe
-                sow("passwd.meta?\t'{}':\t'{}':\t\t'{}'\n".format(
+                sow("passwd.meta?\t'{0}':\t'{1}':\t\t'{2}'\n".format(
                                                         metadata["type"],
                                                        metadata["minlength"],
                                                       metadata["maxlength"]))
@@ -400,7 +400,7 @@ def honeypot_cmds(x):
             index = 0
             sow("#\t\tindex:\tname\n")
             for value in h:
-                sow("honeypot.list?\t{}:\t'".format(index))
+                sow("honeypot.list?\t{0}:\t'".format(index))
                 sow(value)
                 sow("'\n")
                 index += 1
@@ -581,7 +581,7 @@ if __name__ == "__main__":
         o, a = getopt.getopt(sys.argv[1:], "iB", ["interactive",
             "single-backup"])
     except getopt.GetoptError as err:
-        sys.stderr.write("{}\n".format(err))
+        sys.stderr.write("{0}\n".format(err))
         sys.exit(1)
     if len(a) > 0:
         infile = open(a[0], "r")

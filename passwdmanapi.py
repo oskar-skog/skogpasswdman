@@ -151,7 +151,7 @@ ERRORS
     #bits       The amount of bits left in 'number'.
     if not isinstance(length, int):   #Check type.
         raise err_idiot('get64 called with non-integer length.')
-    logging.info("get64: length={}".format(length))
+    logging.info("get64: length={0}".format(length))
     if length < 1:
         raise err_nolength('get64 called with length < 1.')
     letters=("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"
@@ -168,7 +168,7 @@ ERRORS
         number >>= 6
         bits -= 6
         
-        logging.info("get64: Added char {}/{}.".format(len(passwd), length))
+        logging.info("get64: Added char {0}/{1}.".format(len(passwd), length))
     rng.close()
     del letters, bits, number, rng
     return passwd
@@ -183,7 +183,7 @@ def get10(length):
     #bits       The amount of bits left in 'number'.
     if not isinstance(length, int):   #Check type.
         raise err_nolength('get10 called with non-integer length.')
-    logging.info("get10: length={}".format(length))
+    logging.info("get10: length={0}".format(length))
     if length < 1:
         raise err_nolength('get10 called with length < 1.')
     passwd, bits, number = '', 0, 0
@@ -196,7 +196,8 @@ def get10(length):
         if (number % 16) < 10:                  #I don't want 0...5 to be
                                                 #more popular than 6...9.
             passwd += chr(number % 16 + 48) #digits ASCII
-            logging.info("get10: Added char {}/{}.".format(len(passwd),length))
+            logging.info("get10: Added char {0}/{1}.".format(len(passwd),
+                                                                  length))
         else:
             logging.info("get10: Bad nibble.")
         number >>= 4 #Next nibble.
@@ -292,29 +293,32 @@ class common_data():
         #    ~/.passwdman/passwords or ~/.passwdman/honeypots
         self.data = []
         self.index = 0
-        parser = XML.XMLParser(encoding="utf-8")        #Unicode stuff here.
+        try:
+            parser = XML.XMLParser(encoding="utf-8")     #Unicode stuff here.
+        except:
+            parser = XML.XMLParser() #Above will fail with Python 2.6.
         self.xmltree = XML.parse(os.path.expanduser(xmlfile), parser)
         self.xmlroot = self.xmltree.getroot()
         #Sanity checking...
         #Root tag.
         if self.xmlroot.tag != "root":
             raise err_loaderr(
-                  "root element is not 'root' in '{}'".format(xmlfile))
+                  "root element is not 'root' in '{0}'".format(xmlfile))
         #Magic.
         if self.xmlroot.attrib["magic"] != "passwdman":
-            raise err_loaderr("incorrect magic in '{}'".format(xmlfile))
+            raise err_loaderr("incorrect magic in '{0}'".format(xmlfile))
         #Version.
         version = self.xmlroot.attrib["version"].split('.', 2)
         if int(version[0]) != 0:
-            raise err_loaderr("version too new in '{}'".format(xmlfile))
+            raise err_loaderr("version too new in '{0}'".format(xmlfile))
         if int(version[1]) > 1:
-            logging.warning("High version number '{}' in '{}'".format(
+            logging.warning("High version number '{0}' in '{1}'".format(
                              self.xmlroot.attrib["version"], xmlfile))
         #Passwords/honey pots.
         #The attribute "file" should have the value <basename of xmlfile>.
         if self.xmlroot.attrib["file"] != os.path.basename(xmlfile):
-            raise err_loaderr("incorrect file magic in '{}'".format(xmlfile))
-        logging.info("'{}' is successfully loaded".format(xmlfile))
+            raise err_loaderr("incorrect file magic in '{0}'".format(xmlfile))
+        logging.info("'{0}' is successfully loaded".format(xmlfile))
     def __iter__(self):
         """Reset index and return self."""
         self.index = 0
@@ -387,8 +391,11 @@ class common_data():
             os.rename(os.path.expanduser(xmlfile),
                     os.path.join(os.path.expanduser("~/.passwdman/undoable"),
                     os.path.basename(xmlfile) + '-' + time.ctime()))
-        self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8",
-                                                xml_declaration=True)
+        try:
+            self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8",
+                                                    xml_declaration=True)
+        except:         #For Python 2.6.
+            self.xmltree.write(os.path.expanduser(xmlfile), encoding="UTF-8")
         #Unicode-stuff here.
     def __del__(self):
         """Used by undo() and redo(). Make sure the object is 0xdeadbeef."""
@@ -397,7 +404,7 @@ class common_data():
         del self.xmlroot
         del self.xmltree
     def __repr__(self):
-        return "<passwdmanapi.common_data object with id {}>".format(
+        return "<passwdmanapi.common_data object with id {0}>".format(
                                                                 id(self))
 class passwd(common_data):
     """Use the source Luke.
@@ -485,7 +492,7 @@ class passwd(common_data):
         for x in self.data: #check for duplicates
             if x["name"] == name:
                 raise err_duplicate(
-                    "passwd.add_nometa(name='{}') #duplicate".format(value))
+                    "passwd.add_nometa(name='{0}') #duplicate".format(value))
         self.data.append({"name": name, "value": value,
                       "meta": {"type": m_type, "minlength": m_minlength,
                                                "maxlength": m_maxlength}})
@@ -507,7 +514,7 @@ class passwd(common_data):
         for x in self.data: #check for duplicates
             if x["name"] == name:
                 raise err_duplicate(
-                    "passwd.add_nometa(name='{}') #duplicate".format(value))
+                    "passwd.add_nometa(name='{0}') #duplicate".format(value))
         self.data.append({"name": name, "value": value,
                       "meta": {"type": "human", "minlength": 0,
                                                "maxlength": 0}})
@@ -619,7 +626,7 @@ class passwd(common_data):
         common_data.writexml(self, "~/.passwdman/passwords")
         return
     def __repr__(self):
-        return "<passwdmanapi.passwd object with id {}>".format(id(self))
+        return "<passwdmanapi.passwd object with id {0}>".format(id(self))
 class honeypot(common_data):
     """Use the source Luke.
     self.data[]      List of honey pots.
@@ -646,7 +653,7 @@ class honeypot(common_data):
         for x in self.data: #Check for duplicates.
             if x == value:
                 raise err_duplicate(
-                        "honeypot.add(value='{}') #duplicate".format(value))
+                        "honeypot.add(value='{0}') #duplicate".format(value))
         self.data.append(value)
         honeypot_element = XML.SubElement(self.xmlroot, "honeypot")
         honeypot_element.tail = "\n  " #Make it look better.
@@ -693,7 +700,7 @@ class honeypot(common_data):
             outlist.append(balloons.pop(getint(0, len(balloons))))
         return outlist
     def __repr__(self):
-        return "<passwdmanapi.honeypot object with id {}>".format(id(self))
+        return "<passwdmanapi.honeypot object with id {0}>".format(id(self))
 
 def undo(passwdobj=None, honeypotobj=None):
     """undo(passwdobj=None, honeypotobj=None)
@@ -734,7 +741,7 @@ def undo(passwdobj=None, honeypotobj=None):
         honeypotobj.__init__() #Reload the data structure.
     else:
         logging.error("function undo in module passwdmanapi:"   #Continue.
-                      "confused by the file '{}'".format(filename))
+                      "confused by the file '{0}'".format(filename))
 
 
 def redo(passwdobj=None, honeypotobj=None):
@@ -777,7 +784,7 @@ def redo(passwdobj=None, honeypotobj=None):
         honeypotobj.__init__() #Reload the data structure.
     else:
         logging.error("function undo in module passwdmanapi:"   #Continue.
-                      "confused by the file '{}'".format(filename))
+                      "confused by the file '{0}'".format(filename))
 
 #Run this when imported.
 def ckmkdir(x):
