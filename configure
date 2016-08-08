@@ -805,7 +805,8 @@ printf '    makefile.write(\042\\n\042)\n' >> configure.2
 printf '\n' >> configure.2
 printf 'def maketarget__doc_auto():\n' >> configure.2
 printf '    \042\042\042It is for me. I make things in the current directory.\n' >> configure.2
-printf '    mdoc -> [doclifter] -> Docbook -> [xmlto] -> (xhtml, pdf, ps)\042\042\042\n' >> configure.2
+printf '    mdoc -> [doclifter] -> Docbook -> [sed + scripts + xmlto] ->\n' >> configure.2
+printf '        (xhtml, pdf, ps)\042\042\042\n' >> configure.2
 printf '    global makefile\n' >> configure.2
 printf '    f = open(\042xml.copyright\042, \042w\042)\n' >> configure.2
 printf '    f.write(\042\042\042\n' >> configure.2
@@ -813,7 +814,7 @@ printf '<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>\n' >>
 printf 'All rights reserved. -->\n' >> configure.2
 printf '\n' >> configure.2
 printf '<!-- Redistribution and use in source and binary forms, with or without\n' >> configure.2
-printf 'modification, are permitted provided that the following conditions are met: -->\n' >> configure.2
+printf 'modification, are permitted provided that the following conditions are met:-->\n' >> configure.2
 printf '\n' >> configure.2
 printf '<!-- 1.  Redistributions of source code must retain the above copyright notice,\n' >> configure.2
 printf 'this list of conditions and the following disclaimer. -->\n' >> configure.2
@@ -822,8 +823,8 @@ printf '<!-- 2.  Redistributions in binary form must reproduce the above copyrig
 printf 'notice, this list of conditions and the following disclaimer in the\n' >> configure.2
 printf 'documentation and/or other materials provided with the distribution. -->\n' >> configure.2
 printf '\n' >> configure.2
-printf '<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS IS\042\n' >> configure.2
-printf 'AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
+printf '<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS\n' >> configure.2
+printf 'IS\042 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
 printf 'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n' >> configure.2
 printf 'ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n' >> configure.2
 printf 'LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n' >> configure.2
@@ -849,8 +850,7 @@ printf '                                            #it still doesn\047t validat
 printf '            makefile.write(\042\\tcat passwdmanapi.xml | ./passwdmanapi.xml.fix \042)\n' >> configure.2
 printf '            makefile.write(\042> passwdmanapi.xml.out\\n\042)\n' >> configure.2
 printf '            makefile.write(\042\\tmv passwdmanapi.xml.out passwdmanapi.xml\\n\042)\n' >> configure.2
-printf '        if n == \042passwdmanfiles\042:       #Without help it would be documentation\n' >> configure.2
-printf '                                        #for @GLUE@.\n' >> configure.2
+printf '        if n == \042passwdmanfiles\042:\n' >> configure.2
 printf '            makefile.write(\042\\tcat passwdmanfiles.xml | \042)\n' >> configure.2
 printf '            makefile.write(\042./passwdmanfiles.xml.fix >\042)\n' >> configure.2
 printf '            makefile.write(\042passwdmanfiles.xml.out\\n\042)\n' >> configure.2
@@ -864,6 +864,7 @@ printf '                makefile.write(\042--skip-validation \042)\n' >> configu
 printf '            makefile.write(\042{} {}.xml\\n\042.format(fc, n))\n' >> configure.2
 printf '\n' >> configure.2
 printf 'def maketarget_paperdoc():\n' >> configure.2
+printf '    \042\042\042Add the target paperdoc.made, which just depends on lots of files.\042\042\042\n' >> configure.2
 printf '    makefile.write(\042paperdoc.made :\042)\n' >> configure.2
 printf '    for x in (\042passwdmanfiles\042, \042passwdmancli\042, \042passwdmanapi\042,\n' >> configure.2
 printf '                \042passwdmangui\042):\n' >> configure.2
@@ -906,7 +907,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.1.20\042\n' >> configure.2
+printf 'VERSION = \0420.1.21\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    dirs()              #Figure out some directories.\n' >> configure.2

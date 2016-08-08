@@ -561,7 +561,11 @@ interactive = False
 theline = ""
 logging.basicConfig(level=logging.CRITICAL)     #STFU
 if __name__ == "__main__":
-    o, a = getopt.getopt(sys.argv[1:], "i", ["interactive"])
+    try:
+        o, a = getopt.getopt(sys.argv[1:], "i", ["interactive"])
+    except getopt.GetoptError as err:
+        sys.stderr.write("{}\n".format(err))
+        sys.exit(1)
     if len(a) > 0:
         infile = open(a[0], "r")
     else:

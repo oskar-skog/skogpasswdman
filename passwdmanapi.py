@@ -387,6 +387,9 @@ class common_data():
         del self.index
         del self.xmlroot
         del self.xmltree
+    def __repr__(self):
+        return "<passwdmanapi.common_data object with id {}>".format(
+                                                                id(self))
 class passwd(common_data):
     """Use the source Luke.
     self.data                        List.
@@ -501,8 +504,6 @@ class passwd(common_data):
         Set is_numstring to True if x is NOT an index!"""
         common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
                            "name", is_numstring)
-    def __repr__(self):
-        return "passwdmanapi.passwd()"
     def mkindex(self, x, is_numstring=False):
         """Make index of x (string). x can be a stringed index
            Set is_numstring to True if x is NOT an index!"""
@@ -592,6 +593,8 @@ class passwd(common_data):
             counter += 1
         common_data.writexml(self, "~/.passwdman/passwords")
         return
+    def __repr__(self):
+        return "<passwdmanapi.passwd object with id {}>".format(id(self))
 class honeypot(common_data):
     """Use the source Luke.
     self.data[]      List of honey pots.
@@ -661,7 +664,7 @@ class honeypot(common_data):
             outlist.append(balloons.pop(getint(0, len(balloons))))
         return outlist
     def __repr__(self):
-        return "passwdmanapi.honeypot()"
+        return "<passwdmanapi.honeypot object with id {}>".format(id(self))
 
 def undo(passwdobj=None, honeypotobj=None):
     """undo(passwdobj=None, honeypotobj=None)

@@ -1,4 +1,7 @@
 2013-Nov-18
+0.1.21  Improvements in passwdmanapi:
+            Correct __repr__.
+        Fixed a CLI bug: CLI didn't check for getopt.GetoptError.
 0.1.20  Improvements in the EXCEPTIONS string in passwdmanapi.
         README +Unicode.
         Fixed bug in passwdmanapi man-page:
