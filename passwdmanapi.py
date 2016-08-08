@@ -302,7 +302,7 @@ class common_data():
         """__len__(self)
         return len(self.data)"""
         return len(self.data)
-    def remove(self, x, xmlfile, element_name, attrib_name):
+    def remove(self, x, xmlfile, element_name, attrib_name, is_numstring):
         """xmlfile is a path
         x is an integer used as an index xor a string. It can also be a
         stringed integer
@@ -312,11 +312,12 @@ class common_data():
         """
         #x is an integer used as an index xor a string used to loop until
         #a match
-        try:
-            x = int(x)  #is it an integer with quotes?
-            #solves a problem
-        except:
-            pass
+        if not is_numstring:    #detected bug in passwdmangui
+            try:
+                x = int(x)  #is it an integer with quotes?
+                #solves a problem
+            except:
+                pass
         if isinstance(x, int):
             y = 0
             for z in self.xmlroot.findall(element_name):
@@ -454,14 +455,16 @@ class passwd(common_data):
         raises err_duplicate if the password (<name>) already exist"""
         self.add(name, value, "human", "0", "0")
                                   #the magic used if there is no meta element
-    def remove(self, x): #wrapper around common_data.remove
+    def remove(self, x, is_numstring=False):
+        #wrapper around common_data.remove
         """remove the password <x>
         x is an integer used as an index for self.data xor a string (stringed
         integer)
-        x is the purpose/name of a password, not the value"""
+        x is the purpose/name of a password, not the value
+        set is_numstring to True if x is NOT an index"""
         try:
             common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
-                               "name")
+                               "name", is_numstring)
         except:
             raise
     def __repr__(self):
@@ -579,12 +582,13 @@ class honeypot(common_data):
         honeypot_element = XML.SubElement(self.xmlroot, "honeypot")
         honeypot_element.set("value", value.decode(encoding="utf-8"))
         common_data.writexml(self, "~/.passwdman/honeypots")
-    def remove(self, x):
+    def remove(self, x, is_numstring=False):
         """remove an existing honey pot
-        x is an integer used as index for self.data xor a string"""
+        x is an integer used as index for self.data xor a string
+        set is_numstring to True if x is NOT an index"""
         try:
             common_data.remove(self, x, "~/.passwdman/honeypots", "honeypot",
-                               "value")
+                               "value", is_numstring)
         except:
             raise
     def pick(self, n=1, sep=",", log_vs_raise=True):

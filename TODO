@@ -1,7 +1,13 @@
 *       Signal handling
-*       Redo
 *       Permanent backup (GUI)
-*       GUI-polishing
+*       More GUI-polishing
+            *   Move Undo and Redo
+            *   Markup in HELP and About
+            *   Scroll bars
 *       More debugging
 *       Fix broken Docbook XML
-*       Fix 'getmoduledir' in 'configure.2'
+*       Finish passwdmangui documentation
+*       gettext()
+*       fix unquote()
+*       README
+*       INSTALL

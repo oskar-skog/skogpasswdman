@@ -407,12 +407,14 @@ class passwd_tab_c(Gtk.Box):
         self.index = None
         #create buttons
         b_copy = Gtk.Button("Copy to clipboard")
+        b_show = Gtk.Button("Show password")
         b_update = Gtk.Button("Update")
-        b_updatemeta = Gtk.Button("Change settings & update")
-        b_add = Gtk.Button("Add existing", Gtk.STOCK_ADD)
-        b_new = Gtk.Button("Create new", Gtk.STOCK_NEW)
-        b_remove = Gtk.Button("Remove", Gtk.STOCK_REMOVE)
+        b_updatemeta = Gtk.Button("Change meta-data & update")
+        b_add = Gtk.Button("Add existing")
+        b_new = Gtk.Button("Create new")
+        b_remove = Gtk.Button("Remove")
         b_copy.connect("clicked", self.copy)
+        b_show.connect("clicked", self.show)
         b_update.connect("clicked", self.update)
         b_updatemeta.connect("clicked", self.update_meta)
         b_add.connect("clicked", self.add)
@@ -421,6 +423,7 @@ class passwd_tab_c(Gtk.Box):
         #put the buttons in a box
         box = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         box.pack_start(b_copy, False, False, 0)
+        box.pack_start(b_show, False, False, 0)
         box.pack_start(b_update, False, False, 0)
         box.pack_start(b_updatemeta, False, False, 0)
         box.pack_start(b_add, False, False, 0)
@@ -433,10 +436,23 @@ class passwd_tab_c(Gtk.Box):
         if x != None:
             self.index = x
     def copy(self, button):
+        if self.index == None:
+            err(self, "Select first.")
+            return
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         a, b = self.thelist[self.index] #name, value
         clipboard.set_text(b, len(b))
         clipboard.store()
+    def show(self, button):
+        if self.index == None:
+            err(self, "Select first.")
+            return
+        a, b = self.thelist[self.index] #name, value
+        dialog = Gtk.MessageDialog(self.parent, 0,
+            Gtk.MessageType.OTHER, Gtk.ButtonsType.CLOSE, "")
+        dialog.format_secondary_text(b)
+        dialog.run()
+        dialog.destroy()
     def update_meta(self, button):
         passwd_updatemeta_d(self)
     def update(self, button):
@@ -455,7 +471,7 @@ class passwd_tab_c(Gtk.Box):
     def rm(self, button):
         a, b = self.thelist[self.index]
         self.passwords.remove(str(a))
-        self.thelist.remove(self.index)
+        self.thelist.remove(self.index, True)
 
 class honeypot_tab_c(Gtk.Box):
     """Used by main_window(). I'm a Gtk.Box()."""
@@ -485,8 +501,8 @@ class honeypot_tab_c(Gtk.Box):
         b_pick_c = Gtk.Button("Pick & copy")
         b_pick_s = Gtk.Button("Pick & show")
         b_pick_m = Gtk.Button("Pick many")
-        b_add = Gtk.Button("Add", Gtk.STOCK_ADD)
-        b_remove = Gtk.Button("Remove", Gtk.STOCK_REMOVE)
+        b_add = Gtk.Button("Add")
+        b_remove = Gtk.Button("Remove")
         b_pick_c.connect("clicked", self.pick_copy)
         b_pick_s.connect("clicked", self.pick_show)
         b_pick_m.connect("clicked", self.pick_many)
@@ -526,7 +542,7 @@ class honeypot_tab_c(Gtk.Box):
     def add_hp(self, button):
         hp_add_d(self)
     def rm_hp(self, button):
-        self.honeypots.remove(self.thelist[self.index][0])
+        self.honeypots.remove(self.thelist[self.index][0], True)
         self.thelist.remove(self.index)
         
 class conf_tab_c(Gtk.Box):
@@ -595,13 +611,28 @@ class main_window(Gtk.Window):
         copyright_label = Gtk.Label(copywrong)
         about_tab.pack_start(copyright_label, False, False, 0)
         
+        help_tab = Gtk.Box()
+        help_tab.pack_start(Gtk.Label("""HELP
+The "change meta-data & update"-button in the "Passwords"-tab:
+    The 'meta-data' are the allowed characters, minimal required length and
+    maximal allowed length. They can be changed if you use that button. If
+    the password was added with 'add existing' then passwdmangui doesn't know
+    what the rules/'meta-data' were.
+    Use that button instead of "Update" if the password was added by
+    "Add existing".
+    
+Difference between "Add existing" and "Create new":
+    Click on the buttons and see what happens. It is not dangerous.
+
+    """), False, False, 0)
+        
         tabs = Gtk.Notebook()
         tabs.append_page(self.passwd_tab, Gtk.Label("Passwords"))
-        tabs.append_page(self.honeypot_tab, Gtk.Label("Honey pots"))
-        #tabs.append_page(self.help_tab, Gtk.Label("HELP"))
+        tabs.append_page(self.honeypot_tab, Gtk.Label("Fake-passwords"))
+        tabs.append_page(help_tab, Gtk.Label("HELP"))
         tabs.append_page(about_tab, Gtk.Label("About"))
         tabs.append_page(self.conf_tab, Gtk.Label("Settings"))
-        if restart:
+        if restart:     #BUG
             tabs.next_page()    #honeypots
             tabs.next_page()    #help
             tabs.next_page()    #about
