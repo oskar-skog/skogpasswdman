@@ -798,7 +798,7 @@ printf '    makefile.write(\042installdirs : dirsinstall\\n\\t./dirsinstall\042)
 printf '    for x in dirs_final:\n' >> configure.2
 printf '        if \042man\042 in x[\042name\042] and \042ext\042 in x[\042name\042]:\n' >> configure.2
 printf '            continue\n' >> configure.2
-printf '        if x[\042name\042] in (\042srcdir\042, \042DESTDIR\042):\n' >> configure.2
+printf '        if x[\042name\042] in (\042srcdir\042, \042DESTDIR\042, \042PKGNAME\042):\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        makefile.write(\042 \044(DESTDIR)\044({})\042.format(x[\042name\042]))\n' >> configure.2
 printf '    makefile.write(\042\\n\042)\n' >> configure.2
@@ -906,7 +906,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.1.17\042\n' >> configure.2
+printf 'VERSION = \0420.1.18\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    dirs()              #Figure out some directories.\n' >> configure.2

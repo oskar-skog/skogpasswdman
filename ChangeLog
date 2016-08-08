@@ -1,4 +1,6 @@
 2013-Nov-17
+0.1.18  Rewrote README and the about tab. Fixed bug:
+            The 'installdirs'-target installed $(PKGNAME).
 0.1.17  Fixed Unicode bug in pick_many_d() in GUI. It didn't decode the
         separator.
         Moved the about and help tab stuff into their own classes.

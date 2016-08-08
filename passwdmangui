@@ -651,9 +651,21 @@ class about_tab_c(Gtk.Box):
         Gtk.Box.__init__(self)
         copyright_label = Gtk.Label(copywrong)
         info_label = Gtk.Label("""
-passwdman is a program for remembering and updating passwords. It
-also has support for honey pots (fake-passwords that activates
-traps).""")
+passwdman is a program for remembering and updating passwords. It also
+remembers honey-pots (fake-passwords to catch crackers). It has infinite
+undo/redo.
+
+It can remember old human-generated passwords, create new passwords (digits or
+big letters, small letters, digits, underscores and exclamation marks) with
+randomized length, update passwords and obviously show and remove passwords.
+It can add, remove honey-pots and randomly choose (pick) honey-pots in two
+different flavors.
+
+It stores the passwords and honey-pots in XML files, so they can be read with
+a normal text-editor (normal for unix), depending on the user. The XML files
+are not encrypted, so that you don't need to remember an extra password.
+  If you want encryption you should encrypt your home-directory.
+""")
         about_tab_scrolled = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
         about_tab_scrolled.pack_start(info_label, False, False, 5)
         about_tab_scrolled.pack_start(copyright_label, False, False, 5)

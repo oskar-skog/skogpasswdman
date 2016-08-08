@@ -1,48 +1,29 @@
-passwdman
+                                    passwdman
 Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
 Read the file 'LICENSE' (2-clause BSD)
 
-About passwdman
-Installation
-Technical
+passwdman is a program for remembering and updating passwords. It also
+remembers honey-pots (fake-passwords to catch crackers).
 
-1.      passwdman is a program for remembering and updating passwords. It
-        also has support for honey pots (fake-passwords that activates
-        traps).
+It stores the passwords and honey-pots in XML files, so they can be read with
+a normal text-editor (normal for unix), depending on the user.
 
-2.      It requires Python. The graphical use interface requires Gtk3 (with
-        python bindings).
-        
-        The usual: (Type them at the prompt)
-            ./configure
-            make
-            make install
+It has infinite undo/redo by making backups of the files.
 
-3.      There will be two tabs, one for passwords and one for honeypots.
-        Select the password or honeypot and click on the button for the task.
-        In the honeypot tab, there is a 'pick'- and 'pick many'-button. They
-        do not care about what honeypot you have selected, they choose
-        randomly by themselves.
+The XML files are not encrypted, so that you don't need to remember an extra
+password.       If you want encryption you should encrypt your home-directory.
 
-4.      The "--update" option for "configure":
-            Required argument: name of the new "configure.2"
-            configure only checks for python, extracts a few scripts and
-            passes control to "configure.2" (written by "configure").
-            
-            "configure.2" can update "configure" to contains a newer
-            version of "configure.2"
-            
-            To update the rest of configure: update twice.
-        The "--halt" option for "configure":
-            Stop "configure.2", so that it can be read.
-        
-        
-        
-        If you change configure.2:
-            ./configure --halt
-            ^C
-            ./configure.2 --update configure.2
-        (if you changed the update part:
-            ./configure.2 --update configure.2
-        again)
-        
+It can remember old human-generated passwords, create new passwords (base10
+or a variant of base64) with randomized length, update passwords and obviously
+show and remove passwords.      The variant of base64 is: Big letters, small
+letters, digits, underscores and exclamation marks.
+
+It can add, remove honey-pots and randomly choose (pick) honey-pots in two
+different flavors.
+
+The GUI (graphical) can copy to clipboard.
+
+The CLI began as a interactive program, but it is no longer the default
+behavior. It is quite noisy, but that can be filtered with grep and cut. It
+supports 'pipe-through' and comments, as an attempt to make it better. It's
+an ed pattern and it will tell which command generated the output.
