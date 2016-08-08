@@ -11,3 +11,4 @@
 *       Remove {un,re}do-list feature.
 *       Rogue-like interface.
 *       Unicode support in configure.
+*       Install man-pages to the right place (FreeBSD).

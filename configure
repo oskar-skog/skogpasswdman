@@ -188,6 +188,14 @@ echo "role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/" >> fix.docbook
 echo "s/();/()/" >> fix.docbook
 echo "s/(.);/()./" >> fix.docbook
 echo "s/Pa ~/~/" >> fix.docbook
+#create cdfxm
+verbose Creating cdxfm...
+echo "#!/bin/sh" > cdxfm
+echo 'old_wd=`pwd`' >> cdxfm
+echo 'cd xfilemanager-*/' >> cdxfm
+echo '$*' >> cdxfm
+echo 'cd $old_wd' >> cdxfm
+chmod +x cdxfm
 #create configure.2             python-script
 if [ -z $python_exec ]; then
     echo "#!/usr/bin/false" > configure.2
@@ -507,6 +515,14 @@ printf 'echo \042role=\047author\047/Oskar Skog (oskar.skog.finland@gmail.com)/\
 printf 'echo \042s/();/()/\042 >> fix.docbook\n' >> configure.2
 printf 'echo \042s/(.);/()./\042 >> fix.docbook\n' >> configure.2
 printf 'echo \042s/Pa ~/~/\042 >> fix.docbook\n' >> configure.2
+printf '#create cdfxm\n' >> configure.2
+printf 'verbose Creating cdxfm...\n' >> configure.2
+printf 'echo \042#!/bin/sh\042 > cdxfm\n' >> configure.2
+printf 'echo \047old_wd=`pwd`\047 >> cdxfm\n' >> configure.2
+printf 'echo \047cd xfilemanager-*/\047 >> cdxfm\n' >> configure.2
+printf 'echo \047\044*\047 >> cdxfm\n' >> configure.2
+printf 'echo \047cd \044old_wd\047 >> cdxfm\n' >> configure.2
+printf 'chmod +x cdxfm\n' >> configure.2
 printf '#create configure.2             python-script\n' >> configure.2
 printf 'if [ -z \044python_exec ]; then\n' >> configure.2
 printf '    echo \042#!/usr/bin/false\042 > configure.2\n' >> configure.2
@@ -589,6 +605,7 @@ printf '        if x[:10] == \042--without-\042 and x[10:] != \042xfilemanager\0
 printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        if x[:9] == \042--enable-\042:\n' >> configure.2
+verbose Line 400...
 printf '            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        if x[:10] == \042--disable-\042:\n' >> configure.2
@@ -597,7 +614,6 @@ printf '                if x[10:] != \042cli\042:\n' >> configure.2
 printf '                    if x[10:] != \042guidoc\042:\n' >> configure.2
 printf '                        if x[10:] != \042techdoc\042:\n' >> configure.2
 printf '                            sys.stdout.write(\042Ignoring \047{}\047.\\n\042.format(x))\n' >> configure.2
-verbose Line 400...
 printf '                            continue\n' >> configure.2
 printf '        all_options.append(x)\n' >> configure.2
 printf '    try:\n' >> configure.2
@@ -690,6 +706,7 @@ printf '        fatal = True\n' >> configure.2
 printf '    \n' >> configure.2
 printf '    if fatal:\n' >> configure.2
 printf '        sys.stderr.write(\042PANIC: Cannot install.\\n\042)\n' >> configure.2
+verbose Line 500...
 printf '        sys.exit(1)\n' >> configure.2
 printf '        \n' >> configure.2
 printf '        \n' >> configure.2
@@ -698,7 +715,6 @@ printf '    \042\042\042dirs() - figure out the Makefile variables.\042\042\042\
 printf '    def tryset(x):      #Always check.\n' >> configure.2
 printf '        for y in dirs_set:\n' >> configure.2
 printf '            if y[\042name\042] == x:\n' >> configure.2
-verbose Line 500...
 printf '                return False\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            return True\n' >> configure.2
@@ -791,6 +807,7 @@ printf '    v(\042Setting the variables...\042)\n' >> configure.2
 printf '    makefile.write(\042SHELL = /bin/sh\\n\042)\n' >> configure.2
 printf '    for x in dirs_final:\n' >> configure.2
 printf '        makefile.write(\042{} = {}\\n\042.format(x[\042name\042], x[\042value\042]))\n' >> configure.2
+verbose Line 600...
 printf '    makefile.write(\042moduledir = {}\\n\042.format(moduledir))\n' >> configure.2
 printf '    \n' >> configure.2
 printf 'def maketarget_all():\n' >> configure.2
@@ -799,7 +816,6 @@ printf '    global gui\n' >> configure.2
 printf '    global guidoc\n' >> configure.2
 printf '    global cli\n' >> configure.2
 printf '    global techdoc\n' >> configure.2
-verbose Line 600...
 printf '    global makefile\n' >> configure.2
 printf '    v(\042Writing the \047all.made\047 and \047all\047 targets...\042)\n' >> configure.2
 printf '    makefile.write(\042all.made : shebang \044(srcdir)passwdmanapi.py\042)\n' >> configure.2
@@ -826,15 +842,17 @@ printf '        else:\n' >> configure.2
 printf '            makefile.write(\042False\042)\n' >> configure.2
 printf '        makefile.write(\042/ passwdmangui.out > passwdmangui.out.out\\n\042)\n' >> configure.2
 printf '    if xfm:\n' >> configure.2
-printf '        makefile.write(\042\\tgunzip -c \044(srcdir)xfilemanager-*.tar.gz | tar -x\\n\042)\n' >> configure.2
-printf '        makefile.write(\042\\tcd xfilemanager* && ./configure \042)\n' >> configure.2
+printf '        makefile.write(\042\\tgunzip -c \044(srcdir)xfilemanager-*.tar.gz >\042)\n' >> configure.2
+printf '        makefile.write(\042 xfilemanager.tar\\n\042)\n' >> configure.2
+printf '        makefile.write(\042\\ttar -xf xfilemanager.tar\\n\042)\n' >> configure.2
+printf '        makefile.write(\042\\t./cdxfm ./configure \042)\n' >> configure.2
 printf '        if verbose:\n' >> configure.2
 printf '            makefile.write(\042--verbose \042)\n' >> configure.2
 printf '        makefile.write(\042 \042.join(xfm_options))\n' >> configure.2
 printf '        for x in dirs_set:\n' >> configure.2
 printf '            if x[\042name\042] != \042srcdir\042:\n' >> configure.2
 printf '                makefile.write(\042 --{}={}\042.format(x[\042name\042], x[\042value\042]))\n' >> configure.2
-printf '        makefile.write(\042\\n\\tcd xfilemanager* && make\\n\042)\n' >> configure.2
+printf '        makefile.write(\042\\n\\t./cdxfm make\\n\042)\n' >> configure.2
 printf '    makefile.write(\042\\ttouch all.made\\n\042)    #make all, made all, all.made\n' >> configure.2
 printf '    makefile.write(\042all : all.made\\n\042)          #The all target.\n' >> configure.2
 printf '\n' >> configure.2
@@ -846,7 +864,7 @@ printf '        if src[-2:] in (\042.1\042, \042.3\042, \042.5\042):      #man-p
 printf '            makefile.write(\042\\t-cp \044(srcdir){} \044(DESTDIR){}\\n\042.format(src,dst))\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            makefile.write(\042\\tcp \044(srcdir){} \044(DESTDIR){}\\n\042.format(src, dst))\n' >> configure.2
-printf '        makefile.write(\042\\tchown root:root \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
+printf '        makefile.write(\042\\tchown root \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        if x:\n' >> configure.2
 printf '            makefile.write(\042\\tchmod 755 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        else:\n' >> configure.2
@@ -884,12 +902,13 @@ printf '    if guidoc:\n' >> configure.2
 printf '        install_file(\042passwdmangui.1\042, \042\044(man1dir)/passwdmangui\044(man1ext)\042,\n' >> configure.2
 printf '                False)\n' >> configure.2
 printf '    if xfm:\n' >> configure.2
-printf '        makefile.write(\042\\tcd xfilemanager* && make install\\n\042)\n' >> configure.2
+printf '        makefile.write(\042\\t./cdxfm make install\\n\042)\n' >> configure.2
 printf '    makefile.write(\042\\t\044(POST_INSTALL)\\n\042)\n' >> configure.2
 printf '    if gui:\n' >> configure.2
 printf '        Vmaj = VERSION.split(\042.\042)[0]\n' >> configure.2
 printf '        Vmin = VERSION.split(\042.\042)[1]\n' >> configure.2
 printf '        makefile.write(\042\\tsed -e \047s/_VERSION_/{}.{}/\047 \042.format(Vmaj, Vmin))\n' >> configure.2
+verbose Line 700...
 printf '        makefile.write(\042\044(srcdir)passwdman.desktop > \042)\n' >> configure.2
 printf '        makefile.write(\042\044(DESTDIR)\044(applications)/passwdman.desktop\\n\042)\n' >> configure.2
 printf '        makefile.write(\042\\t-update-menus\\n\042)\n' >> configure.2
@@ -900,7 +919,6 @@ printf '    \042\042\042maketarget_uninstall() - Add the \047uninstall\047 targe
 printf '    global makefile\n' >> configure.2
 printf '    v(\042Writing the \047uninstall\047 target...\042)\n' >> configure.2
 printf '    makefile.write(\042uninstall :\\n\042)\n' >> configure.2
-verbose Line 700...
 printf '    for x in installed_files:\n' >> configure.2
 printf '        makefile.write(\042\\t-rm \044(DESTDIR){}\\n\042.format(x))\n' >> configure.2
 printf '\n' >> configure.2
@@ -930,6 +948,7 @@ printf '    \042\042\042maketarget_clean() - Add \047clean\047 and \047maintaine
 printf '    v(\042Writing the \047clean\047 target...\042)\n' >> configure.2
 printf '    makefile.write(\042clean :\\n\\t-rm *.made *.out configure.2\\n\042)\n' >> configure.2
 printf '    makefile.write(\042\\t-rm *.1.xml *.3.xml *.5.xml\\n\042)\n' >> configure.2
+printf '    makefile.write(\042\\t-rm xfilemanager.tar\\n\\t-rm -r xfilemanager-*/\\n\042)\n' >> configure.2
 printf '    makefile.write(\042maintainer-clean :\\n\\t-rm *~\\n\042)\n' >> configure.2
 printf '\n' >> configure.2
 printf 'def maketarget_dist():\n' >> configure.2
@@ -990,6 +1009,7 @@ printf 'All rights reserved. -->\n' >> configure.2
 printf '\n' >> configure.2
 printf '<!-- Redistribution and use in source and binary forms, with or without\n' >> configure.2
 printf 'modification, are permitted provided that the following conditions are met:-->\n' >> configure.2
+verbose Line 800...
 printf '\n' >> configure.2
 printf '<!-- 1.  Redistributions of source code must retain the above copyright notice,\n' >> configure.2
 printf 'this list of conditions and the following disclaimer. -->\n' >> configure.2
@@ -1001,7 +1021,6 @@ printf '\n' >> configure.2
 printf '<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS\n' >> configure.2
 printf 'IS\042 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
 printf 'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n' >> configure.2
-verbose Line 800...
 printf 'ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n' >> configure.2
 printf 'LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n' >> configure.2
 printf 'CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n' >> configure.2
@@ -1090,7 +1109,8 @@ printf 'installed_files = []    #Filled in by maketarget_install and used by\n' 
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'xfm_options = []\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.3\042\n' >> configure.2
+printf 'VERSION = \0420.3.1\042\n' >> configure.2
+verbose Line 900...
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2
@@ -1102,7 +1122,6 @@ printf '    maketarget_install()\n' >> configure.2
 printf '    maketarget_uninstall()\n' >> configure.2
 printf '    maketarget__doc_(\042html\042)\n' >> configure.2
 printf '    maketarget__doc_(\042pdf\042)\n' >> configure.2
-verbose Line 900...
 printf '    maketarget__doc_(\042ps\042)\n' >> configure.2
 printf '    maketarget__doc_(\042dvi\042)\n' >> configure.2
 printf '    maketarget_clean()\n' >> configure.2
