@@ -885,7 +885,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall\n' >> configure.2
 printf 'makefile = None         #make it global\n' >> configure.2
-printf 'VERSION = \0420.1.5\042\n' >> configure.2
+printf 'VERSION = \0420.1.6\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()\n' >> configure.2
 printf '    dirs()\n' >> configure.2

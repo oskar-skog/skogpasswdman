@@ -328,7 +328,7 @@ def passwd_cmds(x):  #Put all the passwd:* here.
             return
         elif "get" in a:      #Get the value of a password; get the password.
             try:
-                the_value = p[p.mkindex(b)]["value"]
+                the_value = p[p.mkindex(api.unquote(b))]["value"]
             except:
                 sow("!not found \n")
                 return

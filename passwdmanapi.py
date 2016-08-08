@@ -231,44 +231,40 @@ def getint(a, b):
     rng.close()
     return number + a
 
-def unquote_buggy(x):
-    """Remove quotes from string, if any
-    BUGGY, called by unquote()"""
-    c, quote, output = "", "", ""
-    for index in range(len(x)):
-        c = x[index]
-        if c in string.whitespace and quote == "":
-            continue            #Ignore leading whitespace.
-        if c == '"' and quote == "":
-            quote = '"' #Found start.
-        elif c == "'" and quote == "":
-            quote = "'" #Found start.
-        elif quote == "":
-            return x            #Not whitespace or first quote, return.
-        elif c == quote:
-            return output       #Ending quote.
-        else:
-            output += c
-    return x                    #Not terminated.
-
 def unquote(x):
     """Returns x without surrounding quotes."""
-    #Check if quoted and ends with optional whitespace.
-    quote = ""
+    the_output, the_input = "", []
     for c in x:
-        if not c in string.whitespace:                  #Whitespace.
-            if len(quote) == 0 and c == "'":            #Begin.
-                quote = "'"
-            else:
-                if len(quote) == 0 and c == '"':        #Begin.
-                    quote = '"'
-                else:
-                    if c == quote:                      #End.
-                        quote = "DONE"
-                    else:
-                        if len(quote) != 1:
-                            return x                    #Text outside quotes.
-    return unquote_buggy(x)
+        the_input.append(c)
+    
+    while True:         #Skip all the whitespace.
+        try:
+            c = the_input.pop(0)
+        except:         #I'm not sure.
+            return x    #Should I return a string of whitespace, or not?
+        if not c in string.whitespace:
+            if c in "'\"":      #First quote.
+                quote = c
+                break
+            return x            #Not quoted.
+    
+    while True:         #Quoted string.
+        try:
+            c = the_input.pop(0)
+        except:
+            return x    #String with a quote inside.
+        if c == quote:
+            break       #Possible end of string.
+        the_output += c
+    
+    while True:         #Skip the tail.
+        try:
+            c = the_input.pop(0)
+        except:
+            return the_output   #Done.
+        if not c in string.whitespace:
+            return x            #Bad tail.
+
 class common_data():
     """self.data[]      Password-records or honey pots.
     self.index   Used in for loops.

@@ -1,12 +1,14 @@
 0.2     Permanent backup (GUI)
 ?       Improvements in HELP and About.
 *       More debugging
-0.2     Fix broken Docbook XML
+?       Fix broken Docbook XML
 *       gettext()
             *   Svenska
             *   Suomi
             *   Deutch
 *       in "configure.2": dirs() should figure out more directories.
 0.2     A pick() that returns a list.
-0.2     Rewrite unquote().
 *       info
+*       menu
+*       Fix getmoduledir(). Pick newest 2.*.
+?       What should unquote(x) return if x is a string of whitespace?
