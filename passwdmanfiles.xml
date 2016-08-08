@@ -44,7 +44,7 @@ POSSIBILITY OF SUCH DAMAGE. -->
 </refnamediv>
 <!-- body begins here -->
 
-<refsect1 id='pa_passwdmanpasswords'><title>Pa ~/.passwdman/passwords</title>
+<refsect1 id='pa_passwdmanpasswords'><title>~/.passwdman/passwords</title>
 <para>The password list.
 It is an XML file, you are expected to understand an example of the file.</para>
 <programlisting remap='Bd'>
@@ -73,7 +73,7 @@ It is an XML file, you are expected to understand an example of the file.</para>
 </programlisting> <!-- remap='Ed (block)' -->
 </refsect1>
 
-<refsect1 id='pa_passwdmanhoneypots'><title>Pa ~/.passwdman/honeypots</title>
+<refsect1 id='pa_passwdmanhoneypots'><title>~/.passwdman/honeypots</title>
 <para>The list of honeypots.
 The honeypots are fake-passwords, to help catching crackers.
 This too is a XML file.</para>
@@ -87,10 +87,10 @@ This too is a XML file.</para>
 </programlisting> <!-- remap='Ed (block)' -->
 </refsect1>
 
-<refsect1 id='pa_passwdmanundoable'><title>Pa ~/.passwdman/undoable</title>
+<refsect1 id='pa_passwdmanundoable'><title>~/.passwdman/undoable</title>
 <para>Backups.
 The
-undo();
+undo()
 function looks for the newest file and doesn't care about the filename.
 If
 "passwords"
@@ -105,14 +105,14 @@ It copies the current state to
 before it restores from the backup.</para>
 </refsect1>
 
-<refsect1 id='pa_passwdmanredoable'><title>Pa ~/.passwdman/redoable</title>
+<refsect1 id='pa_passwdmanredoable'><title>~/.passwdman/redoable</title>
 <para>The opposite of
 <filename>~/.passwdman/undoable</filename>.
 The function is
-redo(.);</para>
+redo().</para>
 </refsect1>
 
-<refsect1 id='pa_passwdmanguiconf'><title>Pa ~/.passwdman/gui.conf</title>
+<refsect1 id='pa_passwdmanguiconf'><title>~/.passwdman/gui.conf</title>
 <para>The GUI configuration file:</para>
 <programlisting remap='Bd'>
 #Configuration file for passwdmangui.
@@ -137,7 +137,7 @@ and
 
 <refsect1 id='author'><title>AUTHOR</title>
 <para>Written by
-phrase Oskar Skog Aq oskar.skog.finland@gmail.com role='author'.</para>
+Oskar Skog (oskar.skog.finland@gmail.com).</para>
 
 <para>Please, send patches, questions, bug reports and wish-lists.</para>
 </refsect1>

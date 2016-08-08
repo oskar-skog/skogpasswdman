@@ -60,12 +60,12 @@ will read from standard input.</para>
 <para><command remap='Nm'> passwdmancli </command>
 reads its input as colon separated values.
 Quotes are either forbidden or optional (look at 
-unquote();
+unquote()
 in
 <citerefentry><refentrytitle>passwdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>
 ).
 Integers are created with the python built-in
-int(.);
+int().
 All commands are listed in
 <link  linkend='commands'>COMMANDS</link>.
 If the line begins with a number-sign, the line will be ignored.
@@ -459,7 +459,7 @@ for everything.</para>
 
 <refsect1 id='author'><title>AUTHOR</title>
 <para>Written by
-phrase Oskar Skog Aq oskar.skog.finland@gmail.com role='author'.</para>
+Oskar Skog (oskar.skog.finland@gmail.com).</para>
 
 <para>Please, send patches, questions, bug reports and wish-lists.</para>
 </refsect1>

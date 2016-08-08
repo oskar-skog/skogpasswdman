@@ -112,7 +112,7 @@ class err_nometa(Exception)</para>
 <varname>xmlfile</varname>
 is a path.</para>
 
-<para>open_rng();
+<para>open_rng()
 opens
 <citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>
 (or
@@ -122,15 +122,15 @@ Returns a file open for reading binary.
 Raises
 <errorcode>err_norandom</errorcode>.</para>
 
-<para>get10();
+<para>get10()
 and
-get64();
+get64()
 returns a random string of
 <varname>length</varname>
 letters.
-get10();
+get10()
 returns digits.
-get64();
+get64()
 returns digits, big letters, small letters, underscores and exclamation
 marks.
 Raises
@@ -138,7 +138,7 @@ Raises
 and
 <errorcode>err_nolength</errorcode>.</para>
 
-<para>getint();
+<para>getint()
 returns a random integer &gt;=
 <varname>a</varname>,
 &lt;=
@@ -148,65 +148,65 @@ Raises
 and
 <errorcode>err_nolength</errorcode>.</para>
 
-<para>unquote();
+<para>unquote()
 returns the string
 <varname>x</varname>
 without its surrounding quotes.
 If the string is not surrounded be quotes, the string will be returned
 unchanged.</para>
 
-<para>undo();
+<para>undo()
 undoes the latest change to the password list or honey pot list, by restoring
 from the newest auto-generated backup.
 It requires
 <varname>passwdobj</varname>
 which is the
-passwd();
+passwd()
 object and
 <varname>honeypotobj</varname>
 which is the
-honeypot();
+honeypot()
 object.
 Raises
 <errorcode>err_idiot</errorcode>.</para>
 
-<para>redo();
+<para>redo()
 redoes the latest undone change to the password list or honey pot list, by
 restoring from the newest auto-generated backup from
-undo(.);
+undo().
 Raises
 <errorcode>err_idiot</errorcode>.</para>
 
-<para>common_data();
+<para>common_data()
 is a class defining methods used by both
-passwd();
+passwd()
 and
-honeypot(.);</para>
+honeypot().</para>
 
-<para>passwd();
+<para>passwd()
 is a class for the password list.
-honeypot();
+honeypot()
 is a class for the honey-pot list.
 See
 <link  linkend='files'>FILES</link>.</para>
 
 <refsect2 id='class_common_data2'><title>class common_data():</title>
-<para>__init__();
+<para>__init__()
 will load the data from
 <varname>xmlfile</varname>.
 Raises
 <errorcode>err_loaderr</errorcode>.</para>
 
-<para>__iter__();
+<para>__iter__()
 resets the index and returns
 <varname>self</varname>.
-__getitem__();
+__getitem__()
 returns the password/honeypot at
 <varname>i</varname>.
-__len__();
+__len__()
 returns the number of passwords/honeypots.</para>
 
-<para>remove();
+<para>remove()
 removes the password/honeypot at
 <varname>x</varname>,
 which can be an integer or a stringed integer or the value of the
@@ -232,7 +232,7 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
-<para>writexml();
+<para>writexml()
 writes the datastructure
 <varname>self</varname>
 to the file
@@ -244,7 +244,7 @@ to
 </refsect2>
 
 <refsect2 id='class_passwdcommon_data'><title>class passwd(common_data)</title>
-<para>passwd();
+<para>passwd()
 loads its data from the XML
 <filename>~/.passwdman/passwords</filename>.</para>
 
@@ -291,16 +291,16 @@ will be zero, and its
 will be
 "human".</para>
 
-<para>passwd.add();
+<para>passwd.add()
 and
-passwd.add_nometa();
+passwd.add_nometa()
 adds a password for
 <varname>name</varname>
 with the value
 <varname>value</varname>.
-add_nometa();
+add_nometa()
 adds a password without real meta-data while
-add();
+add()
 requires meta-data (the
 <varname>m_type</varname>
 must be a string and
@@ -311,7 +311,7 @@ can be either an integer or a stringed integer).
 Raises
 <errorcode>err_duplicate</errorcode>.</para>
 
-<para>passwd.remove();
+<para>passwd.remove()
 removes the password
 <varname>x</varname>.
 <varname>x</varname>
@@ -328,7 +328,7 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
-<para>passwd.mkindex();
+<para>passwd.mkindex()
 find
 <varname>x</varname>
 and return an index.
@@ -346,16 +346,16 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
-<para>passwd.update();
+<para>passwd.update()
 and
-passwd.update_meta();
+passwd.update_meta()
 updates the password at
 <varname>index</varname>
 automatically by generating a password of the right type and an acceptable
 length.
-update();
+update()
 uses the password's own meta-data while
-update_meta();
+update_meta()
 gives the password new meta-data from
 <varname>m_type</varname>,
 <varname>m_minlength</varname>
@@ -376,19 +376,19 @@ and
 
 <refsect2 id='class_honeypotcommon_data2'><title>class honeypot(common_data)</title>
 <para>The honey pots are weak passwords supposed to only be used as traps.
-honeypot();
+honeypot()
 loads its data from the XML
 <filename>~/.passwdman/honeypots</filename>.
 <varname>self[index]</varname>
 is the value of the honeypot.</para>
 
-<para>honeypot.add();
+<para>honeypot.add()
 adds a new honeypot with the value
 <varname>value</varname>.
 Raises
 <errorcode>err_duplicate</errorcode>.</para>
 
-<para>honeypot.remove();
+<para>honeypot.remove()
 removes the honeypot
 <varname>x</varname>.
 <varname>x</varname>
@@ -405,7 +405,7 @@ will be treated as an index.
 Raises
 <errorcode>err_notfound</errorcode>.</para>
 
-<para>honeypot.pick();
+<para>honeypot.pick()
 picks
 <varname>n</varname>
 random honeypots and returns a string of
@@ -433,25 +433,25 @@ or
 can be opened.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>open_rng();</para>
+<para>open_rng()</para>
 </listitem>
 <listitem>
-<para>get10();</para>
+<para>get10()</para>
 </listitem>
 <listitem>
-<para>get64();</para>
+<para>get64()</para>
 </listitem>
 <listitem>
-<para>getint();</para>
+<para>getint()</para>
 </listitem>
 <listitem>
-<para>passwd.update();</para>
+<para>passwd.update()</para>
 </listitem>
 <listitem>
-<para>passwd.update_meta();</para>
+<para>passwd.update_meta()</para>
 </listitem>
 <listitem>
-<para>honeypot.pick();</para>
+<para>honeypot.pick()</para>
 </listitem>
 </itemizedlist>
 
@@ -459,13 +459,13 @@ can be opened.</para>
 is raised when a function is called with an invalid length.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>get64();</para>
+<para>get64()</para>
 </listitem>
 <listitem>
-<para>get10();</para>
+<para>get10()</para>
 </listitem>
 <listitem>
-<para>getint();</para>
+<para>getint()</para>
 </listitem>
 </itemizedlist>
 
@@ -473,13 +473,13 @@ is raised when a function is called with an invalid length.</para>
 is raised if data cannot be loaded from file.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>common_data();</para>
+<para>common_data()</para>
 </listitem>
 <listitem>
-<para>passwd();</para>
+<para>passwd()</para>
 </listitem>
 <listitem>
-<para>honeypot();</para>
+<para>honeypot()</para>
 </listitem>
 </itemizedlist>
 
@@ -487,22 +487,22 @@ is raised if data cannot be loaded from file.</para>
 is raised if index is out of range or if it cannot find a match.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>common_data.remove();</para>
+<para>common_data.remove()</para>
 </listitem>
 <listitem>
-<para>passwd.remove();</para>
+<para>passwd.remove()</para>
 </listitem>
 <listitem>
-<para>passwd.mkindex();</para>
+<para>passwd.mkindex()</para>
 </listitem>
 <listitem>
-<para>passwd.update();</para>
+<para>passwd.update()</para>
 </listitem>
 <listitem>
-<para>passwd.update_meta();</para>
+<para>passwd.update_meta()</para>
 </listitem>
 <listitem>
-<para>honeypot.remove();</para>
+<para>honeypot.remove()</para>
 </listitem>
 </itemizedlist>
 
@@ -511,13 +511,13 @@ is raised if it is attempted to add a password with the same name as another
 or if its is attempted to add a honeypot with the same value as another.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>passwd.add();</para>
+<para>passwd.add()</para>
 </listitem>
 <listitem>
-<para>passwd.add_nometa();</para>
+<para>passwd.add_nometa()</para>
 </listitem>
 <listitem>
-<para>honeypot.add();</para>
+<para>honeypot.add()</para>
 </listitem>
 </itemizedlist>
 
@@ -525,16 +525,16 @@ or if its is attempted to add a honeypot with the same value as another.</para>
 is raised if the function was not used correctly.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>passwd.update_meta();</para>
+<para>passwd.update_meta()</para>
 </listitem>
 <listitem>
-<para>honeypot.pick();</para>
+<para>honeypot.pick()</para>
 </listitem>
 <listitem>
-<para>undo();</para>
+<para>undo()</para>
 </listitem>
 <listitem>
-<para>redo();</para>
+<para>redo()</para>
 </listitem>
 </itemizedlist>
 
@@ -543,7 +543,7 @@ is raised when meta-data is required, but the meta-data was nonexistent,
 corrupt or no good.</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
-<para>passwd.update();</para>
+<para>passwd.update()</para>
 </listitem>
 </itemizedlist>
 </refsect1>
@@ -560,13 +560,13 @@ is where the auto-generated backups live.</para>
 
 <para><filename>~/.passwdman/redoable/</filename>
 is where the backups generated by
-undo();
+undo()
 live.</para>
 </refsect1>
 
 <refsect1 id='author'><title>AUTHOR</title>
 <para>Written by
-phrase Oskar Skog Aq oskar.skog.finland@gmail.com role='author'.</para>
+Oskar Skog (oskar.skog.finland@gmail.com).</para>
 
 <para>Please, send patches, questions, bug reports and wish-lists.</para>
 </refsect1>

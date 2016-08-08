@@ -74,6 +74,12 @@ echo '    cat $1 >> $1.out' >> shebang
 echo '    shift' >> shebang
 echo 'done' >> shebang
 chmod +x shebang
+#create fix.docbook
+printf "s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com " > fix.docbook
+echo "role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/" >> fix.docbook
+echo "s/();/()/" >> fix.docbook
+echo "s/(.);/()./" >> fix.docbook
+echo "s/Pa ~/~/" >> fix.docbook
 #create configure.2             python-script
 if [ -z $python_exec ]; then
     echo "#!/usr/bin/false" > configure.2
@@ -255,6 +261,12 @@ printf 'echo \047    cat \0441 >> \0441.out\047 >> shebang\n' >> configure.2
 printf 'echo \047    shift\047 >> shebang\n' >> configure.2
 printf 'echo \047done\047 >> shebang\n' >> configure.2
 printf 'chmod +x shebang\n' >> configure.2
+printf '#create fix.docbook\n' >> configure.2
+printf 'printf \042s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com \042 > fix.docbook\n' >> configure.2
+printf 'echo \042role=\047author\047/Oskar Skog (oskar.skog.finland@gmail.com)/\042 >> fix.docbook\n' >> configure.2
+printf 'echo \042s/();/()/\042 >> fix.docbook\n' >> configure.2
+printf 'echo \042s/(.);/()./\042 >> fix.docbook\n' >> configure.2
+printf 'echo \042s/Pa ~/~/\042 >> fix.docbook\n' >> configure.2
 printf '#create configure.2             python-script\n' >> configure.2
 printf 'if [ -z \044python_exec ]; then\n' >> configure.2
 printf '    echo \042#!/usr/bin/false\042 > configure.2\n' >> configure.2
@@ -668,7 +680,8 @@ printf '    for n, s in ((\042passwdmangui\042, 1), (\042passwdmanfiles\042, 5),
 printf '                 (\042passwdmancli\042, 1), (\042passwdmanapi\042, 3)):\n' >> configure.2
 printf '        makefile.write(\042{0}.xml : {0}.{1}\\n\042.format(n , str(s)))\n' >> configure.2
 printf '        makefile.write(\042\\tdoclifter {0}.{1}\\n\042.format(n, str(s)))\n' >> configure.2
-printf '        makefile.write(\042\\tmv {0}.{1}.xml {0}.xml\\n\042.format(n, str(s)))\n' >> configure.2
+printf '        makefile.write(\042\\tsed -f fix.docbook {0}.{1}.xml > {0}.xml\\n\042.format(\n' >> configure.2
+printf '                                                                n, str(s)))\n' >> configure.2
 printf '        makefile.write(\042{0}.html : {0}.{1}\\n\042.format(n, str(s)))\n' >> configure.2
 printf '        makefile.write(\042\\tgroff -Txhtml -mandoc {0}.{1} |\042.format(n, str(s)))\n' >> configure.2
 printf '        makefile.write(\042 cat xml.copyright - > {0}.html\\n\042.format(n, str(s)))\n' >> configure.2
@@ -708,7 +721,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall\n' >> configure.2
 printf 'makefile = None         #make it global\n' >> configure.2
-printf 'VERSION = \0420.1.2\042\n' >> configure.2
+printf 'VERSION = \0420.1.3\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()\n' >> configure.2
 printf '    dirs()\n' >> configure.2
