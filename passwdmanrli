@@ -27,7 +27,20 @@ POSSIBILITY OF SUCH DAMAGE."""
 import passwdmanapi as api
 import curses, math, os, tarfile, sys
 
+__doc__ = """import passwdmanapi as api
+h, p = api.honeypot(), api.passwd()
+code = locale.getpreferredencoding()
+tty = curses.initscr()
+ysize, xsize = tty.getmaxyx()
+0 <= tabnum <= 3 (main.__doc__, set_tab.__doc__)
+have_clipboard = True or False
+See also copy.__doc__, wrap_addch.__doc__, wrap_addstr.__doc__, busy.__doc__,
+edit_line.__doc__, edit_num.__doc__, main.__doc__, show_copy_single.__doc__
+and center_text.__doc__.
+"""
+
 def die():
+    """die() - exit curses mode and quit."""
     tty.keypad(0)
     curses.echo()
     curses.nocbreak()
@@ -35,6 +48,7 @@ def die():
     quit()
 
 def wrap_addch(y, x, c):
+    """wrap_addch(y, x, c) - tty.addch(y, x, c), without the evil corner."""
     try:
         tty.addch(y, x, c)
     except:
@@ -43,10 +57,15 @@ def wrap_addch(y, x, c):
         pass
 
 def wrap_addstr(y, x, s):
+    """wrap_addstr(y, x, s) - encode in Python2, decode in Python3
+    tty.addstr(y, x, s)"""
     v, f, f, f, f = sys.version_info
     tty.addstr(y, x, api.b2u3(s))
 
 def center_text(line, text):
+    """center_text(line, text) - put text <text> in the center of line <line>.
+    Long lines f text will be truncated."""
+    assert api.is_anystr(text) and line >= 0 and line < ysize
     start_pos = math.floor((xsize - len(text)) / 2)
     for x in range(xsize):
         if x < start_pos or x >= start_pos + len(text):
@@ -55,20 +74,31 @@ def center_text(line, text):
             wrap_addch(line, x, ord(text[int(x - start_pos)]))
 
 def busy():
+    """busy() - ``set busy cursor``"""
     tty.erase()
     center_text(2, "Wait...")
     tty.refresh()
 
 def edit_num(y, num, min_num, max_num, step=1):
+    """direction, num = edit_num(y, num, min_num, max_num, step=1)
+    num is the starting number/number.
+    direction is how the user made this function return.
+    direction is either "up", "down" or "back".
+    min_num and max_num are num's limits. None = unlimited
+    y is the Y-coordinate.
+    step is how much to increase/decrease per key-press."""
+    assert y >= 0 and y < ysize
     if min_num != None and max_num != None:
         assert max_num >= min_num
     while True:
+        #Keep num within limits.
         if min_num != None:
             if num < min_num:
                 num = min_num
         if max_num != None:
             if num > max_num:
                 num = max_num
+        #Print.
         tty.hline(y, 0, ord(" "), xsize)
         center_text(y, "left - a h home<" + str(num) + ">right + d l end")
         tty.refresh()
@@ -79,6 +109,7 @@ def edit_num(y, num, min_num, max_num, step=1):
         if ch in (curses.KEY_RIGHT, ord("+"), ord("d"), ord("l")):
             num += step
             continue
+        #Increase/decrease 5 * step if there is no limit in that direction.
         if ch in (curses.KEY_HOME, ord("A"), ord("H")):
             if min_num != None:
                 num = min_num
@@ -91,6 +122,7 @@ def edit_num(y, num, min_num, max_num, step=1):
             else:
                 num += step * 5
             continue
+        #Return.
         if ch in (ord(" "), ord("\t"), ord("\n"), curses.KEY_DOWN):
             return "down", num
         if ch == curses.KEY_UP:
@@ -99,6 +131,11 @@ def edit_num(y, num, min_num, max_num, step=1):
             return "back", num
 
 def edit_line(y, line):
+    """direction, line = edit_line(y, line)
+    direction is how the user made this function return.
+    direction is either "up", "down" or "back".
+    line is the line of text that will be/has been edited.
+    y is the Y-coordinate."""
     #Unicode string.
     if line == None:
         head_u = api.u("")
@@ -110,12 +147,10 @@ def edit_line(y, line):
         head_b = ""
         def mk_head_b():
             return head_u.encode(code)
-
     else:
         head_b = []
         def mk_head_b():
             return list(head_u.encode(code))
-    
     #Tail.
     tail = api.u("")
     half_len = int(math.floor(xsize / 2))
@@ -175,12 +210,17 @@ def edit_line(y, line):
                 head_u = bytes(head_b).decode(code, "ignore")
 
 def after_update(old, new):
+    """after_update(old, new)
+    Show old and new passwords and let the user copy them to clipboard."""
     tty.erase()
     if (math.ceil(len(old) / xsize + 0.0) +
             math.ceil(len(new) / xsize + 0.0) + 2) > ysize - 2:
         raise api.err_idiot("Not implented!")
     else:
-        center_text(0, "Old: (Press 1 to copy)")
+        if have_clipboard:
+            center_text(0, "Old: (Press 1 to copy)")
+        else:
+            center_text(0, "Old:")
         x_pos, y_pos = 0, 1
         for c in old:
             if x_pos >= xsize:
@@ -188,10 +228,13 @@ def after_update(old, new):
                 y_pos += 1
             wrap_addstr(y_pos, x_pos, c)
             x_pos += 1
-        if x_pos != 0:
+        if x_pos != 0: #Has it rolled over and increased y_pos?
             y_pos += 1
             x_pos = 0
-        center_text(y_pos, "New: (Press 2 to copy)")
+        if have_clipboard:
+            center_text(y_pos, "New: (Press 2 to copy)")
+        else:
+            center_text(y_pos, "New:")
         y_pos += 1
         for c in new:
             if x_pos >= xsize:
@@ -203,14 +246,19 @@ def after_update(old, new):
         tty.refresh()
         while True:
             ch = tty.getch()
-            if ch == ord("1"):
+            if ch == ord("1") and have_clipboard:
                 copy(old)
-            elif ch == ord("2"):
+            elif ch == ord("2") and have_clipboard:
                 copy(new)
             else:
                 return
-        
+
 def passwd_tab(x):
+    """passwd_tab(x)
+    x is the action to be performed on a password.
+    x begins from 0 (Copy to clipboard), or from 1 (Show password) if not
+    have_clipboard.
+    See also choice.__doc__ and after_update.__doc__."""
     assert x >= 0 and x < 7
     if x < 4 or x == 6:
         selection = choice(False)
@@ -471,6 +519,8 @@ def passwd_tab(x):
         p.remove(selection)
 
 def show_copy_single(s):
+    """show_copy_single(s)
+    Show a string and let the user copy it to clipboard."""
     if len(s) > (ysize - 3) * xsize:
         raise api.err_idiot("Not implented!")
     else:
@@ -482,17 +532,25 @@ def show_copy_single(s):
                 y_pos += 1
             wrap_addstr(y_pos, x_pos, c)
             x_pos += 1
-        center_text(ysize - 2, "Press 1 to copy.")
-        center_text(ysize - 1, "Press any other key to finish.")
+        if have_clipboard:
+            center_text(ysize - 2, "Press 1 to copy.")
+            center_text(ysize - 1, "Press any other key to finish.")
+        else:
+            center_text(ysize - 1, "Press any key to finish.")
         tty.refresh()
         while True:
             ch = tty.getch()
-            if ch == ord("1"):
+            if ch == ord("1") and have_clipboard:
                 copy(s)
             else:
                 break
-        
+
 def honeypot_tab(x):
+    """honeypot_tab(x)
+    x is the action to be performed on a honeypot.
+    x begins from 0 (Pick & copy), or from 1 (Pick & show) if not
+    have_clipboard.
+    See also choice.__doc__"""
     assert x >= 0 and x < 6
     if x == 0:
         #Pick & copy.
@@ -642,6 +700,9 @@ def honeypot_tab(x):
         h.remove(selection)
 
 def copy(x):
+    """copy(s)
+    copy s to the clipboard.
+    Not written by me."""
     # "primary":
     xsel_proc = subprocess.Popen(['xsel', '-pi'], stdin=subprocess.PIPE)
     xsel_proc.communicate(api.b(x))
@@ -650,6 +711,9 @@ def copy(x):
     xsel_proc.communicate(api.b(x))
 
 def set_tab(direction):
+    """set_tab(direction)
+    Move to another tab in main().
+    0 <= direction <= 3 or direction in ("<", ">")"""
     global tabnum
     try:
         x = int(direction)
@@ -667,6 +731,10 @@ def set_tab(direction):
         tabnum = 3
 
 def choice(honeypot):
+    """choice(honeypot)
+    Return index for p if honeypot == False.
+    Return index for h if honeypot == True.
+    Returns False if the user cancels."""
     tty.erase()
     thelist = []
     if honeypot:
@@ -677,9 +745,17 @@ def choice(honeypot):
         center_text(0, "Please select password.")
         for x in p:
             thelist.append(x["name"])
-    return list_choice(1, ysize - 1, thelist)
+    if len(thelist) > 0:
+        #I know this will ask the user even if there only is one choice, but
+        #it will show which password/honeypot the only one is.
+        return list_choice(1, ysize - 1, thelist)
+    else:
+        return False
 
 def zxcv_handler(x):
+    """zxcv_handler(x)
+    x is whatever tty.getch() has returned.
+    Handle undo/redo/make backup/clear clipboard."""
     if x in (ord("z"), ord("Z"), ord("b"), ord("B")):
         api.undo(p, h)
     if x in (ord("x"), ord("X"), ord("n"), ord("N")):
@@ -735,6 +811,17 @@ def zxcv_handler(x):
         copy("EMPTY")
 
 def list_choice(ypos, yspace, thelist, ct = False):
+    """list_choice(ypos, yspace, thelist, ct = False)
+    thelist is a list of strings (buttons).
+    It can change tabs if ct == True.
+    Returns True if the user changed tab.
+    Returns False if the user canceled.
+    Returns an index to thelist if the user has `clicked` on one of the
+    buttons.
+    ypos is the Y-coordinate.
+    yspace is the number of rows list_choice() will eat of the screen.
+    See also zxcv_handler.__doc__"""
+    assert len(thelist) > 0
     xspace = 0
     for x in thelist:
         if len(x) > xspace:
@@ -746,7 +833,7 @@ def list_choice(ypos, yspace, thelist, ct = False):
     center_text(ypos + 2, "or escape to cancel.")
     center_text(ypos + yspace - 1, "Page-down down s j 2")
     page = yspace - 6
-    if xsize - xspace >= 8:
+    if xsize - xspace >= 8: #Enough room for "<-Choose"?
         show_arrow = True
     else:
         show_arrow = False
@@ -795,7 +882,7 @@ def list_choice(ypos, yspace, thelist, ct = False):
         tty.refresh()
         #Handle input.
         ch = tty.getch()
-        if ct:
+        if ct:  #Change tab?
             if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
                 set_tab("<")
                 return True
@@ -828,12 +915,21 @@ def list_choice(ypos, yspace, thelist, ct = False):
             choice = 0
 
 def roll_text(ypos, yspace, thetext, ct = False):
+    """roll_text(ypos, yspace, thetext, ct = False)
+    Show a large amount of text on the screen.
+    It can change tabs if ct == True.
+    Returns True if the user changed tab.
+    Returns False if the user canceled.
+    ypos is the Y-coordinate.
+    yspace is the number of rows roll_text() will eat of the screen.
+    See also zxcv_handler.__doc__"""
     thelines = thetext.split("\n")
     page = yspace - 4
     linepos = 0
     center_text(ypos, "Page-up up W K 8")
     center_text(ypos + yspace - 1, "Page-down down S J 2")
     while True:
+        #Print.
         for i in range(page):
             for x in range(xsize):
                 try:
@@ -851,7 +947,7 @@ def roll_text(ypos, yspace, thetext, ct = False):
             tty.hline(ypos + yspace - 2, 0, ord("v"), xsize)
         tty.refresh()
         ch = tty.getch()
-        if ct:
+        if ct:  #Change tab?
             if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
                 set_tab("<")
                 return True
@@ -878,7 +974,10 @@ def roll_text(ypos, yspace, thetext, ct = False):
         zxcv_handler(ch)
         if linepos < 0 or linepos >= len(thelines):
             linepos = oldpos
+
 def main():
+    """See list_choice.__doc__, passwd_tab.__doc__, honeypot_tab.__doc__,
+    roll_text.__doc__ and die.__doc__."""
     global tabnum
     while True:
         #Render.
@@ -913,7 +1012,7 @@ def main():
             tty.refresh()
         else:
             pass    #TODO
-        if tabnum == 0:
+        if tabnum == 0: #Passwords.
             thelist = ["Copy to clipboard",
                     "Show password",
                     "Update",
@@ -926,7 +1025,8 @@ def main():
             else:
                 result = list_choice(2, ysize - 5, thelist[1:], True)
                 if not isinstance(result, bool):
-                    result += 1
+                    result += 1 #There was no first option.
+            #Check for booleans last, to avoid misinterpreting 0 and 1.
             if not isinstance(result, bool):
                 passwd_tab(result)
                 continue
@@ -934,7 +1034,7 @@ def main():
                 die()
             if result == True:
                 continue
-        if tabnum == 1:
+        if tabnum == 1: #Honeypots.
             thelist = ["Pick & copy",
                     "Pick & show",
                     "Bad pick many",
@@ -946,7 +1046,8 @@ def main():
             else:
                 result = list_choice(2, ysize - 5, thelist[1:], True)
                 if not isinstance(result, bool):
-                    result += 1
+                    result += 1 #There was no first option.
+            #Check for booleans last, to avoid misinterpreting 0 and 1.
             if not isinstance(result, bool):
                 honeypot_tab(result)
                 continue
@@ -954,7 +1055,7 @@ def main():
                 die()
             if result == True:
                 continue
-        if tabnum == 2:
+        if tabnum == 2: #Help.
             result = roll_text(2, ysize - 5, """
 Uppercase W/K, A/H, S/J, D/L will be treated as Page up, Home, Page down, end.
 
@@ -982,7 +1083,7 @@ you have selected. You should add fake-passwords such as "password" and
                 die()
             if result == True:
                 continue
-        if tabnum == 3:
+        if tabnum == 3: #about.
             result = roll_text(2, ysize - 5, copywrong + "\n" + """
 passwdman is a program for remembering and updating passwords. It also
 remembers honey-pots (fake-passwords to catch crackers). It has infinite
@@ -1034,7 +1135,7 @@ if __name__ == "__main__":
             print("Need at least 40x18 or 80x12 COLSxROWS")
     try:
         main()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: #^C
         die()
     except:
         tty.keypad(0)

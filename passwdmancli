@@ -35,9 +35,25 @@ import os.path
 import getopt
 import shutil
 
-"""The functions show_help(), passwd_help(), honeypot_help(),
+__doc__ = """The functions show_help(), passwd_help(), honeypot_help(),
 bells_and_whistles() and bugs() takes no arguments and prints their
-__doc__-string to standard output."""
+__doc__-string to standard output.
+See passwdmancli(1) to understand the interface.
+Some global stuff:
+    import passwdmanapi as api
+    p, h = api.passwd(), api.honeypot()
+    verbose             verbose mode (command)
+    interactive         interactive mode (command line flag)
+    main()
+    se()                complain about syntax errors
+    err(x)              sow("!" + x + "\\n")
+    sow(x)              print x to stdout
+    siw()               read line from stdin
+    theline             set by main() and used by se(), the line that might
+                            cause a syntax error
+    passwd_cmds()
+    honeypot_cmds()
+ """
 
 def se():
     """se() - syntax error
@@ -227,7 +243,6 @@ def passwd_update(x):
         return
     new = p[index]["value"]
     sow("#old:new\n")
-    #old and new doesn't contain any Unicode.
     sow("passwd.update?'{0}':'{1}'\n".format(old, new)) #Always 64 or 10.
     return
     
@@ -255,8 +270,8 @@ def passwd_update_meta(x):
     new = p[index]["value"]
     sow("#old:new\n")
     sow("passwd.update?'")
-    sow(old)    #old can be anything.
-    sow("':'{0}'\n".format(new)) #new is 64 or 10.
+    sow(old)
+    sow("':'{0}'\n".format(new))
     return
     
 def passwd_add(x):
@@ -284,6 +299,8 @@ def passwd_add(x):
         pass
     #Start testing add_type.
     if "human" in add_type:
+        if not interactive:
+            sow("!Use 'passwd:add_human'.\n")
         se()
         sow("#Use 'passwd:add_human'.\n") #add_human is inside passwd_cmds().
         return
@@ -311,7 +328,11 @@ def passwd_add(x):
         return
 
 def passwd_cmds(x):
-    """passwd_cmds(x) - handle all "passwd:*"."""
+    """passwd_cmds(x) - handle all "passwd:*".
+    x is the line with ^'passwd:' and newline$ removed.
+    passwd_update()
+    passwd_update_meta()
+    passwd_add()"""
     twofields = x.split(':', 1)
     a = twofields[0]
     if len(twofields) < 2:
@@ -392,7 +413,8 @@ def passwd_cmds(x):
             return
 
 def honeypot_cmds(x):
-    """honeypots_cmds(x) - handle all "honeypot:*"."""
+    """honeypots_cmds(x) - handle all "honeypot:*".
+    x is the line with ^'honeypot:' and newline$ removed."""
     twofields = x.split(':', 1)
     a = twofields[0]
     if len(twofields) < 2:
