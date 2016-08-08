@@ -125,9 +125,7 @@ ERRORS
     #open /dev/urandom if /dev/random cannot be opened
     try:
         f = open('/dev/random', 'rb')
-    except:     #/dev/random is
-    #V  E       R       Y       (space) S       L       O       W
-    #on Linux
+    except:
         try:
             f = open('/dev/urandom', 'rb')
         except:
@@ -258,20 +256,19 @@ def unquote(x):
     #Check if quoted and ends with optional whitespace.
     quote = ""
     for c in x:
-        if c in string.whitespace:              #Whitespace.
-            continue
-        elif quote == "" and c == "'":          #Begin.
-            quote = "'"
-        elif quote == "" and c == '"':          #Begin.
-            quote == '"'
-        elif c == quote:                        #End.
-            quote = ""
-        elif quote in "\"'":                    #Quoted text.
-            continue
-        elif quote == "":                       #The string is not quoted.
-            return x
-    else:
-        return unquote_buggy(x)
+        if not c in string.whitespace:                  #Whitespace.
+            if len(quote) == 0 and c == "'":            #Begin.
+                quote = "'"
+            else:
+                if len(quote) == 0 and c == '"':        #Begin.
+                    quote = '"'
+                else:
+                    if c == quote:                      #End.
+                        quote = "DONE"
+                    else:
+                        if len(quote) != 1:
+                            return x                    #Text outside quotes.
+    return unquote_buggy(x)
 class common_data():
     """self.data[]      Password-records or honey pots.
     self.index   Used in for loops.
