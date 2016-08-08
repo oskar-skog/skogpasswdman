@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 copywrong = """
-Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
+Copyright (c) 2013-2016, Oskar Skog <oskar.skog.finland@gmail.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

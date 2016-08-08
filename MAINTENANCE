@@ -1,0 +1,31 @@
+Good luck, you'll need it!
+
+
+This place in the noösphere was found by me, Oskar Skog, and I recommend not
+coming here.
+
+There's a high level of creeping featurism and uselessness in the atmosphere.
+- Useful functionality could use some complete rewriting
+- Storage format could be less XMLy
+- Undo/redo and "make backup" have both backfired miserably.
+- The honeypots, where never usable.
+- GNU nano w/ chmod 600 plain text defeated the storage functionality.
+- Uglier CLIs cannot be found.
+
+Apart from generating random passwords, this is a piece of shit.
+
+
+Mail me at <oskar.skog.finland@gmail.com> if you're interested in taking over.
+If you're not happy with 2-Clause BSD, I'll drop it in public domain.
+
+
+On the more serious side:
+
+The master format of the manuals are the mdoc man pages, they are then
+converted with doclifter to Docbook XML. The Docbook XML is then repaired
+and used as an intermediary format for everything else.
+
+Hack the dist target in the Makefile, if you don't have the tools.
+
+The version number is set in configure, but how?  The file generates a file
+which is used to generate the original file when it has been changed.  Huh?

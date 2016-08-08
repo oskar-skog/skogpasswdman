@@ -1257,7 +1257,7 @@ def maketarget_dist():
         makefile.write("\\tcp \$(srcdir)skogpasswdman{0}.xml skogpasswdman-{1}\\n".format(
                                                                 x, VERSION))
     for x in ("README", "LICENSE", "INSTALL", "NEWS", "TODO", "ChangeLog",
-                "CREDITS", "configure", "FAQ"):
+                "CREDITS", "configure", "FAQ", "MAINTENANCE"):
         makefile.write("\\tcp \$(srcdir){0} skogpasswdman-{1}\\n".format(x, VERSION))
     makefile.write("\\tcp \$(srcdir)skogpasswdman.desktop skogpasswdman-{0}\\n".format(
                                                                     VERSION))
@@ -1404,7 +1404,7 @@ installed_files = []    # Filled in by maketarget_install and used by
                         # maketarget_uninstall.
 xfm_options = []
 makefile = None
-VERSION = "0.4.16"
+VERSION = "0.4.17"
 LINES = 1158
 if __name__ == "__main__":
     main()              # Handle options.
