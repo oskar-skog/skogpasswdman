@@ -22,22 +22,22 @@
 .\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 .\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\"POSSIBILITY OF SUCH DAMAGE.
-.Dd Nov 15, 2013
-.Dt PASSWDMANFILES 5
+.Dd Apr 3, 2014
+.Dt SKOGPASSWDMANFILES 5
 .Os
 .Sh NAME
-.Nm ~/.passwdman/passwords ,
-.Nm ~/.passwdman/honeypots ,
-.Nm ~/.passwdman/undoable/ ,
-.Nm ~/.passwdman/redoable/ ,
-.Nm ~/.passwdman/gui.conf
-.Nd data-files for passwdman.
-.Sh Pa ~/.passwdman/passwords
+.Nm ~/.skogpasswdman/passwords ,
+.Nm ~/.skogpasswdman/honeypots ,
+.Nm ~/.skogpasswdman/undoable/ ,
+.Nm ~/.skogpasswdman/redoable/ ,
+.Nm ~/.skogpasswdman/gui.conf
+.Nd data-files for skogpasswdman.
+.Sh Pa ~/.skogpasswdman/passwords
 The password list.
 It is an XML file, you are expected to understand an example of the file.
 .Bd -literal
 <?xml version='1.0' encoding='UTF-8'?>
-<root magic="passwdman" file="passwords" version="0.1">
+<root magic="skogpasswdman" file="passwords" version="0.1">
     <!--The attribute 'magic' may not be changed.
     The major version may not be greater than zero.
     The attribute 'file' is used to make sure that it is the right file.-->
@@ -59,19 +59,19 @@ It is an XML file, you are expected to understand an example of the file.
     </passwd>
 </root>
 .Ed
-.Sh Pa ~/.passwdman/honeypots
+.Sh Pa ~/.skogpasswdman/honeypots
 The list of honeypots.
 The honeypots are fake-passwords, to help catch crackers.
 This too is a XML file.
 .Bd -literal
 <?xml version='1.0' encoding='UTF-8'?>
-<root file="honeypots" magic="passwdman" version="0.1">
-    <!--look at ~/.passwdman/passwords-->
+<root file="honeypots" magic="skogpasswdman" version="0.1">
+    <!--look at ~/.skogpasswdman/passwords-->
     <honeypot value="BadPassword"/>
     <honeypot value="putme_injail_ifi_typethis"/>
 </root>
 .Ed
-.Sh Pa ~/.passwdman/undoable
+.Sh Pa ~/.skogpasswdman/undoable
 Backups.
 The
 .Fn undo
@@ -79,23 +79,23 @@ function looks for the newest file and doesn't care about the filename.
 If
 .Qq passwords
 is in the filename, the file is a backup of 
-.Pa ~/.passwdman/passwords .
+.Pa ~/.skogpasswdman/passwords .
 If
 .Qq honeypots
 is in the filename, the file is a backups of
-.Pa ~/.passwdman/honeypots .
+.Pa ~/.skogpasswdman/honeypots .
 It copies the current state to
-.Pa ~/.passwdman/redoable
+.Pa ~/.skogpasswdman/redoable
 before it restores from the backup.
-.Sh Pa ~/.passwdman/redoable
+.Sh Pa ~/.skogpasswdman/redoable
 The opposite of
-.Pa ~/.passwdman/undoable .
+.Pa ~/.skogpasswdman/undoable .
 The function is
 .Fn redo .
-.Sh Pa ~/.passwdman/gui.conf
+.Sh Pa ~/.skogpasswdman/gui.conf
 The GUI configuration file:
 .Bd -literal
-#Configuration file for passwdmangui.
+#Configuration file for skogpasswdmangui.
 #If there is any number-sign in a line, the line is a comment.
 This is a comment. #
 #It knows about 'show_passwd', 'true' and 'false'.
@@ -103,10 +103,10 @@ This is a comment. #
 show_passwd false
 .Ed
 .Sh SEE ALSO
-.Xr passwdmancli 1 ,
-.Xr passwdmangui 1
+.Xr skogpasswdmancli 1 ,
+.Xr skogpasswdmangui 1
 and
-.Xr passwdmanapi 3 .
+.Xr skogpasswdmanapi 3 .
 .Sh BUGS
 The documentation.
 .Sh AUTHOR

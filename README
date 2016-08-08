@@ -1,8 +1,8 @@
-                                    passwdman
+                    skogpasswdman (passwdman until 2014-04-03)
 Copyright (c) 2013, 2014, Oskar Skog <oskar.skog.finland@gmail.com>
 Read the file 'LICENSE' (2-clause BSD)
 
-passwdman is a program for remembering, generating and updating passwords.
+skogpasswdman is a program for remembering, generating and updating passwords.
 It's also prepared for the future when password protected stuff supports
 fake-passwords to catch crackers.
 
@@ -16,22 +16,22 @@ doesn't encrypt the tarball.
 
 Polyvalent:
     shared engine               Python
-    scripting interface         Python only, import passwdmanapi
+    scripting interface         Python only, import skogpasswdmanapi
     CLI                         Python; ed pattern; verbose
     GUI                         Python; Gtk+ 3
     curses mode                 GUIish
 
 Commands:
-    passwdmancli
-    passwdmangui        Graphical
-    passwdmanrli        curses mode
+    skogpasswdmancli
+    skogpasswdmangui        Graphical
+    skogpasswdmanrli        curses mode
 
 Man-pages:
-    passwdmancli(1)
-    passwdmangui(1)     Garbage
-    passwdmanrli(1)     Garbage
-    passwdmanapi(3)
-    passwdmanfiles(5)
+    skogpasswdmancli(1)
+    skogpasswdmangui(1)     Garbage
+    skogpasswdmanrli(1)     Garbage
+    skogpasswdmanapi(3)
+    skogpasswdmanfiles(5)
 
 Works with Python 2.7 and Python 3.x, should work with Python 2.6.
 

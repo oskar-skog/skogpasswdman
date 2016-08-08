@@ -1,3 +1,7 @@
+2014-04-03      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.4.13
+    *: Solved name conflict, prepended 'skog'.
+
 2014-03-09      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.4.12
     * passwdmancli: honeypot:pickf

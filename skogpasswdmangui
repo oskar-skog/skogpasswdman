@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from gi.repository import Gtk, Gdk
-import passwdmanapi as api
+import skogpasswdmanapi as api
 import os
 import sys
 import tarfile
@@ -724,12 +724,12 @@ class conf_tab_c(Gtk.Box):
         global restart
         self.parent.show_passwd = self.show_passwd_switch.get_active()
         try:
-            f = open(os.path.expanduser("~/.passwdman/gui.conf"), "w")
+            f = open(os.path.expanduser("~/.skogpasswdman/gui.conf"), "w")
         except:
-            err(self, "Cannot open '~/.passwdman/gui.conf' for writing';"
+            err(self, "Cannot open '~/.skogpasswdman/gui.conf' for writing';"
                         " cannot save settings.")
             return
-        f.write("""#Configuration file for passwdmangui.
+        f.write("""#Configuration file for skogpasswdmangui.
         #If there is any number-sign in a line, the line is a comment.
         This is a comment. #
         #It knows about 'show_passwd', 'true' and 'false'.
@@ -744,9 +744,9 @@ class conf_tab_c(Gtk.Box):
         Gtk.main_quit()
         return          # What might happen now?
     def rmundo_action(self, button):
-        os.system("xfilemanager ~/.passwdman/undoable &")
+        os.system("xfilemanager ~/.skogpasswdman/undoable &")
     def rmredo_action(self, button):
-        os.system("xfilemanager ~/.passwdman/redoable &")
+        os.system("xfilemanager ~/.skogpasswdman/redoable &")
         
 class about_tab_c(Gtk.Box):
     """class about_tab_c(Gtk.Box)"""
@@ -756,7 +756,7 @@ class about_tab_c(Gtk.Box):
         Gtk.Box.__init__(self)
         copyright_label = Gtk.Label(copywrong)
         info_label = Gtk.Label("""
-passwdman is a program for remembering and updating passwords. It also
+skogpasswdman is a program for remembering and updating passwords. It also
 remembers honey-pots (fake-passwords to catch crackers). It has infinite
 undo/redo.
 
@@ -819,10 +819,10 @@ class main_window(Gtk.Window):
     def __init__(self):
         """__init__(self)"""
         global restart
-        Gtk.Window.__init__(self, title="passwdmangui")
+        Gtk.Window.__init__(self, title="skogpasswdmangui")
         try:
-            # To understand this: read "~/.passwdman/gui.conf".
-            conf = open(os.path.expanduser("~/.passwdman/gui.conf"), "r")
+            # To understand this: read "~/.skogpasswdman/gui.conf".
+            conf = open(os.path.expanduser("~/.skogpasswdman/gui.conf"), "r")
             for l in conf:
                 if "show_passwd" in l and not "#" in l:
                     if "true" in l:
@@ -917,7 +917,7 @@ class main_window(Gtk.Window):
         """make_backup(self, button)"""
         # Create a tarball of the files.
         dialog = Gtk.FileChooserDialog(
-                "passwdmangui - Choose name for tarball", self,
+                "skogpasswdmangui - Choose name for tarball", self,
                 Gtk.FileChooserAction.SAVE, ("OK", Gtk.ResponseType.OK,
                                         "Cancel", Gtk.ResponseType.CANCEL))
         filter0 = Gtk.FileFilter()
@@ -940,7 +940,7 @@ class main_window(Gtk.Window):
             os.chdir(os.path.expanduser("~"))
             tarball_name = dialog.get_filename()
             tarball = tarfile.open(tarball_name, "w:gz")
-            tarball.add(".passwdman")
+            tarball.add(".skogpasswdman")
             tarball.close()
             os.chdir(old_dir)
             dialog2 = Gtk.MessageDialog(self, 0,

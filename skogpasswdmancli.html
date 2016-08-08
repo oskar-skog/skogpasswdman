@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANCLI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANCLI"><a id="passwdmancli1"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmancli  —  CLI for storing, generating and updating passwords and honeypots. </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">passwdmancli</code>   --i    ---interactive    --B    ---single-backup    --U    ---utf-8    <em class="replaceable"><code>infile</code></em> </p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p><em class="replaceable"><code>infile</code></em>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>SKOGPASSWDMANCLI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="SKOGPASSWDMANCLI"><a id="skogpasswdmancli1"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> skogpasswdmancli  —  CLI for storing, generating and updating passwords and honeypots. </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">skogpasswdmancli</code>   --i    ---interactive    --B    ---single-backup    --U    ---utf-8    <em class="replaceable"><code>infile</code></em> </p></div></div><div class="refsect1" title="DESCRIPTION"><a id="description"></a><h2>DESCRIPTION</h2><p><em class="replaceable"><code>infile</code></em>
 is the file
-<span class="command"><strong> passwdmancli </strong></span>
+<span class="command"><strong> skogpasswdmancli </strong></span>
 will read its commands from, if
 <em class="replaceable"><code>infile</code></em>
 is omitted
-<span class="command"><strong> passwdmancli </strong></span>
+<span class="command"><strong> skogpasswdmancli </strong></span>
 will read from standard input.
 <code class="option">-i</code>
 or
@@ -16,23 +16,23 @@ must be specified if you want the commands
 and
 <span class="command"><strong>redo</strong></span>,
 or if you want
-<span class="command"><strong> passwdmancli </strong></span>
+<span class="command"><strong> skogpasswdmancli </strong></span>
 to stay alive after an error.</p><p>If you specify the option
 <code class="option">-B</code>
 or
 <code class="option">--single-backup</code>,
 every change that has been done, will be removed by TWO undos.</p><p>You can force
-<span class="command"><strong> passwdmancli </strong></span>
+<span class="command"><strong> skogpasswdmancli </strong></span>
 to use
 "utf-8"
 as encoding by specifying the option
 <code class="option">--utf-8</code>.
-WARNING: It hasn't been tested with Python 3.x in a non-UTF-8 environment.</p><p><span class="command"><strong> passwdmancli </strong></span>
+WARNING: It hasn't been tested with Python 3.x in a non-UTF-8 environment.</p><p><span class="command"><strong> skogpasswdmancli </strong></span>
 reads its input as colon separated values.
 Quotes are either forbidden or optional (look at 
 unquote()
 in
-<span class="citerefentry"><span class="refentrytitle">passwdmanapi</span>(3)</span>
+<span class="citerefentry"><span class="refentrytitle">skogpasswdmanapi</span>(3)</span>
 ).
 Integers are created with the python built-in
 int().
@@ -199,19 +199,19 @@ Progress is
 Stop is
 "Newline."</p></dd><dt><span class="term">pb:off</span></dt><dd><p>Disable progress-counters.</p></dd><dt><span class="term">redo</span></dt><dd><p>Opposite of
 <span class="command"><strong>undo</strong></span>.</p></dd><dt><span class="term">undo</span></dt><dd><p>CLI undo button; restore from latest auto-generated backup.</p></dd><dt><span class="term">verbose:on</span></dt><dd><p>Enable verbose mode; release mosquitoes from hell that will be noisy and give
-you a headache.</p></dd><dt><span class="term">verbose:off</span></dt><dd><p>Disable verbose mode; kill the mosquitoes.</p></dd><dt><span class="term">whistles</span></dt><dd><p>Show message about the bells and whistles.</p></dd></dl></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
-is a XML file containing all passwords.</p><p><code class="filename">~/.passwdman/honeypots</code>
-is a XML file containing all honeypots.</p><p><code class="filename">~/.passwdman/undoable</code>
-is a directory full of backups.</p><p><code class="filename">~/.passwdman/redoable</code>
+you a headache.</p></dd><dt><span class="term">verbose:off</span></dt><dd><p>Disable verbose mode; kill the mosquitoes.</p></dd><dt><span class="term">whistles</span></dt><dd><p>Show message about the bells and whistles.</p></dd></dl></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.skogpasswdman/passwords</code>
+is a XML file containing all passwords.</p><p><code class="filename">~/.skogpasswdman/honeypots</code>
+is a XML file containing all honeypots.</p><p><code class="filename">~/.skogpasswdman/undoable</code>
+is a directory full of backups.</p><p><code class="filename">~/.skogpasswdman/redoable</code>
 is a directory full of backups.</p></div><div class="refsect1" title="DIAGNOSIS"><a id="diagnosis"></a><h2>DIAGNOSIS</h2><p>All error messages are sent to standard output and are prefixed with an
 exclamation mark.</p><div class="variablelist"><dl><dt><span class="term">!syntax error</span></dt><dd><p>Bad speling or incorrect usage.
 The next line of output will be the offending input prefixed with an
-exclamation mark.</p></dd><dt><span class="term">!no meta</span></dt><dd><p>The command requires meta-data, but the password doesn't have any.</p></dd><dt><span class="term">!not found</span></dt><dd><p>Not found or index out of range</p></dd></dl></div></div><div class="refsect1" title="SEE ALSO"><a id="see_also"></a><h2>SEE ALSO</h2><p><span class="citerefentry"><span class="refentrytitle">passwdmanapi</span>(3)</span>,
+exclamation mark.</p></dd><dt><span class="term">!no meta</span></dt><dd><p>The command requires meta-data, but the password doesn't have any.</p></dd><dt><span class="term">!not found</span></dt><dd><p>Not found or index out of range</p></dd></dl></div></div><div class="refsect1" title="SEE ALSO"><a id="see_also"></a><h2>SEE ALSO</h2><p><span class="citerefentry"><span class="refentrytitle">skogpasswdmanapi</span>(3)</span>,
 <span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>,
 <span class="citerefentry"><span class="refentrytitle">urandom</span>(4)</span>,
-<span class="citerefentry"><span class="refentrytitle">passwdmanfiles</span>(5)</span></p></div><div class="refsect1" title="BUGS"><a id="bugs"></a><h2>BUGS</h2><p>Mosquitoes:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>If verbose mode is enabled the message
+<span class="citerefentry"><span class="refentrytitle">skogpasswdmanfiles</span>(5)</span></p></div><div class="refsect1" title="BUGS"><a id="bugs"></a><h2>BUGS</h2><p>Mosquitoes:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem" style="list-style-type: disc"><p>If verbose mode is enabled the message
 "#READY"
-is written too many times.</p></li></ul></div></div><div class="refsect1" title="SECURITY"><a id="security"></a><h2>SECURITY</h2><p><span class="command"><strong> passwdmancli </strong></span>
+is written too many times.</p></li></ul></div></div><div class="refsect1" title="SECURITY"><a id="security"></a><h2>SECURITY</h2><p><span class="command"><strong> skogpasswdmancli </strong></span>
 uses
 <span class="citerefentry"><span class="refentrytitle">random</span>(4)</span>
 or

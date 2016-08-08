@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>SKOGPASSWDMANFILES</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="SKOGPASSWDMANFILES"><a id="skogpasswdmanfiles5"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p>~/.skogpasswdman/passwords, ~/.skogpasswdman/honeypots, ~/.skogpasswdman/undoable/, ~/.skogpasswdman/redoable/, ~/.skogpasswdman/gui.conf —  data-files for skogpasswdman. </p></div><div class="refsect1" title="~/.skogpasswdman/passwords"><a id="pa_skogpasswdmanpasswords"></a><h2>~/.skogpasswdman/passwords</h2><p>The password list.
+It is an XML file, you are expected to understand an example of the file.</p><pre class="programlisting">
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;root magic="skogpasswdman" file="passwords" version="0.1"&gt;
+    &lt;!--The attribute 'magic' may not be changed.
+    The major version may not be greater than zero.
+    The attribute 'file' is used to make sure that it is the right file.——&gt;
+    &lt;passwd name="What the password is for" value="top_secret"/&gt;
+    &lt;passwd name="TEST" value="0123456789"&gt;
+        &lt;!--A 'passwd'-element is allowed to contain a 'meta'-element.——&gt;
+        &lt;meta type="10" minlength="4" maxlength="255"/&gt;
+        &lt;!--type == "human":
+                Human generated password.
+            type == "10":
+                Digits only.
+            type == "64":
+                Digits, big letters, small letters, underscores and
+                exclamation marks.
+            'minlength' is the minimal length required for the password.
+            'maxlength' is the maximal length allowed for the password.
+            
+            The meta-data is used when updating the password.——&gt;
+    &lt;/passwd&gt;
+&lt;/root&gt;
+</pre></div><div class="refsect1" title="~/.skogpasswdman/honeypots"><a id="pa_skogpasswdmanhoneypots"></a><h2>~/.skogpasswdman/honeypots</h2><p>The list of honeypots.
+The honeypots are fake-passwords, to help catch crackers.
+This too is a XML file.</p><pre class="programlisting">
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;root file="honeypots" magic="skogpasswdman" version="0.1"&gt;
+    &lt;!--look at ~/.skogpasswdman/passwords——&gt;
+    &lt;honeypot value="BadPassword"/&gt;
+    &lt;honeypot value="putme_injail_ifi_typethis"/&gt;
+&lt;/root&gt;
+</pre></div><div class="refsect1" title="~/.skogpasswdman/undoable"><a id="pa_skogpasswdmanundoable"></a><h2>~/.skogpasswdman/undoable</h2><p>Backups.
+The
+undo()
+function looks for the newest file and doesn't care about the filename.
+If
+"passwords"
+is in the filename, the file is a backup of 
+<code class="filename">~/.skogpasswdman/passwords</code>.
+If
+"honeypots"
+is in the filename, the file is a backups of
+<code class="filename">~/.skogpasswdman/honeypots</code>.
+It copies the current state to
+<code class="filename">~/.skogpasswdman/redoable</code>
+before it restores from the backup.</p></div><div class="refsect1" title="~/.skogpasswdman/redoable"><a id="pa_skogpasswdmanredoable"></a><h2>~/.skogpasswdman/redoable</h2><p>The opposite of
+<code class="filename">~/.skogpasswdman/undoable</code>.
+The function is
+redo().</p></div><div class="refsect1" title="~/.skogpasswdman/gui.conf"><a id="pa_skogpasswdmanguiconf"></a><h2>~/.skogpasswdman/gui.conf</h2><p>The GUI configuration file:</p><pre class="programlisting">
+#Configuration file for skogpasswdmangui.
+#If there is any number-sign in a line, the line is a comment.
+This is a comment. #
+#It knows about 'show_passwd', 'true' and 'false'.
+ #It is case sensitive.
+show_passwd false
+</pre></div><div class="refsect1" title="SEE ALSO"><a id="see_also"></a><h2>SEE ALSO</h2><p><span class="citerefentry"><span class="refentrytitle">skogpasswdmancli</span>(1)</span>,
+<span class="citerefentry"><span class="refentrytitle">skogpasswdmangui</span>(1)</span>
+and
+<span class="citerefentry"><span class="refentrytitle">skogpasswdmanapi</span>(3)</span>.</p></div><div class="refsect1" title="BUGS"><a id="bugs"></a><h2>BUGS</h2><p>The documentation.</p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
+Oskar Skog (oskar.skog.finland@gmail.com).</p><p>Please send patches, questions, bug reports and wish-lists.</p></div></div></body></html>

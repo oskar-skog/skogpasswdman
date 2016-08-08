@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Creator: (Apache FOP Version 1.0)
-%%CreationDate: 2014-01-18T13:28:27
+%%CreationDate: 2014-04-03T22:56:54
 %%LanguageLevel: 3
 %%Pages: (atend)
 %%BoundingBox: (atend)
@@ -496,101 +496,317 @@ BT
 (Name) show
 /Times-Roman 10 F
 1 0 0 -1 48 29.066 Tm
-(passwdmanrli ) show
-1 0 0 -1 106.05 29.066 Tm
+[(~/.skogpasswdman/passwords, ) -15752 (~/.skogpasswdman/honeypots, ) -15752 (~/.skogpasswdman/undoable/,)] TJ
+1 0 0 -1 48 41.066 Tm
+(~/.skogpasswdman/redoable/, ~/.skogpasswdman/gui.conf ) show
+1 0 0 -1 283.8 41.066 Tm
 (\227) show
-1 0 0 -1 116.05 29.066 Tm
-( Rogue-like user interface for passwdman) show
+1 0 0 -1 293.8 41.066 Tm
+( data-files for skogpasswdman.) show
 /Helvetica-Bold 17.28 F
-1 0 0 -1 0 57.519 Tm
-(KEYS) show
+1 0 0 -1 0 69.519 Tm
+(~/.skogpasswdman/passwords) show
 /Times-Roman 10 F
-1 0 0 -1 48 81.802 Tm
-(\225) show
-1 0 0 -1 58 81.802 Tm
-("WASD", "HJKL", "8462" and up, left, down, right.) show
-1 0 0 -1 48 103.802 Tm
-(\225) show
-1 0 0 -1 58 103.802 Tm
-(Space or enter to select.) show
-1 0 0 -1 48 125.802 Tm
-(\225) show
-1 0 0 -1 58 125.802 Tm
-(Escape to quit.) show
+1 0 0 -1 48 95.38 Tm
+(The password list. It is an XML file, you are expected to understand an example of the file.) show
+/Courier 10 F
+1 0 0 -1 48 130.988 Tm
+(<?xml version='1.0' encoding='UTF-8'?>) show
+1 0 0 -1 48 142.988 Tm
+(<root magic="skogpasswdman" file="passwords" version="0.1">) show
+1 0 0 -1 48 154.988 Tm
+(    <!--The attribute 'magic' may not be changed.) show
+1 0 0 -1 48 166.988 Tm
+(    The major version may not be greater than zero.) show
+1 0 0 -1 48 178.988 Tm
+(    The attribute 'file' is used to make sure that it is the right file.\227\227>) show
+1 0 0 -1 48 190.988 Tm
+(    <passwd name="What the password is for" value="top_secret"/>) show
+1 0 0 -1 48 202.988 Tm
+(    <passwd name="TEST" value="0123456789">) show
+1 0 0 -1 48 214.988 Tm
+(        <!--A 'passwd'-element is allowed to contain a 'meta'-element.\227\227>) show
+1 0 0 -1 48 226.988 Tm
+(        <meta type="10" minlength="4" maxlength="255"/>) show
+1 0 0 -1 48 238.988 Tm
+(        <!--type == "human":) show
+1 0 0 -1 48 250.988 Tm
+(                Human generated password.) show
+1 0 0 -1 48 262.988 Tm
+(            type == "10":) show
+1 0 0 -1 48 274.988 Tm
+(                Digits only.) show
+1 0 0 -1 48 286.988 Tm
+(            type == "64":) show
+1 0 0 -1 48 298.988 Tm
+(                Digits, big letters, small letters, underscores and) show
+1 0 0 -1 48 310.988 Tm
+(                exclamation marks.) show
+1 0 0 -1 48 322.988 Tm
+(            'minlength' is the minimal length required for the password.) show
+1 0 0 -1 48 334.988 Tm
+(            'maxlength' is the maximal length allowed for the password.) show
+1 0 0 -1 48 346.988 Tm
+(            ) show
+1 0 0 -1 48 358.988 Tm
+(            The meta-data is used when updating the password.\227\227>) show
+1 0 0 -1 48 370.988 Tm
+(    </passwd>) show
+1 0 0 -1 48 382.988 Tm
+(</root>) show
 /Helvetica-Bold 17.28 F
-1 0 0 -1 0 154.255 Tm
-(The change meta-data and update button) show
+1 0 0 -1 0 412.989 Tm
+(~/.skogpasswdman/honeypots) show
 /Times-Roman 10 F
-1 0 0 -1 48 178.538 Tm
-(\225) show
-1 0 0 -1 58 178.538 Tm
-[(If ) -227 (the ) -227 (password ) -227 (was ) -227 (created ) -227 (with ) -227 (the ) -227 ("Add ) -227 (existing" ) -227 (button: ) -227 (use ) -227 (the ) -227 ("change ) -227 (meta-data ) -227 
-(& ) -227 (update")] TJ
-1 0 0 -1 58 190.538 Tm
-(button.) show
-1 0 0 -1 48 212.538 Tm
-(\225) show
-1 0 0 -1 58 212.538 Tm
-(If the password was created with the "Create new" button: use the "update" button.) show
-1 0 0 -1 48 234.538 Tm
-(\225) show
-1 0 0 -1 58 234.538 Tm
-[(If ) -796 (the ) -796 (minimal ) -796 (required ) -796 (length ) -796 (for ) -796 (the ) -796 (password ) -796 (or ) -796 (the ) -796 (maximal ) -796 (allowed ) -796 (length ) -796 (or ) -796 (the ) -796 (allowable)] TJ
-1 0 0 -1 58 246.538 Tm
-(characters have changed: use the "change meta-data & update" button.) show
+1 0 0 -1 48 438.85 Tm
+[(The ) -261 (list ) -261 (of ) -261 (honeypots. ) -261 (The ) -261 (honeypots ) -261 (are ) -261 (fake-passwords, ) -261 (to ) -261 (help ) -261 (catch ) -261 (crackers. ) -261 (This ) -261 (too ) -261 
+(is ) -261 (a ) -261 (XML)] TJ
+1 0 0 -1 48 450.85 Tm
+(file.) show
+/Courier 10 F
+1 0 0 -1 48 486.458 Tm
+(<?xml version='1.0' encoding='UTF-8'?>) show
+1 0 0 -1 48 498.458 Tm
+(<root file="honeypots" magic="skogpasswdman" version="0.1">) show
+1 0 0 -1 48 510.458 Tm
+(    <!--look at ~/.skogpasswdman/passwords\227\227>) show
+1 0 0 -1 48 522.458 Tm
+(    <honeypot value="BadPassword"/>) show
+1 0 0 -1 48 534.458 Tm
+(    <honeypot value="putme_injail_ifi_typethis"/>) show
+1 0 0 -1 48 546.458 Tm
+(</root>) show
 /Helvetica-Bold 17.28 F
-1 0 0 -1 0 274.991 Tm
-(Difference between Add existing and Create new) show
+1 0 0 -1 0 576.459 Tm
+(~/.skogpasswdman/undoable) show
 /Times-Roman 10 F
-1 0 0 -1 48 299.274 Tm
-(Click on those buttons and see what happens. They are not dangerous.) show
-/Helvetica-Bold 17.28 F
-1 0 0 -1 0 327.727 Tm
-(Undo Redo) show
+1 0 0 -1 48 602.32 Tm
+[(Backups. ) -120 (The ) -120 (undo\(\) ) -120 (function ) -120 (looks ) -120 (for ) -120 (the ) -120 (newest ) -120 (file ) -120 (and ) -120 (doesn't ) -120 (care ) -120 (about ) -120 (the ) -120 
+(filename. ) -120 (If ) -120 ("pass-)] TJ
+1 0 0 -1 48 614.32 Tm
+[(words" ) -555 (is ) -555 (in ) -555 (the ) -555 (filename, ) -555 (the ) -555 (file ) -555 (is ) -555 (a ) -555 (backup ) -555 (of ) -555 ] TJ
+/Courier 10 F
+1 0 0 -1 248.155 614.32 Tm
+(~/.skogpasswdman/passwords) show
 /Times-Roman 10 F
-1 0 0 -1 48 352.01 Tm
-[(The ) -42 ("Undo" ) -42 (and ) -42 ("Redo" ) -42 (buttons ) -42 (undoes/redoes ) -42 (the ) -42 (LATEST ) -42 (change ) -42 (in ) -42 (the ) -42 (password ) -42 (tab ) -42 (or ) -42 (the ) -42 (fake-)] TJ
-1 0 0 -1 48 364.01 Tm
-(password tab, independent of which tab you're currently in.) show
-/Helvetica-Bold 17.28 F
-1 0 0 -1 0 392.463 Tm
-(fake-passwords/honey pots) show
+1 0 0 -1 404.155 614.32 Tm
+[(. ) -555 (If ) -555 ("honey-)] TJ
+1 0 0 -1 48 626.32 Tm
+[(pots" ) -230 (is ) -230 (in ) -230 (the ) -230 (filename, ) -230 (the ) -230 (file ) -230 (is ) -230 (a ) -230 (backups ) -230 (of ) -230 ] TJ
+/Courier 10 F
+1 0 0 -1 240.703 626.32 Tm
+(~/.skogpasswdman/honeypots) show
 /Times-Roman 10 F
-1 0 0 -1 48 416.746 Tm
-[(The ) 60 (fake-passwords/honey ) 60 (pots ) 60 (are ) 60 (intended ) 60 (to ) 60 (be ) 60 (used ) 60 (as ) 60 (traps ) 60 (to ) 60 (catch ) 60 (crackers. ) 60 (The ) 60 ("pick" ) 60 (buttons)] TJ
-1 0 0 -1 48 428.746 Tm
-[(picks ) -708 (a ) -708 (random ) -708 (fake-password, ) -708 (independent ) -708 (of ) -708 (what ) -708 (you ) -708 (have ) -708 (selected. ) -708 (You ) -708 (should ) -708 (add ) -708 (fake-pass-)] TJ
-1 0 0 -1 48 440.746 Tm
-(words such as "password" and "drowssap".) show
+1 0 0 -1 396.703 626.32 Tm
+[(. ) -230 (It ) -230 (copies ) -230 (the)] TJ
+1 0 0 -1 48 638.32 Tm
+(current state to ) show
+/Courier 10 F
+1 0 0 -1 109.93 638.32 Tm
+(~/.skogpasswdman/redoable) show
+/Times-Roman 10 F
+1 0 0 -1 259.93 638.32 Tm
+( before it restores from the backup.) show
 /Helvetica-Bold 17.28 F
-1 0 0 -1 0 469.199 Tm
+1 0 0 -1 0 668.351 Tm
+(~/.skogpasswdman/redoable) show
+/Times-Roman 10 F
+1 0 0 -1 48 694.212 Tm
+(The opposite of ) show
+/Courier 10 F
+1 0 0 -1 113.27 694.212 Tm
+(~/.skogpasswdman/undoable) show
+/Times-Roman 10 F
+1 0 0 -1 263.27 694.212 Tm
+(. The function is redo\(\).) show
+ET
+GR
+GR
+showpage
+%%PageTrailer
+%%PageResources: font Courier
+%%+ font Helvetica-Bold
+%%+ font Times-Roman
+%%+ procset (Apache XML Graphics Std ProcSet) 1.1 0
+%%Page: 2 2
+%%PageBoundingBox: 0 0 595 842
+%%PageHiResBoundingBox: 0 0 595.275 841.889
+%%PageResources: (atend)
+%FOPSimplePageMaster: body-odd
+%%BeginPageSetup
+%FOPBeginSetPageDevice
+<<
+/PageSize [595 842]
+/ImagingBBox null
+>> setpagedevice
+%FOPEndSetPageDevice
+[1 0 0 -1 0 841.889] CT
+%%EndPageSetup
+GS
+[1 0 0 1 72 36] CT
+GS
+150.425 14.25 M
+150.425 14.5 lineto
+0 14.5 lineto
+0 14.25 lineto
+0 14 lineto
+150.425 14 lineto
+cp
+clip newpath
+0.5 LW
+0 14.25 M 150.425 14.25 lineto stroke newpath
+GR
+GS
+[1 0 0 1 150.425 0] CT
+GS
+150.425 14.25 M
+150.425 14.5 lineto
+0 14.5 lineto
+0 14.25 lineto
+0 14 lineto
+150.425 14 lineto
+cp
+clip newpath
+0.5 LW
+0 14.25 M 150.425 14.25 lineto stroke newpath
+GR
+GS
+BT
+/Times-Roman 10 F
+1 0 0 -1 16.322 8.33 Tm
+(SKOGPASSWDMANFILES) show
+ET
+GR
+GR
+GS
+[1 0 0 1 300.85 0] CT
+GS
+150.425 14.25 M
+150.425 14.5 lineto
+0 14.5 lineto
+0 14.25 lineto
+0 14 lineto
+150.425 14 lineto
+cp
+clip newpath
+0.5 LW
+0 14.25 M 150.425 14.25 lineto stroke newpath
+GR
+GR
+GR
+GS
+[1 0 0 1 72 777.089] CT
+GS
+[1 0 0 1 0 14.3] CT
+GS
+0 0.25 M
+0 0 lineto
+150.425 0 lineto
+150.425 0.25 lineto
+150.425 0.5 lineto
+0 0.5 lineto
+cp
+clip newpath
+0.5 LW
+0 0.25 M 150.425 0.25 lineto stroke newpath
+GR
+GR
+GS
+[1 0 0 1 150.425 14.3] CT
+GS
+0 0.25 M
+0 0 lineto
+150.425 0 lineto
+150.425 0.25 lineto
+150.425 0.5 lineto
+0 0.5 lineto
+cp
+clip newpath
+0.5 LW
+0 0.25 M 150.425 0.25 lineto stroke newpath
+GR
+GS
+BT
+/Times-Roman 10 F
+1 0 0 -1 72.712 10.83 Tm
+(2) show
+ET
+GR
+GR
+GS
+[1 0 0 1 300.85 14.3] CT
+GS
+0 0.25 M
+0 0 lineto
+150.425 0 lineto
+150.425 0.25 lineto
+150.425 0.5 lineto
+0 0.5 lineto
+cp
+clip newpath
+0.5 LW
+0 0.25 M 150.425 0.25 lineto stroke newpath
+GR
+GR
+GR
+GS
+[1 0 0 1 72 72] CT
+GS
+BT
+/Helvetica-Bold 17.28 F
+1 0 0 -1 0 14.783 Tm
+(~/.skogpasswdman/gui.conf) show
+/Times-Roman 10 F
+1 0 0 -1 48 39.066 Tm
+(The GUI configuration file:) show
+/Courier 10 F
+1 0 0 -1 48 73.096 Tm
+(#Configuration file for skogpasswdmangui.) show
+1 0 0 -1 48 85.096 Tm
+(#If there is any number-sign in a line, the line is a comment.) show
+1 0 0 -1 48 97.096 Tm
+(This is a comment. #) show
+1 0 0 -1 48 109.096 Tm
+(#It knows about 'show_passwd', 'true' and 'false'.) show
+1 0 0 -1 48 121.096 Tm
+( #It is case sensitive.) show
+1 0 0 -1 48 133.096 Tm
+(show_passwd false) show
+/Helvetica-Bold 17.28 F
+1 0 0 -1 0 161.519 Tm
+(SEE ALSO) show
+/Times-Roman 10 F
+1 0 0 -1 48 185.802 Tm
+(skogpasswdmancli\(1\), skogpasswdmangui\(1\) and skogpasswdmanapi\(3\).) show
+/Helvetica-Bold 17.28 F
+1 0 0 -1 0 214.255 Tm
 (BUGS) show
 /Times-Roman 10 F
-1 0 0 -1 48 493.482 Tm
-(\225) show
-1 0 0 -1 58 493.482 Tm
-(Very little tested.) show
+1 0 0 -1 48 238.538 Tm
+(The documentation.) show
 /Helvetica-Bold 17.28 F
-1 0 0 -1 0 521.935 Tm
+1 0 0 -1 0 266.991 Tm
 (AUTHOR) show
 /Times-Roman 10 F
-1 0 0 -1 48 546.218 Tm
+1 0 0 -1 48 291.274 Tm
 (Written by Oskar Skog \(oskar.skog.finland@gmail.com\).) show
-1 0 0 -1 48 568.218 Tm
+1 0 0 -1 48 313.274 Tm
 (Please send patches, questions, bug reports and wish-lists.) show
 ET
 GR
 GR
 showpage
 %%PageTrailer
-%%PageResources: font Helvetica-Bold
+%%PageResources: font Courier
+%%+ font Helvetica-Bold
 %%+ font Times-Roman
 %%+ procset (Apache XML Graphics Std ProcSet) 1.1 0
 %%Trailer
-%%Pages: 1
+%%Pages: 2
 %%BoundingBox: 0 0 596 842
 %%HiResBoundingBox: 0 0 595.275 841.889
-%%DocumentNeededResources: font Helvetica-Bold
+%%DocumentNeededResources: font Courier
+%%+ font Helvetica-Bold
 %%+ font Times-Roman
 %%DocumentSuppliedResources: encoding WinAnsiEncoding
 %%+ procset (Apache FOP Std ProcSet) 1.0 0

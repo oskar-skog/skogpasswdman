@@ -26,7 +26,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
 
 __doc__ = """
-passwdmanapi - functions and classes used by passwdman
+skogpasswdmanapi - functions and classes used by skogpasswdman
 
     Python 2/3 compatibility functions
     ----------------------------------
@@ -346,7 +346,7 @@ def unquote(x, esc=False):
     \n\t\b\e    Does not work.
     
     >>> #This is Python 3.x
-    >>> import passwdmanapi as api
+    >>> import skogpasswdmanapi as api
     >>> api.unquote('\t"Hello, world!"  ')
     'Hello, world!'
     >>> api.unquote('        "Good bye cruel world!')
@@ -480,7 +480,7 @@ class progress_bar():
         `start` and `stop` is where local-0% and local-100% is in the
         parent.
         
-        >>> import passwdmanapi as api
+        >>> import skogpasswdmanapi as api
         >>> def simple_progress(percent, data):
         ...     print(percent)
         ... 
@@ -929,7 +929,7 @@ class common_data():
     self.xmltree                `xmlfile` is loaded into this.
     self.xmlroot                The <root> tag.
     self.make_backups           bool; will `writexml` generate a backup
-                                in '~/.passwdman/undoable/'.
+                                in '~/.skogpasswdman/undoable/'.
     
     Methods
     -------
@@ -945,7 +945,7 @@ class common_data():
         creates variables they both have. It loads them from the
         path xmlfile -> self.xmltree -> self.xmlroot.
         """
-        #    ~/.passwdman/passwords or ~/.passwdman/honeypots
+        #    ~/.skogpasswdman/passwords or ~/.skogpasswdman/honeypots
         assert is_anystr(xmlfile)
         self.data = []
         self.index = 0
@@ -962,7 +962,7 @@ class common_data():
             raise err_loaderr(
                   "root element is not 'root' in '{0}'".format(xmlfile))
         # Magic.
-        if self.xmlroot.attrib["magic"] != "passwdman":
+        if not self.xmlroot.attrib["magic"] in ("skogpasswdman", "passwdman"):
             raise err_loaderr("incorrect magic in '{0}'".format(xmlfile))
         # Version.
         version = self.xmlroot.attrib["version"].split('.', 2)
@@ -1010,7 +1010,7 @@ class common_data():
         Example (from passwd.remove)
         ----------------------------
         
-        common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
+        common_data.remove(self, x, "~/.skogpasswdman/passwords", "passwd",
                                                         "name", is_numstring)
         
         """
@@ -1053,7 +1053,7 @@ class common_data():
         """writexml(self, xmlfile)
         
         Write the XML tree (self.xmltree) to `xmlfile`.
-        It will add a backup to '~/.passwdman/undoable/' if
+        It will add a backup to '~/.skogpasswdman/undoable/' if
         `self.make_backups` is True."""
         assert is_anystr(xmlfile)
         self.xmlroot.text = "\n  "      # Make it look better.
@@ -1061,7 +1061,7 @@ class common_data():
         if self.make_backups:
             # Make backup.
             os.rename(ope(xmlfile),
-                    os.path.join(ope("~/.passwdman/undoable"),
+                    os.path.join(ope("~/.skogpasswdman/undoable"),
                             os.path.basename(xmlfile) + '-' + time.ctime()))
             if pb is not None:
                 pb.progress(50.0)
@@ -1079,7 +1079,7 @@ class common_data():
         del self.xmlroot
         del self.xmltree
     def __repr__(self):
-        return "<passwdmanapi.common_data object with id {0}>".format(
+        return "<skogpasswdmanapi.common_data object with id {0}>".format(
                                                                 id(self))
 
 class passwd(common_data):
@@ -1130,7 +1130,7 @@ class passwd(common_data):
     writexml()  Not so well hidden method inherited from common_data.
     """
     def __init__(self, backups=True):
-        common_data.__init__(self, "~/.passwdman/passwords", backups)
+        common_data.__init__(self, "~/.skogpasswdman/passwords", backups)
         for passwd_element in self.xmlroot.findall("passwd"): # Get the data.
             meta_element = passwd_element.find("meta")
             # Got the tags/elements.
@@ -1220,7 +1220,7 @@ class passwd(common_data):
         meta_element.set("maxlength", m_maxlength)
         
         pb.progress(95.0)
-        common_data.writexml(self, "~/.passwdman/passwords")
+        common_data.writexml(self, "~/.skogpasswdman/passwords")
         pb.progress(100.0)
     def add_nometa(self, name, value):
         """add_nometa(self, name, value)
@@ -1245,7 +1245,7 @@ class passwd(common_data):
         passwd_element.tail = "\n  "
         passwd_element.set("name", name) #Attributes.
         passwd_element.set("value", value)
-        common_data.writexml(self, "~/.passwdman/passwords")
+        common_data.writexml(self, "~/.skogpasswdman/passwords")
     def remove(self, x, is_numstring=False):
         """remove(self, x, is_numstring=False)
         Remove the password `x`.
@@ -1255,7 +1255,7 @@ class passwd(common_data):
         Set is_numstring to True if x is a string containing only
         digits, but is NOT an index!
         """
-        common_data.remove(self, x, "~/.passwdman/passwords", "passwd",
+        common_data.remove(self, x, "~/.skogpasswdman/passwords", "passwd",
                                                     "name", is_numstring)
     def mkindex(self, x, is_numstring=False):
         """mkindex(self, x, is_numstring=False)
@@ -1309,7 +1309,7 @@ class passwd(common_data):
                 break
             counter += 1
             pb.progress(90.0  +  (counter+1.0) / (index+1.0) * 5.0)
-        common_data.writexml(self, "~/.passwdman/passwords",
+        common_data.writexml(self, "~/.skogpasswdman/passwords",
                                                     pb.minibar(95.0, 100.0))
     def update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None):
         """update_meta(self, index, m_type, m_minlength, m_maxlength)
@@ -1348,10 +1348,10 @@ class passwd(common_data):
                 break
             counter += 1
             pb.progress(90.0  +  (counter+1.0) / (index+1.0) * 5.0)
-        common_data.writexml(self, "~/.passwdman/passwords",
+        common_data.writexml(self, "~/.skogpasswdman/passwords",
                                                     pb.minibar(95.0, 100.0))
     def __repr__(self):
-        return "<passwdmanapi.passwd object with id {0}>".format(id(self))
+        return "<skogpasswdmanapi.passwd object with id {0}>".format(id(self))
 
 class honeypot(common_data):
     """honeypot(common_data) - The honeypots.
@@ -1379,11 +1379,11 @@ class honeypot(common_data):
     """
     def __init__(self, backups=True):
         """__init__(self, backups=True)
-        Load ~/.passwdman/honeypots -> self.xmltree 
+        Load ~/.skogpasswdman/honeypots -> self.xmltree 
         -> self.xmlroot -> self.data[].
         self.data is a list of strings.
         """
-        common_data.__init__(self, "~/.passwdman/honeypots", backups)
+        common_data.__init__(self, "~/.skogpasswdman/honeypots", backups)
         for honeypot_element in self.xmlroot.findall("honeypot"):
             self.data.append(honeypot_element.attrib["value"])
     def add(self, value):
@@ -1397,13 +1397,13 @@ class honeypot(common_data):
         honeypot_element = XML.SubElement(self.xmlroot, "honeypot")
         honeypot_element.tail = "\n  " # Make it look better.
         honeypot_element.set("value", value)
-        common_data.writexml(self, "~/.passwdman/honeypots")
+        common_data.writexml(self, "~/.skogpasswdman/honeypots")
     def remove(self, x, is_numstring=False):
         """remove(self, x, is_numstring=False) - Remove an existing honey pot.
         x is an integer used as index for self.data xor a string.
         Set is_numstring to True if x is NOT an index!
         """
-        common_data.remove(self, x, "~/.passwdman/honeypots", "honeypot",
+        common_data.remove(self, x, "~/.skogpasswdman/honeypots", "honeypot",
                            "value", is_numstring)
     assert not (_OLD_PICK_ and _NEW_PICK_), "Which pick?"
     if _OLD_PICK_:
@@ -1526,18 +1526,18 @@ class honeypot(common_data):
         # Return.
         return arg['head'] + arg['sep'].join(escaped) + arg['tail']
     def __repr__(self):
-        return "<passwdmanapi.honeypot object with id {0}>".format(id(self))
+        return "<skogpasswdmanapi.honeypot object with id {0}>".format(id(self))
 
 def _unredo(passwdobj, honeypotobj, undo_unodable, undo_redoable):
     """_unredo(passwdobj=None, honeypotobj=None,
                                         undo_unodable, undo_redoable)
     `passwdobj` and `honeypotobj` are the passwd and honeypot OBJECTS.
     
-    Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
+    Moves '~/.skogpasswdman/passwords' or '~/.skogpasswdman/honeypots' to
     `undo_redoable`.
     
     Moves the newest file from `undo_unodable` to
-    '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
+    '~/.skogpasswdman/passwords' or '~/.skogpasswdman/honeypots'.
     
     """
     if not isinstance(passwdobj, passwd):
@@ -1555,49 +1555,49 @@ def _unredo(passwdobj, honeypotobj, undo_unodable, undo_redoable):
     del birth
     # Filename is now the name of the file.
     if "passwords" in filename:
-        os.rename(ope("~/.passwdman/passwords"),
+        os.rename(ope("~/.skogpasswdman/passwords"),
             os.path.join(ope(undo_redoable),
                 "passwords" + '-' + time.ctime())) # Copy to redoable.
         passwdobj.__del__()
-        os.rename(filename, ope("~/.passwdman/passwords"))
+        os.rename(filename, ope("~/.skogpasswdman/passwords"))
         passwdobj.__init__() # Reload the data structure.
     elif "honeypots" in filename:
-        os.rename(ope("~/.passwdman/honeypots"),
+        os.rename(ope("~/.skogpasswdman/honeypots"),
             os.path.join(ope(undo_redoable),
                 "honeypots" + '-' + time.ctime())) # Copy to redoable.
         honeypotobj.__del__()
-        os.rename(filename, ope("~/.passwdman/honeypots"))
+        os.rename(filename, ope("~/.skogpasswdman/honeypots"))
         honeypotobj.__init__() # Reload the data structure.
     else:
-        logging.error("function undo in module passwdmanapi:" +
+        logging.error("function undo in module skogpasswdmanapi:" +
                       "confused by the file '{0}'".format(filename))
 
 def undo(passwdobj=None, honeypotobj=None):
     """undo(passwdobj=None, honeypotobj=None)
     It's arguments are the passwd and honeypot OBJECTS.
     
-    Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
-    '~/.passwdman/redoable/*'.
+    Moves '~/.skogpasswdman/passwords' or '~/.skogpasswdman/honeypots' to
+    '~/.skogpasswdman/redoable/*'.
     
-    Moves the newest file from '~/.passwdman/undoable/*' to
-    '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
+    Moves the newest file from '~/.skogpasswdman/undoable/*' to
+    '~/.skogpasswdman/passwords' or '~/.skogpasswdman/honeypots'.
 
     """
-    _unredo(passwdobj, honeypotobj, "~/.passwdman/undoable",
-                                            "~/.passwdman/redoable")
+    _unredo(passwdobj, honeypotobj, "~/.skogpasswdman/undoable",
+                                            "~/.skogpasswdman/redoable")
 
 def redo(passwdobj=None, honeypotobj=None):
     """redo(passwdobj=None, honeypotobj=None)
     It's arguments are the passwd and honeypot OBJECTS.
     
-    Moves '~/.passwdman/passwords' or '~/.passwdman/honeypots' to
-    '~/.passwdman/undoable/*'.
+    Moves '~/.skogpasswdman/passwords' or '~/.skogpasswdman/honeypots' to
+    '~/.skogpasswdman/undoable/*'.
     
-    Moves the newest file from '~/.passwdman/redoable/*' to
-    '~/.passwdman/passwords' or '~/.passwdman/honeypots'.
+    Moves the newest file from '~/.skogpasswdman/redoable/*' to
+    '~/.skogpasswdman/passwords' or '~/.skogpasswdman/honeypots'.
     """
-    _unredo(passwdobj, honeypotobj, "~/.passwdman/redoable",
-                                            "~/.passwdman/undoable")
+    _unredo(passwdobj, honeypotobj, "~/.skogpasswdman/redoable",
+                                            "~/.skogpasswdman/undoable")
 
 # Run this when imported.
 assert __name__ != "__main__"
@@ -1606,7 +1606,7 @@ def ckmkdir(x):
     """ckmkdir(x) - make sure that the directory `x` exists."""
     try:
         os.stat(ope(x))
-    except:
+    except OSError:
         os.mkdir(ope(x), 0o700)
 def ckmkfile(x, y):
     """ckmkfile(x, y) - make sure that the file `x` exists.
@@ -1614,29 +1614,41 @@ def ckmkfile(x, y):
     """
     try:
         os.stat(ope(x))
-    except:
+    except OSError:
         f = open(ope(x), "w")
         f.write(y)
         f.close()
 # Make sure all the needed files exist.
-ckmkdir("~/.passwdman")
-ckmkdir("~/.passwdman/undoable")
-ckmkdir("~/.passwdman/redoable")
-ckmkfile("~/.passwdman/passwords", """<?xml version='1.0' encoding='UTF-8'?>
-<root file="passwords" magic="passwdman" version="0.1">
+# ckmkdir("~/.skogpasswdman")
+try:
+    os.stat(ope('~/.skogpasswdman'))
+except OSError:
+    try:
+        os.stat(ope('~/.passwdman'))    # Check for old name.
+        try:
+            os.symlink(ope('~/.passwdman'), ope('~/.skogpasswdman'))
+        except OSError as x:
+            raise Exception('OSError', x)       # Oops
+    except OSError:
+        os.mkdir(ope('~/.skogpasswdman'), 0o700)        # New install.
+    
+ckmkdir("~/.skogpasswdman/undoable")
+ckmkdir("~/.skogpasswdman/redoable")
+ckmkfile("~/.skogpasswdman/passwords", """<?xml version='1.0' encoding='UTF-8'?>
+<root file="passwords" magic="skogpasswdman" version="0.1">
 </root>
 """)
-ckmkfile("~/.passwdman/honeypots", """<?xml version='1.0' encoding='UTF-8'?>
-<root file="honeypots" magic="passwdman" version="0.1">
+ckmkfile("~/.skogpasswdman/honeypots", """<?xml version='1.0' encoding='UTF-8'?>
+<root file="honeypots" magic="skogpasswdman" version="0.1">
 </root>
 """)
 # Simple exclusive lock for all the files.
-ckmkfile("~/.passwdman/lock", "")
-f = open(ope("~/.passwdman/lock"), 'w')
+ckmkfile("~/.skogpasswdman/lock", "")
+f = open(ope("~/.skogpasswdman/lock"), 'w')
 try:
     fcntl.lockf(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
 except IOError:
-    raise err_loaderr('Another passwdman* is running!')
+    raise err_loaderr('Another skogpasswdman* is running!')
 
 try:
     locale.setlocale(locale.LC_ALL, '')

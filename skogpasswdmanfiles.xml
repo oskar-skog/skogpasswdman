@@ -2,7 +2,7 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
-<refentry id='passwdmanfiles5'>
+<refentry id='skogpasswdmanfiles5'>
 <!-- Copyright (c) 2013, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
@@ -34,22 +34,22 @@ POSSIBILITY OF SUCH DAMAGE. -->
 
 
 <refmeta>
-<refentrytitle>PASSWDMANFILES</refentrytitle>
+<refentrytitle>SKOGPASSWDMANFILES</refentrytitle>
 <manvolnum>5</manvolnum>
 </refmeta>
 
 <refnamediv id='purpose'>
-<refname>~/.passwdman/passwords, ~/.passwdman/honeypots, ~/.passwdman/undoable/, ~/.passwdman/redoable/, ~/.passwdman/gui.conf</refname>
-<refpurpose> data-files for passwdman. </refpurpose>
+<refname>~/.skogpasswdman/passwords, ~/.skogpasswdman/honeypots, ~/.skogpasswdman/undoable/, ~/.skogpasswdman/redoable/, ~/.skogpasswdman/gui.conf</refname>
+<refpurpose> data-files for skogpasswdman. </refpurpose>
 </refnamediv>
 <!-- body begins here -->
 
-<refsect1 id='pa_passwdmanpasswords'><title>~/.passwdman/passwords</title>
+<refsect1 id='pa_skogpasswdmanpasswords'><title>~/.skogpasswdman/passwords</title>
 <para>The password list.
 It is an XML file, you are expected to understand an example of the file.</para>
 <programlisting remap='Bd'>
 &lt;?xml version='1.0' encoding='UTF-8'?&gt;
-&lt;root magic="passwdman" file="passwords" version="0.1"&gt;
+&lt;root magic="skogpasswdman" file="passwords" version="0.1"&gt;
     &lt;!--The attribute 'magic' may not be changed.
     The major version may not be greater than zero.
     The attribute 'file' is used to make sure that it is the right file.&mdash;&mdash;&gt;
@@ -73,21 +73,21 @@ It is an XML file, you are expected to understand an example of the file.</para>
 </programlisting> <!-- remap='Ed (block)' -->
 </refsect1>
 
-<refsect1 id='pa_passwdmanhoneypots'><title>~/.passwdman/honeypots</title>
+<refsect1 id='pa_skogpasswdmanhoneypots'><title>~/.skogpasswdman/honeypots</title>
 <para>The list of honeypots.
 The honeypots are fake-passwords, to help catch crackers.
 This too is a XML file.</para>
 <programlisting remap='Bd'>
 &lt;?xml version='1.0' encoding='UTF-8'?&gt;
-&lt;root file="honeypots" magic="passwdman" version="0.1"&gt;
-    &lt;!--look at ~/.passwdman/passwords&mdash;&mdash;&gt;
+&lt;root file="honeypots" magic="skogpasswdman" version="0.1"&gt;
+    &lt;!--look at ~/.skogpasswdman/passwords&mdash;&mdash;&gt;
     &lt;honeypot value="BadPassword"/&gt;
     &lt;honeypot value="putme_injail_ifi_typethis"/&gt;
 &lt;/root&gt;
 </programlisting> <!-- remap='Ed (block)' -->
 </refsect1>
 
-<refsect1 id='pa_passwdmanundoable'><title>~/.passwdman/undoable</title>
+<refsect1 id='pa_skogpasswdmanundoable'><title>~/.skogpasswdman/undoable</title>
 <para>Backups.
 The
 undo()
@@ -95,27 +95,27 @@ function looks for the newest file and doesn't care about the filename.
 If
 "passwords"
 is in the filename, the file is a backup of 
-<filename>~/.passwdman/passwords</filename>.
+<filename>~/.skogpasswdman/passwords</filename>.
 If
 "honeypots"
 is in the filename, the file is a backups of
-<filename>~/.passwdman/honeypots</filename>.
+<filename>~/.skogpasswdman/honeypots</filename>.
 It copies the current state to
-<filename>~/.passwdman/redoable</filename>
+<filename>~/.skogpasswdman/redoable</filename>
 before it restores from the backup.</para>
 </refsect1>
 
-<refsect1 id='pa_passwdmanredoable'><title>~/.passwdman/redoable</title>
+<refsect1 id='pa_skogpasswdmanredoable'><title>~/.skogpasswdman/redoable</title>
 <para>The opposite of
-<filename>~/.passwdman/undoable</filename>.
+<filename>~/.skogpasswdman/undoable</filename>.
 The function is
 redo().</para>
 </refsect1>
 
-<refsect1 id='pa_passwdmanguiconf'><title>~/.passwdman/gui.conf</title>
+<refsect1 id='pa_skogpasswdmanguiconf'><title>~/.skogpasswdman/gui.conf</title>
 <para>The GUI configuration file:</para>
 <programlisting remap='Bd'>
-#Configuration file for passwdmangui.
+#Configuration file for skogpasswdmangui.
 #If there is any number-sign in a line, the line is a comment.
 This is a comment. #
 #It knows about 'show_passwd', 'true' and 'false'.
@@ -125,10 +125,10 @@ show_passwd false
 </refsect1>
 
 <refsect1 id='see_also'><title>SEE ALSO</title>
-<para><citerefentry><refentrytitle>passwdmancli</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
-<citerefentry><refentrytitle>passwdmangui</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+<para><citerefentry><refentrytitle>skogpasswdmancli</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>skogpasswdmangui</refentrytitle><manvolnum>1</manvolnum></citerefentry>
 and
-<citerefentry><refentrytitle>passwdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>.</para>
+<citerefentry><refentrytitle>skogpasswdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>.</para>
 </refsect1>
 
 <refsect1 id='bugs'><title>BUGS</title>

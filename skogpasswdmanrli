@@ -24,7 +24,7 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
-import passwdmanapi as api
+import skogpasswdmanapi as api
 import curses
 import math
 import os
@@ -36,7 +36,7 @@ import traceback
 
 __doc__ = """
 
-import passwdmanapi as api
+import skogpasswdmanapi as api
 
 h, p = api.honeypot(), api.passwd()
 code = locale.getpreferredencoding()
@@ -1135,7 +1135,7 @@ def zxcv_handler(x):
         old_dir = os.getcwd()
         os.chdir(os.path.expanduser("~"))
         tarball = tarfile.open(os.path.expanduser(tarball_name), "w:gz")
-        tarball.add(".passwdman")
+        tarball.add(".skogpasswdman")
         tarball.close()
         os.chdir(old_dir)
 
@@ -1386,7 +1386,7 @@ you have selected. You should add fake-passwords such as "password" and
 "drowssap".
 """
     about_text = """
-passwdman is a program for remembering and updating passwords. It also
+skogpasswdman is a program for remembering and updating passwords. It also
 remembers honey-pots (fake-passwords to catch crackers). It has infinite
 undo/redo.
  

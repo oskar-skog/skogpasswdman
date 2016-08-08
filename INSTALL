@@ -39,10 +39,12 @@ Variables/options (for configure):
     --disable-gui
     --disable-guidoc
     --disable-cli
-    --disable-techdoc         passwdmanfiles(5), passwdmanapi(1)
+    --disable-techdoc   skogpasswdmanfiles(5), skogpasswdmanapi(1)
     --disable-rli
     --disable-rlidoc
     --halt              do nothing.
     --update            See 'configure.2'.
     --help              list things that are not used.
     --verbose
+    --symlinks          old names
+    --no-symlinks

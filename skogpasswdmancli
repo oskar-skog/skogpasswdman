@@ -27,7 +27,7 @@ copywrong = (
 #POSSIBILITY OF SUCH DAMAGE.
 """)
 
-import passwdmanapi as api
+import skogpasswdmanapi as api
 import sys
 import logging
 import time
@@ -43,9 +43,9 @@ import pdb
 __doc__ = """The functions show_help(), passwd_help(), honeypot_help(),
 bells_and_whistles() and bugs() takes no arguments and prints their
 __doc__-string to standard output.
-See passwdmancli(1) to understand the interface.
+See skogpasswdmancli(1) to understand the interface.
 Some global stuff:
-    import passwdmanapi as api
+    import skogpasswdmanapi as api
     p, h = api.passwd(), api.honeypot()
     verbose             verbose mode (command) (bool)
     interactive         interactive mode (command line flag) (bool)
@@ -107,7 +107,7 @@ def escape(s):
 
 def show_help():
     """#HELP MESSAGE
-#passwdmancli uses colon separated fields as input.  Everything inside angle
+#skogpasswdmancli uses colon separated fields as input.  Everything inside angle
 #brackets <>, is intended to be expanded in your brain.
 #It tries to be more grepable by making the first letter in error messages be
 #an exclamation mark and the first letter in human-friendly messages be a
@@ -920,12 +920,12 @@ if __name__ == "__main__":
         if x in ("-B", "--single-backup"):
             del p
             del h
-            shutil.copy(os.path.expanduser("~/.passwdman/passwords"),
-                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+            shutil.copy(os.path.expanduser("~/.skogpasswdman/passwords"),
+                os.path.join(os.path.expanduser("~/.skogpasswdman/undoable"),
                 "passwords" + '-' + time.ctime()))
             time.sleep(1)
-            shutil.copy(os.path.expanduser("~/.passwdman/honeypots"),
-                os.path.join(os.path.expanduser("~/.passwdman/undoable"),
+            shutil.copy(os.path.expanduser("~/.skogpasswdman/honeypots"),
+                os.path.join(os.path.expanduser("~/.skogpasswdman/undoable"),
                 "honeypots" + '-' + time.ctime()))
             p = api.passwd(False)
             h = api.honeypot(False)

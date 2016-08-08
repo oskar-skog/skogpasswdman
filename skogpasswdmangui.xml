@@ -2,7 +2,7 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
-<refentry id='passwdmangui1'>
+<refentry id='skogpasswdmangui1'>
 <!-- Copyright (c) 2013, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
@@ -35,8 +35,8 @@ POSSIBILITY OF SUCH DAMAGE. -->
 </refmeta>
 
 <refnamediv id='purpose'>
-<refname> passwdmangui </refname>
-<refpurpose> Graphical user interface for passwdman </refpurpose>
+<refname> skogpasswdmangui </refname>
+<refpurpose> Graphical user interface for skogpasswdman </refpurpose>
 </refnamediv>
 <!-- body begins here -->
 

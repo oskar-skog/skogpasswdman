@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PASSWDMANAPI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="PASSWDMANAPI"><a id="passwdmanapi3"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> passwdmanapi  —  library used by passwdmancli and passwdmangui  </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><pre class="synopsis">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>SKOGPASSWDMANAPI</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /></head><body><div class="refentry" title="SKOGPASSWDMANAPI"><a id="skogpasswdmanapi3"></a><div class="titlepage"></div><div class="refnamediv"><a id="purpose"></a><h2>Name</h2><p> skogpasswdmanapi  —  library used by skogpasswdmancli and skogpasswdmangui  </p></div><div class="refsynopsisdiv" title="Synopsis"><a id="synopsis"></a><h2>Synopsis</h2><pre class="synopsis">
 #!/usr/bin/python<br />
-import passwdmanapi<br />
+import skogpasswdmanapi<br />
 code is_anystr(x)<br />
 is_bytestr(x)<br />
 is_int(x)<br />
@@ -63,7 +63,7 @@ or a
 <code class="constant">progress_bar</code>
 object.</p><p><code class="varname">code</code>
 is the encoding
-<span class="command"><strong> passwdmanapi </strong></span>
+<span class="command"><strong> skogpasswdmanapi </strong></span>
 will use to encode and decode.
 It is set on import, but can be changed.</p><p>is_anystr()
 returns True if
@@ -274,9 +274,9 @@ to the file
 It creates a backup of
 <code class="varname">xmlfile</code>
 to
-<code class="filename">~/.passwdman/undoable</code>.</p></div><div class="refsect2" title="class passwd(common_data)"><a id="class_passwdcommon_data"></a><h3>class passwd(common_data)</h3><p>passwd()
+<code class="filename">~/.skogpasswdman/undoable</code>.</p></div><div class="refsect2" title="class passwd(common_data)"><a id="class_passwdcommon_data"></a><h3>class passwd(common_data)</h3><p>passwd()
 loads its data from the XML
-<code class="filename">~/.passwdman/passwords</code>.</p><p><code class="varname">self[index]["name"]</code>
+<code class="filename">~/.skogpasswdman/passwords</code>.</p><p><code class="varname">self[index]["name"]</code>
 is the name/purpose of the password.
 <code class="varname">self[index]["value"]</code>
 is the value of the password.
@@ -287,7 +287,7 @@ is the maximal length allowed for the password.
 <code class="varname">self[index]["meta"]["type"]</code>
 is the type of the password, which is one of:</p><div class="variablelist"><dl><dt><span class="term">10</span></dt><dd><p>The password uses digits.</p></dd><dt><span class="term">64</span></dt><dd><p>The password uses big letters, small letters, digits, underscores and
 exclamation marks.</p></dd><dt><span class="term">human</span></dt><dd><p>The password is human generated.</p></dd></dl></div><p>If a password has no meta-data in
-<code class="filename">~/.passwdman/passwords</code>,
+<code class="filename">~/.skogpasswdman/passwords</code>,
 its
 <code class="varname">minlength</code>
 and
@@ -386,7 +386,7 @@ It was a poor choice of name, but it grew legs and glued its feet to the
 ground.
 honeypot()
 loads its data from the XML
-<code class="filename">~/.passwdman/honeypots</code>.
+<code class="filename">~/.skogpasswdman/honeypots</code>.
 <code class="varname">self[index]</code>
 is the value of the honeypot.</p><p>Set
 <code class="varname">backups</code>
@@ -486,11 +486,11 @@ corrupt or no good.</p><div class="itemizedlist"><ul class="itemizedlist" type="
 is deprecated and will be removed 2015-01-01.
 A new
 honeypot.pick()
-will appear in 2015-02-01.</p></li></ul></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.passwdman/passwords</code>
-is the XML file containing the passwords and their meta-data.</p><p><code class="filename">~/.passwdman/honeypots</code>
-is the XML file containing the honeypots.</p><p><code class="filename">~/.passwdman/undoable/</code>
-is where the auto-generated backups live.</p><p><code class="filename">~/.passwdman/redoable/</code>
+will appear in 2015-02-01.</p></li></ul></div></div><div class="refsect1" title="FILES"><a id="files"></a><h2>FILES</h2><p><code class="filename">~/.skogpasswdman/passwords</code>
+is the XML file containing the passwords and their meta-data.</p><p><code class="filename">~/.skogpasswdman/honeypots</code>
+is the XML file containing the honeypots.</p><p><code class="filename">~/.skogpasswdman/undoable/</code>
+is where the auto-generated backups live.</p><p><code class="filename">~/.skogpasswdman/redoable/</code>
 is where the backups generated by
 undo()
-live.</p></div><div class="refsect1" title="EXAMPLES"><a id="examples"></a><h2>EXAMPLES</h2><p><code class="filename">$(bindir)/passwdmangui</code></p><p><code class="filename">$(bindir)/passwdmancli</code></p><p><code class="filename">$(bindir)/passwdmanrli</code></p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
+live.</p></div><div class="refsect1" title="EXAMPLES"><a id="examples"></a><h2>EXAMPLES</h2><p><code class="filename">$(bindir)/skogpasswdmangui</code></p><p><code class="filename">$(bindir)/skogpasswdmancli</code></p><p><code class="filename">$(bindir)/skogpasswdmanrli</code></p></div><div class="refsect1" title="AUTHOR"><a id="author"></a><h2>AUTHOR</h2><p>Written by
 Oskar Skog (oskar.skog.finland@gmail.com).</p><p>Please send patches, questions, bug reports and wish-lists.</p></div></div></body></html>

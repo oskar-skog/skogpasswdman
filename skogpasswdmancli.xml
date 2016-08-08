@@ -2,7 +2,7 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
                    "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- lifted from mdoc+troff by doclifter -->
-<refentry id='passwdmancli1'>
+<refentry id='skogpasswdmancli1'>
 <!-- Copyright (c) 2013, 2014, Oskar Skog &lt;oskar.skog.finland@gmail.com&gt;
 All rights reserved. -->
 
@@ -30,18 +30,18 @@ POSSIBILITY OF SUCH DAMAGE. -->
 
 
 <refmeta>
-<refentrytitle>PASSWDMANCLI</refentrytitle>
+<refentrytitle>SKOGPASSWDMANCLI</refentrytitle>
 <manvolnum>1</manvolnum>
 </refmeta>
 
 <refnamediv id='purpose'>
-<refname> passwdmancli </refname>
+<refname> skogpasswdmancli </refname>
 <refpurpose> CLI for storing, generating and updating passwords and honeypots. </refpurpose>
 </refnamediv>
 <!-- body begins here -->
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
-  <command>passwdmancli</command>    
+  <command>skogpasswdmancli</command>    
     <arg choice='plain'>--i </arg>
     <arg choice='plain'>---interactive </arg>
     <arg choice='plain'>--B </arg>
@@ -56,11 +56,11 @@ POSSIBILITY OF SUCH DAMAGE. -->
 <refsect1 id='description'><title>DESCRIPTION</title>
 <para><replaceable>infile</replaceable>
 is the file
-<command remap='Nm'> passwdmancli </command>
+<command remap='Nm'> skogpasswdmancli </command>
 will read its commands from, if
 <replaceable>infile</replaceable>
 is omitted
-<command remap='Nm'> passwdmancli </command>
+<command remap='Nm'> skogpasswdmancli </command>
 will read from standard input.
 <option>-i</option>
 or
@@ -70,7 +70,7 @@ must be specified if you want the commands
 and
 <command remap='Ic'>redo</command>,
 or if you want
-<command remap='Nm'> passwdmancli </command>
+<command remap='Nm'> skogpasswdmancli </command>
 to stay alive after an error.</para>
 
 <para>If you specify the option
@@ -80,19 +80,19 @@ or
 every change that has been done, will be removed by TWO undos.</para>
 
 <para>You can force
-<command remap='Nm'> passwdmancli </command>
+<command remap='Nm'> skogpasswdmancli </command>
 to use
 "utf-8"
 as encoding by specifying the option
 <option>--utf-8</option>.
 WARNING: It hasn't been tested with Python 3.x in a non-UTF-8 environment.</para>
 
-<para><command remap='Nm'> passwdmancli </command>
+<para><command remap='Nm'> skogpasswdmancli </command>
 reads its input as colon separated values.
 Quotes are either forbidden or optional (look at 
 unquote()
 in
-<citerefentry><refentrytitle>passwdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+<citerefentry><refentrytitle>skogpasswdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>
 ).
 Integers are created with the python built-in
 int().
@@ -526,16 +526,16 @@ you a headache.</para>
 </refsect1>
 
 <refsect1 id='files'><title>FILES</title>
-<para><filename>~/.passwdman/passwords</filename>
+<para><filename>~/.skogpasswdman/passwords</filename>
 is a XML file containing all passwords.</para>
 
-<para><filename>~/.passwdman/honeypots</filename>
+<para><filename>~/.skogpasswdman/honeypots</filename>
 is a XML file containing all honeypots.</para>
 
-<para><filename>~/.passwdman/undoable</filename>
+<para><filename>~/.skogpasswdman/undoable</filename>
 is a directory full of backups.</para>
 
-<para><filename>~/.passwdman/redoable</filename>
+<para><filename>~/.skogpasswdman/redoable</filename>
 is a directory full of backups.</para>
 </refsect1>
 
@@ -567,10 +567,10 @@ exclamation mark.</para>
 </refsect1>
 
 <refsect1 id='see_also'><title>SEE ALSO</title>
-<para><citerefentry><refentrytitle>passwdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>,
+<para><citerefentry><refentrytitle>skogpasswdmanapi</refentrytitle><manvolnum>3</manvolnum></citerefentry>,
 <citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>,
 <citerefentry><refentrytitle>urandom</refentrytitle><manvolnum>4</manvolnum></citerefentry>,
-<citerefentry><refentrytitle>passwdmanfiles</refentrytitle><manvolnum>5</manvolnum></citerefentry></para>
+<citerefentry><refentrytitle>skogpasswdmanfiles</refentrytitle><manvolnum>5</manvolnum></citerefentry></para>
 </refsect1>
 
 <refsect1 id='bugs'><title>BUGS</title>
@@ -585,7 +585,7 @@ is written too many times.</para>
 </refsect1>
 
 <refsect1 id='security'><title>SECURITY</title>
-<para><command remap='Nm'> passwdmancli </command>
+<para><command remap='Nm'> skogpasswdmancli </command>
 uses
 <citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry>
 or

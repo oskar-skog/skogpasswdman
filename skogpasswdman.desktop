@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type = Application
 Version = _VERSION_
-Name = passwdman
-Exec = passwdmangui
+Name = skogpasswdman
+Exec = skogpasswdmangui
 Categories = Utility
