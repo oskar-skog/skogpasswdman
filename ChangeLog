@@ -1,8 +1,11 @@
+2013-12-16      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.4
+    * passwdmangui (conf_tab): Run xfilemanager in background.
+    * xfilemanager-*.tar.gz: New version 0.1.3
+
 2013-12-15      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.3
-    * configure.2 passwdmanapi.py passwdmancli:
-        s/{}/{n}/  in every format string to support Python 2.6.
-        (none were found in passwdmangui)
+    * configure.2 passwdmanapi.py passwdmancli: Python 2.6 support.
 
 2013-12-12      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.2

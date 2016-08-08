@@ -685,9 +685,9 @@ class conf_tab_c(Gtk.Box):
         Gtk.main_quit()
         return          #What might happen now?
     def rmundo_action(self, button):
-        os.system("xfilemanager ~/.passwdman/undoable")
+        os.system("xfilemanager ~/.passwdman/undoable &")
     def rmredo_action(self, button):
-        os.system("xfilemanager ~/.passwdman/redoable")
+        os.system("xfilemanager ~/.passwdman/redoable &")
         
 class about_tab_c(Gtk.Box):
     """class about_tab_c(Gtk.Box)"""
