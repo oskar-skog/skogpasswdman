@@ -38,6 +38,7 @@ import shutil
 import unicodedata
 import traceback
 import re
+import pdb
 
 __doc__ = """The functions show_help(), passwd_help(), honeypot_help(),
 bells_and_whistles() and bugs() takes no arguments and prints their
@@ -102,7 +103,7 @@ def escape(s):
     '''escape(s)
     Return `s` with all single-quotes backslash escaped.
     '''
-    return re.sub("(')", r'\\\1', s)
+    return api.u(re.sub("(')", r'\\\1', s))
 
 def show_help():
     """#HELP MESSAGE
@@ -129,6 +130,7 @@ def show_help():
 #whistles       Bells and whistles.
 """
     sow(show_help.__doc__)
+
 def passwd_help():      #22 lines + ('#READY') + new line for input
     """#HELP MESSAGE
 #Do you remember the angle brackets and the quotes? If not: type 'help'
@@ -180,7 +182,7 @@ def honeypot_help():
 #
 """
     sow(honeypot_help.__doc__)
-   
+
 def bells_and_whistles():
     """#BELLS AND WHISTLES
 #       *       Comments:       It ignores input-lines that begins with a '#'
@@ -213,7 +215,7 @@ def bugs():
 #
 #
 #
-#It is noisy and babbles to much.
+#It is noisy and babbles too much.
 #It uses the following methods to parse it's input:
 #       int()           python built-in
 #       'if "keyword" in some_variable:'
@@ -266,32 +268,153 @@ def pb_nl():
     if progress_bars:
         sow('\n')
 
-def passwd_update(x):
-    """passwd_update(x) - update the password x using its own meta-data.
-    x is either the name or the index.
-    passwd:update:<x>"""
-    try:                        #unquote gets rid of optional quotes.
-        index = p.mkindex(api.unquote(x))  #mkindex greps it's argument...
-    except:                             #...in the list and returns an index.
-        err("not found")
-        return
-    old = p[index]["value"]       #It must show the old password, because...
-                              #...it is probably required to change password.
-    v("This may take a while.")       #Verbose.
+def parse(line, data):
+    '''parse(line, data)
+    
+    Define commands and their arguments in `data`.
+    `line` is the command **fragment**.
+        Never a newline.
+        'passwd:' and 'honeypot': are cut off.
+    
+    `data` is a list of dicts.
+    
+    data = {
+        'command':              Command name.
+        'args':                 List of dicts.
+        'code':                 execable object
+    }
+    
+    arg = {
+        'name':                 Name of the variable.
+        'type':                 int (anywhere), lit_str, str
+                                    (once and only in the end)
+    }
+    
+    The arguments sent to the code are stored in the dict `args`.
+    
+    '''
+    # Validate.
     try:
-        p.update(index, pb=mk_pb())
-    except api.err_nometa:
-        err("no meta")               #It requires the meta-data.
-        return
-    pb_nl()
-    new = p[index]["value"]
-    sow("#old:new\npasswd.update?'{0}':'{1}'\n".format(old, new))
-    return
+        for x in data:
+            try:
+                x['command']
+                x['args']
+                x['code']
+            except KeyError as k:
+                raise api.err_idiot("Required key '{0}' missing.".format(k))
+            for y in x:
+                if y not in ('command', 'args', 'code'):
+                    raise api.err_idiot("Unknown key '{0}'.".format(y))
+            if x['args']:
+                for y in x['args'][:-1]:
+                    try:
+                        forget = y['type']
+                        if forget in ('str', 'lit_str'):
+                            raise api.err_idiot("str-argument too early")
+                        y['name']
+                    except KeyError as k:
+                        raise api.err_idiot(
+                                    "Required key '{0}' missing.".format(k))
+                try:
+                    x['args'][-1]['type']
+                    x['args'][-1]['name']
+                except KeyError as k:
+                    raise api.err_idiot(
+                                    "Required key '{0}' missing.".format(k))
+    except api.err_idiot as complaint:
+        assert False, "data does not validate! {0}".format(complaint)
+    
+    # Internal use only keys in the data-dicts:
+    #   com-pri         Increased if the command would match another.
+    #                           ex. Run 'pick' code instead of 'pickl'
+    #                           pick will get a higher nice.
+    #   arg-pri         The same command can be defined multiple times,
+    #                           if they take a different number of
+    #                           arguments.
+    
+    # Begin with setting them all to zero.
+    for x in data:
+        x['com-pri'] = 0
+        x['arg-pri'] = 0
+    
+    # Prioritize command.
+    for x in data:
+        for y in data:
+            if x['command'] in y['command']:
+                x['com-pri'] += 1
+                # DO NOT BREAK; Think about ("hell", "hello", "hello-world").
+    # Prioritize arguments.
+    for x in data:
+        if x['args']:
+            if x['args'][-1]['type'] == 'int':
+                n = len(x['args'])
+            else:
+                n = len(x['args']) - 1
+        else:
+            n = 0
+        x['arg-pri'] = n
+    # Their arguments priority.
+    data.sort(reverse=True, key=lambda d: d['arg-pri'])
+    # Their commands priority.
+    data.sort(key=lambda d: d['com-pri'])
+    
+    
+    final = data
+    # Unicode.
+    for x in final:
+        x['command'] = api.u(x['command'])
+    
+    been_there = ''
+    tmp = line.split(':', 1)
+    cmd_part = tmp[0]
+    try:
+        arg_part = tmp[1]
+    except IndexError:
+        arg_part = ''
+    while final:
+        try_with = final.pop(0)
+        if try_with['command'] in cmd_part:
+            if been_there:
+                if been_there != try_with['command']:
+                    # Don't run code for 'hell' when the command was 'hello'.
+                    # If this happens then there are no 'hello' commands left.
+                    break
+            else:
+                been_there = try_with['command']
+            # Read arguments.
+            args = {}
+            if len(try_with['args']):
+                arg_list = arg_part.split(':', len(try_with['args']) - 1)
+            else:
+                arg_list = []
+            for src_arg, dst_arg in enumerate(try_with['args']):
+                if dst_arg['type'] == 'int':
+                    try:
+                        args[dst_arg['name']] = int(arg_list[src_arg])
+                    except ValueError:
+                        # This will make it skip to the next command
+                        # with the same name.
+                        break
+                elif dst_arg['type'] == 'str':
+                    args[dst_arg['name']] = api.unquote(arg_list[src_arg])
+                elif dst_arg['type'] == 'lit_str':
+                    args[dst_arg['name']] = arg_list[src_arg]
+                else:
+                    assert False, "Unknown type."
+            else:
+                # The arguments have been parsed successfully.
+                exec(try_with['code'])
+                return
+            # Loop.
+    
+    # Nothing was successful.
+    se()
     
 def passwd_update_meta(x):
     """passwd_update_meta(x) - Update the password x with new meta-data.
     Variant of passwd_update().
-    passwd:update_meta:<type>:<min>:<max>:<name_or_index>"""
+    passwd:update_meta:<type>:<min>:<max>:<name_or_index>
+    """
     fields = x.split(':', 3)
     if len(fields) < 4: #It takes 4 arguments.
         se() #Syntax error.
@@ -317,240 +440,275 @@ def passwd_update_meta(x):
 def passwd_add(x):
     """passwd_add(x) - generate and add a new password.
     Name xor index.
-    passwd:add:<type>:<min>:<max>:<name>"""
-    #
-    add_args = x.split(':', 3)
-    if len(add_args) < 4:
-        se()
-        return
-    add_type = add_args[0]   #"64" or "10".
-    try:
-        add_min = int(add_args[1])
-        add_max = int(add_args[2])
-    except:
-        se()
-        return
-    add_name = api.unquote(add_args[3])
-    try:
-        int(add_name)          #Check if it will be treated as an integer.
-        sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
-        sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
-    except:
-        pass
-    #Start testing add_type.
-    if "human" in add_type:
-        if not interactive:
-            sow("!Use 'passwd:add_human'.\n")
-        se()
-        sow("#Use 'passwd:add_human'.\n") #add_human is inside passwd_cmds().
-        return
-    elif "10" in add_type:
-        try:            #Use digits only.
-            p.add(add_name, None, "10", str(add_min), str(add_max),
+    passwd:add:<type>:<min>:<max>:<name>
+    """
+    parse(x, [
+        {
+            'command': 'human',
+            'args': [],
+            'code': '''err("Use 'passwd:add_human'.")'''
+        }, {
+            'command': '10',
+            'args': [{
+                'type': 'int',
+                'name': 'minlen'
+            }, {
+                'type': 'int',
+                'name': 'maxlen'
+            }, {
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+try:
+    p.add(args['name'], None, "10", str(args['minlen']), str(args['maxlen']),
                                                                 pb=mk_pb())
-        except api.err_duplicate:
-            err("duplicate")
-            return
-        pb_nl()
-        v("Added base10 password.")
-        return
-    elif "64" in add_type:
-        try:
-            p.add(add_name, None, "64", str(add_min), str(add_max),
+    pb_nl()
+    v('Added base10 password.')
+except api.err_duplicate:
+    err('duplicate')
+'''
+        }, {
+            'command': '64',
+            'args': [{
+                'type': 'int',
+                'name': 'minlen'
+            }, {
+                'type': 'int',
+                'name': 'maxlen'
+            }, {
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+try:
+    p.add(args['name'], None, "64", str(args['minlen']), str(args['maxlen']),
                                                                 pb=mk_pb())
-        except api.err_duplicate:
-            err("duplicate")
-            return
-        pb_nl()
-        v("Added base64 password.")
-        return
-    else:
-        se()
-        return
+    pb_nl()
+    v('Added base64 password.')
+except api.err_duplicate:
+    err('duplicate')
+'''
+    }])
 
 def passwd_cmds(x):
     """passwd_cmds(x) - handle all "passwd:*".
     x is the line with ^'passwd:' and newline$ removed.
-    passwd_update()
     passwd_update_meta()
-    passwd_add()"""
-    twofields = x.split(':', 1)
-    a = twofields[0]
-    if len(twofields) < 2:
-        if "list" in a:         #list doesn't take any arguments.
-            index = 0
-            sow("#\t\tindex:\tname\n")   #Human readable message.
-            for L in p:
-                sow(api.u("passwd.list?\t{0}:\t'{1}'\n").format(index,
-                                                api.u(escape(L['name']))))
-                index += 1
-            sow("#DONE\n#READY\n")
-            return
-        elif "help" in a:       #All big messages are done by calling a...
-            passwd_help()       #...function that prints out it's doc-string.
-            return
-        else:
-            se()
-            return
-    else: #passwd:<a>:<b>
-        b = twofields[1]
-        if "add_human" in a:            #WARNING: Must be before "add".
-            s = siw()
-            name = api.unquote(b)
-            try:
-                int(name)          #Check if it will be treated as an integer.
-                sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
-                sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
-            except:
-                pass
-            try:
-                p.add_nometa(name, s[:-1])
-            except api.err_duplicate:
-                err("duplicate")
-                return
-            v("Added human generated password.")
-            return
-        elif "add" in a:                #WARNING: Must be after "add_human".
-            passwd_add(b)       #Go up.
-            return
-        elif "get" in a:      #Get the value of a password; get the password.
-            try:
-                the_value = p[p.mkindex(api.unquote(b))]["value"]
-            except:
-                err("not found")
-                return
-            sow(api.u("passwd.get?'{0}'\n").format(api.u(escape(the_value))))
-            return
-        elif "update_meta" in a:        #WARNING: Must be before "update" and
-                                        #"meta".
-            passwd_update_meta(b)       #Go up.
-            return
-        elif "update" in a:             #WARNING: Must be after "update_meta".
-            passwd_update(b)
-            return
-        elif "meta" in a:               #WARNING: Must be after "update_meta".
-            try:                #Get meta-data for a password.
-                metadata = p[p.mkindex(api.unquote(b))]["meta"]
-                sow("#\t\ttype:\tminlength:\tmaxlength\n")      #safe
-                sow("passwd.meta?\t'{0}':\t'{1}':\t\t'{2}'\n".format(
-                                                        metadata["type"],
-                                                       metadata["minlength"],
-                                                      metadata["maxlength"]))
-            except:
-                err("no meta")
-            return
-        elif "remove" in a:
-            try:
-                p.remove(api.unquote(b))
-            except api.err_notfound:
-                err("not found")
-                return
-            return
-        else:
-            se()
-            return
+    passwd_add()
+    """
+    parse(x, [
+        {
+            'command': 'list',
+            'args': [],
+            'code': r'''
+sow("#\t\tindex:\tname\n")
+for i, L in enumerate(p):
+    sow(api.u("passwd.list?\t{0}:\t'{1}'\n").format(i, L['name']))
+sow("#DONE\n#READY\n")
+'''
+        }, {
+            'command': 'help',
+            'args': [],
+            'code': 'passwd_help()'
+        }, {
+            'command': 'add_human',
+            'args': [{
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+s = siw()
+try:
+    int(args['name'])
+    sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
+    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
+except:
+    pass
+try:
+    p.add_nometa(args['name'], s[:-1])
+    v("Added human generated password.")
+except api.err_duplicate:
+    err("duplicate")
+'''
+        }, {
+            'command': 'add',
+            'args': [{
+                'type': 'lit_str',
+                'name': 'cmd'
+            }],
+            'code': 'passwd_add(args["cmd"])'
+        }, {
+            'command' : 'get',
+            'args': [{
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+try:
+    the_value = p[p.mkindex(args['name'])]["value"]
+    sow(api.u("passwd.get?'{0}'\n").format(api.u(escape(the_value))))
+except api.err_notfound:
+    err("not found")
+'''
+        }, {
+            'command': 'update',
+            'args': [{
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+try:
+    v("This may take a while.")
+    index = p.mkindex(args['name'])
+    old = p[index]["value"]
+    p.update(index, pb=mk_pb())
+    pb_nl()
+    new = p[index]["value"]
+    sow("#old:new\npasswd.update?'{0}':'{1}'\n".format(old, new))
+except api.err_nometa:
+    err("no meta")
+except api.err_notfound:
+    err("not found")
+'''
+        }, {
+            'command': 'update_meta',
+            'args': [{
+                'type': 'lit_str',
+                'name': 'cmd'
+            }],
+            'code': 'passwd_update_meta(args["cmd"])'
+        }, {
+            'command': 'meta',
+            'args': [{
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+try:                #Get meta-data for a password.
+    metadata = p[p.mkindex(args['name'])]["meta"]
+    sow("#\t\ttype:\tminlength:\tmaxlength\n")      #safe
+    sow("passwd.meta?\t'{0}':\t'{1}':\t\t'{2}'\n".format(metadata["type"],
+                                                metadata["minlength"],
+                                                 metadata["maxlength"]))
+except:
+    err("no meta")
+'''
+        }, {
+            'command': 'remove',
+            'args': [{
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+try:
+    p.remove(args['name'])
+except api.err_notfound:
+    err("not found")
+'''
+    }])
 
 def honeypot_cmds(x):
     """honeypots_cmds(x) - handle all "honeypot:*".
-    x is the line with ^'honeypot:' and newline$ removed."""
-    twofields = x.split(':', 1)
-    a = twofields[0]
-    if len(twofields) < 2:
-        if "list" in a:
-            index = 0
-            sow("#\t\tindex:\tname\n")
-            for value in h:
-                sow("honeypot.list?\t{0}:\t'".format(index))
-                sow(escape(value))
-                sow("'\n")
-                index += 1
-            sow("#DONE\n#READY\n")
-            return
-        elif "help" in a:
-            honeypot_help()
-            return
-        elif "pick" in a:       #Pick a random honeypot.
-            #pick takes either 0 or 2 arguments, look down.
-            #This pick takes 0.
-            v("This may take a while.")
-            s = h.pick(pb=mk_pb())
-            pb_nl()
-            sow("honeypot.pick?'")
-            sow(escape(s))
-            sow("'\n")
-            return
-        else:
-            se()
-            return
-    else:       #honeypot:<a>:<b>
-        b = twofields[1]
-        if "add" in a:
-            name = api.unquote(b)
-            try:
-                int(name)          #Check if it will be treated as an integer.
-                sow("#WARNING: ITS NAME WILL BE BELIEVED TO BE AN INDEX!\n")
-                sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
-            except:
-                pass
-            try:
-                h.add(name)
-            except api.err_duplicate:
-                err("duplicate")
-                return
-            return
-        elif "pickl" in a:      #WARNING: Must be before "pick".
-            try:
-                n = int(b)
-            except:
-                err("Argument must be an integer.")
-            try:
-                the_list = h.pickl(n, False, pb=mk_pb())
-            except api.err_idiot:
-                err("Argument is too big.")
-            pb_nl()
-            tmp_list = []
-            for x in the_list:
-                tmp_list.append(escape(x))
-            sow(api.u("honeypot.pickl?'{0}'\n#DONE\n").format(
-                                        api.u("', '").join(tmp_list)))
-            return
-        elif "pick" in a:       #WARNING: Must be after "pickl".
-            args = b.split(':', 1)
-            if len(args) < 2:
-                se()
-                return
-            try:
-                n = int(args[0])
-            except:
-                err("n must be an integer")
-                return
-            sep = api.unquote(args[1])
-            try:                       #3rd arg, make it raise instead of log.
-                tmp_str = h.pick(n, sep, False, pb=mk_pb())
-            except api.err_idiot:
-                err("n is too big")
-                return
-            pb_nl()
-            sow(api.u("honeypot.pick?'{0}'\n").format(api.u(escape(tmp_str))))
-            return
-        elif "remove" in a:
-            try:
-                h.remove(api.unquote(b))
-            except api.err_notfound:
-                err("not found")
-                return
-            return
-        else:
-            se()
-            return
+    x is the line with ^'honeypot:' and newline$ removed.
+    """
+    parse(x, [
+        {
+            'command': 'list',
+            'args': [],
+            'code': r'''
+sow("#\t\tindex:\tname\n")
+for index, value in enumerate(h):
+   sow(api.u("honeypot.list?\t{0}:\t'{1}'\n").format(index, escape(value)))
+sow("#DONE\n#READY\n")
+'''
+        }, {
+            'command': 'help',
+            'args': [],
+            'code': 'honeypot_help()'
+        }, {
+            'command': 'pick',
+            'args': [],
+            'code': r'''
+v("This may take a while.")
+s = escape(h.pick(pb=mk_pb()))
+pb_nl()
+sow(api.u("honeypot.pick?'{0}'\n").format(s))
+'''
+        }, {
+            'command': 'add',
+            'args': [{
+                'type': 'str',
+                'name': 'value'
+            }],
+            'code': r'''
+try:
+    int(args['value'])          # Check if it will be treated as an integer.
+    sow("#WARNING: ITS VALUE WILL BE BELIEVED TO BE AN INDEX!\n")
+    sow("#IF YOU REMOVE IT BY ITS NAME, BAD THINGS CAN HAPPEN!\n")
+except ValueError:
+    pass
+try:
+    h.add(args['value'])
+except api.err_duplicate:
+    err("duplicate")
+'''
+        }, {
+            'command': 'pickl',
+            'args': [{
+                'type': 'int',
+                'name': 'n'
+            }],
+            'code': r'''
+try:
+    the_list = h.pickl(args['n'], False, pb=mk_pb())
+except api.err_idiot:
+    err("Argument is too big.")
+pb_nl()
+tmp_list = []
+for x in the_list:
+    tmp_list.append(escape(x))
+sow(api.u("honeypot.pickl?'{0}'\n#DONE\n").format(
+                                            api.u("', '").join(tmp_list)))
+'''
+        }, {
+            'command': 'pick',
+            'args': [
+                {
+                    'type': 'int',
+                    'name': 'n'
+                }, {
+                    'type': 'str',
+                    'name': 'sep'
+            }],
+            'code': r'''
+try:
+    #3rd arg, make it raise instead of log.
+    tmp_str = h.pick(args['n'], args['sep'], False, pb=mk_pb())
+except api.err_idiot:
+    err("n is too big")
+pb_nl()
+sow(api.u("honeypot.pick?'{0}'\n").format(api.u(escape(tmp_str))))
+'''
+        }, {
+            'command': 'remove',
+            'args': [{
+                'type': 'str',
+                'name': 'name'
+            }],
+            'code': r'''
+try:
+    h.remove(args['name'])
+except api.err_notfound:
+    err('not found')
+'''
+    }])
 
 def main():
     """main() - main loop."""
-    global verbose
     global p
     global h
     global theline
-    global progress_bars
     sow(copywrong)
     while True:
         v("READY")  #Show this message after every command, if verbose.
@@ -567,71 +725,108 @@ def main():
             sow(theline[1:])
             sow("\n")
             continue
-        twofields = theline.split(':', 1)
-        a = twofields[0]
-        if len(twofields) < 2:  #Check some really short ones.
-            if "exit" in a:
-                quit()
-            elif "help" in a:
-                show_help()
-            elif "undo" in a:
-                if interactive:
-                    try:
-                        api.undo(p, h)
-                    except:
-                        err("cannot undo")
-                        continue
-                    v("Undone something.")
-                else:
-                    err("Not in interactive mode.")
-            elif "redo" in a:
-                if interactive:
-                    try:
-                        api.redo(p, h)
-                    except:
-                        err("cannot redo")
-                        continue
-                    v("Redone something.")
-                else:
-                    err("Not in interactive mode.")
-            elif "bells" in a or "whistles" in a:
-                bells_and_whistles()
-                continue
-            elif "bugs" in a:
-                bugs()
-                continue
-            elif "hell" in a:           #Synonym for verbose:on
-                verbose = True
-                sow("#verbose mode enabled\n")
-            else:
-                se()    #Syntax error.
-        else: #Check some longer ones.
-            #The string has been split.
-            b = twofields[1]
-            if "passwd" in a:
-                passwd_cmds(b)      #passwd:*
-            elif "honeypot" in a:
-                honeypot_cmds(b)    #honeypot:*
-            elif "verbose" in a:
-                if "on" in b:           #666
-                    verbose = True
-                    sow("#verbose mode enabled\n")
-                elif "off" in b:
-                    verbose = False
-                else:
-                    se()
-                    continue
-            elif "pb" in a:
-                if "on" in b:
-                    progress_bars = True
-                elif "off" in b:
-                    progress_bars = False
-                else:
-                    se()
-                    continue
-            else:
-                se()
-                continue
+        parse(theline, [
+            {
+                'command': 'exit',
+                'args': [],
+                'code': 'quit()'
+            }, {
+                'command': 'help',
+                'args': [],
+                'code': 'show_help()'
+            }, {
+                'command': 'bells',
+                'args': [],
+                'code': 'bells_and_whistles()'
+            }, {
+                'command': 'whistles',
+                'args': [],
+                'code': 'bells_and_whistles()'
+            }, {
+                'command': 'undo',
+                'args': [],
+                'code': '''
+if interactive:
+    try:
+        api.undo(p, h)
+    except:
+        err("cannot undo")
+    v("Undone something.")
+else:
+    err("Not in interactive mode.")
+'''
+            }, {
+                'command': 'redo',
+                'args': [],
+                'code': '''
+if interactive:
+    try:
+        api.redo(p, h)
+    except:
+        err("cannot redo")
+    v("Redone something.")
+else:
+    err("Not in interactive mode.")
+'''
+            }, {
+                'command': 'bugs',
+                'args': [],
+                'code': 'bugs()'
+            },  {
+                'command': 'hell',
+                'args': [],
+                'code': '''
+global verbose
+verbose = True
+v('Verbose mode enabled.')
+'''
+            }, {
+                'command': 'passwd',
+                'args': [{
+                    'type': 'lit_str',
+                    'name': 'cmd'
+                }],
+                'code': 'passwd_cmds(args["cmd"])'
+            }, {
+                'command': 'honeypot',
+                'args': [{
+                    'type': 'lit_str',
+                    'name': 'cmd'
+                }],
+                'code': 'honeypot_cmds(args["cmd"])'
+            }, {
+                'command': 'verbose',
+                'args': [{
+                    'type': 'str',
+                    'name': 'mode'
+                }],
+                'code': '''
+global verbose
+if 'on' in args['mode']:
+    verbose = True
+    v('Verbose mode enabled.')
+elif 'off' in args['mode']:
+    verbose = False
+else:
+    se()
+'''
+            }, {
+                'command': 'pb',
+                'args': [{
+                    'type': 'str',
+                    'name': 'mode'
+                }],
+                'code': '''
+global progress_bars
+if 'on' in args['mode']:
+    progress_bars = True
+elif 'off' in args['mode']:
+    progress_bars = False
+else:
+    se()
+'''
+    }])
+        #
 
 # Initialization.
 p = api.passwd()
