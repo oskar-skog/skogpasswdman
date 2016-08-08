@@ -29,7 +29,8 @@
 .Nm ~/.passwdman/passwords ,
 .Nm ~/.passwdman/honeypots ,
 .Nm ~/.passwdman/undoable/ ,
-.Nm ~/.passwdman/redoable/
+.Nm ~/.passwdman/redoable/ ,
+.Nm ~/.passwdman/gui.conf
 .Nd data-files for passwdman.
 .Sh Pa ~/.passwdman/passwords
 The password list.
@@ -92,6 +93,16 @@ The opposite of
 .Pa ~/.passwdman/undoable .
 The function is
 .Fn redo .
+.Sh Pa ~/.passwdman/gui.conf
+The GUI configuration file:
+.Bd -literal
+#Configuration file for passwdmangui.
+#If there is any number-sign in a line, the line is a comment.
+This is a comment. #
+#It knows about 'show_passwd', 'true' and 'false'.
+ #It is case sensitive.
+show_passwd false
+.Ed
 .Sh SEE ALSO
 .Xr passwdmancli 1 ,
 .Xr passwdmangui 1

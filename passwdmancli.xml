@@ -107,6 +107,12 @@ exclamation marks.</para>
 </variablelist>
 
 <para>The honeypots are weak passwords intended to be used as traps.</para>
+
+<para>WARNING: If a command accepts a
+<varname>name</varname>
+and
+<varname>index</varname>
+argument, any string of digits will be treated as an index.</para>
 </refsect1>
 
 <refsect1 id='commands'><title>COMMANDS</title>
@@ -391,7 +397,10 @@ is a XML file containing all passwords.</para>
 is a XML file containing all honeypots.</para>
 
 <para><filename>~/.passwdman/undoable</filename>
-is a directory full of backups</para>
+is a directory full of backups.</para>
+
+<para><filename>~/.passwdman/redoable</filename>
+is a directory full of backups.</para>
 </refsect1>
 
 <refsect1 id='diagnosis'><title>DIAGNOSIS</title>
@@ -404,13 +413,6 @@ exclamation mark.</para>
 <para>Bad speling or incorrect usage.
 The next line of output will be the offending input prefixed with an
 exclamation mark.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>!unhandled error</term>
-<listitem>
-<para>Holy fuck!
-That's a wasp.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -436,37 +438,12 @@ That's a wasp.</para>
 </refsect1>
 
 <refsect1 id='bugs'><title>BUGS</title>
-<para>Wasps and mosquitoes.</para>
-
-<para>Wasps:</para>
-<itemizedlist remap='Bl -bullet' mark='bullet'>
-<listitem>
-<para>Missing some
-"try"
-and
-"except"
-blocks, causing unhandled errors.</para>
-</listitem>
-</itemizedlist>
-
 <para>Mosquitoes:</para>
 <itemizedlist remap='Bl -bullet' mark='bullet'>
 <listitem>
 <para>If verbose mode is enabled the message
 "#READY"
 is written too many times.</para>
-</listitem>
-<listitem>
-<para><command remap='Nm'> passwdmancli </command>
-doesn't like empty lines.</para>
-</listitem>
-<listitem>
-<para>KWrite thinks that I should spell honeypots
-"honey pots",
-but I use
-"honeypots"
-as filename and variables.
-It doesn't recognize its own name.</para>
 </listitem>
 </itemizedlist>
 </refsect1>

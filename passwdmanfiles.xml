@@ -32,6 +32,7 @@ POSSIBILITY OF SUCH DAMAGE. -->
 
 
 
+
 <refmeta>
 <refentrytitle>PASSWDMANFILES</refentrytitle>
 <manvolnum>5</manvolnum>
@@ -110,6 +111,18 @@ before it restores from the backup.</para>
 <filename>~/.passwdman/undoable</filename>.
 The function is
 redo(.);</para>
+</refsect1>
+
+<refsect1 id='pa_passwdmanguiconf'><title>Pa ~/.passwdman/gui.conf</title>
+<para>The GUI configuration file:</para>
+<programlisting remap='Bd'>
+#Configuration file for passwdmangui.
+#If there is any number-sign in a line, the line is a comment.
+This is a comment. #
+#It knows about 'show_passwd', 'true' and 'false'.
+ #It is case sensitive.
+show_passwd false
+</programlisting> <!-- remap='Ed (block)' -->
 </refsect1>
 
 <refsect1 id='see_also'><title>SEE ALSO</title>

@@ -1,26 +1,3 @@
-<?xml version="1.0" encoding="us-ascii"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
- "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
- [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
-<meta name="Content-Style" content="text/css"/>
-<style type="text/css">
-       .center { text-align: center }
-       .right  { text-align: right }
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Sun Nov 10 23:03:50 2013 -->
-<!--
-<p style="margin-top: 1em"><b>&bull;</b></p>
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
--->
 <!-- Copyright (c) 2013, Oskar Skog
 All rights reserved. -->
 
@@ -45,6 +22,25 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE. -->
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+ "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
+ [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
+<meta name="Content-Style" content="text/css"/>
+<style type="text/css">
+       .center { text-align: center }
+       .right  { text-align: right }
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<!-- Creator     : groff version 1.21 -->
+<!-- CreationDate: Wed Nov 13 21:50:37 2013 -->
 <title></title>
 </head>
 <body>
@@ -112,6 +108,10 @@ The password is human generated.</p>
 
 <p style="margin-left:6%; margin-top: 1em">The honeypots
 are weak passwords intended to be used as traps.</p>
+
+<p style="margin-left:6%; margin-top: 1em">WARNING: If a
+command accepts a <i>name</i> and <i>index</i> argument, any
+string of digits will be treated as an index.</p>
 
 <p style="margin-top: 1em"><b>COMMANDS</b> <br/>
 bells</p>
@@ -320,7 +320,11 @@ is a XML file containing all honeypots.</p>
 
 
 <p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/undoable</i>
-is a directory full of backups</p>
+is a directory full of backups.</p>
+
+
+<p style="margin-left:6%; margin-top: 1em"><i>~/.passwdman/redoable</i>
+is a directory full of backups.</p>
 
 <p style="margin-top: 1em"><b>DIAGNOSIS</b></p>
 
@@ -332,9 +336,6 @@ mark.</p>
 error&nbsp;</b> Bad speling or incorrect usage. The next
 line of output will be the offending input prefixed with an
 exclamation mark.</p>
-
-<p style="margin-left:6%; margin-top: 1em"><b>!unhandled
-error&nbsp;</b> Holy fuck! That&rsquo;s a wasp.</p>
 
 <p style="margin-left:6%; margin-top: 1em"><b>!no
 meta&nbsp;</b> The command requires meta-data, but the
@@ -350,40 +351,19 @@ urandom(4), passwdmanfiles(5)</p>
 
 <p style="margin-top: 1em"><b>BUGS</b></p>
 
-<p style="margin-left:6%;">Wasps and mosquitoes.</p>
+<p style="margin-left:6%;">Mosquitoes:</p>
 
-<p style="margin-left:6%; margin-top: 1em">Wasps:</p>
-
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
-
-<p style="margin-left:12%;">Missing some &quot;try&quot;
-and &quot;except&quot; blocks, causing unhandled errors.</p>
-
-<p style="margin-left:6%; margin-top: 1em">Mosquitoes:</p>
-
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
+<p style="margin-top: 1em"><b>&bull;</b></p>
 
 <p style="margin-left:12%;">If verbose mode is enabled the
 message &quot;#READY&quot; is written too many times.</p>
-
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
-
-<p style="margin-left:12%;"><b>passwdmancli</b>
-doesn&rsquo;t like empty lines.</p>
-
-<p style="margin-top: 1em; margin-left: 9%"><b>&bull;</b></p>
-
-<p style="margin-left:12%;">KWrite thinks that I should
-spell honeypots &quot;honey pots&quot;, but I use
-&quot;honeypots&quot; as filename and variables. It
-doesn&rsquo;t recognize its own name.</p>
 
 <p style="margin-top: 1em"><b>SECURITY</b></p>
 
 <p style="margin-left:6%;"><b>passwdmancli</b> uses
 random(4) or urandom(4) for everything.</p>
 
-<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;01,
+<p style="margin-left:6%; margin-top: 1em">BSD Nov&nbsp;13,
 2013 BSD</p>
 <hr/>
 </body>

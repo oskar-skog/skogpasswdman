@@ -22,7 +22,7 @@
 .\"CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 .\"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\"POSSIBILITY OF SUCH DAMAGE.
-.Dd Nov 01, 2013
+.Dd Nov 13, 2013
 .Dt PASSWDMANCLI 1
 .Os
 .Sh NAME
@@ -79,6 +79,12 @@ The password is human generated.
 .El
 .Pp
 The honeypots are weak passwords intended to be used as traps.
+.Pp
+WARNING: If a command accepts a
+.Va name
+and
+.Va index
+argument, any string of digits will be treated as an index.
 .Sh COMMANDS
 .Bl -tag
 .It "bells"
@@ -239,7 +245,10 @@ is a XML file containing all passwords.
 is a XML file containing all honeypots.
 .Pp
 .Pa ~/.passwdman/undoable
-is a directory full of backups
+is a directory full of backups.
+.Pp
+.Pa ~/.passwdman/redoable
+is a directory full of backups.
 .Sh DIAGNOSIS
 All error messages are sent to standard output and are prefixed with an
 exclamation mark.
@@ -248,9 +257,6 @@ exclamation mark.
 Bad speling or incorrect usage.
 The next line of output will be the offending input prefixed with an
 exclamation mark.
-.It "!unhandled error"
-Holy fuck!
-That's a wasp.
 .It "!no meta"
 The command requires meta-data, but the password doesn't have any.
 .It "!not found"
@@ -262,34 +268,12 @@ Not found or index out of range
 .Xr urandom 4 ,
 .Xr passwdmanfiles 5
 .Sh BUGS
-Wasps and mosquitoes.
-.Pp
-Wasps:
-.Bl -bullet
-.It
-Missing some
-.Qq try
-and
-.Qq except
-blocks, causing unhandled errors.
-.El
-.Pp
 Mosquitoes:
 .Bl -bullet
 .It
 If verbose mode is enabled the message
 .Qq #READY
 is written too many times.
-.It
-.Nm
-doesn't like empty lines.
-.It
-KWrite thinks that I should spell honeypots
-.Qq honey pots ,
-but I use
-.Qq honeypots
-as filename and variables.
-It doesn't recognize its own name.
 .El
 .Sh SECURITY
 .Nm

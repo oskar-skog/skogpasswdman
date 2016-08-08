@@ -1,22 +1,3 @@
-<?xml version="1.0" encoding="us-ascii"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
- "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
- [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
-<meta name="Content-Style" content="text/css"/>
-<style type="text/css">
-       .center { text-align: center }
-       .right  { text-align: right }
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Sun Nov 10 23:04:18 2013 -->
 <!-- Copyright (c) 2013, Oskar Skog
 All rights reserved. -->
 
@@ -41,6 +22,25 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE. -->
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+ "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
+ [<!ENTITY mathml "http://www.w3.org/1998/Math/MathML">]>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="groff -Txhtml, see www.gnu.org"/>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII"/>
+<meta name="Content-Style" content="text/css"/>
+<style type="text/css">
+       .center { text-align: center }
+       .right  { text-align: right }
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<!-- Creator     : groff version 1.21 -->
+<!-- CreationDate: Wed Nov 13 21:50:37 2013 -->
 <title></title>
 </head>
 <body>
@@ -55,7 +55,8 @@ PASSWDMANFILES(5)</p>
 
 <p style="margin-left:6%;"><b>~/.passwdman/passwords</b>,
 <b>~/.passwdman/honeypots</b>,
-<b>~/.passwdman/undoable/</b>, <b>~/.passwdman/redoable/</b>
+<b>~/.passwdman/undoable/</b>,
+<b>~/.passwdman/redoable/</b>, <b>~/.passwdman/gui.conf</b>
 &mdash; data-files for passwdman.</p>
 
 
@@ -138,6 +139,21 @@ backup.</p>
 <p style="margin-left:6%;">The opposite of
 <i>~/.passwdman/undoable</i>. The function is
 <b>redo</b>().</p>
+
+
+<p style="margin-top: 1em"><i>~/.passwdman/gui.conf</i></p>
+
+<p style="margin-left:6%;">The GUI configuration file:</p>
+
+<p style="margin-left:6%; margin-top: 1em">#Configuration
+file for passwdmangui. <br/>
+#If there is any number-sign in a line, the line is a
+comment. <br/>
+This is a comment. # <br/>
+#It knows about &rsquo;show_passwd&rsquo;,
+&rsquo;true&rsquo; and &rsquo;false&rsquo;. <br/>
+#It is case sensitive. <br/>
+show_passwd false</p>
 
 <p style="margin-top: 1em"><b>SEE ALSO</b></p>
 
