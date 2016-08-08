@@ -869,10 +869,10 @@ else:
         name:           '10'
         value:          'OK'
         %'''
-    post-ui-code:       '''
+    post-ui-code:       R'''
 old = p[selection]["value"]
 if result['min'] > result['max']:
-    pebkac("Is {0} really greater than {1}?\\n".format(
+    pebkac("Is {0} really greater than {1}?\n".format(
                                         result['max'], result['min'])
             + "Look carefully next time.")
     raise retry_error
@@ -944,9 +944,9 @@ after_update(old, new)
         name:           '10'
         value:          'OK'
         %'''
-    post-ui-code:       '''
+    post-ui-code:       R'''
 if result['min'] > result['max']:
-    pebkac("Is {0} really greater than {1}?\\n".format(
+    pebkac("Is {0} really greater than {1}?\n".format(
                                         result['max'], result['min'])
             + "Look carefully next time.")
     raise retry_error
