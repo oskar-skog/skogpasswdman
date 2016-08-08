@@ -1,11 +1,12 @@
-*       Permanent backup (GUI)
+0.2     Permanent backup (GUI)
 ?       Improvements in HELP and About.
 *       More debugging
-*       Fix broken Docbook XML
+0.2     Fix broken Docbook XML
 *       gettext()
             *   Svenska
             *   Suomi
             *   Deutch
 *       in "configure.2": dirs() should figure out more directories.
-*       A pick() that returns a list.
-*       Rewrite unquote().
+0.2     A pick() that returns a list.
+0.2     Rewrite unquote().
+0.2     Generate PDF, PS, DVI and XHTML from Docbook.

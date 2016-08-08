@@ -39,73 +39,63 @@ POSSIBILITY OF SUCH DAMAGE. -->
 <refpurpose> library used by passwdmancli and passwdmangui </refpurpose>
 </refnamediv>
 <refsynopsisdiv id='synopsis'>
-<cmdsynopsis>
-  <command>#!/usr/bin/python</command>    
-    <arg choice='plain'><replaceable>import</replaceable></arg>
-    <arg choice='plain'><replaceable>passwdmanapi</replaceable></arg>
-    <sbr/>
-    <arg choice='plain'><replaceable>open_rng()</replaceable></arg>
-    <arg choice='plain'><replaceable>get64(length)</replaceable></arg>
-    <arg choice='plain'><replaceable>get10(length)</replaceable></arg>
-    <arg choice='plain'><replaceable>getint(a,</replaceable></arg>
-    <arg choice='plain'><replaceable>b)</replaceable></arg>
-    <arg choice='plain'><replaceable>unquote(x)</replaceable></arg>
-    <arg choice='plain'><replaceable>undo(passwdobj=None,</replaceable></arg>
-    <arg choice='plain'><replaceable>honeypotobj=None)</replaceable></arg>
-    <arg choice='plain'><replaceable>redo(passwdobj=None,</replaceable></arg>
-    <arg choice='plain'><replaceable>honeypotobj=None)</replaceable></arg>
-    <arg choice='plain'><replaceable>class</replaceable></arg>
-    <arg choice='plain'><replaceable>common_data()</replaceable></arg>
-    <arg choice='plain'><replaceable>class</replaceable></arg>
-    <arg choice='plain'><replaceable>passwd(common_data)</replaceable></arg>
-    <arg choice='plain'><replaceable>class</replaceable></arg>
-    <arg choice='plain'><replaceable>honeypot(common_data)</replaceable></arg>
-</cmdsynopsis>
-</refsynopsisdiv>
-
+<synopsis>
+#!/usr/bin/python<sbr/>
+import passwdmanapi<sbr/>
+open_rng()<sbr/>
+get64(length)<sbr/>
+get10(length)<sbr/>
+getint(a, b)<sbr/>
+unquote(x)<sbr/>
+undo(passwdobj=None, honeypotobj=None)<sbr/>
+redo(passwdobj=None, honeypotobj=None)<sbr/>
+class common_data()<sbr/>
+class passwd(common_data)<sbr/>
+class honeypot(common_data)<sbr/>
+</synopsis><sbr/>
 <!-- body begins here -->
-
+<sbr/>
 <refsect2 id='class_common_data'><title>class common_data():</title>
-<para>__init__(self, xmlfile)
-__iter__(self)
-__next__(self)
-next(self)
-__getitem__(self, i)
-__len__(self)
-remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)
-writexml(self, xmlfile)
+<para>__init__(self, xmlfile)<sbr/>
+__iter__(self)<sbr/>
+__next__(self)<sbr/>
+next(self)<sbr/>
+__getitem__(self, i)<sbr/>
+__len__(self)<sbr/>
+remove(self, x, xmlfile, element_name, attrib_name, is_numstring=False)<sbr/>
+writexml(self, xmlfile)<sbr/>
 __del__(self)</para>
 </refsect2>
-
+<sbr/>
 <refsect2 id='passwdcommon_data'><title>passwd(common_data):</title>
-<para>__init__(self)
-add(self, name, value, m_type, m_minlength, m_maxlength)
-add_nometa(self, name, value)
-remove(self, x, is_numstring=False)
-__repr__(self)
-mkindex(self, x, is_numstring=False)
-update(self, index)
+<para>__init__(self)<sbr/>
+add(self, name, value, m_type, m_minlength, m_maxlength)<sbr/>
+add_nometa(self, name, value)<sbr/>
+remove(self, x, is_numstring=False)<sbr/>
+__repr__(self)<sbr/>
+mkindex(self, x, is_numstring=False)<sbr/>
+update(self, index)<sbr/>
 update_meta(self, index, m_type, m_minlength, m_maxlength)</para>
 </refsect2>
-
+<sbr/>
 <refsect2 id='class_honeypotcommon_data'><title>class honeypot(common_data):</title>
-<para>__init__(self)
-add(self, value)
-remove(self, x, is_numstring=False)
-pick(self, n=1, sep=",", log_vs_raise=True)
+<para>__init__(self)<sbr/>
+add(self, value)<sbr/>
+remove(self, x, is_numstring=False)<sbr/>
+pick(self, n=1, sep=",", log_vs_raise=True)<sbr/>
 __repr__(self)</para>
 </refsect2>
-
+<sbr/>
 <refsect2 id='exceptions'><title>Exceptions</title>
-<para>class err_norandom(Exception)
-class err_nolength(Exception)
-class err_loaderr(Exception)
-class err_notfound(Exception)
-class err_duplicate(Exception)
-class err_idiot(Exception)
+<para>class err_norandom(Exception)<sbr/>
+class err_nolength(Exception)<sbr/>
+class err_loaderr(Exception)<sbr/>
+class err_notfound(Exception)<sbr/>
+class err_duplicate(Exception)<sbr/>
+class err_idiot(Exception)<sbr/>
 class err_nometa(Exception)</para>
 </refsect2>
-</refsect1>
+</refsynopsisdiv>
 
 <refsect1 id='description'><title>DESCRIPTION</title>
 <para>Unless otherwise noted,

@@ -1,4 +1,6 @@
 2013-Nov-15     Oskar Skog      <oskar.skog.finland@gmail.com>
+0.1.4   Improved passwdmanapi.xml. Doesn't validate, but looks good with
+        --skip-validation.
 0.1.3   Improved Docbook XML.
 0.1.2   Improved ~/.passwdman/passwords and ~/.passwdman/honeypots.
 0.1.1   Added AUTHOR section.
