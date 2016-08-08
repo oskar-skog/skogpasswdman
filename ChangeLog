@@ -1,3 +1,12 @@
+2014-01-15      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.25
+    * passwdmanapi.py: Lock the data-files exclusively.
+    * TODO: Removed 'THE REALLY BIG CHANGE: change passwdmanapi:'.
+        Less confusion, less bugs.
+    * passwdmanrli: New code-object returning functions:
+        common_ct_handler
+        common_ch_up_down
+
 2014-01-14      Oskar Skog      <oskar.skog.finland@gmail.com>
 0.3.24
     * passwdmanrli (show_copy_single): Wider end-of-line marker.

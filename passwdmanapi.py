@@ -24,10 +24,10 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE."""
-__doc__ = """passwdmanapi - functions and classes used by passwdman
-    This was a long __doc__ string. Read SYNOPSIS, EXCEPTIONS, NOTES and BUGS
-    """
-SYNOPSIS = """
+
+__doc__ = """
+passwdmanapi - functions and classes used by passwdman
+SYNOPSIS
     is_anystr(x) is_bytestr(x) is_int(x) is_num(x) is_unicodestr(x) u(x) b(x)
     class passwdmanapi.passwd(common_data)
     class passwdmanapi.honeypot(common_data)
@@ -37,8 +37,8 @@ SYNOPSIS = """
     def unquote(x)
     def randomize(method, minlength, maxlength)
     def undo(passwdobj,honeypotobj) def redo(passwdobj,honeypotobj)
-"""
-EXCEPTIONS = """
+
+EXCEPTIONS
     They have their own __doc__-strings.
     class err_norandom(Exception)
     class err_nolength(Exception)
@@ -47,8 +47,8 @@ EXCEPTIONS = """
     class err_duplicate(Exception)
     class err_idiot(Exception)
     class err_nometa(Exception)
-"""
-NOTES = """
+
+NOTES
     What I call strings are really 'unicode' in Python 2.x.
     Unless written otherwise, <xmlfile> is a path. In get10() and get64(),
     <length> must be an integer, not a string.
@@ -67,8 +67,8 @@ NOTES = """
             "maxlength":        Maximal allowed length for the password.
         
         Human-generated passwords have 0 as minlength and maxlength.
-"""
-BUGS = """
+
+BUGS
     get64() wastes a few bits from the random device.
     get10() wastes lots of bits when it emits:
         "Bad nibble"
@@ -81,6 +81,7 @@ import logging
 import string
 import sys
 import locale
+import fcntl
 
 class err_norandom(Exception):
     """class err_norandom(Exception)
@@ -991,6 +992,14 @@ ckmkfile("~/.passwdman/honeypots", """<?xml version='1.0' encoding='UTF-8'?>
 <root file="honeypots" magic="passwdman" version="0.1">
 </root>
 """)
+# Simple exclusive lock for all the files.
+ckmkfile("~/.passwdman/lock", "")
+f = open(os.path.expanduser("~/.passwdman/lock"), 'w')
+try:
+    fcntl.lockf(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+except IOError:
+    raise err_loaderr('Another passwdman* is running!')
+
 try:
     locale.setlocale(locale.LC_ALL, '')
     code = locale.getpreferredencoding()
