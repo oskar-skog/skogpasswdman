@@ -1,4 +1,5 @@
-0.0.29	Empty FAQ.
+0.0.30  Scrollbars.
+0.0.29  Empty FAQ.
 0.0.28  GUI about shows more info about passwdman.
         CLI emits copyright-notice on start.
 0.0.27  Fixes in unquote().

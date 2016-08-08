@@ -1,7 +1,6 @@
 **      Permanent backup (GUI)
 *       More GUI-polishing
-            *   Markup in HELP and About
-            **  Scroll bars
+            *   Markup in HELP and About.
             *   show_passwd should affect "Add existing".
 ***     More debugging
 *       Fix broken Docbook XML

@@ -429,7 +429,9 @@ class passwd_tab_c(Gtk.Box):
         box.pack_start(b_add, False, False, 5)
         box.pack_start(b_new, False, False, 5)
         box.pack_start(b_remove, False, False, 5)
-        self.pack_start(tree, True, True, 5)
+        scrolly = Gtk.ScrolledWindow(None, None)        #Scrollbars.
+        scrolly.add(tree)
+        self.pack_start(scrolly, True, True, 5)
         self.pack_end(box, False, False, 5)
     def select_change(self, selection):
         forget, x = selection.get_selected()
@@ -521,7 +523,9 @@ class honeypot_tab_c(Gtk.Box):
         box.pack_start(b_pick_m, False, False, 5)
         box.pack_start(b_add, False, False, 5)
         box.pack_start(b_remove, False, False, 5)
-        self.pack_start(tree, True, True, 5)
+        scrolly = Gtk.ScrolledWindow(None, None)        #Scrollbars.
+        scrolly.add(tree)
+        self.pack_start(scrolly, True, True, 5)
         self.pack_end(box, False, False, 5)
         
     def select_change(self, selection):
