@@ -1,0 +1,1003 @@
+#!/usr/bin/python
+copywrong = """
+Copyright (c) 2014, Oskar Skog <oskar.skog.finland@gmail.com>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1.  Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+
+2.  Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE."""
+import passwdmanapi as api
+import curses, math, os, tarfile
+
+def die():
+    tty.keypad(0)
+    curses.echo()
+    curses.nocbreak()
+    curses.endwin()
+    quit()
+
+def wrap_addch(y, x, c):
+    try:
+        tty.addch(y, x, c)
+    except:
+        #Row 23 column 79 (bottom right) is evil.
+        #Usually attempted by center_text().
+        pass
+
+def center_text(line, text):
+    start_pos = (xsize - len(text)) / 2
+    for x in range(xsize):
+        if x < start_pos or x >= start_pos + len(text):
+            wrap_addch(line, x, ord(" "))
+        else:
+            wrap_addch(line, x, ord(text[x - start_pos]))
+
+def busy():
+    tty.erase()
+    center_text(2, "Wait...")
+    tty.refresh()
+
+def edit_num(y, num, min, max, step=1):
+    if min != None and max != None:
+        assert max >= min
+    while True:
+        if min != None:
+            if num < min:
+                num = min
+        if max != None:
+            if num > max:
+                num = max
+        tty.hline(y, 0, ord(" "), xsize)
+        center_text(y, "left - a h home<" + str(num) + ">right + d l end")
+        tty.refresh()
+        ch = tty.getch()
+        if ch in (curses.KEY_LEFT, ord("-"), ord("a"), ord("h")):
+            num -= step
+            continue
+        if ch in (curses.KEY_RIGHT, ord("+"), ord("d"), ord("l")):
+            num += step
+            continue
+        if ch in (curses.KEY_HOME, ord("A"), ord("H")):
+            if min != None:
+                num = min
+            else:
+                num -= step * 5
+            continue
+        if ch in (curses.KEY_END, ord("D"), ord("L")):
+            if max != None:
+                num = max
+            else:
+                num += step * 5
+            continue
+        if ch in (ord(" "), ord("\t"), ord("\n"), curses.KEY_DOWN):
+            return "down", num
+        if ch == curses.KEY_UP:
+            return "up", num
+        if ch == 27:
+            return "back", num
+
+def edit_line(y, line):
+    #TODO:
+    #   Begin at first column.
+    #   Left and right (insert).
+    strline = ""
+    unicodeline = ""
+    assert isinstance(line, str) or isinstance(line, unicode) or line == None
+    if line == None:
+        line = ""
+    strline = line.encode("utf-8")
+    unicodeline = line
+    while True:
+        for x in range(-1, -xsize, -1):
+            try:
+                tty.addstr(y, xsize + x, unicodeline[x].encode("utf-8"))
+            except IndexError:
+                pass
+            except:
+                raise
+        tty.refresh()
+        ch = tty.getch()
+        if ch == 27:
+            return "back", unicodeline
+        if ch == curses.KEY_UP:
+            return "up", unicodeline
+        if ch in (curses.KEY_DOWN, ord("\t"), ord("\n")):
+            return "down", unicodeline
+        if ch == curses.KEY_BACKSPACE:
+            unicodeline = unicodeline[:-1]
+            strline = unicodeline.encode("utf-8")
+            continue
+        try:
+            strline += chr(ch)
+        except ValueError:
+            pass
+        except:
+            raise
+        unicodeline = strline.decode("utf-8", "ignore")
+
+def after_update(old, new):
+    tty.erase()
+    if (math.ceil(len(old) / xsize + 0.0) +
+            math.ceil(len(new) / xsize + 0.0) + 2) > ysize - 2:
+        raise api.err_idiot("Not implented!")
+    else:
+        center_text(0, "Old: (Press 1 to copy)")
+        x_pos, y_pos = 0, 1
+        for c in old:
+            if x_pos >= xsize:
+                x_pos = 0
+                y_pos += 1
+            tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+            x_pos += 1
+        if x_pos != 0:
+            y_pos += 1
+            x_pos = 0
+        center_text(y_pos, "New: (Press 2 to copy)")
+        y_pos += 1
+        for c in new:
+            if x_pos >= xsize:
+                x_pos = 0
+                y_pos += 1
+            tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+            x_pos += 1
+        center_text(ysize - 1, "Press any other key to finish.")
+        tty.refresh()
+        while True:
+            ch = tty.getch()
+            if ch == ord("1"):
+                copy(old)
+            elif ch == ord("2"):
+                copy(new)
+            else:
+                return
+        
+def passwd_tab(x):
+    assert x >= 0 and x < 7
+    if x < 4 or x == 6:
+        selection = choice(False)
+        if isinstance(selection, bool):
+            assert selection == False
+            return      #Will never return True.
+    if x == 0:
+        #Copy to clipboard.
+        assert have_clipboard
+        copy(p[selection]["value"])
+    if x == 1:
+        #Show password.
+        tty.erase()
+        if len(p[selection]["value"]) > (ysize - 2) * xsize:
+            raise api.err_idiot("Not implented!")
+        else:
+            x_pos = y_pos = 0
+            for c in p[selection]["value"]:
+                if x_pos >= xsize:
+                    x_pos = 0
+                    y_pos += 1
+                tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+                x_pos += 1
+            center_text(ysize - 1, "Press any key.")
+            tty.refresh()
+            tty.getch()
+    if x == 2:
+        busy()
+        old = p[selection]["value"]
+        p.update(selection)
+        new = p[selection]["value"]
+        after_update(old, new)
+    if x == 3:
+        #Change meta-data and update.
+        if p[selection]["meta"]["type"] in ("10", "64"):
+            minlen = p[selection]["meta"]["minlength"]
+            maxlen = p[selection]["meta"]["maxlength"]
+        else:
+            assert p[selection]["meta"]["type"] == "human"
+            minlen = maxlen = 8
+        where = 0
+        tty.erase()
+        center_text(6, "Big & small letters, digits, '!', '_'")
+        center_text(9, "Digits only")
+        while True:
+            if where != 0:
+                center_text(0, "  Minimal required length  ")
+            if where != 1:
+                center_text(3, "  Maximal allowed length  ")
+            if where != 2:
+                center_text(7, "  OK  ")
+            if where != 3:
+                center_text(10, "  OK  ")
+            if where == 0:
+                center_text(0, "**Minimal required length**")
+                direction, minlen = edit_num(1, minlen, 1, maxlen)
+                if direction == "up":
+                    where = 3
+                    continue
+                elif direction == "down":
+                    where = 1
+                    continue
+                else:
+                    assert direction == "back"
+                    return
+            if where == 1:
+                center_text(3, "**Maximal allowed length**")
+                direction, maxlen = edit_num(4, maxlen, minlen, None)
+                if direction == "up":
+                    where = 0
+                    continue
+                elif direction == "down":
+                    where = 2
+                    continue
+                else:
+                    assert direction == "back"
+                    return
+            if where == 2:
+                center_text(7, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch == curses.KEY_UP:
+                    where = 1
+                    continue
+                if ch in (curses.KEY_DOWN, ord("\t")):
+                    where = 3
+                    continue
+                if ch in (ord(" "), ord("\n")):
+                    mode = "64"
+                    break
+                if ch == 27:
+                    return
+            if where == 3:
+                center_text(10, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch == curses.KEY_UP:
+                    where = 2
+                    continue
+                if ch in (curses.KEY_DOWN, ord("\t")):
+                    where = 0
+                    continue
+                if ch in (ord(" "), ord("\n")):
+                    mode = "10"
+                    break
+                if ch == 27:
+                    return
+        busy()
+        old = p[selection]["value"]
+        p.update_meta(selection, mode, minlen, maxlen)
+        new = p[selection]["value"]
+        after_update(old, new)
+    if x == 4:
+        #Add existing.
+        tty.erase()
+        where = 0
+        name = value = None
+        while True:
+            if where != 0:
+                center_text(0, "  What is the password for?  ")
+            if where != 1:
+                center_text(3, "  What is the password?  ")
+            if where != 2:
+                center_text(6, "  OK  ")
+            if where == 0:
+                center_text(0, "**What is the password for?**")
+                direction, name = edit_line(1, name)
+                if direction == "up":
+                    where = 2
+                    continue
+                elif direction == "back":
+                    return
+                else:
+                    assert direction == "down"
+                    where = 1
+                    continue
+            if where == 1:
+                center_text(3, "**What is the password?**")
+                direction, value = edit_line(4, value)
+                if direction == "up":
+                    where = 0
+                    continue
+                elif direction == "back":
+                    return
+                else:
+                    assert direction == "down"
+                    where = 2
+                    continue
+            if where == 2:
+                center_text(6, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch == curses.KEY_UP:
+                    where = 1
+                    continue
+                if ch in (curses.KEY_DOWN, ord("\t")):
+                    where = 0
+                    continue
+                if ch in (ord(" "), ord("\n")):
+                    p.add_nometa(name, value)
+                    return
+                if ch == 27:
+                    return
+    if x == 5:
+        #Create new.
+        minlen = maxlen = 8
+        name = ""
+        where = 0
+        tty.erase()
+        center_text(9, "Big & small letters, digits, '!', '_'")
+        center_text(12, "Digits only")
+        while True:
+            if where != 0:
+                center_text(0, "  What is the password for?  ")
+            if where != 1:
+                center_text(3, "  Minimal required length  ")
+            if where != 2:
+                center_text(6, "  Maximal allowed length  ")
+            if where != 3:
+                center_text(10, "  OK  ")
+            if where != 4:
+                center_text(13, "  OK  ")
+            if where == 0:
+                center_text(0, "**What is the password for?**")
+                direction, name = edit_line(1, name)
+                if direction == "up":
+                    where = 4
+                    continue
+                elif direction == "back":
+                    return
+                else:
+                    assert direction == "down"
+                    where = 1
+                    continue
+            if where == 1:
+                center_text(3, "**Minimal required length**")
+                direction, minlen = edit_num(4, minlen, 1, maxlen)
+                if direction == "up":
+                    where = 0
+                    continue
+                elif direction == "down":
+                    where = 2
+                    continue
+                else:
+                    assert direction == "back"
+                    return
+            if where == 2:
+                center_text(6, "**Maximal allowed length**")
+                direction, maxlen = edit_num(7, maxlen, minlen, None)
+                if direction == "up":
+                    where = 1
+                    continue
+                elif direction == "down":
+                    where = 3
+                    continue
+                else:
+                    assert direction == "back"
+                    return
+            if where == 3:
+                center_text(10, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch == curses.KEY_UP:
+                    where = 2
+                    continue
+                if ch in (curses.KEY_DOWN, ord("\t")):
+                    where = 4
+                    continue
+                if ch in (ord(" "), ord("\n")):
+                    mode = "64"
+                    break
+                if ch == 27:
+                    return
+            if where == 4:
+                center_text(13, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch == curses.KEY_UP:
+                    where = 3
+                    continue
+                if ch in (curses.KEY_DOWN, ord("\t")):
+                    where = 0
+                    continue
+                if ch in (ord(" "), ord("\n")):
+                    mode = "10"
+                    break
+                if ch == 27:
+                    return
+        busy()
+        if mode == "10":
+            value = api.get10(api.getint(minlen, maxlen + 1))
+        else:
+            assert mode == "64"
+            value = api.get64(api.getint(minlen, maxlen + 1))
+        p.add(name, value, mode, minlen, maxlen)
+    if x == 6:
+        #Remove.
+        p.remove(selection)
+
+def show_copy_single(s):
+    if len(s) > (ysize - 3) * xsize:
+        raise api.err_idiot("Not implented!")
+    else:
+        tty.erase()
+        x_pos = y_pos = 0
+        for c in s:
+            if x_pos >= xsize:
+                x_pos = 0
+                y_pos += 1
+            tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+            x_pos += 1
+        center_text(ysize - 2, "Press 1 to copy.")
+        center_text(ysize - 1, "Press any other key to finish.")
+        tty.refresh()
+        while True:
+            ch = tty.getch()
+            if ch == ord("1"):
+                copy(s)
+            else:
+                break
+        
+def honeypot_tab(x):
+    assert x >= 0 and x < 6
+    if x == 0:
+        #Pick & copy.
+        assert have_clipboard
+        copy(h.pick())
+    if x == 1:
+        #Pick & show.
+        tty.erase()
+        s = h.pick()
+        if len(s) > (ysize - 2) * xsize:
+            raise api.err_idiot("Not implented!")
+        else:
+            x_pos = y_pos = 0
+            for c in s:
+                if x_pos >= xsize:
+                    x_pos = 0
+                    y_pos += 1
+                tty.addstr(y_pos, x_pos, c.encode("utf-8"))
+                x_pos += 1
+            center_text(ysize - 1, "Press any key.")
+            tty.refresh()
+            tty.getch()
+    if x == 2:
+        #Bad pick many.
+        where = 0
+        num = 1
+        sep = ","
+        tty.erase()
+        while True:
+            if where != 0:
+                center_text(0, "  How many?  ")
+            if where != 1:
+                center_text(3, "  Separate them with?  ")
+            if where != 2:
+                center_text(6, "  OK  ")
+            if where == 0:
+                center_text(0, "**How many?**")
+                direction, num = edit_num(1, num, 1, len(h))
+                if direction == "up":
+                    where = 2
+                    continue
+                if direction == "down":
+                    where = 1
+                    continue
+                assert direction == "back"
+                return
+            if where == 1:
+                center_text(3, "**Separate them with?**")
+                direction, sep = edit_line(4, sep)
+                if direction == "up":
+                    where = 0
+                    continue
+                if direction == "down":
+                    where = 2
+                    continue
+                assert direction == "back"
+                return
+            if where == 2:
+                center_text(6, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch == curses.KEY_UP:
+                    where = 1
+                    continue
+                if ch in (curses.KEY_DOWN, ord("\t")):
+                    where = 0
+                    continue
+                if ch in (ord(" "), ord("\n")):
+                    break
+                if ch == 27:
+                    return
+        busy()
+        s = h.pick(num, sep)
+        show_copy_single(s)
+    if x == 3:
+        #Good pick many.
+        where = 0
+        num = 1
+        tty.erase()
+        while True:
+            if where != 0:
+                center_text(0, "  How many?  ")
+            if where != 1:
+                center_text(3, "  OK  ")
+            if where == 0:
+                center_text(0, "**How many?**")
+                direction, num = edit_num(1, num, 1, len(h))
+                if direction == "up":
+                    where = 1
+                    continue
+                if direction == "down":
+                    where = 1
+                    continue
+                assert direction == "back"
+                return
+            if where == 1:
+                center_text(3, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch == curses.KEY_UP:
+                    where = 0
+                    continue
+                if ch in (curses.KEY_DOWN, ord("\t")):
+                    where = 0
+                    continue
+                if ch in (ord(" "), ord("\n")):
+                    break
+                if ch == 27:
+                    return
+        busy()
+        result = h.pickl(num)
+        for s in result:
+            show_copy_single(s)
+    if x == 4:
+        #Add.
+        tty.erase()
+        where = 0
+        line = None
+        while True:
+            if where == 0:
+                center_text(0, "**What is the fake-password?**")
+                center_text(3, "  Add  ")
+                direction, line = edit_line(1, line)
+                if direction == "back":
+                    return
+                else:
+                    assert direction in ("up", "down")
+                    where = 1
+            if where == 1:
+                center_text(0, "  What is the fake-password?  ")
+                center_text(3, "**Add**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch in (ord("\n"), ord(" ")):
+                    h.add(line)
+                    return
+                if ch == 27:
+                    return
+                if ch in (ord("\t"), curses.KEY_UP, curses.KEY_DOWN):
+                    where = 0
+    if x == 5:
+        #Remove.
+        selection = choice(True)
+        if isinstance(selection, bool):
+            assert selection == False
+            return      #Will never return True.
+        h.remove(selection)
+
+def copy(x):
+    # "primary":
+    xsel_proc = subprocess.Popen(['xsel', '-pi'], stdin=subprocess.PIPE)
+    xsel_proc.communicate(x.encode("utf-8"))
+    # "clipboard":
+    xsel_proc = subprocess.Popen(['xsel', '-bi'], stdin=subprocess.PIPE)
+    xsel_proc.communicate(x.encode("utf-8"))
+
+def set_tab(direction):
+    global tabnum
+    try:
+        x = int(direction)
+        tabnum = x
+    except:
+        if direction == ">":
+            tabnum += 1
+        elif direction == "<":
+            tabnum -= 1
+        else:
+            raise api.err_idiot("What the fuck does that mean?")
+    if tabnum < 0:
+        tabnum = 0
+    if tabnum > 3:
+        tabnum = 3
+
+def choice(honeypot):
+    tty.erase()
+    thelist = []
+    if honeypot:
+        center_text(0, "Please select fake-password.")
+        for x in h:
+            thelist.append(x)
+    else:
+        center_text(0, "Please select password.")
+        for x in p:
+            thelist.append(x["name"])
+    return list_choice(1, ysize - 1, thelist)
+
+def zxcv_handler(x):
+    if x in (ord("z"), ord("Z"), ord("b"), ord("B")):
+        api.undo(p, h)
+    if x in (ord("x"), ord("X"), ord("n"), ord("N")):
+        api.redo(p, h)
+    if x in (ord("c"), ord("C"), ord("m"), ord("M")):
+        tty.erase()
+        where = 0
+        tarball_name = None
+        while True:
+            if where == 0:
+                center_text(0, "**path**")
+                center_text(3, "  OK  ")
+                direction, tarball_name = edit_line(1, tarball_name)
+                if direction == "back":
+                    return
+                assert direction in ("up", "down")
+                where = 1
+            if where == 1:
+                center_text(0, "  path  ")
+                center_text(3, "**OK**")
+                tty.refresh()
+                ch = tty.getch()
+                if ch in (ord(" "), ord("\n")):
+                    break
+                if ch == 27:
+                    return
+                if ch in (ord("\t"), curses.KEY_UP, curses.KEY_DOWN):
+                    where = 0
+        try:    #Normal suffix?
+            test = tarball_name[-4:] == ".tgz"
+            if not test:
+                test = tarball_name[-7:] == ".tar.gz"
+        except:
+            test = False
+        if not test:
+            tty.erase()
+            center_text(0, "Append suffix (Y/N)?")
+            tty.refresh()
+            while True:
+                ch = tty.getch()
+                if ch in (ord("y"), ord("Y")):
+                    tarball_name += ".tar.gz"
+                    break
+                if ch in (ord("n"), ord("N")):
+                    break
+        old_dir = os.getcwd()
+        os.chdir(os.path.expanduser("~"))
+        tarball = tarfile.open(os.path.expanduser(tarball_name), "w:gz")
+        tarball.add(".passwdman")
+        tarball.close()
+        os.chdir(old_dir)
+    if have_clipboard and x in (ord("v"), ord("V"), ord(",")):
+        copy("EMPTY")
+
+def list_choice(ypos, yspace, thelist, ct = False):
+    xspace = 0
+    for x in thelist:
+        if len(x) > xspace:
+            xspace = len(x)
+    xspace += 4
+    assert yspace >= 7 and xspace <= xsize
+    center_text(ypos, "Page-up up w k 8")
+    center_text(ypos + 1, "Choose with space, tab or enter")
+    center_text(ypos + 2, "or escape to cancel.")
+    center_text(ypos + yspace - 1, "Page-down down s j 2")
+    page = yspace - 6
+    if xsize - xspace >= 8:
+        show_arrow = True
+    else:
+        show_arrow = False
+    choice = 0
+    size = len(thelist)
+    while True:
+        #Draw.
+        for i in range(page):
+            #Surrounding brackets.
+            wrap_addch(i + ypos + 4, 0, ord("["))
+            wrap_addch(i + ypos + 4, xspace - 1, ord("]"))
+            #Past end?
+            if i + (choice - choice % page) >= size:
+                #Put empty
+                tty.hline(i + ypos + 4, 0, ord("-"), xspace)
+                tty.hline(i + ypos + 4, xspace, 32, xsize - xspace)
+            else:
+                #put line
+                if choice % page == i:  #Selected?
+                    wrap_addch(i + ypos + 4, 1, ord("*"))
+                    wrap_addch(i + ypos + 4, xspace - 2, ord("*"))
+                    if show_arrow:
+                        tty.addstr(i + ypos + 4, xspace, "<-Choose")
+                else:
+                    if show_arrow:
+                        tty.hline(i + ypos + 4, xspace, 32, xsize - xspace)
+                    wrap_addch(i + ypos + 4, 1, ord(" "))
+                    wrap_addch(i + ypos + 4, xspace - 2, ord(" "))
+                #Print the characters.
+                for x in range(2, xspace - 2):
+                    if x - 2 >= len(thelist[(i +        #Iterate for one page.
+                            choice - choice % page)]):  #Which page * page.
+                        wrap_addch(i + ypos + 4, x, ord(" "))
+                    else:
+                        if DEBUG:
+                            print i + choice - choice % page
+                            print x - 2
+                        tty.addstr(i + ypos + 4, x, thelist[i +
+                            choice - choice % page][x - 2].encode("utf-8"))
+        #Print the 'rollability-indicators'.
+        if choice - page < 0:
+            tty.hline(ypos + 3, 0, ord("-"), xspace)
+        else:
+            tty.hline(ypos + 3, 0, ord("^"), xspace)
+        if choice + page - choice % page > len(thelist) - 1:
+            tty.hline(ypos + yspace - 2, 0, ord("-"), xspace)
+        else:
+            tty.hline(ypos + yspace - 2, 0, ord("v"), xspace)
+        tty.refresh()
+        #Handle input.
+        ch = tty.getch()
+        if ct:
+            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
+                set_tab("<")
+                return True
+            if ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
+                set_tab(">")
+                return True
+            if ch in (ord("A"), ord("H"), curses.KEY_HOME):
+                set_tab(0)
+                return True
+            if ch in (ord("D"), ord("L"), curses.KEY_END):
+                set_tab(3)
+                return True
+        if ch == 27:    #Escape
+            return False
+        if ch in (ord("8"), ord("w"), ord("k"), curses.KEY_UP):
+            choice -= 1
+        if ch in (ord("2"), ord("s"), ord("j"), curses.KEY_DOWN):
+            choice += 1
+        if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
+            choice -= page
+        if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
+            choice += page
+        if ch in (ord("\t"), ord(" "), ord("\n")):
+            return choice
+        zxcv_handler(ch)
+        #Don't let choice be out of range
+        if choice >= len(thelist):
+            choice = len(thelist) - 1
+        if choice < 0:
+            choice = 0
+
+def roll_text(ypos, yspace, thetext, ct = False):
+    thelines = thetext.split("\n")
+    page = yspace - 4
+    linepos = 0
+    center_text(ypos, "Page-up up W K 8")
+    center_text(ypos + yspace - 1, "Page-down down S J 2")
+    while True:
+        for i in range(page):
+            for x in range(xsize):
+                try:
+                    c = ord(thelines[i + linepos][x])
+                except:
+                    c = ord(" ")
+                wrap_addch(i + ypos + 2, x, c)
+        if linepos < 1:
+            tty.hline(ypos + 1, 0, ord("-"), xsize)
+        else:
+            tty.hline(ypos + 1, 0, ord("^"), xsize)
+        if linepos + page > len(thelines):
+            tty.hline(ypos + yspace - 2, 0, ord("-"), xsize)
+        else:
+            tty.hline(ypos + yspace - 2, 0, ord("v"), xsize)
+        tty.refresh()
+        ch = tty.getch()
+        if ct:
+            if ch in (ord("4"), ord("a"), ord("h"), curses.KEY_LEFT):
+                set_tab("<")
+                return True
+            if ch in (ord("6"), ord("d"), ord("l"), curses.KEY_RIGHT):
+                set_tab(">")
+                return True
+            if ch in (ord("A"), ord("H"), curses.KEY_HOME):
+                set_tab(0)
+                return True
+            if ch in (ord("D"), ord("L"), curses.KEY_END):
+                set_tab(3)
+                return True
+        if ch == 27:
+            return False
+        oldpos = linepos
+        if ch in (ord("w"), ord("k"), ord("8"), curses.KEY_UP):
+            linepos -= 1
+        if ch in (ord("s"), ord("j"), ord("2"), curses.KEY_DOWN):
+            linepos += 1
+        if ch in (ord("W"), ord("K"), curses.KEY_PPAGE):
+            linepos -= page
+        if ch in (ord("S"), ord("J"), curses.KEY_NPAGE):
+            linepos += page
+        zxcv_handler(ch)
+        if linepos < 0 or linepos >= len(thelines):
+            linepos = oldpos
+def main():
+    global tabnum
+    while True:
+        #Render.
+        tab_names = [["passwords", "fake passwords", "help", "about"],
+            ["PASSWORDS", "FAKE PASSWORDS", "HELP", "ABOUT"]]
+        tty.erase()
+        if xsize >= 80:
+            #Tabs.
+            s = "Home left a h 4"
+            tty.addstr(0, 0, s)
+            tty.addstr(0, len(s), "::")
+            x_pos = len(s) + 2
+            for i in range(4):
+                if i == tabnum:
+                    tty.addstr(0, x_pos, tab_names[1][i])
+                else:
+                    tty.addstr(0, x_pos, tab_names[0][i])
+                x_pos += len(tab_names[0][i])
+                tty.addstr(0, x_pos, ":")
+                x_pos += 1
+            tty.addstr(0, x_pos, ":6 l d right end")
+            #zxcv
+            if have_clipboard:
+                tty.addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
+                    " Make backup : (v/,) Clear clipboard : (^C) quit")
+            else:
+                tty.addstr(ysize - 2, 0, "(z/b) undo : (x/n) redo : (c/m)" +
+                    " Make backup : (^C) quit")
+            #Lines.
+            tty.hline(1, 0, ord("="), xsize)
+            tty.hline(ysize - 3, 0, ord("="), xsize)
+            tty.refresh()
+        else:
+            pass    #TODO
+        if tabnum == 0:
+            thelist = ["Copy to clipboard",
+                    "Show password",
+                    "Update",
+                    "Change meta-data & update",
+                    "Add existing",
+                    "Create new",
+                    "Remove"]
+            if have_clipboard:
+                result = list_choice(2, ysize - 5, thelist, True)
+            else:
+                result = list_choice(2, ysize - 5, thelist[1:], True)
+                if not isinstance(result, bool):
+                    result += 1
+            if not isinstance(result, bool):
+                passwd_tab(result)
+                continue
+            if result == False:
+                die()
+            if result == True:
+                continue
+        if tabnum == 1:
+            thelist = ["Pick & copy",
+                    "Pick & show",
+                    "Bad pick many",
+                    "Good pick many",
+                    "Add",
+                    "Remove"]
+            if have_clipboard:
+                result = list_choice(2, ysize - 5, thelist, True)
+            else:
+                result = list_choice(2, ysize - 5, thelist[1:], True)
+                if not isinstance(result, bool):
+                    result += 1
+            if not isinstance(result, bool):
+                honeypot_tab(result)
+                continue
+            if result == False:
+                die()
+            if result == True:
+                continue
+        if tabnum == 2:
+            result = roll_text(2, ysize - 5, """
+Uppercase W/K, A/H, S/J, D/L will be treated as Page up, Home, Page down, end.
+
+The "change meta-data & update"-button in the "Passwords"-tab:
+    1.  If the password was created with the "Add existing"-button: use the
+        "change meta-data & update"-button.
+    2.  If the password was created with the "Create new"-button: use the
+        "update"-button.
+    3.  If the minimal required length for the password or the maximal allowed
+        length or the allowable characters have changed: use the
+        "change meta-data & update"-button.
+    
+Difference between "Add existing" and "Create new":
+    Click on those buttons and see what happens. They are not dangerous.
+
+The "Undo"- and "Redo"-buttons undoes/redoes the LATEST change in the password
+tab or the fake-password tab, independent of which tab you're currently in.
+
+The fake-passwords/honey pots are intended to be used as traps to catch
+crackers. The "pick"-buttons picks a random fake-password, independent of what
+you have selected. You should add fake-passwords such as "password" and
+"drowssap".
+    """, True)
+            if result == False:
+                die()
+            if result == True:
+                continue
+        if tabnum == 3:
+            result = roll_text(2, ysize - 5, copywrong + "\n" + """
+passwdman is a program for remembering and updating passwords. It also
+remembers honey-pots (fake-passwords to catch crackers). It has infinite
+undo/redo.
+ 
+It can remember old human-generated passwords, create new passwords (digits
+or big letters, small letters, digits, underscores and exclamation marks)
+with randomized length, update passwords and obviously show and remove
+passwords. It can add, remove honey-pots and randomly choose (pick)
+honey-pots in two different flavors.
+ 
+It stores the passwords and honey-pots in XML files, so they can be read with
+a normal text-editor (normal for unix), depending on the user. The XML files
+are not encrypted, so that you don't need to remember an extra password.
+  If you want encryption you should encrypt your home-directory.
+""", True)
+            if result == False:
+                die()
+            if result == True:
+                continue
+
+DEBUG = False
+tabnum = 0
+have_clipboard = __HAVE_CLIPBOARD__
+if have_clipboard:
+    import subprocess
+
+if __name__ == "__main__":
+    h = api.honeypot()
+    p = api.passwd()
+    if DEBUG:
+        xsize, ysize = 80, 24
+    else:
+        tty = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        curses.meta(1)
+        tty.keypad(1)
+        ysize, xsize = tty.getmaxyx()
+        if xsize < 80:
+            if xsize < 40 or ysize < 18:
+                curses.endwin()
+                print "Need at least 40x18 or 80x12 COLSxROWS"
+        elif ysize < 12:
+            curses.endwin()
+            print "Need at least 40x18 or 80x12 COLSxROWS"
+    try:
+        main()
+    except KeyboardInterrupt:
+        die()
+    except:
+        tty.keypad(0)
+        curses.echo()
+        curses.nocbreak()
+        curses.endwin()
+        raise

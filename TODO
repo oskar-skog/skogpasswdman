@@ -9,3 +9,4 @@
 *       info
 *       Set busy-cursor when getting random numbers. (GUI)
 *       Unicode support in configure.
+*       Improved edit_line() in the RLI.
