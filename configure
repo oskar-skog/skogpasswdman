@@ -25,7 +25,25 @@
 #CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #POSSIBILITY OF SUCH DAMAGE.
+verbose_mode=0
+for x in $*; do
+    if [ $x = "--verbose" ]; then
+        verbose_mode=1
+        break
+    fi
+    if [ $x = "-v" ]; then
+        verbose_mode=1
+        break
+    fi
+done
+verbose()
+{
+    if [ $verbose_mode -gt 0 ]; then
+        echo $*
+    fi
+}
 #Important checks.
+verbose Checking for python...
 pyck=0          #No python.
 for test_dir in `echo $PATH | tr : ' '`; do
     for x in `ls $test_dir | grep ^python`; do
@@ -40,6 +58,7 @@ if [ $pyck -eq 0 ]; then
     exit 1
 fi
 #Create dirsinstall.
+verbose Creating dirsinstall...
 echo '#!/bin/sh' > dirsinstall
 echo '#This script will make sure that' >> dirsinstall
 echo '#all the specified directories exist.' >> dirsinstall
@@ -62,6 +81,7 @@ for test_dir in `echo $PATH | tr : " "`; do
     done
 done
 #Create passwdmanapi.xml.fix.
+verbose Creating passwdmanapi.xml.fix...
 echo "#!${python_exec}" > passwdmanapi.xml.fix
 echo 'import sys' >> passwdmanapi.xml.fix
 echo '#Fix broken Docbook XML in passwdmanapi.xml.' >> passwdmanapi.xml.fix
@@ -123,6 +143,7 @@ echo '    else:' >> passwdmanapi.xml.fix
 echo '        sys.stdout.write(l)' >> passwdmanapi.xml.fix
 chmod +x passwdmanapi.xml.fix
 #create passwdmanfiles.xml.fix
+verbose Creating passwdmanfiles.xml.fix
 echo "#!${python_exec}" > passwdmanfiles.xml.fix
 echo 'import sys' >> passwdmanfiles.xml.fix
 echo 'while True:' >> passwdmanfiles.xml.fix
@@ -144,6 +165,7 @@ echo '    else:' >> passwdmanfiles.xml.fix
 echo '        sys.stdout.write(l)' >> passwdmanfiles.xml.fix
 chmod +x passwdmanfiles.xml.fix
 #create shebang script
+verbose Creating shebang...
 echo '#!/bin/sh' > shebang
 echo 'for test_dir in `echo $PATH | tr : " "`; do' >> shebang
 echo '    for test_file in `ls $test_dir | grep ^python`; do' >> shebang
@@ -160,6 +182,7 @@ echo '    shift' >> shebang
 echo 'done' >> shebang
 chmod +x shebang
 #Create fix.docbook.
+verbose Creating fix.docbook...
 printf "s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com " > fix.docbook
 echo "role='author'/Oskar Skog (oskar.skog.finland@gmail.com)/" >> fix.docbook
 echo "s/();/()/" >> fix.docbook
@@ -171,6 +194,7 @@ if [ -z $python_exec ]; then
 else
     echo "#!${python_exec}" > configure.2
 fi
+verbose Creating configure.2...
 printf '#!/usr/bin/python\n' >> configure.2
 printf '\042\042\042second stage of configure\n' >> configure.2
 printf ' This file is human generated, but hidden in \047configure\047, which is\n' >> configure.2
@@ -270,6 +294,7 @@ printf '        chunks.append(x[0])     #The non-variable part.\n' >> configure.
 printf '        if len(x) < 2:          #No dollar.\n' >> configure.2
 printf '            break\n' >> configure.2
 printf '        if x[1][0] == \042(\042:      #Is it a variable?\n' >> configure.2
+verbose Line 100...
 printf '            y = x[1][1:].split(\042)\042, 1)  #Break at the second place.\n' >> configure.2
 printf '            if len(y) < 2:\n' >> configure.2
 printf '                chunks.append(\042\044(\042 + y) #Oops, no right parenthesis.\n' >> configure.2
@@ -317,7 +342,25 @@ printf '#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 printf '#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n' >> configure.2
 printf '#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n' >> configure.2
 printf '#POSSIBILITY OF SUCH DAMAGE.\n' >> configure.2
+printf 'verbose_mode=0\n' >> configure.2
+printf 'for x in \044*; do\n' >> configure.2
+printf '    if [ \044x = \042--verbose\042 ]; then\n' >> configure.2
+printf '        verbose_mode=1\n' >> configure.2
+printf '        break\n' >> configure.2
+printf '    fi\n' >> configure.2
+printf '    if [ \044x = \042-v\042 ]; then\n' >> configure.2
+printf '        verbose_mode=1\n' >> configure.2
+printf '        break\n' >> configure.2
+printf '    fi\n' >> configure.2
+printf 'done\n' >> configure.2
+printf 'verbose()\n' >> configure.2
+printf '{\n' >> configure.2
+printf '    if [ \044verbose_mode -gt 0 ]; then\n' >> configure.2
+printf '        echo \044*\n' >> configure.2
+printf '    fi\n' >> configure.2
+printf '}\n' >> configure.2
 printf '#Important checks.\n' >> configure.2
+printf 'verbose Checking for python...\n' >> configure.2
 printf 'pyck=0          #No python.\n' >> configure.2
 printf 'for test_dir in `echo \044PATH | tr : \047 \047`; do\n' >> configure.2
 printf '    for x in `ls \044test_dir | grep ^python`; do\n' >> configure.2
@@ -332,6 +375,7 @@ printf '    echo Python is required.\n' >> configure.2
 printf '    exit 1\n' >> configure.2
 printf 'fi\n' >> configure.2
 printf '#Create dirsinstall.\n' >> configure.2
+printf 'verbose Creating dirsinstall...\n' >> configure.2
 printf 'echo \047#!/bin/sh\047 > dirsinstall\n' >> configure.2
 printf 'echo \047#This script will make sure that\047 >> dirsinstall\n' >> configure.2
 printf 'echo \047#all the specified directories exist.\047 >> dirsinstall\n' >> configure.2
@@ -351,9 +395,11 @@ printf '        if [ -x \044test_dir/\044testfile ] ; then\n' >> configure.2
 printf '            python_exec=\044test_dir/\044test_file\n' >> configure.2
 printf '            break 2\n' >> configure.2
 printf '        fi\n' >> configure.2
+verbose Line 200...
 printf '    done\n' >> configure.2
 printf 'done\n' >> configure.2
 printf '#Create passwdmanapi.xml.fix.\n' >> configure.2
+printf 'verbose Creating passwdmanapi.xml.fix...\n' >> configure.2
 printf 'echo \042#!\044{python_exec}\042 > passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047import sys\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047#Fix broken Docbook XML in passwdmanapi.xml.\047 >> passwdmanapi.xml.fix\n' >> configure.2
@@ -415,6 +461,7 @@ printf 'echo \047    else:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047        sys.stdout.write(l)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'chmod +x passwdmanapi.xml.fix\n' >> configure.2
 printf '#create passwdmanfiles.xml.fix\n' >> configure.2
+printf 'verbose Creating passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \042#!\044{python_exec}\042 > passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \047import sys\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \047while True:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
@@ -436,6 +483,7 @@ printf 'echo \047    else:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \047        sys.stdout.write(l)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'chmod +x passwdmanfiles.xml.fix\n' >> configure.2
 printf '#create shebang script\n' >> configure.2
+printf 'verbose Creating shebang...\n' >> configure.2
 printf 'echo \047#!/bin/sh\047 > shebang\n' >> configure.2
 printf 'echo \047for test_dir in `echo \044PATH | tr : \042 \042`; do\047 >> shebang\n' >> configure.2
 printf 'echo \047    for test_file in `ls \044test_dir | grep ^python`; do\047 >> shebang\n' >> configure.2
@@ -448,10 +496,12 @@ printf 'echo \047done\047 >> shebang\n' >> configure.2
 printf 'echo \047while [ \044# -gt 0 ]; do\047 >> shebang\n' >> configure.2
 printf 'echo \047    echo \042#!\044python_exec\042 > \0441.out\047 >> shebang\n' >> configure.2
 printf 'echo \047    cat \0441 >> \0441.out\047 >> shebang\n' >> configure.2
+verbose Line 300...
 printf 'echo \047    shift\047 >> shebang\n' >> configure.2
 printf 'echo \047done\047 >> shebang\n' >> configure.2
 printf 'chmod +x shebang\n' >> configure.2
 printf '#Create fix.docbook.\n' >> configure.2
+printf 'verbose Creating fix.docbook...\n' >> configure.2
 printf 'printf \042s/phrase Oskar Skog Aq oskar.skog.finland@gmail.com \042 > fix.docbook\n' >> configure.2
 printf 'echo \042role=\047author\047/Oskar Skog (oskar.skog.finland@gmail.com)/\042 >> fix.docbook\n' >> configure.2
 printf 'echo \042s/();/()/\042 >> fix.docbook\n' >> configure.2
@@ -463,10 +513,13 @@ printf '    echo \042#!/usr/bin/false\042 > configure.2\n' >> configure.2
 printf 'else\n' >> configure.2
 printf '    echo \042#!\044{python_exec}\042 > configure.2\n' >> configure.2
 printf 'fi\n' >> configure.2
+printf 'verbose Creating configure.2...\n' >> configure.2
 printf '\042\042\042)    #We\047re in the function update().\n' >> configure.2
 printf '    #Auto-generate configure.2.\n' >> configure.2
 printf '    me = open(x, \042r\042)\n' >> configure.2
+printf '    linecounter = 0\n' >> configure.2
 printf '    for l in me:\n' >> configure.2
+printf '        linecounter += 1\n' >> configure.2
 printf '        #printf it.\n' >> configure.2
 printf '        l2, i = \042\042, 0\n' >> configure.2
 printf '        while i < len(l[:-1]):\n' >> configure.2
@@ -478,13 +531,17 @@ printf '            elif l[i] == \047\042\047:\n' >> configure.2
 printf '                l2 += \042\\\\042\042\n' >> configure.2
 printf '            elif l[i] == \042\\\\\042:\n' >> configure.2
 printf '                l2 += \042\\\\\\\\\042\n' >> configure.2
+printf '            elif l[i] == \042%%\042:\n' >> configure.2
+printf '                l2 += \042%%%%\042\n' >> configure.2
 printf '            else:\n' >> configure.2
 printf '                l2 += l[i]\n' >> configure.2
 printf '            i += 1\n' >> configure.2
+printf '        if (linecounter %% 100) == 0:\n' >> configure.2
+printf '            configure.write(\042verbose Line {}...\\n\042.format(linecounter))\n' >> configure.2
 printf '        configure.write(\042printf \047{}\\\\n\047 >> configure.2\\n\042.format(l2))\n' >> configure.2
 printf '    #Done.\n' >> configure.2
 printf '    configure.write(\042\042\042chmod +x configure.2\n' >> configure.2
-printf 'echo \042Beginning stage 2...\042\n' >> configure.2
+printf 'verbose exec configure.2\n' >> configure.2
 printf 'exec ./configure.2 \044*\n' >> configure.2
 printf '\042\042\042)\n' >> configure.2
 printf '    configure.close()\n' >> configure.2
@@ -540,6 +597,7 @@ printf '        elif o in (\042--noguidoc\042, \042-d\042):\n' >> configure.2
 printf '            guidoc = False\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        elif o in (\042--notechdoc\042, \042-t\042):\n' >> configure.2
+verbose Line 400...
 printf '            techdoc = False\n' >> configure.2
 printf '            continue\n' >> configure.2
 printf '        elif o in (\042--halt\042, \042-H\042):\n' >> configure.2
@@ -572,6 +630,7 @@ printf '                assert False, \042unhandled option\042\n' >> configure.2
 printf '\n' >> configure.2
 printf 'def moduledep():\n' >> configure.2
 printf '    global gui\n' >> configure.2
+printf '    v(\042Checking dependencies...\042)\n' >> configure.2
 printf '    if gui:         #Some checks.\n' >> configure.2
 printf '        try:\n' >> configure.2
 printf '            from gi.repository import Gtk\n' >> configure.2
@@ -639,6 +698,7 @@ printf '\n' >> configure.2
 printf 'def getmoduledir():\n' >> configure.2
 printf '    \042\042\042getmoduledir() - Figure out where to install python modules.\042\042\042\n' >> configure.2
 printf '    global moduledir\n' >> configure.2
+verbose Line 500...
 printf '    list_of_2x = []\n' >> configure.2
 printf '    if moduledir is None:   #It can be set by the user.\n' >> configure.2
 printf '        v(\042Figuring out the \047moduledir\047 variable...\042)\n' >> configure.2
@@ -739,6 +799,7 @@ printf '        if x:\n' >> configure.2
 printf '            makefile.write(\042\\tchmod 755 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '        else:\n' >> configure.2
 printf '            if src[-2:] in (\042.1\042, \042.3\042, \042.5\042):      #man-pages\n' >> configure.2
+verbose Line 600...
 printf '                makefile.write(\042\\t-chmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
 printf '            else:\n' >> configure.2
 printf '                makefile.write(\042\\tchmod 644 \044(DESTDIR){}\\n\042.format(dst))\n' >> configure.2
@@ -839,6 +900,7 @@ printf '                \042\\t-cp \044(srcdir)passwdman{}.{} passwdman-{}\\n\04
 printf '                                                                VERSION))\n' >> configure.2
 printf '    for x in (\042cli\042, \042api\042, \042gui\042, \042files\042):\n' >> configure.2
 printf '        makefile.write(\042\\tcp \044(srcdir)passwdman{}.xml passwdman-{}\\n\042.format(x,\n' >> configure.2
+verbose Line 700...
 printf '                                                                VERSION))\n' >> configure.2
 printf '    for x in (\042README\042, \042LICENSE\042, \042INSTALL\042, \042NEWS\042, \042TODO\042, \042ChangeLog\042,\n' >> configure.2
 printf '                \042CREDITS\042, \042configure\042, \042FAQ\042):\n' >> configure.2
@@ -939,6 +1001,7 @@ printf '        {\042name\042: \042exec_prefix\042, \042value\042: \042\044(pref
 printf '        {\042name\042: \042bindir\042, \042value\042: \042\044(exec_prefix)/bin\042},\n' >> configure.2
 printf '        {\042name\042: \042datarootdir\042, \042value\042: \042\044(prefix)/share\042},\n' >> configure.2
 printf '        {\042name\042: \042datadir\042, \042value\042: \042\044(datarootdir)\042},\n' >> configure.2
+verbose Line 800...
 printf '        {\042name\042: \042docdir\042, \042value\042: \042\044(datarootdir)/doc/\044(PKGNAME)\042},\n' >> configure.2
 printf '        {\042name\042: \042infodir\042, \042value\042: \042\044(datarootdir)/info\042},\n' >> configure.2
 printf '        {\042name\042: \042htmldir\042, \042value\042: \042\044(docdir)\042},\n' >> configure.2
@@ -967,7 +1030,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #Filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall.\n' >> configure.2
 printf 'makefile = None         #Make it global.\n' >> configure.2
-printf 'VERSION = \0420.2.4\042\n' >> configure.2
+printf 'VERSION = \0420.2.5\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()              #Handle options.\n' >> configure.2
 printf '    moduledep()         #Check dependencies\n' >> configure.2
@@ -990,5 +1053,5 @@ printf '    makefile.close()\n' >> configure.2
 printf '    #Must end with empty line!\n' >> configure.2
 printf '    \n' >> configure.2
 chmod +x configure.2
-echo "Beginning stage 2..."
+verbose exec configure.2
 exec ./configure.2 $*

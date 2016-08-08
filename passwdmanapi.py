@@ -501,9 +501,18 @@ class passwd(common_data):
         """add_nometa(self, name, value)
         Add password with only name and value.
         Raises err_duplicate if the password (<name>) already exist."""
-        self.add(name, value, "human", "0", "0")
-                                  #The magic used if there is no meta element.
-        #MAYBE-TODO: Don't add a meta-tag.
+        for x in self.data: #check for duplicates
+            if x["name"] == name:
+                raise err_duplicate(
+                    "passwd.add_nometa(name='{}') #duplicate".format(value))
+        self.data.append({"name": name, "value": value,
+                      "meta": {"type": "human", "minlength": 0,
+                                               "maxlength": 0}})
+        passwd_element = XML.SubElement(self.xmlroot, "passwd")
+        passwd_element.tail = "\n  "
+        passwd_element.set("name", name) #Attributes.
+        passwd_element.set("value", value)
+        common_data.writexml(self, "~/.passwdman/passwords")
     def remove(self, x, is_numstring=False):
         #Wrapper around common_data.remove.
         """remove(self, x, is_numstring=False)
