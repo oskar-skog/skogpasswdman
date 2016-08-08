@@ -76,15 +76,19 @@ echo '        #Inside the bad place.' >> passwdmanapi.xml.fix
 echo '        while True:' >> passwdmanapi.xml.fix
 echo '            l = sys.stdin.readline()' >> passwdmanapi.xml.fix
 echo '            if "<command>" in l:' >> passwdmanapi.xml.fix
-echo '                sys.stdout.write("<synopsis>\\n#!/usr/bin/python<sbr/>\\n")' >> passwdmanapi.xml.fix
+printf '                sys.stdout.write("<synopsis>' >> passwdmanapi.xml.fix
+echo '\\n#!/usr/bin/python<sbr/>\\n")' >> passwdmanapi.xml.fix
 echo '                continue' >> passwdmanapi.xml.fix
-echo '            if "import" in l or "passwdmanapi" in l:' >> passwdmanapi.xml.fix
+printf '            ' >> passwdmanapi.xml.fix
+echo 'if "import" in l or "passwdmanapi" in l:' >> passwdmanapi.xml.fix
 echo '                continue' >> passwdmanapi.xml.fix
 echo '            if "<sbr/>" in l:' >> passwdmanapi.xml.fix
-echo '                sys.stdout.write("import passwdmanapi<sbr/>\\n")' >> passwdmanapi.xml.fix
+printf '                sys.stdout.write("import' >> passwdmanapi.xml.fix
+echo ' passwdmanapi<sbr/>\\n")' >> passwdmanapi.xml.fix
 echo '                continue' >> passwdmanapi.xml.fix
 echo '            if l == "</refsynopsisdiv>\\n":' >> passwdmanapi.xml.fix
-echo '                break           #Do not end synopsis here.' >> passwdmanapi.xml.fix
+printf '                ' >> passwdmanapi.xml.fix
+echo 'break           #Do not end synopsis here.' >> passwdmanapi.xml.fix
 echo '            try:' >> passwdmanapi.xml.fix
 echo '                chunks.append(l[37:-21])' >> passwdmanapi.xml.fix
 echo '            except:' >> passwdmanapi.xml.fix
@@ -94,7 +98,8 @@ echo '        for x in chunks:' >> passwdmanapi.xml.fix
 echo '            sys.stdout.write(x)' >> passwdmanapi.xml.fix
 echo '            try:' >> passwdmanapi.xml.fix
 echo '                if x[-1] == ")":' >> passwdmanapi.xml.fix
-echo '                    sys.stdout.write("<sbr/>\\n")' >> passwdmanapi.xml.fix
+printf '                    ' >> passwdmanapi.xml.fix
+echo 'sys.stdout.write("<sbr/>\\n")' >> passwdmanapi.xml.fix
 echo '                else:' >> passwdmanapi.xml.fix
 echo '                    sys.stdout.write(" ")' >> passwdmanapi.xml.fix
 echo '            except:' >> passwdmanapi.xml.fix
@@ -103,11 +108,13 @@ echo '        sys.stdout.write("</synopsis>")' >> passwdmanapi.xml.fix
 echo '        while True:' >> passwdmanapi.xml.fix
 echo '            l = sys.stdin.readline()' >> passwdmanapi.xml.fix
 echo '            if l == "</refsect1>\\n":' >> passwdmanapi.xml.fix
-echo '                sys.stdout.write("</refsynopsisdiv>\\n")' >> passwdmanapi.xml.fix
+printf '                ' >> passwdmanapi.xml.fix
+echo 'sys.stdout.write("</refsynopsisdiv>\\n")' >> passwdmanapi.xml.fix
 echo '                #End synopsis here.' >> passwdmanapi.xml.fix
 echo '                break' >> passwdmanapi.xml.fix
 echo '            if "<para>" in l or not "<" in l:' >> passwdmanapi.xml.fix
-echo '                sys.stdout.write(l[:-1] + "<sbr/>\\n")' >> passwdmanapi.xml.fix
+printf '                ' >> passwdmanapi.xml.fix
+echo 'sys.stdout.write(l[:-1] + "<sbr/>\\n")' >> passwdmanapi.xml.fix
 echo '            else:' >> passwdmanapi.xml.fix
 echo '                sys.stdout.write(l)' >> passwdmanapi.xml.fix
 echo '    else:' >> passwdmanapi.xml.fix
@@ -121,11 +128,16 @@ echo '    l = sys.stdin.readline()' >> passwdmanfiles.xml.fix
 echo '    if len(l) < 1:' >> passwdmanfiles.xml.fix
 echo '        quit()' >> passwdmanfiles.xml.fix
 echo '    if "<refname>" in l:' >> passwdmanfiles.xml.fix
-echo '        sys.stdout.write("<refname>~/.passwdman/passwords, ")' >> passwdmanfiles.xml.fix
-echo '        sys.stdout.write("~/.passwdman/honeypots, ")' >> passwdmanfiles.xml.fix
-echo '        sys.stdout.write("~/.passwdman/undoable/, ")' >> passwdmanfiles.xml.fix
-echo '        sys.stdout.write("~/.passwdman/redoable/, ")' >> passwdmanfiles.xml.fix
-echo '        sys.stdout.write("~/.passwdman/gui.conf</refname>\\n")' >> passwdmanfiles.xml.fix
+printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
+echo '"<refname>~/.passwdman/passwords, ")' >> passwdmanfiles.xml.fix
+printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
+echo '"~/.passwdman/honeypots, ")' >> passwdmanfiles.xml.fix
+printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
+echo '"~/.passwdman/undoable/, ")' >> passwdmanfiles.xml.fix
+printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
+echo '"~/.passwdman/redoable/, ")' >> passwdmanfiles.xml.fix
+printf '        sys.stdout.write(' >> passwdmanfiles.xml.fix
+echo '"~/.passwdman/gui.conf</refname>\\n")' >> passwdmanfiles.xml.fix
 echo '    else:' >> passwdmanfiles.xml.fix
 echo '        sys.stdout.write(l)' >> passwdmanfiles.xml.fix
 chmod +x passwdmanfiles.xml.fix
@@ -334,15 +346,19 @@ printf 'echo \047        #Inside the bad place.\047 >> passwdmanapi.xml.fix\n' >
 printf 'echo \047        while True:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            l = sys.stdin.readline()\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            if \042<command>\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                sys.stdout.write(\042<synopsis>\\\\\\\\n#!/usr/bin/python<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'printf \047                sys.stdout.write(\042<synopsis>\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'echo \047\\\\\\\\n#!/usr/bin/python<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                continue\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047            if \042import\042 in l or \042passwdmanapi\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'printf \047            \047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'echo \047if \042import\042 in l or \042passwdmanapi\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                continue\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            if \042<sbr/>\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                sys.stdout.write(\042import passwdmanapi<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'printf \047                sys.stdout.write(\042import\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'echo \047 passwdmanapi<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                continue\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            if l == \042</refsynopsisdiv>\\\\\\\\n\042:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                break           #Do not end synopsis here.\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'printf \047                \047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'echo \047break           #Do not end synopsis here.\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            try:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                chunks.append(l[37:-21])\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            except:\047 >> passwdmanapi.xml.fix\n' >> configure.2
@@ -352,7 +368,8 @@ printf 'echo \047        for x in chunks:\047 >> passwdmanapi.xml.fix\n' >> conf
 printf 'echo \047            sys.stdout.write(x)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            try:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                if x[-1] == \042)\042:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                    sys.stdout.write(\042<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'printf \047                    \047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'echo \047sys.stdout.write(\042<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                else:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                    sys.stdout.write(\042 \042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            except:\047 >> passwdmanapi.xml.fix\n' >> configure.2
@@ -361,11 +378,13 @@ printf 'echo \047        sys.stdout.write(\042</synopsis>\042)\047 >> passwdmana
 printf 'echo \047        while True:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            l = sys.stdin.readline()\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            if l == \042</refsect1>\\\\\\\\n\042:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                sys.stdout.write(\042</refsynopsisdiv>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'printf \047                \047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'echo \047sys.stdout.write(\042</refsynopsisdiv>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                #End synopsis here.\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                break\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            if \042<para>\042 in l or not \042<\042 in l:\047 >> passwdmanapi.xml.fix\n' >> configure.2
-printf 'echo \047                sys.stdout.write(l[:-1] + \042<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'printf \047                \047 >> passwdmanapi.xml.fix\n' >> configure.2
+printf 'echo \047sys.stdout.write(l[:-1] + \042<sbr/>\\\\\\\\n\042)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047            else:\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047                sys.stdout.write(l)\047 >> passwdmanapi.xml.fix\n' >> configure.2
 printf 'echo \047    else:\047 >> passwdmanapi.xml.fix\n' >> configure.2
@@ -379,11 +398,16 @@ printf 'echo \047    l = sys.stdin.readline()\047 >> passwdmanfiles.xml.fix\n' >
 printf 'echo \047    if len(l) < 1:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \047        quit()\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \047    if \042<refname>\042 in l:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(\042<refname>~/.passwdman/passwords, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(\042~/.passwdman/honeypots, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(\042~/.passwdman/undoable/, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(\042~/.passwdman/redoable/, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
-printf 'echo \047        sys.stdout.write(\042~/.passwdman/gui.conf</refname>\\\\\\\\n\042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'echo \047\042<refname>~/.passwdman/passwords, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'echo \047\042~/.passwdman/honeypots, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'echo \047\042~/.passwdman/undoable/, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'echo \047\042~/.passwdman/redoable/, \042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'printf \047        sys.stdout.write(\047 >> passwdmanfiles.xml.fix\n' >> configure.2
+printf 'echo \047\042~/.passwdman/gui.conf</refname>\\\\\\\\n\042)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \047    else:\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'echo \047        sys.stdout.write(l)\047 >> passwdmanfiles.xml.fix\n' >> configure.2
 printf 'chmod +x passwdmanfiles.xml.fix\n' >> configure.2
@@ -799,7 +823,8 @@ printf '    #It is for me\n' >> configure.2
 printf '    #I make things in the current directory\n' >> configure.2
 printf '    global makefile\n' >> configure.2
 printf '    f = open(\042xml.copyright\042, \042w\042)\n' >> configure.2
-printf '    f.write(\042\042\042<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>\n' >> configure.2
+printf '    f.write(\042\042\042\n' >> configure.2
+printf '<!-- Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>\n' >> configure.2
 printf 'All rights reserved. -->\n' >> configure.2
 printf '\n' >> configure.2
 printf '<!-- Redistribution and use in source and binary forms, with or without\n' >> configure.2
@@ -808,9 +833,9 @@ printf '\n' >> configure.2
 printf '<!-- 1.  Redistributions of source code must retain the above copyright notice,\n' >> configure.2
 printf 'this list of conditions and the following disclaimer. -->\n' >> configure.2
 printf '\n' >> configure.2
-printf '<!-- 2.  Redistributions in binary form must reproduce the above copyright notice,\n' >> configure.2
-printf 'this list of conditions and the following disclaimer in the documentation\n' >> configure.2
-printf 'and/or other materials provided with the distribution. -->\n' >> configure.2
+printf '<!-- 2.  Redistributions in binary form must reproduce the above copyright\n' >> configure.2
+printf 'notice, this list of conditions and the following disclaimer in the\n' >> configure.2
+printf 'documentation and/or other materials provided with the distribution. -->\n' >> configure.2
 printf '\n' >> configure.2
 printf '<!-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \042AS IS\042\n' >> configure.2
 printf 'AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n' >> configure.2
@@ -892,7 +917,7 @@ printf 'dirs_auto = []\n' >> configure.2
 printf 'installed_files = []    #filled in by maketarget_install and used by\n' >> configure.2
 printf '                        #maketarget_uninstall\n' >> configure.2
 printf 'makefile = None         #make it global\n' >> configure.2
-printf 'VERSION = \0420.1.14\042\n' >> configure.2
+printf 'VERSION = \0420.1.15\042\n' >> configure.2
 printf 'if __name__ == \042__main__\042:\n' >> configure.2
 printf '    main()\n' >> configure.2
 printf '    dirs()\n' >> configure.2
