@@ -1,4 +1,5 @@
 2013-Nov-16
+0.1.7   Backup button in GUI.
 0.1.6   Rewrote unquote().
         In CLI: "passwd:get:*" didn't use unquote(). FIXED.
 0.1.5   Improved passwdmanfiles.xml.

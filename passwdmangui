@@ -2,6 +2,7 @@
 from gi.repository import Gtk, Gdk
 import passwdmanapi as api
 import os.path
+import tarfile
 
 copywrong = """Copyright (c) 2013, Oskar Skog <oskar.skog.finland@gmail.com>
 All rights reserved.
@@ -671,10 +672,13 @@ you have selected. You should add fake-passwords such as "password" and
         button_redo.connect("clicked", self.redo)
         button_quit = Gtk.Button("Quit", Gtk.STOCK_QUIT)
         button_quit.connect("clicked", Gtk.main_quit)
+        button_backup = Gtk.Button("Make backup")
+        button_backup.connect("clicked", self.make_backup)
         
         box2 = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL)
         box2.pack_start(button_undo, False, False, 5)
         box2.pack_start(button_redo, False, False, 5)
+        box2.pack_start(button_backup, False, False, 10)
         box2.pack_end(button_quit, False, False, 5)
         
         box1 = Gtk.Box(orientation = Gtk.Orientation.VERTICAL)
@@ -712,7 +716,43 @@ you have selected. You should add fake-passwords such as "password" and
         except:
             #'self.passwd_tab' has attribute 'parent' which is 'self'
             err(self.passwd_tab, "CANNOT REDO!")
-
+    def make_backup(self, button):
+        #Create a tarball of the files.
+        dialog = Gtk.FileChooserDialog(
+                "passwdmangui - Choose name for tarball", self,
+                Gtk.FileChooserAction.SAVE, ("OK", Gtk.ResponseType.OK,
+                                        "Cancel", Gtk.ResponseType.CANCEL))
+        filter0 = Gtk.FileFilter()
+        filter0.set_name("Tarball (.tar.gz)")
+        filter0.add_pattern("*.tar.gz")
+        dialog.add_filter(filter0)
+        filter1 = Gtk.FileFilter()
+        filter1.set_name("Tarball (.tgz, .taz)")
+        filter1.add_mime_type("application/x-gtar-compressed")
+        dialog.add_filter(filter1)
+        filter2 = Gtk.FileFilter()
+        filter2.set_name("Any")
+        filter2.add_pattern("*")
+        dialog.add_filter(filter2)
+        dialog.set_current_name("backup.tar.gz")
+        
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            old_dir = os.getcwd()
+            os.chdir(os.path.expanduser("~"))
+            tarball_name = dialog.get_filename()
+            tarball = tarfile.open(tarball_name, "w:gz")
+            tarball.add(".passwdman")
+            tarball.close()
+            os.chdir(old_dir)
+            dialog2 = Gtk.MessageDialog(self, 0,
+                    Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+                    "Tarball saved.")
+            dialog2.format_secondary_text(
+                "Extract the tarball in your home-directory ('~').")
+            dialog2.run()
+            dialog2.destroy()
+        dialog.destroy()
 if __name__ == "__main__":
     restart = False
     w = main_window()
