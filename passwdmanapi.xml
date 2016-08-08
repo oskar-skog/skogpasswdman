@@ -354,13 +354,9 @@ The first is the percentage and the other is
 which defaults to
 <constant>None</constant>.</para>
 <programlisting remap='Bd'>
-<funcsynopsis>
-<funcprototype>
-<funcdef><function>custom_function</function></funcdef>
-<paramdef><parameter>percent</parameter></paramdef>
-<paramdef><parameter>data</parameter></paramdef>
-</funcprototype>
-</funcsynopsis>
+#
+custom_function(percent, data)
+#
 </programlisting> <!-- remap='Ed (block)' -->
 <para><varname>percent</varname>
 is a float in the range 0...100 and

@@ -1,4 +1,8 @@
 2014-01-12      Oskar Skog      <oskar.skog.finland@gmail.com>
+0.3.20
+    * passwdmanapi.3: Bugfix: custom_function(percent, data)
+    * passwdmanapi.py: progress_bar bugfixes: Lots of int -> float
+    * passwdmanrli: Use rli_progressbar() instead of busy().
 0.3.19
     * passwdmanapi.py: New class: progress_bar.
 0.3.18

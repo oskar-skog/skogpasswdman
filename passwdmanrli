@@ -78,10 +78,27 @@ def center_text(line, text):
         else:
             wrap_addch(line, x, ord(text[int(x - start_pos)]))
 
-def busy():
-    """busy() - ``set busy cursor``"""
+def rli_progressbar():
+    """rli_progressbar()
+    Erase screen and return a `api.progress_bar` object.
+    """
     tty.erase()
     center_text(2, "Wait...")
+    tty.refresh()
+    return api.progress_bar(1.0, 100.0, rli_progress)
+
+def rli_progress(percent, data):
+    """rli_progress(percent, data)
+    Used by the object returned by `rli_progressbar`.
+    """
+    center_text(3, "{0}%".format(int(math.floor(percent))))
+    length = float(xsize - 2)
+    wrap_addch(4, 0, ord("["))
+    wrap_addch(4, xsize - 1, ord("]"))
+    try:
+        tty.hline(4, 1, ord("*"), int(math.floor(percent/100.0 * length)))
+    except:
+        pass
     tty.refresh()
 
 def edit_num(y, num, min_num, max_num, step=1):
@@ -474,9 +491,10 @@ def passwd_tab(x):
             tty.refresh()
             tty.getch()
     if x == 2:
-        busy()
+        # Update.
+        pb = rli_progressbar()
         old = p[selection]["value"]
-        p.update(selection)
+        p.update(selection, pb)
         new = p[selection]["value"]
         after_update(old, new)
     if x == 3:
@@ -521,11 +539,11 @@ def passwd_tab(x):
             }])
         if result["button"] == "back":
             return
-        busy()
+        pb = rli_progressbar()
         old = p[selection]["value"]
         #BUG TODO stop user from having minlength > maxlength.
         p.update_meta(selection, result["button"],
-                                        result["min"], result["max"])
+                                        result["min"], result["max"], pb)
         new = p[selection]["value"]
         after_update(old, new)
     if x == 4:
@@ -590,10 +608,10 @@ def passwd_tab(x):
             }])
         if result == "back":
             return
-        busy()
+        pb = rli_progressbar()
         #BUG TODO stop user from having minlength > maxlength.
         p.add(result["name"], None, result["button"], result["minlen"],
-                                                        result["maxlen"])
+                                                        result["maxlen"], pb)
     if x == 6:
         # Remove.
         p.remove(selection)
@@ -676,8 +694,8 @@ def honeypot_tab(x):
             }])
         if result["button"] == "back":
             return
-        busy()
-        s = h.pick(result["num"], result["sep"])
+        pb = rli_progressbar()
+        s = h.pick(result["num"], result["sep"], pb=pb)
         show_copy_single(s)
     if x == 3:
         # Good pick many.
@@ -695,8 +713,8 @@ def honeypot_tab(x):
             }])
         if ui_result["button"] == "back":
             return
-        busy()
-        result = h.pickl(ui_result["num"])
+        pb = rli_progressbar()
+        result = h.pickl(ui_result["num"], pb=pb)
         for s in result:
             show_copy_single(s)
     if x == 4:

@@ -237,7 +237,8 @@ ERRORS
             logging.info("get64: Need more random bits.")
             number |= ord(rng.read(1)) << bits # Prepend the bits in number
                                                # with a random byte.
-            pb.progress(len(passwd)/length * 100)       # Progress bar.
+            # Progress bar.
+            pb.progress(float(len(passwd))/float(length) * 100.0)
             bits += 8
         passwd += letters[number % 64] # Use 6 bits to pick a letter and...
                                        # ...append.
@@ -275,7 +276,8 @@ def get10(length, pb=None):
         if (number%16) < 10:                    # I don't want 0...5 to be
                                                 # more popular than 6...9.
             passwd += chr(number%16 + 48) # digits ASCII
-            pb.progress(len(passwd)/length * 100)       # Progress bar.
+            # Progress bar.
+            pb.progress(float(len(passwd))/float(length) * 100.0)
             logging.info("get10: Added char {0}/{1}.".format(len(passwd),
                                                                   length))
         else:
@@ -310,7 +312,7 @@ def getint(a, b, pb=None):
                 number |= smallnum << bits              # Prepend.
             else:                       # Prepend a whole byte.
                 number |= ord(rng.read(1)) << bits
-            pb.progress(bits/reqbits * 100.0)   # Progress bar.
+            pb.progress(float(bits)/float(reqbits) * 100.0)   # Progress bar.
             bits += 8
     rng.close()
     return number + a
@@ -395,10 +397,10 @@ class progress_bar():
         self.data = data
         self.full = self.stop - self.start
     def progress(self, percent):
-        if percent < 0:
-            percent = 0
-        if percent > 100:
-            percent = 100
+        if percent < 0.0:
+            percent = 0.0
+        if percent > 100.0:
+            percent = 100.0
         real_percent = self.start  +  (percent/100.0 * self.full)
         self.function(real_percent*100.0, self.data)
     def minibar(self, start, stop):
@@ -755,7 +757,7 @@ class passwd(common_data):
                 element.set("value", new)
                 break
             counter += 1
-            pb.progress(90.0  +  (counter+1) / (index+1) * 5)
+            pb.progress(90.0  +  (counter+1.0) / (index+1.0) * 5.0)
         common_data.writexml(self, "~/.passwdman/passwords",
                                                     pb.minibar(95.0, 100.0))
     def update_meta(self, index, m_type, m_minlength, m_maxlength, pb=None):
@@ -794,7 +796,7 @@ class passwd(common_data):
                 meta.set("maxlength", str(m_maxlength))
                 break
             counter += 1
-            pb.progress(90.0  +  (counter+1) / (index+1) * 5)
+            pb.progress(90.0  +  (counter+1.0) / (index+1.0) * 5.0)
         common_data.writexml(self, "~/.passwdman/passwords",
                                                     pb.minibar(95.0, 100.0))
     def __repr__(self):
@@ -861,9 +863,10 @@ class honeypot(common_data):
         for x in self:                  # Create popable list.
             balloons.append(x)
         while len(outlist) < n:         # Pop random balloons.
-            s = len(outlist)
+            s = float(len(outlist))
+            N = float(n)
             outlist.append(balloons.pop(getint(0, len(balloons),
-                            pb.minibar(s/n* 100.0, (s+1)/n * 100.0))))
+                            pb.minibar(s/N* 100.0, (s+1.0)/N * 100.0))))
         for y in outlist:
             output += y
             output += sep
@@ -886,9 +889,10 @@ class honeypot(common_data):
         for x in self:                  # Create popable list.
             balloons.append(x)
         while len(outlist) < n:         # Pop random balloons.
-            s = len(outlist)
+            s = float(len(outlist))
+            N = float(n)
             outlist.append(balloons.pop(getint(0, len(balloons),
-                            pb.minibar(s/n* 100.0, (s+1)/n * 100.0))))
+                            pb.minibar(s/N * 100.0, (s+1.0)/N * 100.0))))
         return outlist
     def __repr__(self):
         return "<passwdmanapi.honeypot object with id {0}>".format(id(self))
